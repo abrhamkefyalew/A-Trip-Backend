@@ -23,6 +23,11 @@ class {{ class }} extends Controller
     public function store(Request $request, {{ parentModel }} ${{ parentModelVariable }})
     {
         //
+        // $var = DB::transaction(function () {
+            
+        // });
+
+        // return $var;
     }
 
     /**
@@ -39,6 +44,11 @@ class {{ class }} extends Controller
     public function update(Request $request, {{ parentModel }} ${{ parentModelVariable }}, {{ model }} ${{ modelVariable }})
     {
         //
+        // $var = DB::transaction(function () {
+            
+        // });
+
+        // return $var;
     }
 
     /**

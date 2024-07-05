@@ -1,12 +1,13 @@
 <?php
 
-namespace {{ namespace }};
+namespace App\Http\Controllers\Api\V1\Admin;
 
-use {{ namespacedModel }};
-use {{ rootNamespace }}Http\Controllers\Controller;
-use {{ namespacedRequests }}
+use App\Models\Role;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\AdminRequests\StoreRoleRequest;
+use App\Http\Requests\Api\V1\AdminRequests\UpdateRoleRequest;
 
-class {{ class }} extends Controller
+class RoleController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -19,7 +20,7 @@ class {{ class }} extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store({{ storeRequest }} $request)
+    public function store(StoreRoleRequest $request)
     {
         //
         // $var = DB::transaction(function () {
@@ -32,7 +33,7 @@ class {{ class }} extends Controller
     /**
      * Display the specified resource.
      */
-    public function show({{ model }} ${{ modelVariable }})
+    public function show(Role $role)
     {
         //
     }
@@ -40,7 +41,7 @@ class {{ class }} extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update({{ updateRequest }} $request, {{ model }} ${{ modelVariable }})
+    public function update(UpdateRoleRequest $request, Role $role)
     {
         //
         // $var = DB::transaction(function () {
@@ -53,7 +54,7 @@ class {{ class }} extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy({{ model }} ${{ modelVariable }})
+    public function destroy(Role $role)
     {
         //
     }
