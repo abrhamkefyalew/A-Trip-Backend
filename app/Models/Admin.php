@@ -87,4 +87,11 @@ class Admin extends Authenticatable implements HasMedia
             ->width(150)
             ->height(150);
     }
+
+
+
+    // do boot function to do the following
+        //     // if admin is deleted (soft deleted) , then, the corresponding data in the (Pivot table) AdminRole Should be deleted (soft deleted) also
+        //     // if admin is restored, then, the deleted (soft deleted) corresponding data in the (Pivot table) AdminRole Should be restored (restored from bring soft deleted) also
+
 }
