@@ -36,10 +36,38 @@ return [
     */
 
     'guards' => [
+        // this one is for the default laravel User // but check first 
         'web' => [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+
+        // I WILL DEFINE PROVIDERS BELOW FOR EACH GUARDS I DEFINE HERE
+
+        // this is because i did not replace the laravel default User Model by my own Admin Model. i added my new Admin Model. 
+        // so i need to add this admin guard
+        'admin' => [
+            'provider' => 'admins',
+        ],
+
+
+        // the following users guards will be usable when their Models are created
+        // // so are commented temporarily // abrham remember to uncomment later when their Models are created
+        // 'organization_user' => [
+        //     'provider' => 'organization_users',
+        // ],
+        // 'customer' => [
+        //     'provider' => 'customers',
+        // ],
+        // 'supplier' => [
+        //     'provider' => 'suppliers',
+        // ],
+        // 'driver' => [
+        //     'provider' => 'drivers',
+        // ],
+
+
     ],
 
     /*
@@ -69,6 +97,35 @@ return [
         //     'driver' => 'database',
         //     'table' => 'users',
         // ],
+
+        
+        // THESE ARE THE PROVIDERS FOR THE GUARDS DEFINED ABOVE
+
+        'admins' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Admin::class,
+        ],
+
+        // the following users providers will be usable when their Models are created
+        // // so are commented temporarily // abrham remember to uncomment later when their Models are created
+        // 'organization_users' => [
+        //     'driver' => 'eloquent',
+        //     'model' => App\Models\OrganizationUser::class,
+        // ],
+        // 'customers' => [
+        //     'driver' => 'eloquent',
+        //     'model' => App\Models\Customer::class,
+        // ],
+        // 'suppliers' => [
+        //     'driver' => 'eloquent',
+        //     'model' => App\Models\Supplier::class,
+        // ],
+        // 'drivers' => [
+        //     'driver' => 'eloquent',
+        //     'model' => App\Models\Driver::class,
+        // ],
+
+        
     ],
 
     /*
@@ -97,6 +154,44 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
+
+
+        // THE FOLLOWING SETTINGS ARE DEFINED FOR THE ABOVE PROVIDERS
+
+        'admins' => [
+            'provider' => 'admins',
+            'table' => 'password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+
+        // the following settings for the providers will be usable when their Models are created
+        // // so are commented temporarily // abrham remember to uncomment later when their Models are created
+        // 'organization_users' => [
+        //     'provider' => 'organization_users',
+        //     'table' => 'password_reset_tokens',
+        //     'expire' => 60,
+        //     'throttle' => 60,
+        // ],
+        // 'customers' => [
+        //     'provider' => 'customers',
+        //     'table' => 'password_reset_tokens',
+        //     'expire' => 60,
+        //     'throttle' => 60,
+        // ],
+        // 'suppliers' => [
+        //     'provider' => 'suppliers',
+        //     'table' => 'password_reset_tokens',
+        //     'expire' => 60,
+        //     'throttle' => 60,
+        // ],
+        // 'drivers' => [
+        //     'provider' => 'drivers',
+        //     'table' => 'password_reset_tokens',
+        //     'expire' => 60,
+        //     'throttle' => 60,
+        // ],
+
     ],
 
     /*
