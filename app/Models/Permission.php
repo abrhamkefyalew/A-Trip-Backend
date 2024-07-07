@@ -155,7 +155,9 @@ class Permission extends Model
 
     public const RESTORE_SUPPLIER = 'RESTORE_SUPPLIER';
 
+
     
+
 
     public const INDEX_VEHICLE_TYPE = 'INDEX_VEHICLE_TYPE';
 
@@ -170,6 +172,7 @@ class Permission extends Model
     public const RESTORE_VEHICLE_TYPE = 'RESTORE_VEHICLE_TYPE';
 
 
+
     public const INDEX_VEHICLE_NAME = 'INDEX_VEHICLE_NAME';
 
     public const SHOW_VEHICLE_NAME = 'SHOW_VEHICLE_NAME';
@@ -181,6 +184,7 @@ class Permission extends Model
     public const DELETE_VEHICLE_NAME = 'DELETE_VEHICLE_NAME';
 
     public const RESTORE_VEHICLE_NAME = 'RESTORE_VEHICLE_NAME';
+
 
 
     public const INDEX_VEHICLE = 'INDEX_VEHICLE';
@@ -198,6 +202,7 @@ class Permission extends Model
 
 
 
+    
     // the contract detail permission is included under contract permission
 
     public const INDEX_CONTRACT = 'INDEX_CONTRACT';

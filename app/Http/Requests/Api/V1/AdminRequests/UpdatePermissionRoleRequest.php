@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Api\V1\AdminRequests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StorePermissionRoleRequest extends FormRequest
+class UpdatePermissionRoleRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Models\PermissionRole;
-use App\Http\Requests\StorePermissionRoleRequest;
-use App\Http\Requests\UpdatePermissionRoleRequest;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\AdminRequests\StorePermissionRoleRequest;
+use App\Http\Requests\Api\V1\AdminRequests\UpdatePermissionRoleRequest;
 
 class PermissionRoleController extends Controller
 {

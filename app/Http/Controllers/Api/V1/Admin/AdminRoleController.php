@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Models\AdminRole;
-use App\Http\Requests\StoreAdminRoleRequest;
-use App\Http\Requests\UpdateAdminRoleRequest;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\AdminRequests\StoreAdminRoleRequest;
+use App\Http\Requests\Api\V1\AdminRequests\UpdateAdminRoleRequest;
 
 class AdminRoleController extends Controller
 {
