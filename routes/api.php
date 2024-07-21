@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\V1\Auth\AdminAuth\AdminAuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,4 +17,28 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
+});
+
+
+
+
+//
+Route::prefix('v1')->group(function () {
+
+    // open routes
+
+
+    
+    // admin routes
+    Route::prefix('admin')->group(function () {
+        Route::prefix('')->group(function () {
+            // there should NOT be admin registration, -  
+            // admin should be seeded or stored by an already existing admin -
+            // there is a route for admin storing
+            Route::post('/login', [AdminAuthController::class, 'login']);
+
+        });
+
+    });
+
 });
