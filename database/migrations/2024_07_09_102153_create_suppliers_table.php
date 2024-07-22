@@ -16,13 +16,14 @@ return new class extends Migration
 
             $table->string('first_name');
             $table->string('last_name');
-            $table->string('email')->unique();
+            $table->string('email')->unique()->nullable();
             $table->string('phone_number')->unique();
             $table->boolean('is_active')->default(1);
+            $table->boolean('is_approved')->default(0);
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password'); // do we need this // check first // check login type
+            // $table->string('password'); // do we need this // check first // check login type
 
-            // identification_card, passport will be contained in media table
+            // identification_card, passport, profile picture will be contained in media table
             
             $table->timestamps();
             $table->softDeletes();

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Models\Supplier;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\AdminRequests\StoreSupplierRequest;
 use App\Http\Requests\Api\V1\AdminRequests\UpdateSupplierRequest;
@@ -23,11 +24,21 @@ class SupplierController extends Controller
     public function store(StoreSupplierRequest $request)
     {
         //
-        // $var = DB::transaction(function () {
-            
-        // });
+        $var = DB::transaction(function () use ($request) {
 
-        // return $var;
+
+            $supplier = Supplier::create([
+                'first_name' => $request['first_name'],
+                'last_name' => $request['last_name'],
+                'email' => $request['email'],
+                'phone_number' => $request['phone_number'],
+                'is_active' => (int) (isset($request['is_active']) ? $request['is_active'] : 1), // this works
+                'is_approved' => (int) $request->input('is_approved', 0), // this works also
+            ]);
+            
+        });
+
+        return $var;
     }
 
     /**

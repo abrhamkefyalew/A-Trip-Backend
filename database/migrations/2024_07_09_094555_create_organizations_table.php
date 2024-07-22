@@ -15,11 +15,14 @@ return new class extends Migration
             $table->id()->from(10000);
 
             $table->string('name');
+            $table->string('organization_description')->nullable();
             $table->string('email')->unique();
             $table->string('phone_number')->unique();
-            $table->string('organization_description')->nullable();
             $table->boolean('is_active')->default(1);
+            $table->boolean('is_approved')->default(0);
             $table->timestamp('email_verified_at')->nullable();
+
+            // if needed , organization profile picture will be added to media table
             
             $table->timestamps();
             $table->softDeletes();

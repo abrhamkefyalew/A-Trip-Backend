@@ -9,4 +9,22 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class VehicleName extends Model
 {
     use HasFactory, SoftDeletes;
+
+    protected $table = 'vehicle_names';
+
+    protected $fillable = [
+        'vehicle_name',
+        'vehicle_description'
+    ];
+
+
+    public function vehicles()
+    {
+        return $this->hasMany(Vehicle::class);
+    }
+
+
+    // May be do the boot function here when VehicleName is deleted
+
+    
 }

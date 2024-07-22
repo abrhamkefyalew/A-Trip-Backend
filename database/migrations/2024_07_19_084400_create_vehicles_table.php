@@ -20,14 +20,14 @@ return new class extends Migration
             $table->foreignId('vehicle_name_id')->nullable()->constrained('vehicle_names');
             
             $table->foreignId('supplier_id')->nullable()->constrained('suppliers'); // should this be nullable or not // can a vehicle added without any supplier
-            $table->foreignId('driver_id')->nullable()->constrained('drivers'); // this is one to one   only
+            $table->foreignId('driver_id')->nullable()->constrained('drivers'); // this is ONE to ONE   only
             $table->string('vehicle_name');
-            $table->string('vehicle_discription')->nullable();
+            $table->string('vehicle_description')->nullable();
             $table->string('vehicle_model')->nullable(); // should this be nullabe
-            $table->string('plate_number')->unique()->nullable(); // should this be nullable or required // check
+            $table->string('plate_number')->unique()->nullable(); // should this be nullable or required // check abrham // ASK SAMSON
             $table->string('year')->nullable();
-            $table->string('is_active')->default(Vehicle::VEHICLE_AVAILABLE); // this column is enum // check if this works // and if using constants this way is the recommended way of doing it
-            $table->boolean('without_driver'); // can this vehicle be rented without driver
+            $table->string('is_available')->default(Vehicle::VEHICLE_AVAILABLE); // this column is enum // check if this works // and if using constants this way is the recommended way of doing it
+            $table->boolean('without_driver'); // these is to know if this vehicle be rented without driver
             // $table->boolean('is_notifiable')->default(1); // for the supplier // did we need this column
 
             // libre, third_person, power_of_attorney  columns will be in media table

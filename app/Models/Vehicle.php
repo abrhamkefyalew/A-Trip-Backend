@@ -2,16 +2,92 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Spatie\MediaLibrary\HasMedia;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\MediaLibrary\InteractsWithMedia;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class Vehicle extends Model
+class Vehicle extends Model implements HasMedia
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, InteractsWithMedia;
+
+    protected $table = 'vehicles';
+
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'vehicle_type_id',
+        'vehicle_name_id',
+        'supplier_id',
+        'driver_id',
+        'vehicle_name',
+        'vehicle_description',
+        'vehicle_model',
+        'plate_number',
+        'year',
+        'is_available',
+        'without_driver',
+    ];
 
 
 
+    // check if a vehicle can actually have an address and uncomment this // check abrham, ask samson
+    // public function address()
+    // {
+    //     return $this->morphOne(Address::class, 'addressable');
+    // }
+
+
+
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class);
+    }
+
+
+    public function driver()
+    {
+        return $this->hasOne(Driver::class);
+    }
+
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+
+    public function vehicleType()
+    {
+        return $this->belongsTo(VehicleType::class);
+    }
+
+    public function vehicleName()
+    {
+        return $this->belongsTo(VehicleName::class);
+    }
+    
+
+    public function registerMediaConversions(Media $media = null): void
+    {
+        $this->addMediaConversion('optimized')
+            ->width(1000)
+            ->height(1000);
+
+        $this->addMediaConversion('thumb')
+            ->width(150)
+            ->height(150);
+    }
+    
+
+
+    // constants
     public const VEHICLE_NOT_AVAILABLE = 'VEHICLE_NOT_AVAILABLE';
     public const VEHICLE_AVAILABLE = 'VEHICLE_AVAILABLE';
     public const VEHICLE_ON_TRIP = 'VEHICLE_ON_TRIP';

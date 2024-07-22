@@ -16,15 +16,16 @@ return new class extends Migration
 
             $table->string('first_name');
             $table->string('last_name');
-            $table->string('email')->unique();
+            $table->string('email')->unique()->nullable();
             $table->string('phone_number')->unique();
             $table->boolean('is_active')->default(1); // if the driver is active in the sys
+            // $table->boolean('is_approved')->default(0);
             $table->boolean('is_available')->default(1); // if the driver is on trip
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password'); // do we need this // check first // check login type
+            // $table->string('password'); // do we need this // check first // check login type
 
             // drivers license will be contained in media table
-            // IF NEEDED identification_card, passport will be contained in media table
+            // IF NEEDED identification_card, passport, Profile Picture will be contained in media table
             
             $table->timestamps();
             $table->softDeletes();

@@ -18,6 +18,8 @@ class Admin extends Authenticatable implements HasMedia
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes, InteractsWithMedia, HasRelationships;
 
+    protected $table = 'admins';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -51,7 +53,6 @@ class Admin extends Authenticatable implements HasMedia
         'email_verified_at' => 'datetime',
     ];
 
-    protected $table = 'admins';
 
     public function setPasswordAttribute($password)
     {
