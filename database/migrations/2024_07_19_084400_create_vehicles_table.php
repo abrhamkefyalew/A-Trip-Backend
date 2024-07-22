@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('vehicle_type_id')->nullable()->constrained('vehicle_types'); // should nullable precede constrained // check first // correct all three nullable foreign ids below 
             $table->foreignId('vehicle_name_id')->nullable()->constrained('vehicle_names');
             
-            $table->foreignId('supplier_id')->constrained('suppliers'); // should this be nullable or not // can a vehicle added without any supplier
+            $table->foreignId('supplier_id')->nullable()->constrained('suppliers'); // should this be nullable or not // can a vehicle added without any supplier
             $table->foreignId('driver_id')->nullable()->constrained('drivers'); // this is one to one   only
             $table->string('vehicle_name');
             $table->string('vehicle_discription')->nullable();
