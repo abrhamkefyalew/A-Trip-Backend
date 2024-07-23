@@ -42,6 +42,15 @@ class Organization extends Model implements HasMedia
         return $this->hasMany(OrganizationUser::class);
     }
 
+    public function contracts()
+    {
+        return $this->hasMany(Contract::class);
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
 
     public function registerMediaConversions(Media $media = null): void
     {

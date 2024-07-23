@@ -22,6 +22,18 @@ class Order extends Model implements HasMedia
     // protected $fillable = [];
     
 
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'start_date' => 'datetime',
+        'end_date' => 'datetime',
+        'original_end_date' => 'datetime',
+    ];
+
     
     public function organization()
     {
@@ -42,9 +54,10 @@ class Order extends Model implements HasMedia
     
 
 
-    // public function organizationInvoices()
+    // make organizationInvoice as Invoice and for individual customer = IndividualCustomerInvoice
+    // public function Invoices()
     // {
-    //     return $this->hasMany(OrganizationInvoice::class);
+    //     return $this->hasMany(Invoice::class);
     // }
 
 

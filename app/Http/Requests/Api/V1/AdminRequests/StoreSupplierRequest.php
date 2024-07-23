@@ -57,7 +57,18 @@ class StoreSupplierRequest extends FormRequest
             'city' => [
                 'sometimes', 'string',
             ],
-            'profile_image' => [
+
+            'supplier_id_image' => [
+                'sometimes',
+                'image',
+                'max:3072',
+            ],
+            'supplier_passport_image' => [
+                'sometimes',
+                'image',
+                'max:3072',
+            ],
+            'supplier_profile_image' => [
                 'sometimes',
                 'image',
                 'max:3072',

@@ -42,6 +42,7 @@ class Role extends Model
 
     
 
+    // should also do this in admin model // if admin is deleted
     public static function boot()
     {
         parent::boot();
