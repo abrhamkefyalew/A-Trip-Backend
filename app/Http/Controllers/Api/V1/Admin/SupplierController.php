@@ -64,17 +64,17 @@ class SupplierController extends Controller
             // also use the MediaService class to remove image
 
 
-            if ($request->has('supplier_id_image')) {
-                $file = $request->file('supplier_id_image');
+            if ($request->has('supplier_id_front_image')) {
+                $file = $request->file('supplier_id_front_image');
                 $clearMedia = false; // or true // // NO supplier image remove, since it is the first time the supplier is being stored
-                $collectionName = Supplier::SUPPLIER_ID_PICTURE;
+                $collectionName = Supplier::SUPPLIER_ID_FRONT_PICTURE;
                 MediaService::storeImage($supplier, $file, $clearMedia, $collectionName);
             }
 
-            if ($request->has('supplier_passport_image')) {
-                $file = $request->file('supplier_passport_image');
+            if ($request->has('supplier_id_back_image')) {
+                $file = $request->file('supplier_id_back_image');
                 $clearMedia = false; // or true // // NO supplier image remove, since it is the first time the supplier is being stored 
-                $collectionName = Supplier::SUPPLIER_PASSPORT_PICTURE;
+                $collectionName = Supplier::SUPPLIER_ID_BACK_PICTURE;
                 MediaService::storeImage($supplier, $file, $clearMedia, $collectionName);
             }
 

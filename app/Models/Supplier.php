@@ -112,9 +112,9 @@ class Supplier extends Authenticatable implements HasMedia
     }
 
     // constants
+    public const SUPPLIER_ID_FRONT_PICTURE = 'SUPPLIER_ID_FRONT_PICTURE';
+    public const SUPPLIER_ID_BACK_PICTURE = 'SUPPLIER_ID_BACK_PICTURE';
     public const SUPPLIER_PROFILE_PICTURE = 'SUPPLIER_PROFILE_PICTURE';
-    public const SUPPLIER_ID_PICTURE = 'SUPPLIER_ID_PICTURE';
-    public const SUPPLIER_PASSPORT_PICTURE = 'SUPPLIER_PASSPORT_PICTURE';
 
 
 

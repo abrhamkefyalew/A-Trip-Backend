@@ -117,9 +117,12 @@ class Driver extends Authenticatable implements HasMedia
     }
 
     // constants
+    
+    public const DRIVER_LICENSE_FRONT_PICTURE = 'DRIVER_LICENSE_FRONT_PICTURE';
+    public const DRIVER_LICENSE_BACK_PICTURE = 'DRIVER_LICENSE_BACK_PICTURE';
+    public const DRIVER_ID_FRONT_PICTURE = 'DRIVER_ID_FRONT_PICTURE';
+    public const DRIVER_ID_BACK_PICTURE = 'DRIVER_ID_BACK_PICTURE';
     public const DRIVER_PROFILE_PICTURE = 'DRIVER_PROFILE_PICTURE';
-    public const DRIVER_ID_PICTURE = 'DRIVER_ID_PICTURE';
-    public const DRIVER_PASSPORT_PICTURE = 'DRIVER_PASSPORT_PICTURE';
 
 
 

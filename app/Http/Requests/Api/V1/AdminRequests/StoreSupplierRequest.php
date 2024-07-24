@@ -58,12 +58,12 @@ class StoreSupplierRequest extends FormRequest
                 'sometimes', 'string',
             ],
 
-            'supplier_id_image' => [
+            'supplier_id_front_image' => [
                 'sometimes',
                 'image',
                 'max:3072',
             ],
-            'supplier_passport_image' => [
+            'supplier_id_back_image' => [
                 'sometimes',
                 'image',
                 'max:3072',
