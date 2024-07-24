@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\Admin\AdminController;
+use App\Http\Controllers\Api\V1\Admin\DriverController;
 use App\Http\Controllers\Api\V1\Admin\SupplierController;
 use App\Http\Controllers\Api\V1\Auth\AdminAuth\AdminAuthController;
 
@@ -72,8 +73,32 @@ Route::prefix('v1')->group(function () {
                 }); 
             });
 
+
+            Route::prefix('drivers')->group(function () {
+                Route::post('/', [DriverController::class, 'store']);
+                Route::get('/', [DriverController::class, 'index']);
+                Route::prefix('/{driver}')->group(function () {
+                    Route::get('/', [DriverController::class, 'show']);
+                    Route::put('/', [DriverController::class, 'update']);
+                    Route::delete('/', [DriverController::class, 'destroy']);
+                }); 
+            });
+
+
+
+
+
+
+
         });
 
     });
+
+
+
+
+
+
+
 
 });

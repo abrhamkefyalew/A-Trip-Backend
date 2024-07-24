@@ -94,7 +94,7 @@ class DriverController extends Controller
             }
 
 
-            return DriverResource::make($driver->load('vehicle', 'media', 'address'));
+            return DriverResource::make($driver->load('media', 'address', 'vehicle'));
 
 
         });
@@ -107,7 +107,8 @@ class DriverController extends Controller
      */
     public function show(Driver $driver)
     {
-        //
+        // $this->authorize('view', $driver);
+        return DriverResource::make($driver->load('media', 'address', 'vehicle'));
     }
 
     /**

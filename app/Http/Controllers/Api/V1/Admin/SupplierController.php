@@ -86,7 +86,7 @@ class SupplierController extends Controller
             }
 
             
-            return SupplierResource::make($supplier->load('vehicles', 'media', 'address'));
+            return SupplierResource::make($supplier->load('media', 'address', 'vehicles'));
 
         });
 
@@ -98,7 +98,8 @@ class SupplierController extends Controller
      */
     public function show(Supplier $supplier)
     {
-        //
+        // $this->authorize('view', $supplier);
+        return SupplierResource::make($supplier->load('media', 'address', 'vehicles'));
     }
 
     /**
