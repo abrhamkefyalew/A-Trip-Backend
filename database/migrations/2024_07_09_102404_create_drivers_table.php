@@ -18,14 +18,16 @@ return new class extends Migration
             $table->string('last_name');
             $table->string('email')->unique()->nullable();
             $table->string('phone_number')->unique();
-            $table->boolean('is_active')->default(1); // if the driver is active in the sys
-            // $table->boolean('is_approved')->default(0);
-            $table->boolean('is_available')->default(1); // if the driver is on trip
+
+            $table->boolean('is_active')->default(1); // if the driver is active in the sys // the DRIVER can TOGGLE this depending on his availability 
+            $table->boolean('is_approved')->default(0); // should the driver be approved before he can operate in the system     // should this column exist
+
             $table->timestamp('email_verified_at')->nullable();
             // $table->string('password'); // do we need this // check first // check login type
 
-            // drivers license will be contained in media table
-            // IF NEEDED identification_card, passport, Profile Picture will be contained in media table
+            // IF NEEDED drivers license, identification card, passport, Profile Picture will be contained in media table
+
+            // $table->boolean('is_available')->default(1); // NOT NEEDED, the above is_active column is enough to decide the driver availability // DELETE THIS COLUMN
             
             $table->timestamps();
             $table->softDeletes();

@@ -22,7 +22,6 @@ class Vehicle extends Model implements HasMedia
      * @var array<int, string>
      */
     protected $fillable = [
-        'vehicle_type_id',
         'vehicle_name_id',
         'supplier_id',
         'driver_id',
@@ -38,12 +37,17 @@ class Vehicle extends Model implements HasMedia
 
 
     // check if a vehicle can actually have an address and uncomment this // check abrham, ask samson
-    // public function address()
-    // {
-    //     return $this->morphOne(Address::class, 'addressable');
-    // }
+    public function address()
+    {
+        return $this->morphOne(Address::class, 'addressable');
+    }
 
 
+    public function vehicleName()
+    {
+        return $this->belongsTo(VehicleName::class);
+    }
+    
 
     public function supplier()
     {
@@ -63,16 +67,6 @@ class Vehicle extends Model implements HasMedia
     }
 
 
-    public function vehicleType()
-    {
-        return $this->belongsTo(VehicleType::class);
-    }
-
-    public function vehicleName()
-    {
-        return $this->belongsTo(VehicleName::class);
-    }
-    
 
     public function registerMediaConversions(Media $media = null): void
     {
@@ -88,7 +82,22 @@ class Vehicle extends Model implements HasMedia
 
 
     // constants
+
+    // vehicle availability statuses
+    
     public const VEHICLE_NOT_AVAILABLE = 'VEHICLE_NOT_AVAILABLE';
     public const VEHICLE_AVAILABLE = 'VEHICLE_AVAILABLE';
     public const VEHICLE_ON_TRIP = 'VEHICLE_ON_TRIP';
+
+
+    // vehicle medias
+
+    public const VEHICLE_LIBRE_PICTURE = 'VEHICLE_LIBRE_PICTURE';
+    public const VEHICLE_THIRD_PERSON_PICTURE = 'VEHICLE_THIRD_PERSON_PICTURE';
+    public const VEHICLE_POWER_OF_ATTORNEY_PICTURE = 'VEHICLE_POWER_OF_ATTORNEY_PICTURE';
+    public const VEHICLE_PROFILE_PICTURE = 'VEHICLE_PROFILE_PICTURE';
+
+
+
+
 }

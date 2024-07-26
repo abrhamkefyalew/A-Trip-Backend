@@ -15,22 +15,36 @@ return new class extends Migration
         Schema::create('vehicles', function (Blueprint $table) {
             $table->id()->from(10000);
 
-            // should the below two columns be mutually exclusive // check first // BUT a vehicle table can have both // so it can have both
-            $table->foreignId('vehicle_type_id')->nullable()->constrained('vehicle_types'); // should nullable precede constrained // check first // correct all three nullable foreign ids below 
-            $table->foreignId('vehicle_name_id')->nullable()->constrained('vehicle_names');
+            // SYNTAX - should nullable precede constrained // check first // correct all three nullable foreign ids below 
+
+            $table->foreignId('vehicle_name_id')->constrained('vehicle_names'); // should this be nullable
             
             $table->foreignId('supplier_id')->nullable()->constrained('suppliers'); // should this be nullable or not // can a vehicle added without any supplier
-            $table->foreignId('driver_id')->nullable()->constrained('drivers'); // this is ONE to ONE   only
-            $table->string('vehicle_name');
+            $table->foreignId('driver_id')->nullable()->constrained('drivers'); // this is ONE to ONE   only              // so we defined the below unique
+            $table->unique('driver_id');  // this unique column is defined because this is ONE to ONE   only relationship // one driver can only be paired with one vehicle
+
+
+            $table->string('vehicle_name')->nullable(); // should this column exist
             $table->string('vehicle_description')->nullable();
-            $table->string('vehicle_model')->nullable(); // should this be nullabe
+            $table->string('vehicle_model')->nullable(); // this column must exist
             $table->string('plate_number')->unique()->nullable(); // should this be nullable or required // check abrham // ASK SAMSON
             $table->string('year')->nullable();
             $table->string('is_available')->default(Vehicle::VEHICLE_AVAILABLE); // this column is enum // check if this works // and if using constants this way is the recommended way of doing it
-            $table->boolean('without_driver'); // these is to know if this vehicle be rented without driver
+
+            $table->boolean('without_driver')->default(0); // to know if this vehicle can be rented without driver 
+                                                                                                                    // the default is => 0 = means the supplier does NOT want to rent the car without his own driver
+                                                                                                                    //                        - the supplier only wants to rent the vehicle only with his owm driver
+                                                                                                                    //                => 1 = means the supplier also wants to rent the car without a driver 
+                                                                                                                    //                        - the supplier is willing to rent the vehicle BOTH without driver OR with driver
+                                                                                                                    //
+                                                                                                                    // 0 = NO,  1 = YES
+                                                                                                                          
+
             // $table->boolean('is_notifiable')->default(1); // for the supplier // did we need this column
 
             // libre, third_person, power_of_attorney  columns will be in media table
+
+            // address of the car is mandatory because it will let the customer know in what location the car is available // so it will be added in address table
 
             
             $table->timestamps();

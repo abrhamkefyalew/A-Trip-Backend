@@ -12,6 +12,8 @@ class StoreVehicleNameRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
+
+        // return $this->user()->can('create', VehicleName::class);
     }
 
     /**
@@ -23,6 +25,9 @@ class StoreVehicleNameRequest extends FormRequest
     {
         return [
             //
+            'vehicle_type_id' => 'required|integer|exists:vehicle_types,id',
+            'vehicle_name' => ['required', 'string'],
+            'vehicle_description' => ['sometimes', 'string'],
         ];
     }
 }

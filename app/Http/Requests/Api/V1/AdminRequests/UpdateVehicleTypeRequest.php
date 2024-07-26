@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api\V1\AdminRequests;
 
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateVehicleTypeRequest extends FormRequest
@@ -12,6 +13,8 @@ class UpdateVehicleTypeRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
+
+        // return $this->user()->can('update', $this->vehicleType);
     }
 
     /**
@@ -23,6 +26,12 @@ class UpdateVehicleTypeRequest extends FormRequest
     {
         return [
             //
+            'vehicle_type_name' => [
+                'sometimes', 
+                'string', 
+                Rule::unique('vehicle_types')->ignore($this->vehicleType->id),
+            ],
+            'vehicle_type_description' => ['sometimes', 'string'],
         ];
     }
 }

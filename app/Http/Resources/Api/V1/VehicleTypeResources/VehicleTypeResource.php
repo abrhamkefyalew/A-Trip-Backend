@@ -5,7 +5,7 @@ namespace App\Http\Resources\Api\V1\VehicleTypeResources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class VehicleTypeNameResource extends JsonResource
+class VehicleTypeResource extends JsonResource
 {
     /**
      * Transform the resource into an array.

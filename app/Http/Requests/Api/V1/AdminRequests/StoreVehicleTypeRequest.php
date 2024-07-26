@@ -12,6 +12,8 @@ class StoreVehicleTypeRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
+
+        // return $this->user()->can('create', VehicleType::class);
     }
 
     /**
@@ -23,6 +25,8 @@ class StoreVehicleTypeRequest extends FormRequest
     {
         return [
             //
+            'vehicle_type_name' => ['required', 'string', 'unique:vehicle_types,vehicle_type_name'],
+            'vehicle_type_description' => ['sometimes', 'string'],
         ];
     }
 }

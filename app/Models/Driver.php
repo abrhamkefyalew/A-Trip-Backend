@@ -31,7 +31,8 @@ class Driver extends Authenticatable implements HasMedia
         'email',
         'phone_number',
         'is_active',
-        'is_available',
+        'is_approved',
+        // 'is_available', // NOT NEEDED, the above is_active column is enough to decide the driver availability // DELETE THIS COLUMN
     ];
 
 

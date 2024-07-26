@@ -43,7 +43,8 @@ class SupplierController extends Controller
                 'email' => $request['email'],
                 'phone_number' => $request['phone_number'],
                 'is_active' => (int) (isset($request['is_active']) ? $request['is_active'] : 1), // this works
-                'is_approved' => (int) $request->input('is_approved', 0), // this works also
+                'is_approved' => (int) $request->input('is_approved', 0), // this works also    // // this column can ONLY be Set by the SUPER_ADMIN, // if Supplier is registering himself , he can NOT send the is_approved field
+                                                                                                   // so this //is_approved// code part will be removed when the Supplier makes the request
             ]);
 
 

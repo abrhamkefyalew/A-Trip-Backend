@@ -4,7 +4,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\Admin\AdminController;
 use App\Http\Controllers\Api\V1\Admin\DriverController;
+use App\Http\Controllers\Api\V1\Admin\VehicleController;
 use App\Http\Controllers\Api\V1\Admin\SupplierController;
+use App\Http\Controllers\Api\V1\Admin\VehicleNameController;
+use App\Http\Controllers\Api\V1\Admin\VehicleTypeController;
 use App\Http\Controllers\Api\V1\Auth\AdminAuth\AdminAuthController;
 
 /*
@@ -84,6 +87,38 @@ Route::prefix('v1')->group(function () {
                 }); 
             });
 
+
+            Route::prefix('vehicle_types')->group(function () {
+                Route::post('/', [VehicleTypeController::class, 'store']);
+                Route::get('/', [VehicleTypeController::class, 'index']);
+                Route::prefix('/{vehicleType}')->group(function () {
+                    Route::get('/', [VehicleTypeController::class, 'show']);
+                    Route::put('/', [VehicleTypeController::class, 'update']);
+                    Route::delete('/', [VehicleTypeController::class, 'destroy']);
+                }); 
+            });
+
+
+            Route::prefix('vehicle_names')->group(function () {
+                Route::post('/', [VehicleNameController::class, 'store']);
+                Route::get('/', [VehicleNameController::class, 'index']);
+                Route::prefix('/{vehicleName}')->group(function () {
+                    Route::get('/', [VehicleNameController::class, 'show']);
+                    Route::put('/', [VehicleNameController::class, 'update']);
+                    Route::delete('/', [VehicleNameController::class, 'destroy']);
+                }); 
+            });
+
+
+            Route::prefix('vehicles')->group(function () {
+                Route::post('/', [VehicleController::class, 'store']);
+                Route::get('/', [VehicleController::class, 'index']);
+                Route::prefix('/{vehicle}')->group(function () {
+                    Route::get('/', [VehicleController::class, 'show']);
+                    Route::put('/', [VehicleController::class, 'update']);
+                    Route::delete('/', [VehicleController::class, 'destroy']);
+                }); 
+            });
 
 
 

@@ -39,10 +39,11 @@ class DriverController extends Controller
             $driver = Driver::create([
                 'first_name' => $request['first_name'],
                 'last_name' => $request['last_name'],
-                'email' => $request['email'],
+                'email' => $request['email'], // what happens if the email does not get sent in the request // Error or Null will be inserted // check this
                 'phone_number' => $request['phone_number'],
                 'is_active' => (int) (isset($request['is_active']) ? $request['is_active'] : 1), // this works
-                'is_available' => (int) $request->input('is_available', 1), // this works also
+                'is_approved' => (int) $request->input('is_approved', 0), // this works also    // // this column can ONLY be Set by the SUPER_ADMIN,  // if Driver is registering himself , he can NOT send the is_approved field
+                                                                                                   // so this //is_approved// code part will be removed when the Driver makes the request
             ]);
 
 

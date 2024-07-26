@@ -2,13 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Staudenmeir\EloquentHasManyDeep\Eloquent\Relations\Traits\HasEagerLimit;
 
 class VehicleType extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, HasEagerLimit;
+    // HasEagerLimit is used for deep relations (like permission role)
 
     protected $table = 'vehicle_types';
 
@@ -18,9 +20,9 @@ class VehicleType extends Model
     ];
 
 
-    public function vehicles()
+    public function vehicleNames()
     {
-        return $this->hasMany(Vehicle::class);
+        return $this->hasMany(VehicleName::class);
     }
 
 
