@@ -67,6 +67,12 @@ class Vehicle extends Model implements HasMedia
     }
 
 
+    // if in any way wanted // a vehicle can have multiple contract details
+    public function contractDetails()
+    {
+        return $this->hasMany(ContractDetail::class);
+    }
+
 
     public function registerMediaConversions(Media $media = null): void
     {

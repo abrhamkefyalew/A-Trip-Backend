@@ -16,9 +16,17 @@ return new class extends Migration
             $table->id()->from(10000);
 
             $table->string('order_code'); // will be used if the a multiple vehicle order is made // so for them we use the same order code // it is not unique
+
             $table->foreignId('organization_id')->constrained('organizations');
+
+            $table->foreignId('vehicle_name_id')->constrained('vehicle_names'); // this should NOT be null
+
+            // should nullable come before constrained or after // check first please
+            $table->foreignId('vehicle_id')->nullable()->constrained('vehicles'); // this is NULL when the order is made initially
+            $table->foreignId('driver_id')->nullable()->constrained('drivers'); // this is NULL when the order is made initially
+
             $table->timestamp('start_date');    // if start_date is not mentioned OPTIONAL  // $table->timestamp('start_date')->useCurrent(); OPTIONAL // is the OPTIONAL code insert it as default value CHECK
-            $table->timestamp('end_date'); // if the order is terminated , the order end_date will be assigned the date the order is terminated, and the original end date will be assigned in the column = original_end_date
+            $table->timestamp('end_date'); // if the order is terminated , the order end_date will be assigned with the order termination date, and the original end date will be assigned in the column = original_end_date
             $table->string('status')->default(Order::ORDER_STATUS_PENDING); // this column is enum //
             
             $table->boolean('is_terminated')->default(0);

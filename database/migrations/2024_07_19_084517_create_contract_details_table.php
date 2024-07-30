@@ -16,17 +16,10 @@ return new class extends Migration
 
             $table->foreignId('contract_id')->constrained('contracts');
 
-            // the below two columns are mutually exclusive // if one is filled the other should be null
-            $table->foreignId('vehicle_type_id')->nullable()->constrained('vehicle_types'); // should nullable precede constrained // check first // correct all three nullable foreign ids below 
-            $table->foreignId('vehicle_name_id')->nullable()->constrained('vehicle_names');
+            $table->foreignId('vehicle_name_id')->constrained('vehicle_names'); // this should NOT be null
 
             $table->boolean('with_driver');
-            $table->boolean('with_fuel');
-            
-            $table->boolean('is_terminated')->default(0);
-            $table->timestamp('original_end_date'); 
-
-            // the PDF or JPG media for this contract will be in medias table
+            $table->boolean('with_fuel');            
             
             $table->timestamps();
             $table->softDeletes();

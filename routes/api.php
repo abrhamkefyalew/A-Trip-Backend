@@ -8,6 +8,8 @@ use App\Http\Controllers\Api\V1\Admin\VehicleController;
 use App\Http\Controllers\Api\V1\Admin\SupplierController;
 use App\Http\Controllers\Api\V1\Admin\VehicleNameController;
 use App\Http\Controllers\Api\V1\Admin\VehicleTypeController;
+use App\Http\Controllers\Api\V1\Admin\OrganizationController;
+use App\Http\Controllers\Api\V1\Admin\OrganizationUserController;
 use App\Http\Controllers\Api\V1\Auth\AdminAuth\AdminAuthController;
 
 /*
@@ -120,6 +122,27 @@ Route::prefix('v1')->group(function () {
                 }); 
             });
 
+
+            Route::prefix('organizations')->group(function () {
+                Route::post('/', [OrganizationController::class, 'store']);
+                Route::get('/', [OrganizationController::class, 'index']);
+                Route::prefix('/{organization}')->group(function () {
+                    Route::get('/', [OrganizationController::class, 'show']);
+                    Route::put('/', [OrganizationController::class, 'update']);
+                    Route::delete('/', [OrganizationController::class, 'destroy']);
+                }); 
+            });
+
+
+            Route::prefix('organization_users')->group(function () {
+                Route::post('/', [OrganizationUserController::class, 'store']);
+                Route::get('/', [OrganizationUserController::class, 'index']);
+                Route::prefix('/{organizationUser}')->group(function () {
+                    Route::get('/', [OrganizationUserController::class, 'show']);
+                    Route::put('/', [OrganizationUserController::class, 'update']);
+                    Route::delete('/', [OrganizationUserController::class, 'destroy']);
+                }); 
+            });
 
 
 

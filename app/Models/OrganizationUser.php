@@ -88,10 +88,10 @@ class OrganizationUser extends Authenticatable implements HasMedia
     //     return $this->first_name.' '.$this->last_name;
     // }
 
-    // public function address()
-    // {
-    //     return $this->morphOne(Address::class, 'addressable');
-    // }
+    public function address()
+    {
+        return $this->morphOne(Address::class, 'addressable');
+    }
 
     public function organization()
     {

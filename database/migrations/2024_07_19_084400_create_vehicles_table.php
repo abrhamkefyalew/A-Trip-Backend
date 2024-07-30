@@ -17,7 +17,7 @@ return new class extends Migration
 
             // SYNTAX - should nullable precede constrained // check first // correct all three nullable foreign ids below 
 
-            $table->foreignId('vehicle_name_id')->constrained('vehicle_names'); // should this be nullable
+            $table->foreignId('vehicle_name_id')->constrained('vehicle_names'); // should this be nullable // in my eyes it should NOT be null
             
             $table->foreignId('supplier_id')->nullable()->constrained('suppliers'); // should this be nullable or not // can a vehicle added without any supplier
             $table->foreignId('driver_id')->nullable()->constrained('drivers'); // this is ONE to ONE   only              // so we defined the below unique

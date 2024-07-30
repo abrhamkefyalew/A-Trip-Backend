@@ -19,7 +19,19 @@ class Order extends Model implements HasMedia
      *
      * @var array<int, string>
      */
-    // protected $fillable = [];
+    protected $fillable = [
+        'order_code',
+        'organization_id',
+        'vehicle_name_id',
+        'vehicle_id',
+        'driver_id',
+        'start_date',
+        'end_date',
+        'status',
+        'is_terminated',
+        'original_end_date',
+        'pr_status',
+    ];
     
 
 
