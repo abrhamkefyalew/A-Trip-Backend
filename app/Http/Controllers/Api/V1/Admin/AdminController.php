@@ -18,7 +18,7 @@ class AdminController extends Controller
     public function index(Request $request)
     {
         //
-        $this->authorize('viewAny', Admin::class);
+        // $this->authorize('viewAny', Admin::class);
 
         $admin = Admin::whereNotNull('id')->with('media', 'roles');
         
