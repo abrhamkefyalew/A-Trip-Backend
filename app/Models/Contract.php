@@ -54,5 +54,9 @@ class Contract extends Model implements HasMedia
         return $this->hasMany(ContractDetail::class);
     }
 
+    // CONSTANTS
+
+    // medias (PDF or PICTURE) // one of them
+    public const ORGANIZATION_CONTRACT_FILE = 'ORGANIZATION_CONTRACT_FILE';
 
 }

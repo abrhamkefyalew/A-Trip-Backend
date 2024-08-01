@@ -119,7 +119,7 @@ class OrganizationController extends Controller
 
 
 
-            return OrganizationResource::make($organization->load('media', 'address', 'contracts', 'orders', 'organizationUsers'));
+            return OrganizationResource::make($organization->load('media', 'address', 'contracts' /*, 'orders'*/ , 'organizationUsers'));
 
         });
 
@@ -132,7 +132,7 @@ class OrganizationController extends Controller
     public function show(Organization $organization)
     {
         // $this->authorize('view', $organization);
-        return OrganizationResource::make($organization->load('media', 'address', 'contracts', 'orders', 'organizationUsers'));
+        return OrganizationResource::make($organization->load('media', 'address', 'contracts' /*, 'orders'*/ , 'organizationUsers'));
     }
 
     /**

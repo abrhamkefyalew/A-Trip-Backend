@@ -26,6 +26,7 @@ class StoreOrganizationUserRequest extends FormRequest
     {
         return [
             //
+            'organization_id' => 'required|integer|exists:organizations,id',
             'first_name' => [
                 'required', 'string', 'regex:/^\S*$/u', 'alpha',
             ],

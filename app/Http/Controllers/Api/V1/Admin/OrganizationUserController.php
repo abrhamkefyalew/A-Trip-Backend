@@ -37,6 +37,7 @@ class OrganizationUserController extends Controller
         $var = DB::transaction(function () use ($request) {
             
             $organizationUser = OrganizationUser::create([
+                'organization_id' => $request['organization_id'],
                 'first_name' => $request['first_name'],
                 'last_name' => $request['last_name'],
                 'email' => $request['email'],
