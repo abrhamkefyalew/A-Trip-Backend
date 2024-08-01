@@ -26,7 +26,7 @@ class AdminAuthController extends Controller
             if (Hash::check($request->password, $admin->password)) {
 
                 $tokenResult = $admin->createToken('Personal Access Token', ['access-admin']);
-                $expiresAt = now()->addMinutes(20); // Set the expiration time to 20 minutes from now - -   -   -   -   now() = is helper function of laravel, - - - (it is NOT Carbon's)
+                $expiresAt = now()->addMinutes(240); // Set the expiration time to 240 minutes from now - -   -   -   -   now() = is helper function of laravel, - - - (it is NOT Carbon's)  // FOR PRODUCTION MAKE THE EXPIRE DATE TO 20 MINs
                 $token = $tokenResult->accessToken;
                 $token->expires_at = $expiresAt;
                 $token->save();
