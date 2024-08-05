@@ -18,8 +18,10 @@ return new class extends Migration
 
             $table->foreignId('vehicle_name_id')->constrained('vehicle_names'); // this should NOT be null
 
-            $table->boolean('with_driver');
-            $table->boolean('with_fuel');            
+            $table->boolean('with_driver')->default(0);
+            $table->boolean('with_fuel')->default(0);
+
+            $table->decimal('price', 10, 2);
             
             $table->timestamps();
             $table->softDeletes();

@@ -7,8 +7,8 @@ use Illuminate\Support\Str;
 class MediaService
 {
     // abrham comment 1
-    // you can set some default value for $image, for those who do not upload image, you can set the default value to CONSTANT, 
-    // the CONSTANT could be a path of an image in the public directory
+    // the //images// collection is the default collection name, if mediaCollection is NOT provided
+
 
     // abrham comment 2
     // if you can, 
@@ -43,10 +43,49 @@ class MediaService
     }
 
     // CLEAR IMAGES
-    public static function clearImage($object, $clearMedia = false, $mediaCollection)
+    
+    public static function clearImage($object, $mediaCollection, $clearMedia = false)
     {
         if ($clearMedia) {
             $object->clearMediaCollection($mediaCollection);
         }
     }
+
+
+
+
+
+
+
+    // Other FILEs and PDF files upload Code Section below
+    // this uploads any files but we are currently uploading PDFs only
+    
+    public static function storeFile($object, $file, $clearMedia = false, $mediaCollection = 'pdfs')
+    {
+        if ($clearMedia) {
+            $object->clearMediaCollection($mediaCollection);
+        }
+
+        $extension = $file->getClientOriginalExtension();
+        $fileName = Str::random(12) . '.' . $extension;
+
+        $object->addMedia($file)
+            ->usingFileName($fileName)
+            ->toMediaCollection($mediaCollection);
+
+        return $object;
+    }
+
+
+    // CLEAR FILES // PDFs  // NOT Tested
+    
+    public static function clearFile($object, $mediaCollection, $clearMedia = false)
+    {
+        if ($clearMedia) {
+            $object->clearMediaCollection($mediaCollection);
+        }
+    }
+
+
+
 }

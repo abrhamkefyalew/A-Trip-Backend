@@ -25,13 +25,19 @@ class ContractDetail extends Model
         'vehicle_name_id',
         'with_driver',
         'with_fuel',
+        'price',
     ];
 
 
 
-    public function contracts()
+    public function contract()
     {
         return $this->belongsTo(Contract::class);
+    }
+    
+    public function vehicleName()
+    {
+        return $this->belongsTo(VehicleName::class);
     }
 
 

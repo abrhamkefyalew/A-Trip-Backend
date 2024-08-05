@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class Contract extends Model implements HasMedia
 {
@@ -53,6 +54,12 @@ class Contract extends Model implements HasMedia
     {
         return $this->hasMany(ContractDetail::class);
     }
+
+
+    // public function registerMediaConversions(Media $media = null): void
+    // {
+
+    // }
 
     // CONSTANTS
 

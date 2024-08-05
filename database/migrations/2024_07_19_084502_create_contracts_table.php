@@ -20,7 +20,7 @@ return new class extends Migration
             $table->timestamp('end_date'); 
             $table->boolean('is_active')->default(1);
             
-            $table->timestamp('terminated_date'); 
+            $table->timestamp('terminated_date')->nullable(); 
 
             //// the PDF or JPG media for this contract will be in medias table
             

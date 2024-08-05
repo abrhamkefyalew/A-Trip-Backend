@@ -34,6 +34,13 @@ class VehicleName extends Model
     }
 
 
+    public function contractDetails()
+    {
+        return $this->hasMany(ContractDetail::class);
+    }
+
+    
+
     // May be do the boot function here when VehicleName is deleted
 
     

@@ -54,4 +54,21 @@ trait GetMedia
 
         return $images;
     }
+
+
+    
+    // get PDF files Code Part  // get PDF files Code Section
+    
+    public function getPDFPath($mediaCollectionName = 'pdfs')
+    {
+        $pdfUrl = null;
+
+        if ($pdf = $this->getMedia($mediaCollectionName)->sortByDesc('created_at')->first()) {
+            $pdfUrl = url($pdf->getUrl());
+        }
+
+        return $pdfUrl;
+    }
+
+
 }

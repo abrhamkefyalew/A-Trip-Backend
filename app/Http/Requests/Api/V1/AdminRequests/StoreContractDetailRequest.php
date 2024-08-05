@@ -12,6 +12,8 @@ class StoreContractDetailRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
+
+        // return $this->user()->can('create', ContractDetail::class);
     }
 
     /**
@@ -23,6 +25,17 @@ class StoreContractDetailRequest extends FormRequest
     {
         return [
             //
+            'contract_id' => 'required|integer|exists:contracts,id',
+            'vehicle_name_id' => 'required|integer|exists:vehicle_names,id',
+
+            'with_driver' => [
+                'required', 'boolean',
+            ],
+            'with_fuel' => [
+                'required', 'boolean',
+            ],
+            'price' => 'required|numeric|between:0,9999999.99',
+
         ];
     }
 }
