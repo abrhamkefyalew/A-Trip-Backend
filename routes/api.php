@@ -5,10 +5,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\Admin\AdminController;
 use App\Http\Controllers\Api\V1\Admin\DriverController;
 use App\Http\Controllers\Api\V1\Admin\VehicleController;
+use App\Http\Controllers\Api\V1\Admin\ContractController;
 use App\Http\Controllers\Api\V1\Admin\SupplierController;
 use App\Http\Controllers\Api\V1\Admin\VehicleNameController;
 use App\Http\Controllers\Api\V1\Admin\VehicleTypeController;
 use App\Http\Controllers\Api\V1\Admin\OrganizationController;
+use App\Http\Controllers\Api\V1\Admin\ContractDetailController;
 use App\Http\Controllers\Api\V1\Admin\OrganizationUserController;
 use App\Http\Controllers\Api\V1\Auth\AdminAuth\AdminAuthController;
 
@@ -141,6 +143,28 @@ Route::prefix('v1')->group(function () {
                     Route::get('/', [OrganizationUserController::class, 'show']);
                     Route::put('/', [OrganizationUserController::class, 'update']);
                     Route::delete('/', [OrganizationUserController::class, 'destroy']);
+                }); 
+            });
+
+
+            Route::prefix('organization_users')->group(function () {
+                Route::post('/', [ContractController::class, 'store']);
+                Route::get('/', [ContractController::class, 'index']);
+                Route::prefix('/{organizationUser}')->group(function () {
+                    Route::get('/', [ContractController::class, 'show']);
+                    Route::put('/', [ContractController::class, 'update']);
+                    Route::delete('/', [ContractController::class, 'destroy']);
+                }); 
+            });
+
+
+            Route::prefix('organization_users')->group(function () {
+                Route::post('/', [ContractDetailController::class, 'store']);
+                Route::get('/', [ContractDetailController::class, 'index']);
+                Route::prefix('/{organizationUser}')->group(function () {
+                    Route::get('/', [ContractDetailController::class, 'show']);
+                    Route::put('/', [ContractDetailController::class, 'update']);
+                    Route::delete('/', [ContractDetailController::class, 'destroy']);
                 }); 
             });
 
