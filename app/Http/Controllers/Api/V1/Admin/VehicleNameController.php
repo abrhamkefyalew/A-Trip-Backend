@@ -23,10 +23,14 @@ class VehicleNameController extends Controller
         // scope should be used here
         if (isset($request['paginate'])) {
             if ($request['paginate'] == "all"){
-                $vehicleName = VehicleName::get();
+                $vehicleName = VehicleName::with('vehicleType')->get();
             }
-        } else {
-            $vehicleName = VehicleName::paginate(FilteringService::getPaginate($request));
+            else {
+                $vehicleName = VehicleName::with('vehicleType')->paginate(FilteringService::getPaginate($request));
+            }
+        } 
+        else {
+            $vehicleName = VehicleName::with('vehicleType')->get();
         }
 
 

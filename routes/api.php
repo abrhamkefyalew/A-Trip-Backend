@@ -147,10 +147,10 @@ Route::prefix('v1')->group(function () {
             });
 
 
-            Route::prefix('organization_users')->group(function () {
+            Route::prefix('contracts')->group(function () {
                 Route::post('/', [ContractController::class, 'store']);
                 Route::get('/', [ContractController::class, 'index']);
-                Route::prefix('/{organizationUser}')->group(function () {
+                Route::prefix('/{contract}')->group(function () {
                     Route::get('/', [ContractController::class, 'show']);
                     Route::put('/', [ContractController::class, 'update']);
                     Route::delete('/', [ContractController::class, 'destroy']);
@@ -158,10 +158,10 @@ Route::prefix('v1')->group(function () {
             });
 
 
-            Route::prefix('organization_users')->group(function () {
+            Route::prefix('contract_details')->group(function () {
                 Route::post('/', [ContractDetailController::class, 'store']);
                 Route::get('/', [ContractDetailController::class, 'index']);
-                Route::prefix('/{organizationUser}')->group(function () {
+                Route::prefix('/{contractDetail}')->group(function () {
                     Route::get('/', [ContractDetailController::class, 'show']);
                     Route::put('/', [ContractDetailController::class, 'update']);
                     Route::delete('/', [ContractDetailController::class, 'destroy']);
