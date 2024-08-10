@@ -9,6 +9,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\Api\V1\DriverResources\DriverResource;
 use App\Http\Resources\Api\V1\AddressResources\AddressResource;
 use App\Http\Resources\Api\V1\SupplierResources\SupplierResource;
+use App\Http\Resources\Api\V1\VehicleNameResources\VehicleNameResource;
 
 class VehicleResource extends JsonResource
 {
@@ -43,7 +44,9 @@ class VehicleResource extends JsonResource
             
             'address' => AddressResource::make($this->whenLoaded('address')),
             'vehicle_supplier' => SupplierResource::make($this->whenLoaded('supplier')),
-            'vehicle_vehicleName' => SupplierResource::make($this->whenLoaded('vehicleName')),
+            'vehicle_vehicleName' => VehicleNameResource::make($this->whenLoaded('vehicleName', function () {
+                return $this->vehicleName->load('vehicleType');
+            })),
 
             // ONE to ONE
             'vehicle_driver' => DriverResource::make($this->whenLoaded('driver', function () {
