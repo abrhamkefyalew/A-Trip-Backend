@@ -57,7 +57,7 @@ class Vehicle extends Model implements HasMedia
 
     public function driver()
     {
-        return $this->hasOne(Driver::class);
+        return $this->belongsTo(Driver::class);
     }
 
 
