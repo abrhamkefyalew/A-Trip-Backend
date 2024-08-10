@@ -106,6 +106,7 @@ Route::prefix('v1')->group(function () {
             Route::prefix('vehicle_names')->group(function () {
                 Route::post('/', [VehicleNameController::class, 'store']);
                 Route::get('/', [VehicleNameController::class, 'index']);
+                Route::get('/search_by_vehicle_type', [VehicleNameController::class, 'searchByVehicleType']);
                 Route::prefix('/{vehicleName}')->group(function () {
                     Route::get('/', [VehicleNameController::class, 'show']);
                     Route::put('/', [VehicleNameController::class, 'update']);

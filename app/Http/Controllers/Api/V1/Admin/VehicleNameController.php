@@ -18,9 +18,9 @@ class VehicleNameController extends Controller
      */
     public function index(Request $request)
     {
-        // do auth here
+        // $this->authorize('viewAny', VehicleName::class);
 
-        // scope should be used here
+        // use Filtering service OR Scope to do this
         if (isset($request['paginate'])) {
             if ($request['paginate'] == "all"){
                 $vehicleName = VehicleName::with('vehicleType')->get();
@@ -37,6 +37,32 @@ class VehicleNameController extends Controller
         return VehicleNameResource::collection($vehicleName);
     }
 
+    public function searchByVehicleType(Request $request)
+    {
+        // $this->authorize('viewAny', VehicleName::class);
+
+        // use Filtering service OR Scope to do this
+        if ($request->has('vehicle_type_id_search')) {
+            if (isset($request['vehicle_type_id_search'])) {
+                $VehicleTypeId = $request['vehicle_type_id_search'];
+
+                $vehicleName = VehicleName::where('vehicle_type_id', $VehicleTypeId);
+            } 
+            else {
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+            }
+            
+        }
+        else {
+            $vehicleName = VehicleName::whereNotNull('id');
+        }
+        
+
+        $vehicleNameData = $vehicleName->paginate(FilteringService::getPaginate($request));
+
+        return VehicleNameResource::collection($vehicleNameData);
+    }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -47,7 +73,7 @@ class VehicleNameController extends Controller
             $vehicleName = VehicleName::create($request->validated());
 
             // for the admin if the admin wants we can return only the equipment    or the hospitals that have this equipment 
-            return VehicleNameResource::make($vehicleName);
+            return VehicleNameResource::make($vehicleName->load('vehicleType'));
         });
 
         return $var;

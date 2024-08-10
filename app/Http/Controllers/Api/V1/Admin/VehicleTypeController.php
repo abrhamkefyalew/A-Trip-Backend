@@ -25,8 +25,11 @@ class VehicleTypeController extends Controller
             if ($request['paginate'] == "all"){
                 $vehicleType = VehicleType::get();
             }
+            else {
+                $vehicleType = VehicleType::paginate(FilteringService::getPaginate($request));
+            }
         } else {
-            $vehicleType = VehicleType::paginate(FilteringService::getPaginate($request));
+            $vehicleType = VehicleType::get();
         }
 
 
@@ -54,7 +57,9 @@ class VehicleTypeController extends Controller
      */
     public function show(VehicleType $vehicleType)
     {
-        //
+        // $this->authorize('view', $vehicleType);
+        
+        return VehicleTypeResource::make($vehicleType->load('vehicleNames'));
     }
 
     /**
