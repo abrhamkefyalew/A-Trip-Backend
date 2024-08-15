@@ -24,6 +24,7 @@ return new class extends Migration
             // should nullable come before constrained or after // check first please
             $table->foreignId('vehicle_id')->nullable()->constrained('vehicles'); // this is NULL when the order is made initially
             $table->foreignId('driver_id')->nullable()->constrained('drivers'); // this is NULL when the order is made initially
+            $table->boolean('without_driver')->default(1); // 1 = the order does not require a driver   // 0 = the order requires a driver
 
             $table->timestamp('start_date');    // if start_date is not mentioned OPTIONAL  // $table->timestamp('start_date')->useCurrent(); OPTIONAL // is the OPTIONAL code insert it as default value CHECK
             $table->timestamp('end_date'); // if the order is terminated , the order end_date will be assigned with the order termination date, and the original end date will be assigned in the column = original_end_date
@@ -33,6 +34,12 @@ return new class extends Migration
             $table->timestamp('original_end_date')->nullable(); // this is originally NULL , IF the order is terminated (if is_terminated = 1) - then it will be assigned the order end_end date = (the original order end_date) 
 
             $table->string('pr_status')->nullable(); // this column is enum //
+
+
+            $table->double('latitude', 15, 10)->nullable(); // should they be double, int or string or DECIMAL // DECIMAL is well suited    // abrham CHECK
+            $table->double('longitude', 15, 10)->nullable(); // should they be double, int or string or DECIMAL // DECIMAL is well suited   // abrham CHECK
+
+            $table->string('order_description')->nullable();
 
 
             $table->timestamps();

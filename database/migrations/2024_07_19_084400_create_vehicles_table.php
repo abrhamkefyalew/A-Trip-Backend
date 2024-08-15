@@ -31,11 +31,11 @@ return new class extends Migration
             $table->string('year')->nullable();
             $table->string('is_available')->default(Vehicle::VEHICLE_AVAILABLE); // this column is enum // check if this works // and if using constants this way is the recommended way of doing it
 
-            $table->boolean('without_driver')->default(0); // to know if this vehicle can be rented without driver 
-                                                                                                                    // the default is => 0 = means the supplier does NOT want to rent the car without his own driver
-                                                                                                                    //                        - the supplier only wants to rent the vehicle only with his owm driver
-                                                                                                                    //                => 1 = means the supplier also wants to rent the car without a driver 
+            $table->boolean('without_driver')->default(1); // to know if this vehicle can be rented without driver 
+                                                                                                                    // the default is => 1 = means the supplier also wants to rent the car without a driver 
                                                                                                                     //                        - the supplier is willing to rent the vehicle BOTH without driver OR with driver
+                                                                                                                    //                => 0 = means the supplier does NOT want to rent the car without his own driver
+                                                                                                                    //                        - the supplier only wants to rent the vehicle only with his own driver
                                                                                                                     //
                                                                                                                     // 0 = NO,  1 = YES
                                                                                                                           
