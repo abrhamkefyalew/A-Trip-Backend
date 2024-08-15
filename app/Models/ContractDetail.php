@@ -23,7 +23,7 @@ class ContractDetail extends Model
     protected $fillable = [
         'contract_id',
         'vehicle_name_id',
-        'with_driver',
+        'with_driver', // do we need this // because we already have it in orders ? , or should we use it here and remove it in orders                                  // should we have this in here // because we already have it in orders also
         'with_fuel',
         'price',
     ];

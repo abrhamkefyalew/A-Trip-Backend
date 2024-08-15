@@ -31,15 +31,19 @@ return new class extends Migration
             $table->string('year')->nullable();
             $table->string('is_available')->default(Vehicle::VEHICLE_AVAILABLE); // this column is enum // check if this works // and if using constants this way is the recommended way of doing it
 
-            $table->boolean('without_driver')->default(1); // to know if this vehicle can be rented without driver 
-                                                                                                                    // the default is => 1 = means the supplier also wants to rent the car without a driver 
-                                                                                                                    //                        - the supplier is willing to rent the vehicle BOTH without driver OR with driver
-                                                                                                                    //                => 0 = means the supplier does NOT want to rent the car without his own driver
-                                                                                                                    //                        - the supplier only wants to rent the vehicle only with his own driver
+            $table->boolean('with_driver')->default(0); // to know if this vehicle can be rented without driver 
+                                                                                                                    // the default is => 0 = the supplier rents this car without a driver   -   this VEHICLE HAS NO DRIVER
+                                                                                                                    //                        - the supplier is willing to rent this vehicle with NO driver 
+                                                                                                                    //                => 1 = the supplier only wants to rent this car only with his own driver 
+                                                                                                                    //                        - means the supplier does NOT want to rent this vehicle without his own driver
                                                                                                                     //
-                                                                                                                    // 0 = NO,  1 = YES
+                                                                                                                    // 0 = NO  - (only vehicle is rented),             
+                                                                                                                    // 1 = YES - (vehicle rented with my driver only)
                                                                                                                           
-
+            
+            $table->foreignId('bank_id')->constrained('banks');
+            $table->string('bank_account');
+            
             // $table->boolean('is_notifiable')->default(1); // for the supplier // did we need this column
 
             // libre, third_person, power_of_attorney  columns will be in media table

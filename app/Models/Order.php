@@ -25,6 +25,7 @@ class Order extends Model implements HasMedia
         'vehicle_name_id',
         'vehicle_id',
         'driver_id',
+        'with_driver',  // do we need this // because we already have it in contract_details ? , or should we use it here and remove it in contract_details
         'start_date',
         'end_date',
         'status',

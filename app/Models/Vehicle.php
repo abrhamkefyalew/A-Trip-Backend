@@ -31,7 +31,9 @@ class Vehicle extends Model implements HasMedia
         'plate_number',
         'year',
         'is_available',
-        'without_driver',
+        'with_driver',
+        'bank_id',
+        'bank_account',
     ];
 
 

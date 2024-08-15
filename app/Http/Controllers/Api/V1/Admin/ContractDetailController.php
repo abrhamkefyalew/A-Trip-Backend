@@ -54,7 +54,7 @@ class ContractDetailController extends Controller
             $contractDetail = ContractDetail::create([
                 'contract_id' => $validatedData['contract_id'],
                 'vehicle_name_id' => $validatedData['vehicle_name_id'],
-                'with_driver' => (int) $validatedData->input('with_driver', 0),
+                'with_driver' => (int) $validatedData->input('with_driver', 0),         // // do we need this // because we already have it in orders ? , or should we use it here and remove it in orders
                 'with_fuel' => (int) $validatedData->input('with_fuel', 0),
                 'price' => $validatedData['price'],
             ]);
