@@ -24,10 +24,18 @@ return new class extends Migration
             // should nullable come before constrained or after // check first please
             $table->foreignId('vehicle_id')->nullable()->constrained('vehicles'); // this is NULL when the order is made initially
             $table->foreignId('driver_id')->nullable()->constrained('drivers'); // this is NULL when the order is made initially
-            $table->boolean('with_driver')->default(0); // 0 = the order does NOT require a driver   // 1 = the order requires a driver     // do we need this // because we already have it in contract_details ? , or should we use it here and remove it in contract_details
 
             $table->timestamp('start_date');    // if start_date is not mentioned OPTIONAL  // $table->timestamp('start_date')->useCurrent(); OPTIONAL // is the OPTIONAL code insert it as default value CHECK
             $table->timestamp('end_date'); // if the order is terminated , the order end_date will be assigned with the order termination date, and the original end date will be assigned in the column = original_end_date
+            // the start_date and end_date must be less than the Contract end_date
+            // the start_date and end_date must be greater than the Contract start_date
+
+            $table->string('start_location')->nullable(); // should this be nullable
+            $table->string('end_location')->nullable(); // should this be nullable
+
+            $table->double('start_lat_long', 15, 10)->nullable(); 
+            $table->double('end_lat_long', 15, 10)->nullable(); 
+            
             $table->string('status')->default(Order::ORDER_STATUS_PENDING); // this column is enum //
             
             $table->boolean('is_terminated')->default(0);
@@ -36,8 +44,8 @@ return new class extends Migration
             $table->string('pr_status')->nullable(); // this column is enum //
 
 
-            $table->double('latitude', 15, 10)->nullable(); // should they be double, int or string or DECIMAL // DECIMAL is well suited    // abrham CHECK
-            $table->double('longitude', 15, 10)->nullable(); // should they be double, int or string or DECIMAL // DECIMAL is well suited   // abrham CHECK
+            // $table->double('latitude', 15, 10)->nullable(); // should they be double, int or string or DECIMAL // DECIMAL is well suited    // abrham CHECK
+            // $table->double('longitude', 15, 10)->nullable(); // should they be double, int or string or DECIMAL // DECIMAL is well suited   // abrham CHECK
 
             $table->string('order_description')->nullable();
 

@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\V1\Admin\OrganizationController;
 use App\Http\Controllers\Api\V1\Admin\ContractDetailController;
 use App\Http\Controllers\Api\V1\Admin\OrganizationUserController;
 use App\Http\Controllers\Api\V1\Auth\AdminAuth\AdminAuthController;
+use App\Http\Controllers\Api\V1\Auth\OrganizationUserAuth\OrganizationUserAuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -175,6 +176,20 @@ Route::prefix('v1')->group(function () {
 
         });
 
+    });
+
+
+
+
+    // organization users route (for organizations)
+    Route::prefix('organization_user')->group(function () {
+        Route::prefix('')->group(function () {
+            // there should NOT be hospitalWorker registration, -  
+            // hospitalWorker should be stored by an already existing hospitalWorker admin or super admin of the system -
+            // there should be a route for hospitalWorker storing by both hospitalWorker admin and super admin
+            Route::post('/login', [OrganizationUserAuthController::class, 'login']);
+
+        });
     });
 
 

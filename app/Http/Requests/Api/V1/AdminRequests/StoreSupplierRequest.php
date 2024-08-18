@@ -65,17 +65,20 @@ class StoreSupplierRequest extends FormRequest
             ],
 
             'supplier_id_front_image' => [
-                'sometimes',
+                'sometimes',       // this should be required abrham check
+                'nullable',     // this should be required abrham check
                 'image',
                 'max:3072',
             ],
             'supplier_id_back_image' => [
-                'sometimes',
+                'sometimes',    // this should be required abrham check
+                'nullable',     // this should be required abrham check
                 'image',
                 'max:3072',
             ],
             'supplier_profile_image' => [
-                'sometimes',
+                'sometimes',       // this should be required abrham check
+                'nullable',     // this should be required abrham check
                 'image',
                 'max:3072',
             ],
