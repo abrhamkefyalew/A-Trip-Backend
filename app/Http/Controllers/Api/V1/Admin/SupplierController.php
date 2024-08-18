@@ -79,12 +79,12 @@ class SupplierController extends Controller
                 MediaService::storeImage($supplier, $file, $clearMedia, $collectionName);
             }
 
-            if ($request->has('supplier_profile_image')) {
-                $file = $request->file('supplier_profile_image');
-                $clearMedia = false; // or true // // NO supplier image remove, since it is the first time the supplier is being stored
-                $collectionName = Supplier::SUPPLIER_PROFILE_PICTURE;
-                MediaService::storeImage($supplier, $file, $clearMedia, $collectionName);
-            }
+            // if ($request->has('supplier_profile_image')) {
+            //     $file = $request->file('supplier_profile_image');
+            //     $clearMedia = false; // or true // // NO supplier image remove, since it is the first time the supplier is being stored
+            //     $collectionName = Supplier::SUPPLIER_PROFILE_PICTURE;
+            //     MediaService::storeImage($supplier, $file, $clearMedia, $collectionName);
+            // }
 
             
             return SupplierResource::make($supplier->load('media', 'address', 'vehicles'));

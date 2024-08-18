@@ -76,12 +76,12 @@ class StoreSupplierRequest extends FormRequest
                 'image',
                 'max:3072',
             ],
-            'supplier_profile_image' => [
-                'sometimes',       // this should be required abrham check
-                'nullable',     // this should be required abrham check
-                'image',
-                // 'max:3072',
-            ],
+            // 'supplier_profile_image' => [
+            //     'sometimes',       // this should be required abrham check
+            //     'nullable',     // this should be required abrham check
+            //     'image',
+            //     'max:3072',
+            // ],
 
             // since it is Storing supplier for the first time there is no need to remove any image, so we do NOT need remove_image
             // // also when doing remove image try to do it for specific collection
