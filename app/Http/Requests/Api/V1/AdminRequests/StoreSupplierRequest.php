@@ -34,7 +34,7 @@ class StoreSupplierRequest extends FormRequest
                 'required', 'string', 'regex:/^\S*$/u', 'alpha',
             ],
             'email' => [
-                'sometimes', 'email', Rule::unique('suppliers'),
+                'sometimes', 'nullable', 'email', Rule::unique('suppliers'),
             ],
             'phone_number' => [
                 'required', 'numeric',  Rule::unique('suppliers'),
