@@ -1,5 +1,7 @@
 <?php
 
+// this was created by me, and it is never worked and never used
+
 // namespace App\Http\Middleware;
 
 // use Closure;
