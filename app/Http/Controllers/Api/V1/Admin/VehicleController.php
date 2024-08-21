@@ -54,8 +54,8 @@ class VehicleController extends Controller
                 'with_driver' => (int) $request->input('with_driver', 0), // if the supplier_id does NOT send this field (the "with_driver" field) we will insert = 0 by default 
                                                                                     // - it means this vehicle do NOT have driver, i rent only the vehicle and NO driver will be included
 
-                'bank_id' => $request['bank_id'],
-                'bank_account' => $request['bank_account'],
+                // 'bank_id' => $request['bank_id'],
+                // 'bank_account' => $request['bank_account'],
                 
                                                                                                    
             ]);
