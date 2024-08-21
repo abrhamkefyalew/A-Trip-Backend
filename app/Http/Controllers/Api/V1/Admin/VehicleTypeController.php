@@ -19,6 +19,7 @@ class VehicleTypeController extends Controller
     public function index(Request $request)
     {
         // do auth here
+        // $this->authorize('viewAny', VehicleType::class);
 
         // scope should be used here
         if (isset($request['paginate'])) {
@@ -45,7 +46,6 @@ class VehicleTypeController extends Controller
         $var = DB::transaction(function () use($request) {
             $vehicleType = VehicleType::create($request->validated());
 
-            // for the admin if the admin wants we can return only the equipment    or the hospitals that have this equipment 
             return VehicleTypeResource::make($vehicleType);
         });
 

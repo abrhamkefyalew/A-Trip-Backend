@@ -59,12 +59,13 @@ class ContractController extends Controller
             while (Contract::where('contract_code', $uniqueCode)->exists()) {
                 $uniqueCode = Str::random(8); // Regenerate the code if it already exists
             }
-            // but in ANOTHER CLASS and Method, where we want to store a modified contract , 
+            // HERE, SINCE we are ADDING a NEW CONTRACT
+                // any new contract should always have a unique contract code, // ensuring that a contract_code can only be duplicated if the contract is modified, by adding a new raw
+            // BUT in ANOTHER CLASS and Method, where we want to store a modified contract , 
                 // by adding duplicated contract_code to signal that the contract is modified from its predecessor with similar contract code
                 // we can add duplicated contract code. // because the columns have no unique attribute
                 // since the column is not unique by nature, we can freely add a duplicated contract code 
-            // BUT HERE, SINCE we are ADDING a NEW CONTRACT
-                // any new contract should always have a unique contract code, // ensuring that a contract_code can only be duplicated if the contract is modified, by adding a new raw
+            
 
 
 

@@ -59,6 +59,13 @@ class StoreVehicleRequest extends FormRequest
                 'required', 'boolean',
             ],
 
+            // the following vehicle bank information are nullable and sometimes BECAUSE of the following reason
+                     // REASON 1- since ADIAMAT might have their own vehicles (that means adiamat will not pay adiamat themselves for their own vehicles), this should be nullable
+            'bank_id' =>  'sometimes|nullable|integer|exists:banks,id',
+            'bank_account' => [
+                'sometimes', 'nullable', 'string',
+            ],
+
 
             // the car location is used to know if the vehicle is available or found in what location
             // should i also add latitude and longitude

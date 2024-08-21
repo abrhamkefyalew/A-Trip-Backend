@@ -179,6 +179,16 @@ class FilteringService
         if (isset($request['paginate']) && is_int((int) $request['paginate'])) {
             return (int) $request['paginate'];
         }
+        //in the above if - The is_int function checks if a variable is of type integer, but when casting a string to an integer in PHP, if the string contains non-numeric characters, PHP will convert it to 0.
+
+
+        
+
+        // abrham check this code
+        // if (!is_numeric($request->input('paginate'))) {
+        //     // the code here is to check if the paginate variable is not numeric , i.e if alphabet is sent like paginate = "oeir".    it should return an corrective ERROR // , 
+        //     return response()->json(['message' => 'The paginate variable should be an integer.'], 422);
+        // }
 
         return 10;
     }

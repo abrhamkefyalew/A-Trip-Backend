@@ -42,8 +42,8 @@ return new class extends Migration
                                                                                                                     // 1 = YES - (vehicle rented with my driver only)
                                                                                                                           
             
-            $table->foreignId('bank_id')->nullable()->constrained('banks'); // should not be nullable, abrham check with samson
-            $table->string('bank_account')->nullable(); // // should not be nullable, abrham check with samson
+            $table->foreignId('bank_id')->nullable()->constrained('banks'); // since ADIAMAT might have their own vehicles (that means adiamat will not pay adiamat themselves for their own vehicles), this should be nullable
+            $table->string('bank_account')->nullable(); // since ADIAMAT might have their own vehicles (that means adiamat will not pay adiamat themselves for their own vehicles), this should be nullable
             
             // $table->boolean('is_notifiable')->default(1); // for the supplier // did we need this column
 

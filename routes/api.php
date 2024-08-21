@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\V1\Admin\BankController;
 use App\Http\Controllers\Api\V1\Admin\AdminController;
 use App\Http\Controllers\Api\V1\Admin\DriverController;
 use App\Http\Controllers\Api\V1\Admin\VehicleController;
@@ -91,6 +92,18 @@ Route::prefix('v1')->group(function () {
                     Route::delete('/', [DriverController::class, 'destroy']);
                 }); 
             });
+
+
+            Route::prefix('banks')->group(function () {
+                Route::post('/', [BankController::class, 'store']);
+                Route::get('/', [BankController::class, 'index']);
+                Route::prefix('/{bank}')->group(function () {
+                    Route::get('/', [BankController::class, 'show']);
+                    Route::put('/', [BankController::class, 'update']);
+                    Route::delete('/', [BankController::class, 'destroy']);
+                }); 
+            });
+
 
 
             Route::prefix('vehicle_types')->group(function () {
