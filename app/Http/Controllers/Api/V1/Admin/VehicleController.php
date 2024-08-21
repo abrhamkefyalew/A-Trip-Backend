@@ -23,7 +23,7 @@ class VehicleController extends Controller
 
         $vehicles = Vehicle::whereNotNull('id');
 
-        $vehicleData = $vehicles->with('media', 'vehicleName', 'address')->latest()->paginate(FilteringService::getPaginate($request));
+        $vehicleData = $vehicles->with('media', 'vehicleName', 'address', 'supplier', 'driver')->latest()->paginate(FilteringService::getPaginate($request));
 
         return VehicleResource::collection($vehicleData);
     }
