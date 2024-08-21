@@ -33,9 +33,12 @@ class VehicleResource extends JsonResource
             'plate_number' => $this->plate_number,
             'year' => $this->year,
             'is_available' => $this->is_available,
-            'without_driver' => $this->without_driver,
+            'with_driver' => $this->with_driver,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+
+            'bank_id' => $this->bank_id,
+            'bank_account' => $this->bank_account,
 
             'vehicle_libre_image_path' => $this->getOptimizedImagePath(Vehicle::VEHICLE_LIBRE_PICTURE),
             'vehicle_third_person_image_path' => $this->getOptimizedImagePath(Vehicle::VEHICLE_THIRD_PERSON_PICTURE),

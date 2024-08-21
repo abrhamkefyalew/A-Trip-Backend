@@ -22,7 +22,9 @@ class ContractDetailResource extends JsonResource
             'vehicle_name_id' => $this->vehicle_name_id,
             'with_driver' => $this->with_driver,
             'with_fuel' => $this->with_fuel,
-            'price' => $this->price,
+            'periodic' => $this->periodic,
+            'price_contract' => $this->price_contract,
+            'price_vehicle_payment' => $this->price_vehicle_payment,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
 
