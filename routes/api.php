@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\V1\Admin\DriverController;
 use App\Http\Controllers\Api\V1\Admin\VehicleController;
 use App\Http\Controllers\Api\V1\Admin\ContractController;
 use App\Http\Controllers\Api\V1\Admin\SupplierController;
+use App\Http\Controllers\Api\V1\Admin\DashBoardController;
 use App\Http\Controllers\Api\V1\Admin\VehicleNameController;
 use App\Http\Controllers\Api\V1\Admin\VehicleTypeController;
 use App\Http\Controllers\Api\V1\Admin\OrganizationController;
@@ -181,6 +182,11 @@ Route::prefix('v1')->group(function () {
                     Route::put('/', [ContractDetailController::class, 'update']);
                     Route::delete('/', [ContractDetailController::class, 'destroy']);
                 }); 
+            });
+
+
+            Route::prefix('dash_board')->group(function () {
+                Route::get('/dash_board_count_one', [DashBoardController::class, 'DashBoardCountOne']);
             });
 
 
