@@ -34,7 +34,11 @@ class StoreContractDetailRequest extends FormRequest
             'with_fuel' => [
                 'required', 'boolean',
             ],
-            'price' => 'required|numeric|between:0,9999999.99',
+            'periodic' => [
+                'sometimes', 'nullable', 'boolean',
+            ],
+            'price_contract' => 'required|numeric|between:0,9999999.99',
+            'price_vehicle_payment' => 'required|numeric|between:0,9999999.99',
 
         ];
     }

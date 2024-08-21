@@ -56,7 +56,9 @@ class ContractDetailController extends Controller
                 'vehicle_name_id' => $validatedData['vehicle_name_id'],
                 'with_driver' => (int) $validatedData->input('with_driver', 0),
                 'with_fuel' => (int) $validatedData->input('with_fuel', 0),
-                'price' => $validatedData['price'],
+                'periodic' => (int) $validatedData->input('periodic', 0),
+                'price_contract' => $validatedData['price_contract'],
+                'price_vehicle_payment' => $validatedData['price_vehicle_payment'],
             ]);
 
 

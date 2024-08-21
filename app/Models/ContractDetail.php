@@ -25,7 +25,9 @@ class ContractDetail extends Model
         'vehicle_name_id',
         'with_driver',
         'with_fuel',
-        'price',
+        'periodic',
+        'price_contract',
+        'price_vehicle_payment',
     ];
 
 

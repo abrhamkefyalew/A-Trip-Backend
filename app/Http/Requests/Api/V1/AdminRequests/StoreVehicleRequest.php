@@ -55,7 +55,7 @@ class StoreVehicleRequest extends FormRequest
             'is_available' => [
                 'required', 'string', Rule::in([Vehicle::VEHICLE_NOT_AVAILABLE, Vehicle::VEHICLE_AVAILABLE, Vehicle::VEHICLE_ON_TRIP]),
             ],
-            'without_driver' => [
+            'with_driver' => [
                 'required', 'boolean',
             ],
 
