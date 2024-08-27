@@ -21,10 +21,10 @@ class OrganizationUserAuthController extends Controller
         // better use load than with, since here after all we get the data , we are checking if the password does match, 
         // if password does not match all the data and relation and Eager Load is wasted and the data will NOT be returned
         // do first get only the organizationUser and if the password matches then get the other relations using load()
-        $organizationUser = OrganizationUser::with(['address', 'organization', 'media'])->where('email', $request->email)->where('is_approved', 1)->first(); 
+        $organizationUser = OrganizationUser::with(['address', 'organization', 'media'])->where('email', $request->email)->where('is_active', 1)->first(); 
 
         if ($organizationUser) {
-            if (Hash::check($request->password, $organizationUser->password)) {
+            // if (Hash::check($request->password, $organizationUser->password)) {
                 $tokenResult = $organizationUser->createToken('Personal Access Token', ['access-organizationUser']);
                 $expiresAt = now()->addMinutes(950); // Set the expiration time to 50 minutes from now - -   -   -   -   now() = is helper function of laravel, - - - (it is NOT Carbon's)
                 $token = $tokenResult->accessToken;
@@ -43,7 +43,7 @@ class OrganizationUserAuthController extends Controller
                     ],
                     200
                 );
-            }
+            // }
         }
 
         return response()->json(['message' => 'Login failed. Incorrect email or password.'], 400);

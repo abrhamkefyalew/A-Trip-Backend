@@ -76,10 +76,10 @@ class StoreOrganizationRequest extends FormRequest
                 'required', 'string', 'regex:/^\S*$/u', 'alpha',
             ],
             'user_email' => [
-                'sometimes', 'email', Rule::unique('organization_users'),
+                'sometimes', 'email', 'unique:organization_users,email',
             ],
             'user_phone_number' => [
-                'required', 'numeric',  Rule::unique('organization_users'),
+                'required', 'numeric', 'unique:organization_users,phone_number',
             ],
             'user_is_active' => [
                 'sometimes', 'nullable', 'boolean',

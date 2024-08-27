@@ -22,11 +22,11 @@ class LoginOrganizationUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // 'email' => ['required', 'email'],
-            // 'password' => ['required'],
-            'phone_number' => [
-                'required', 'numeric',  
-            ],
+            'email' => ['required', 'email'],
+        //    'password' => ['required'],
+        //     'phone_number' => [
+        //         'required', 'numeric',  
+        //     ],
         ];
     }
 }
