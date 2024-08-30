@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1\Admin;
 
+use Carbon\Carbon;
 use App\Models\Contract;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -64,8 +65,15 @@ class ContractController extends Controller
                 // by adding duplicated contract_code to signal that the contract is modified from its predecessor with similar contract code
                 // we can add duplicated contract code. // because the columns have no unique attribute
                 // since the column is not unique by nature, we can freely add a duplicated contract code 
-            
+                        
 
+            // contract dates // from the request
+            $contractRequestStartDate = Carbon::parse($request['start_date'])->toDateString();
+            $contractRequestEndDate = Carbon::parse($request['end_date'])->toDateString();
+            // request_start_date should be =< request_end_date - for contracts and orders
+            if ($contractRequestStartDate > $contractRequestEndDate) {
+                return response()->json(['message' => 'Contract Start Date should not be greater than the Contract End Date'], 400);
+            }
 
 
             // Create the contract with the unique code
