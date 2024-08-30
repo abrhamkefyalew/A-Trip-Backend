@@ -40,7 +40,9 @@ class OrderController extends Controller
         // dd($request);
         $var = DB::transaction(function () use ($request) {
 
-            // since multiple orders can be sent at once 
+            if ($request->has('orders')) {
+                $orderIds = [];
+                // since multiple orders can be sent at once 
                     // i will put similar order_code in OrderController = for those multiple orders that are sent at once
                     //
             // Generate a unique random order code
@@ -60,10 +62,9 @@ class OrderController extends Controller
                 return response()->json(['message' => 'UnAuthorized. you are not organization Admin'], 401); 
             }
 
-            // $orders = collect();
 
             // Now do operations on each of the orders sent
-            foreach ($request->all() as $requestData) {
+            foreach ($request->safe()->orders as $requestData) {
 
                 // this contract_detail_id should be owned by the organization that the order requester belongs in
                 $contractDetail = ContractDetail::where('id', $requestData['contract_detail_id'])->first();
@@ -153,8 +154,8 @@ class OrderController extends Controller
                     'order_description' => $requestData['order_description'],                                                                                   
                 ]);
 
-
-                // $orders->push($order);
+                $orderIds[] = $order->id;
+                
 
                 
             }
@@ -177,7 +178,16 @@ class OrderController extends Controller
                 // return OrderForOrganizationResource::collection($orders);
 
 
-            return "ok";
+            // ->with('vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail')
+            $orders = Order::whereIn('id', $orderIds)->latest()->paginate(FilteringService::getPaginate($request));       // this get the orders created here
+            return OrderForOrganizationResource::collection($orders);
+            
+            // return "ok";
+
+            }
+
+
+            
         });
 
         return $var;
