@@ -26,6 +26,8 @@ class ContractDetailController extends Controller
      */
     public function index(Request $request)
     {
+        dd(today()->toDateString());
+
         // any organization user can see list of contract_details (i.e vehicle_names)
         $user = auth()->user();
         $organizationUser = OrganizationUser::find($user->id);

@@ -103,8 +103,6 @@ class OrderController extends Controller
                 // todays date
                 $today = now()->format('Y-m-d');
 
-                dd($contractEndDate);
-
                 /* 
                     // LOG  -  TEST - - - Remove this
                         // used to check that = order start_date can not be before the contract creation date ,     but order start_data can be on the day of contract creation date and after
@@ -142,8 +140,10 @@ class OrderController extends Controller
                 }
 
                 
-                // start date should be =< end date - for contracts and orders
-
+                // request_start_date should be =< request_end_date - for contracts and orders
+                if ($orderRequestStartDate > $orderRequestEndDate) {
+                    return response()->json(['message' => 'Order Start Date should not be greater than the Order End Date'], 400);
+                }
 
 
 
