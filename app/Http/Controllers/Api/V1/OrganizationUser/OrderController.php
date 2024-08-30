@@ -159,10 +159,11 @@ class OrderController extends Controller
             }
 
 
+            // this returns error = Method Illuminate\\Support\\Collection::load does not exist
             // return OrderForOrganizationResource::collection($orders->load('vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail'));
             //
             // this works  - - - BUT CHECK FIRST 
-                $orders->load('vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail');
+                $orders->with('vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail');
                 return OrderForOrganizationResource::collection($orders);
         });
 
