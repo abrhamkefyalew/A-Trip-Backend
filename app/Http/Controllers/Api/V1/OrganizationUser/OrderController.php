@@ -100,35 +100,44 @@ class OrderController extends Controller
                 $contractStartDate = Carbon::parse($contract->start_date)->toDateString();
                 $contractEndDate = Carbon::parse($contract->end_date)->toDateString();
 
-                $aa = $orderRequestStartDate < $contractStartDate;
+                // todays date
+                $today = now()->format('Y-m-d');
 
-                dd($orderRequestStartDate . " < " . $contractStartDate . " = " . ($aa ? 'true' : 'false'));
+                dd($today);
+
+                /* 
+                    LOG  -  TEST - - - Remove this
+                        // used to check that = order start_date can not be before the contract creation date ,     but order start_data can be on the day of contract creation date and after
+                            $aa = $orderRequestStartDate < $contractStartDate;
+                            dd($orderRequestStartDate . " < " . $contractStartDate . " = " . ($aa ? 'true' : 'false'));
+
+                    OUTPUT   -   -   -   -   - // it should output the following
+                        "2024-12-27 < 2024-12-27 = false"
+                */
 
                 
                 // order start date = must be today or after today , (but start date can not be before today)
                 // Check if start_date is greater than or equal to today's date
-                $today = now()->format('Y-m-d');
-                if ($requestData['start_date'] < $today) {
+                if ($orderRequestStartDate < $today) {
                     return response()->json(['message' => 'Order Start date must be greater than or equal to today\'s date.'], 400);
                 }
                 // order end date = must be today or after today , (but end date can not be before today)
                 // Check if end_date is greater than or equal to today's date
-                $today = now()->format('Y-m-d');
-                if ($requestData['end_date'] < $today) {
+                if ($orderRequestEndDate < $today) {
                     return response()->json(['message' => 'Order End date must be greater than or equal to today\'s date.'], 400);
                 }
 
                
-                if ($requestData['start_date'] < $contract->start_date) {
+                if ($orderRequestStartDate < $contractStartDate) {
                     return response()->json(['message' => 'Order Start date and end date must fall within the contract period.    order start_date can not be before the contract creation date'], 400);
                 }
-                if ($requestData['start_date'] > $contract->end_date) {
+                if ($orderRequestStartDate > $contractEndDate) {
                     return response()->json(['message' => 'Order Start date and end date must fall within the contract period.    order start_date can not be after the contract expiration date'], 400);
                 }
-                if ($requestData['end_date'] < $contract->start_date) {
+                if ($orderRequestEndDate < $contractStartDate) {
                     return response()->json(['message' => 'Order Start date and end date must fall within the contract period.    order end_date can not be before the contract creation date'], 400);
                 }
-                if ($requestData['end_date'] > $contract->end_date) {
+                if ($orderRequestEndDate > $contractEndDate) {
                     return response()->json(['message' => 'Order Start date and end date must fall within the contract period.    order end_date can not be after the contract expiration date'], 400);
                 }
 
