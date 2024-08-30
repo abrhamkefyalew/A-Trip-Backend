@@ -101,19 +101,19 @@ class OrderController extends Controller
                     return response()->json(['message' => 'Order End date must be greater than or equal to today\'s date.'], 400);
                 }
 
-                $aa = $requestData['start_date'] < $contract->start_date;
-                dd($requestData['start_date'] . "   <   " . $contract->start_date . "  =  " . $aa);
+                $aa = $requestData['start_date']->toDateString() < $contract->start_date->toDateString();
+                dd($requestData['start_date']->toDateString() . "   <   " . $contract->start_date->toDateString() . "  =  " . $aa);
                
-                if ($requestData['start_date'] < $contract->start_date) {
+                if ($requestData['start_date']->toDateString() < $contract->start_date->toDateString()) {
                     return response()->json(['message' => 'Order Start date and end date must fall within the contract period.    order start_date can not be before the contract creation date'], 400);
                 }
-                if ($requestData['start_date'] > $contract->end_date) {
+                if ($requestData['start_date']->toDateString() > $contract->end_date->toDateString()) {
                     return response()->json(['message' => 'Order Start date and end date must fall within the contract period.    order start_date can not be after the contract expiration date'], 400);
                 }
-                if ($requestData['end_date'] < $contract->start_date) {
+                if ($requestData['end_date']->toDateString() < $contract->start_date->toDateString()) {
                     return response()->json(['message' => 'Order Start date and end date must fall within the contract period.    order end_date can not be before the contract creation date'], 400);
                 }
-                if ($requestData['end_date'] > $contract->end_date) {
+                if ($requestData['end_date']->toDateString() > $contract->end_date->toDateString()) {
                     return response()->json(['message' => 'Order Start date and end date must fall within the contract period.    order end_date can not be after the contract expiration date'], 400);
                 }
 
