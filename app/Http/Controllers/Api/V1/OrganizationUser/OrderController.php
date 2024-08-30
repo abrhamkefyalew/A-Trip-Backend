@@ -101,6 +101,9 @@ class OrderController extends Controller
                     return response()->json(['message' => 'Order End date must be greater than or equal to today\'s date.'], 400);
                 }
 
+                $aa = $requestData['start_date'] < $contract->start_date;
+                dd($requestData['start_date'] . "   <   " . $contract->start_date . "  =  " . $aa);
+               
                 if ($requestData['start_date'] < $contract->start_date) {
                     return response()->json(['message' => 'Order Start date and end date must fall within the contract period.    order start_date can not be before the contract creation date'], 400);
                 }
@@ -115,7 +118,7 @@ class OrderController extends Controller
                 }
 
                 
-
+                // start date should be =< end date - for contracts and orders
 
 
 
