@@ -159,11 +159,11 @@ class OrderController extends Controller
             }
 
 
-            return OrderForOrganizationResource::collection($orders->load('vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail'));
+            // return OrderForOrganizationResource::collection($orders->load('vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail'));
             //
-            // this works also the same as the above  -   -   - BUT CHECK FIRST 
-                // $orders->load('vehicleName', 'vehicle', 'driver', 'contractDetail');
-                // return OrderForOrganizationResource::collection($orders);
+            // this works  - - - BUT CHECK FIRST 
+                $orders->load('vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail');
+                return OrderForOrganizationResource::collection($orders);
         });
 
         return $var;
