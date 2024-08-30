@@ -59,7 +59,7 @@ class OrderController extends Controller
                 return response()->json(['message' => 'UnAuthorized. you are not organization Admin'], 401); 
             }
 
-            $orders = collect();
+            // $orders = collect();
 
             // Now do operations on each of the orders sent
             foreach ($request->all() as $requestData) {
@@ -153,7 +153,7 @@ class OrderController extends Controller
                 ]);
 
 
-                $orders->push($order);
+                // $orders->push($order);
 
                 
             }
