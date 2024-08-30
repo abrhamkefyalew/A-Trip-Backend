@@ -103,7 +103,7 @@ class OrderController extends Controller
                 // todays date
                 $today = now()->format('Y-m-d');
 
-                dd($orderRequestStartDate);
+                dd($contractEndDate);
 
                 /* 
                     // LOG  -  TEST - - - Remove this
