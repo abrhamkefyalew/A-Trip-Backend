@@ -103,8 +103,9 @@ class OrderController extends Controller
                 // todays date
                 $today = now()->format('Y-m-d');
 
+                dd($orderRequestStartDate);
 
-                
+                /* 
                     // LOG  -  TEST - - - Remove this
                         // used to check that = order start_date can not be before the contract creation date ,     but order start_data can be on the day of contract creation date and after
                             $aa = $orderRequestStartDate < $contractStartDate;
@@ -112,7 +113,7 @@ class OrderController extends Controller
 
                     // OUTPUT should be   -   -   -   -   - // it should output the following
                             // "2024-12-27 < 2024-12-27 = false"
-                
+                */
 
                 
                 // order start date = must be today or after today , (but start date can not be before today)
