@@ -168,12 +168,15 @@ class OrderController extends Controller
                 // return OrderForOrganizationResource::collection($orders);
 
 
-                $orders->each(function ($order) {
-                    $order->load('vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail');
-                });
+                // $orders->each(function ($order) {
+                //     $order->load('vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail');
+                // });
                 
-                // Return the transformed collection
-                return OrderForOrganizationResource::collection($orders);
+                // // Return the transformed collection
+                // return OrderForOrganizationResource::collection($orders);
+
+
+            return "ok";
         });
 
         return $var;
