@@ -37,6 +37,7 @@ class OrderController extends Controller
     public function store(StoreOrderRequest $request)
     {
         //
+        dd($request);
         $var = DB::transaction(function () use ($request) {
 
             // since multiple orders can be sent at once 
