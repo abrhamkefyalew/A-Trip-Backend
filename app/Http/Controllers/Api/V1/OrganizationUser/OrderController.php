@@ -92,13 +92,13 @@ class OrderController extends Controller
                 }
 
 
-                
+
                 // order dates // from the request
                 $orderRequestStartDate = Carbon::parse($requestData['start_date'])->toDateString();
                 $orderRequestEndDate = Carbon::parse($requestData['end_date'])->toDateString();
                 // contract dates // from contracts table in the database
-                $contractStartDate = Carbon::parse($contract->start_date->toDateString());
-                $contractEndDate = Carbon::parse($contract->end_date->toDateString());
+                $contractStartDate = Carbon::parse($contract->start_date)->toDateString();
+                $contractEndDate = Carbon::parse($contract->end_date)->toDateString();
 
                 $aa = $orderRequestStartDate < $contractStartDate;
 
