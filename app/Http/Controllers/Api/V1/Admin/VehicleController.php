@@ -36,9 +36,10 @@ class VehicleController extends Controller
         //
         $var = DB::transaction(function () use ($request) {
 
-
             // ask samson
-            // if i insert "with_driver" = 0     , then Can i also insert the "driver_id".              // - is it correct, because we just said there is NO driver - and -  inserted driver_id. it is falsy.
+            // check the sent with_driver in the request as the following and its consequences
+            // if "with_driver" = 0 , driver_id must NOT come in the request, otherwise = I will return ERROR 
+            // if "with_driver" = 1 , driver_id MUST also come in the request, otherwise = I will return ERROR
             // should we return error for such requests.
             
             $vehicle = Vehicle::create([
@@ -50,7 +51,7 @@ class VehicleController extends Controller
                 'vehicle_model' => $request['vehicle_model'],
                 'plate_number' => $request['plate_number'],
                 'year' => $request['year'],
-                'is_available' => $request['is_available'],
+                'is_available' => $request->input('with_driver', Vehicle::VEHICLE_AVAILABLE),
                 'with_driver' => (int) $request->input('with_driver', 0), // if the supplier_id does NOT send this field (the "with_driver" field) we will insert = 0 by default 
                                                                                     // 0 = means this vehicle do NOT have driver, i rent only the vehicle and NO driver will be included
 

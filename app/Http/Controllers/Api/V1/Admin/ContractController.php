@@ -32,7 +32,6 @@ class ContractController extends Controller
             else {
                 return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
             }
-            
         }
         else {
             $contracts = Contract::whereNotNull('id');
@@ -53,11 +52,11 @@ class ContractController extends Controller
         $var = DB::transaction(function () use ($request) {
 
             // Generate a unique random contract code
-            $uniqueCode = Str::random(8); // Adjust the length as needed
+            $uniqueCode = Str::random(20); // Adjust the length as needed
 
             // Check if the generated code already exists in the database
             while (Contract::where('contract_code', $uniqueCode)->exists()) {
-                $uniqueCode = Str::random(8); // Regenerate the code if it already exists
+                $uniqueCode = Str::random(20); // Regenerate the code if it already exists
             }
             // HERE, SINCE we are ADDING a NEW CONTRACT
                 // any new contract should always have a unique contract code, // ensuring that a contract_code can only be duplicated if the contract is modified, by adding a new raw
@@ -76,7 +75,7 @@ class ContractController extends Controller
                 'start_date' => $request['start_date'],
                 'end_date' => $request['end_date'],
                 'is_active' => (int) $request->input('is_active', 1),
-                'terminated_date' => $request['terminated_date'],
+                'terminated_date' => null, // is NULL when the order is created initially // since we are creating this contract for the first time, it is not terminated yet
             ]);
 
             // CONTRACT MEDIA // PDF

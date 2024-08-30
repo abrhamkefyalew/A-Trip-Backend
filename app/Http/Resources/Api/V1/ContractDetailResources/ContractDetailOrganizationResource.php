@@ -7,7 +7,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\Api\V1\ContractResources\ContractResource;
 use App\Http\Resources\Api\V1\VehicleNameResources\VehicleNameResource;
 
-class ContractDetailResource extends JsonResource
+class ContractDetailOrganizationResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -24,17 +24,15 @@ class ContractDetailResource extends JsonResource
             'with_fuel' => $this->with_fuel,
             'periodic' => $this->periodic,
             'price_contract' => $this->price_contract,
-            'price_vehicle_payment' => $this->price_vehicle_payment,
-            'tax' => $this->tax,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
 
             'contract' => ContractResource::make($this->whenLoaded('contract', function () {
-                return $this->contract->load('organization', 'media');
+                return $this->contract->load('media');
             })),
 
             'vehicle_name' => VehicleNameResource::make($this->whenLoaded('vehicleName', function () {
-                return $this->vehicleName->load('vehicleType', 'vehicles');
+                return $this->vehicleName->load('vehicleType');
             })),
 
         ];

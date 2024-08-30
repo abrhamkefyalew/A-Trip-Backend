@@ -37,9 +37,9 @@ class Contract extends Model implements HasMedia
      * @var array<string, string>
      */
     protected $casts = [
-        'start_date' => 'datetime',
-        'end_date' => 'datetime',
-        'terminated_date' => 'datetime',
+        'start_date' => 'date',
+        'end_date' => 'date',
+        'terminated_date' => 'date',
     ];
 
 

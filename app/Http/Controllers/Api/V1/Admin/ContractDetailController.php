@@ -49,16 +49,17 @@ class ContractDetailController extends Controller
         //
         $var = DB::transaction(function () use ($request) {
 
-            $validatedData = $request->validated();
+            // $validatedData = $request->validated();
             
             $contractDetail = ContractDetail::create([
-                'contract_id' => $validatedData['contract_id'],
-                'vehicle_name_id' => $validatedData['vehicle_name_id'],
-                'with_driver' => (int) $validatedData->input('with_driver', 0),
-                'with_fuel' => (int) $validatedData->input('with_fuel', 0),
-                'periodic' => (int) $validatedData->input('periodic', 0),
-                'price_contract' => $validatedData['price_contract'],
-                'price_vehicle_payment' => $validatedData['price_vehicle_payment'],
+                'contract_id' => $request['contract_id'],
+                'vehicle_name_id' => $request['vehicle_name_id'],
+                'with_driver' => (int) $request->input('with_driver', 0),
+                'with_fuel' => (int) $request->input('with_fuel', 0),
+                'periodic' => (int) $request->input('periodic', 0),
+                'price_contract' => $request['price_contract'],
+                'price_vehicle_payment' => $request['price_vehicle_payment'],
+                'tax' => (int) $request->input('tax', ContractDetail::CONTRACT_DETAIL_DEFAULT_TAX_15),
             ]);
 
 

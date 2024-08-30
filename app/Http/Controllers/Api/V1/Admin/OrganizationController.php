@@ -91,7 +91,7 @@ class OrganizationController extends Controller
                 'email' => $request['user_email'],
                 'phone_number' => $request['user_phone_number'],
                 'is_active' => (int) (isset($request['user_is_active']) ? $request['user_is_active'] : 1), // this works
-                'is_admin' => 1, // this works also    // the organization user stored with the organization here (when the organization is created for the first time) must always be admin regardless of the user input
+                'is_admin' => 1,    // the organization user stored with the organization here (when the organization is created for the first time) must always be admin regardless of the user input
             ]);
 
 

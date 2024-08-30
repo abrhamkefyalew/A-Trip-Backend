@@ -22,15 +22,24 @@ class Order extends Model implements HasMedia
     protected $fillable = [
         'order_code',
         'organization_id',
+        'contract_detail_id',
         'vehicle_name_id',
         'vehicle_id',
         'driver_id',
+        'supplier_id',
         'start_date',
         'end_date',
+        'start_location',
+        'end_location',
+        'start_latitude',
+        'start_longitude',
+        'end_latitude',
+        'end_longitude',
         'status',
         'is_terminated',
         'original_end_date',
         'pr_status',
+        'order_description',
     ];
     
 
@@ -41,9 +50,9 @@ class Order extends Model implements HasMedia
      * @var array<string, string>
      */
     protected $casts = [
-        'start_date' => 'datetime',
-        'end_date' => 'datetime',
-        'original_end_date' => 'datetime',
+        'start_date' => 'date',
+        'end_date' => 'date',
+        'original_end_date' => 'date',
     ];
 
     
@@ -52,16 +61,32 @@ class Order extends Model implements HasMedia
         return $this->belongsTo(Organization::class);
     }
 
+    public function contractDetail()
+    {
+        return $this->belongsTo(ContractDetail::class);
+    }
+
     public function vehicle()
     {
         return $this->belongsTo(Vehicle::class);
     }
 
+    public function vehicleName()
+    {
+        return $this->belongsTo(VehicleName::class);
+    }
+
+    
     public function driver()
     {
         return $this->belongsTo(Driver::class);
     }
 
+
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class);
+    }
 
     
 
@@ -88,5 +113,6 @@ class Order extends Model implements HasMedia
     public const ORDER_PR_COMPLETED = 'PR_COMPLETED';
     public const ORDER_PR_TERMINATED = 'PR_TERMINATED';
     public const ORDER_PR_ABORTED = 'PR_ABORTED';
+    
 
 }

@@ -19,7 +19,7 @@ return new class extends Migration
 
             $table->foreignId('vehicle_name_id')->constrained('vehicle_names'); // should this be nullable // in my eyes it should NOT be null
             
-            $table->foreignId('supplier_id')->nullable()->constrained('suppliers'); // should this be nullable or not // can a vehicle added without any supplier
+            $table->foreignId('supplier_id')->nullable()->constrained('suppliers'); // should this be nullable or not // can a vehicle added without any supplier // yes because some vehicles could be owned by Adiamat itself
             $table->foreignId('driver_id')->nullable()->constrained('drivers'); // this is ONE to ONE   only              // so we defined the below unique
             $table->unique('driver_id');  // this unique column is defined because this is ONE to ONE   only relationship // one driver can only be paired with one vehicle
 

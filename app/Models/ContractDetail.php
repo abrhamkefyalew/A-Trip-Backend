@@ -28,6 +28,7 @@ class ContractDetail extends Model
         'periodic',
         'price_contract',
         'price_vehicle_payment',
+        'tax',
     ];
 
 
@@ -42,6 +43,12 @@ class ContractDetail extends Model
         return $this->belongsTo(VehicleName::class);
     }
 
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
 
+    // tax constants in percent
+    public const CONTRACT_DETAIL_DEFAULT_TAX_15 = '15';
 
 }

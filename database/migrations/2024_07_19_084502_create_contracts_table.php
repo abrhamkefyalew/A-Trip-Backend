@@ -16,11 +16,13 @@ return new class extends Migration
 
             $table->string('contract_code'); // will be used if the same contract is modified and continued after termination // so for them we use the same contract code // it is not unique
             $table->foreignId('organization_id')->constrained('organizations');
-            $table->timestamp('start_date');    // if start_date is not mentioned OPTIONAL  // $table->timestamp('start_date')->useCurrent(); OPTIONAL // is the OPTIONAL code insert it as default value CHECK
-            $table->timestamp('end_date'); 
+
+            $table->date('start_date');    // if start_date is not mentioned OPTIONAL  // $table->date('start_date')->useCurrent(); OPTIONAL // is the OPTIONAL code insert it as default value CHECK
+            $table->date('end_date'); 
+
             $table->boolean('is_active')->default(1);
             
-            $table->timestamp('terminated_date')->nullable(); 
+            $table->date('terminated_date')->nullable(); 
 
             //// the PDF or JPG media for this contract will be in medias table
             

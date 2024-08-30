@@ -28,19 +28,15 @@ class StoreContractRequest extends FormRequest
             //
             'organization_id' => 'required|integer|exists:organizations,id',
             
-            'start_date' => [
-                'required', 'date',
-            ],
-            'end_date' => [
-                'required', 'date',
-            ],
+            'start_date' => 'required|date|date_format:Y-m-d',
+            'end_date' => 'required|date|date_format:Y-m-d',
+
             'is_active' => [
                 'sometimes', 'nullable', 'boolean',
             ],
 
-            'terminated_date' => [
-                'sometimes', 'nullable', 'date',
-            ],
+            // this should not be here since we are creating a contract, // and when a contract is created there shall not be the contract termination date. since it is not terminated yet
+            // 'terminated_date' => 'required|date|date_format:Y-m-d',
 
 
             'organization_contract_file' => [

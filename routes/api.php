@@ -4,6 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\Admin\BankController;
 use App\Http\Controllers\Api\V1\Admin\AdminController;
+use App\Http\Controllers\Api\V1\Admin\OrderController;
+use App\Http\Controllers\Api\V1\OrganizationUser\OrderController as OrderForOrganizationController;
 use App\Http\Controllers\Api\V1\Admin\DriverController;
 use App\Http\Controllers\Api\V1\Admin\VehicleController;
 use App\Http\Controllers\Api\V1\Admin\ContractController;
@@ -13,6 +15,7 @@ use App\Http\Controllers\Api\V1\Admin\VehicleNameController;
 use App\Http\Controllers\Api\V1\Admin\VehicleTypeController;
 use App\Http\Controllers\Api\V1\Admin\OrganizationController;
 use App\Http\Controllers\Api\V1\Admin\ContractDetailController;
+use App\Http\Controllers\Api\V1\OrganizationUser\ContractDetailController as ContractDetailForOrganizationController;
 use App\Http\Controllers\Api\V1\Admin\OrganizationUserController;
 use App\Http\Controllers\Api\V1\Auth\AdminAuth\AdminAuthController;
 use App\Http\Controllers\Api\V1\Auth\OrganizationUserAuth\OrganizationUserAuthController;
@@ -185,6 +188,17 @@ Route::prefix('v1')->group(function () {
             });
 
 
+            Route::prefix('orders')->group(function () {
+                Route::post('/', [OrderController::class, 'store']);
+                Route::get('/', [OrderController::class, 'index']);
+                Route::prefix('/{contractDetail}')->group(function () {
+                    Route::get('/', [OrderController::class, 'show']);
+                    Route::put('/', [OrderController::class, 'update']);
+                    Route::delete('/', [OrderController::class, 'destroy']);
+                }); 
+            });
+
+
             Route::prefix('dash_board')->group(function () {
                 Route::get('/dash_board_count_one', [DashBoardController::class, 'DashBoardCountOne']);
             });
@@ -209,6 +223,40 @@ Route::prefix('v1')->group(function () {
             Route::post('/login', [OrganizationUserAuthController::class, 'login']);
 
         });
+
+
+        Route::middleware(['auth:sanctum', 'abilities:access-admin'])->group(function () {
+
+            Route::prefix('')->group(function () {
+                Route::post('/logout', [OrganizationUserAuthController::class, 'logout']);
+                Route::post('/logout-all-devices', [OrganizationUserAuthController::class, 'logoutAllDevices']);
+            });
+
+            Route::prefix('contract_details')->group(function () {
+                Route::post('/', [ContractDetailForOrganizationController::class, 'store']);
+                Route::get('/', [ContractDetailForOrganizationController::class, 'index']);
+                Route::prefix('/{contractDetail}')->group(function () {
+                    Route::get('/', [ContractDetailForOrganizationController::class, 'show']);
+                    Route::put('/', [ContractDetailForOrganizationController::class, 'update']);
+                    Route::delete('/', [ContractDetailForOrganizationController::class, 'destroy']);
+                }); 
+            });
+
+
+            Route::prefix('orders')->group(function () {
+                Route::post('/', [OrderForOrganizationController::class, 'store']);
+                Route::get('/', [OrderForOrganizationController::class, 'index']);
+                Route::prefix('/{contractDetail}')->group(function () {
+                    Route::get('/', [OrderForOrganizationController::class, 'show']);
+                    Route::put('/', [OrderForOrganizationController::class, 'update']);
+                    Route::delete('/', [OrderForOrganizationController::class, 'destroy']);
+                }); 
+            });
+
+
+
+        });
+
     });
 
 
