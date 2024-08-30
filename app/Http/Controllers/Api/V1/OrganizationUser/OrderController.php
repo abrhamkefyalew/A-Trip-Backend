@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1\OrganizationUser;
 
+use Carbon\Carbon;
 use App\Models\Order;
 use App\Models\Contract;
 use Illuminate\Support\Str;
@@ -84,10 +85,26 @@ class OrderController extends Controller
                 
 
                 // CHECK REQUEST DATEs (Order dates)
-                // Check if start_date and end_date are valid dates
+
+                // FIRST OF ALL = Check if start_date and end_date are valid dates
                 if (!strtotime($requestData['start_date']) || !strtotime($requestData['end_date'])) {
                     return response()->json(['message' => 'Invalid date format.'], 400);
                 }
+
+
+                
+                // order dates // from the request
+                $orderRequestStartDate = Carbon::parse($requestData['start_date'])->toDateString();
+                $orderRequestEndDate = Carbon::parse($requestData['end_date'])->toDateString();
+                // contract dates // from contracts table in the database
+                $contractStartDate = Carbon::parse($contract->start_date->toDateString());
+                $contractEndDate = Carbon::parse($contract->end_date->toDateString());
+
+                $aa = $orderRequestStartDate < $contractStartDate;
+
+                dd($orderRequestStartDate . " < " . $contractStartDate . " = " . ($aa ? 'true' : 'false'));
+
+                
                 // order start date = must be today or after today , (but start date can not be before today)
                 // Check if start_date is greater than or equal to today's date
                 $today = now()->format('Y-m-d');
@@ -101,8 +118,6 @@ class OrderController extends Controller
                     return response()->json(['message' => 'Order End date must be greater than or equal to today\'s date.'], 400);
                 }
 
-                $aa = $requestData['start_date'] < $contract->start_date->toDateString();
-                dd($requestData['start_date'] . "   <   " . $contract->start_date->toDateString() . "  =  " . $aa);
                
                 if ($requestData['start_date'] < $contract->start_date) {
                     return response()->json(['message' => 'Order Start date and end date must fall within the contract period.    order start_date can not be before the contract creation date'], 400);
