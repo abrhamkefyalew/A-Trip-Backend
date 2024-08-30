@@ -2,8 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Role;
 use Illuminate\Database\Seeder;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class RoleSeeder extends Seeder
 {
@@ -12,6 +13,22 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        $roles = [
+            [
+                'title' => Role::SUPER_ADMIN_ROLE,
+                'is_system_created' => true,
+            ],
+            [
+                'title' => Role::MANAGER_ROLE,
+                'is_system_created' => true,
+            ],
+            [
+                'title' => Role::VIEWER_ROLE,
+                'is_system_created' => true,
+            ],
+        ];
+
+        Role::upsert($roles, ['title']);
+        
     }
 }
