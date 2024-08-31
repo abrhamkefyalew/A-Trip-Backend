@@ -27,6 +27,13 @@ return new class extends Migration
             $table->decimal('price_vehicle_payment', 10, 2); // the price that is to be paid for vehicle_supplier or driver (i.e payed to the vehicle account) // the organization should not see this price
 
             $table->decimal('tax', 4, 2)->default(ContractDetail::CONTRACT_DETAIL_DEFAULT_TAX_15);
+
+            $table->boolean('is_available')->default(1);  
+                                            // the "is_available" column in CONTRACT_DETAILs table should NOT be update separately,  // we ONLY update "is_available" when Terminating or UnTerminating the PARENT CONTRACT                                                     
+							                // if parent contract is Terminated (terminated_date=some_date)       // then we make all its child contract_details NOT Available by doing (is_available=0) 
+							                // if parent contract is UnTerminated (terminated_date=NULL)           // then we make all its child contract_details  Re-Available by doing (is_available=1)
+							                // 1 = means parent contract NOT terminated   // 0 = means parent contract terminated
+
             
             $table->timestamps();
             $table->softDeletes();

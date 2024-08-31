@@ -29,6 +29,7 @@ class ContractDetail extends Model
         'price_contract',
         'price_vehicle_payment',
         'tax',
+        'is_available',
     ];
 
 

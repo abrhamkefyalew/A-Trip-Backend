@@ -24,21 +24,10 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         //
-
-        if (! $request->has('organization_id')) {
-            return response()->json(['message' => 'must send organization id.'], 404); 
-        }
-        if (! isset($request['organization_id'])) { 
-            return response()->json(['message' => 'must set organization id.'], 404); 
-        }
-
-
-
-        // $user = auth()->user();
-        // $organizationUser = OrganizationUser::find($user->id);
+        $user = auth()->user();
+        $organizationUser = OrganizationUser::find($user->id);
         
-        // 2024-08-31
-        $orders = Order::where('organization_id', $request['organization_id'])->with('vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail')->latest()->paginate(FilteringService::getPaginate($request));       // this get multiple orders of the organization
+        $orders = Order::where('organization_id', $organizationUser->organization_id)->with('vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail')->latest()->paginate(FilteringService::getPaginate($request));       // this get multiple orders of the organization
 
         return OrderForOrganizationResource::collection($orders);
     }
@@ -49,7 +38,6 @@ class OrderController extends Controller
     public function store(StoreOrderRequest $request)
     {
         //
-        // dd($request);
         $var = DB::transaction(function () use ($request) {
 
             if ($request->has('orders')) {
@@ -67,24 +55,15 @@ class OrderController extends Controller
                 }
 
                 // get the logged in organization User
-                // 2024-08-31
-                // $user = auth()->user();
-                // $organizationUser = OrganizationUser::find($user->id);
+                $user = auth()->user();
+                $organizationUser = OrganizationUser::find($user->id);
 
                 // check if the organizationUser is organization admin
-                // 2024-08-31
-                // if ($organizationUser->is_admin !== 1) {
-                //     return response()->json(['message' => 'UnAuthorized. you are not organization Admin'], 401); 
-                // }
-
-
-
-                if (! $request->has('organization_id')) {
-                    return response()->json(['message' => 'must send organization id.'], 404); 
+                if ($organizationUser->is_admin !== 1) {
+                    return response()->json(['message' => 'UnAuthorized. you are not organization Admin'], 401); 
                 }
-                if (! isset($request['organization_id'])) { 
-                    return response()->json(['message' => 'must set organization id.'], 404); 
-                }
+
+
                 // Now do operations on each of the orders sent
                 foreach ($request->safe()->orders as $requestData) {
 
@@ -92,19 +71,18 @@ class OrderController extends Controller
                     $contractDetail = ContractDetail::where('id', $requestData['contract_detail_id'])->first();
                     $contract = Contract::where('id', $contractDetail->contract_id)->first();
 
-
-                    // 2024-08-31
-                    if ($request['organization_id'] != $contract->organization_id) {
+                    if ($organizationUser->organization_id != $contract->organization_id) {
                         return response()->json(['message' => 'invalid Vehicle Name is selected for the Order. or invalid Contract-Contact_Detail Selected. Deceptive request Aborted.'], 401); 
                     }
-                    if ($contract->is_active != 1) {
-                        // contract not active
-                        return response()->json(['message' => 'Not Found - the server cannot find the requested resource. the Contract for the requested Vehicle Name is Deactivated or Not Active.'], 404); 
+                    if ($contractDetail->is_available != 1) {
+                        // the parent contract of this contract_detail is Terminated
+                        return response()->json(['message' => 'Not Found - the server cannot find the requested resource. The Contract Detail for this Vehicle Name is NOT Available, because the Contract for the requested Vehicle Name is Terminated.'], 404);
                     }
                     if ($contract->terminated_date !== null) {
                         // Contract is terminated
                         return response()->json(['message' => 'Not Found - the server cannot find the requested resource. the Contract for the requested Vehicle Name is Terminated.'], 404); 
                     }
+
                     
 
                     // CHECK REQUEST DATEs (Order dates)
@@ -128,7 +106,7 @@ class OrderController extends Controller
 
                     /* 
                         // LOG  -  TEST - - - Remove this
-                            // used to check that = order start_date can not be before the contract creation date ,     but order start_data can be on the day of contract creation date and after
+                            // used to check that = order start_date can not be before the contract starting date ,     but order start_data can be on the day of contract starting date and after
                                 $aa = $orderRequestStartDate < $contractStartDate;
                                 dd($orderRequestStartDate . " < " . $contractStartDate . " = " . ($aa ? 'true' : 'false'));
 
@@ -136,27 +114,36 @@ class OrderController extends Controller
                                 // "2024-12-27 < 2024-12-27 = false"
                     */
 
+
+                    // check if the contract for the selected vehicle_name is NOT expired 
+                    // the contract actual end_date = must be today or in the days after today 
+                    // contract end_date - should be greater than or equals to today
+                    if ($contractEndDate < $today) {
+                        return response()->json(['message' => 'the Contract for the selected vehicle_name is Expired, Contract End date must be greater than or equal to today\'s date.'], 400);
+                    }
+
                     
-                    // order start date = must be today or after today , (but start date can not be before today)
-                    // Check if start_date is greater than or equal to today's date
+                    
+                    // order start date = must be today or in the days after today , (but start date can not be before today)
+                    // Check if start_date is greater than or equal to todays date
                     if ($orderRequestStartDate < $today) {
                         return response()->json(['message' => 'Order Start date must be greater than or equal to today\'s date.'], 400);
                     }
-                    // order end date = must be today or after today , (but end date can not be before today)
-                    // Check if end_date is greater than or equal to today's date
+                    // order end date = must be today or in the days after today , (but end date can not be before today)
+                    // Check if end_date is greater than or equal to todays date
                     if ($orderRequestEndDate < $today) {
                         return response()->json(['message' => 'Order End date must be greater than or equal to today\'s date.'], 400);
                     }
 
                 
                     if ($orderRequestStartDate < $contractStartDate) {
-                        return response()->json(['message' => 'Order Start date and end date must fall within the contract period.    order start_date can not be before the contract creation date'], 400);
+                        return response()->json(['message' => 'Order Start date and end date must fall within the contract period.    order start_date can not be before the contract starting date'], 400);
                     }
                     if ($orderRequestStartDate > $contractEndDate) {
                         return response()->json(['message' => 'Order Start date and end date must fall within the contract period.    order start_date can not be after the contract expiration date'], 400);
                     }
                     if ($orderRequestEndDate < $contractStartDate) {
-                        return response()->json(['message' => 'Order Start date and end date must fall within the contract period.    order end_date can not be before the contract creation date'], 400);
+                        return response()->json(['message' => 'Order Start date and end date must fall within the contract period.    order end_date can not be before the contract starting date'], 400);
                     }
                     if ($orderRequestEndDate > $contractEndDate) {
                         return response()->json(['message' => 'Order Start date and end date must fall within the contract period.    order end_date can not be after the contract expiration date'], 400);
@@ -173,8 +160,7 @@ class OrderController extends Controller
                     $order = Order::create([
                         'order_code' => $uniqueCode,
 
-                        // 2024-08-31
-                        'organization_id' => $request['organization_id'],
+                        'organization_id' => $organizationUser->organization_id,
                         'contract_detail_id' => $requestData['contract_detail_id'],
                         
                         'vehicle_name_id' => $contractDetail->vehicle_name_id,

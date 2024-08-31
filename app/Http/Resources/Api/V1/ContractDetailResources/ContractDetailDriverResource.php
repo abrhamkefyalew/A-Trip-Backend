@@ -14,6 +14,13 @@ class ContractDetailDriverResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id,
+            'with_driver' => $this->with_driver,
+            'with_fuel' => $this->with_fuel,
+            'periodic' => $this->periodic,
+            'price_vehicle_payment' => $this->price_vehicle_payment,
+
+        ];
     }
 }

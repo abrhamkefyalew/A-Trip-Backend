@@ -24,6 +24,7 @@ class ContractDetailOrganizationResource extends JsonResource
             'with_fuel' => $this->with_fuel,
             'periodic' => $this->periodic,
             'price_contract' => $this->price_contract,
+            'is_available' => $this->is_available, 
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
 

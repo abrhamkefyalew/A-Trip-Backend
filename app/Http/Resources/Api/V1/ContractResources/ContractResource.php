@@ -26,11 +26,12 @@ class ContractResource extends JsonResource
             'organization_id' => $this->organization_id,
             'start_date' => $this->start_date,
             'end_date' => $this->end_date,
-            'is_active' => $this->is_active,
             'terminated_date' => $this->terminated_date,
+            'contract_name' => $this->contract_name,
+            'contract_description' => $this->contract_description,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'organization_profile_image_path' => $this->getPDFPath(Contract::ORGANIZATION_CONTRACT_FILE),
+            'organization_contract_file_path' => $this->getPDFPath(Contract::ORGANIZATION_CONTRACT_FILE),
 
             'organization' => OrganizationResource::make($this->whenLoaded('organization', function () {
                 return $this->organization->load('address', 'media');

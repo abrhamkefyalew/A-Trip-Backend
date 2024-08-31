@@ -20,9 +20,15 @@ return new class extends Migration
             $table->date('start_date');    // if start_date is not mentioned OPTIONAL  // $table->date('start_date')->useCurrent(); OPTIONAL // is the OPTIONAL code insert it as default value CHECK
             $table->date('end_date'); 
 
-            $table->boolean('is_active')->default(1);
+            $table->date('terminated_date')->nullable();  
+                                                // if parent contract is Terminated (terminated_date=some_date)       // then we make all its child contract_details NOT Available by doing (is_available=0)
+							                    // if parent contract is UnTerminated (terminated_date=NULL)           // then we make all its child contract_details  Re-Available by doing (is_available=1)
+							                    // the "is_available" column in CONTRACT_DETAILs table should NOT be update separately,  // we ONLY update "is_available" when Terminating or UnTerminating the parent contract 
             
-            $table->date('terminated_date')->nullable(); 
+            $table->string('contract_name');
+            $table->string('contract_description')->nullable();
+
+
 
             //// the PDF or JPG media for this contract will be in medias table
             
