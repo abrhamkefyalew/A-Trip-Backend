@@ -65,7 +65,21 @@ class ContractController extends Controller
                 // by adding duplicated contract_code to signal that the contract is modified from its predecessor with similar contract code
                 // we can add duplicated contract code. // because the columns have no unique attribute
                 // since the column is not unique by nature, we can freely add a duplicated contract code 
-                        
+            
+                
+
+
+
+            // CHECK THE FOLLOWING TWO 
+            //
+            // order start date = must be today or after today , (but start date can not be before today)
+            // Check if start_date is greater than or equal to today's date  
+
+
+            // order end date = must be today or after today , (but end date can not be before today)
+            // Check if end_date is greater than or equal to today's date
+
+
 
             // contract dates // from the request
             $contractRequestStartDate = Carbon::parse($request['start_date'])->toDateString();

@@ -28,10 +28,27 @@ class ContractDetailController extends Controller
     {
 
         // any organization user can see list of contract_details (i.e vehicle_names)
-        $user = auth()->user();
-        $organizationUser = OrganizationUser::find($user->id);
         
-        $contracts = Contract::where('organization_id', $organizationUser->organization_id)
+
+        if (! $request->has('organization_id')) {
+            return response()->json(['message' => 'must send organization id.'], 404); 
+        }
+        if (! isset($request['organization_id'])) { 
+            return response()->json(['message' => 'must set organization id.'], 404); 
+        }
+
+
+
+
+
+
+
+
+        // 2024-08-31
+        // $user = auth()->user();
+        // $organizationUser = OrganizationUser::find($user->id);
+
+        $contracts = Contract::where('organization_id', $request['organization_id'])
             ->where('is_active', 1)
             ->where('terminated_date', null)
             ->whereDate('end_date', '>=', today()->toDateString()) // toDateString() is used , to get and use only the date value of today()

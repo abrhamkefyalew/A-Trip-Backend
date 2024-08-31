@@ -24,10 +24,21 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         //
-        $user = auth()->user();
-        $organizationUser = OrganizationUser::find($user->id);
+
+        if (! $request->has('organization_id')) {
+            return response()->json(['message' => 'must send organization id.'], 404); 
+        }
+        if (! isset($request['organization_id'])) { 
+            return response()->json(['message' => 'must set organization id.'], 404); 
+        }
+
+
+
+        // $user = auth()->user();
+        // $organizationUser = OrganizationUser::find($user->id);
         
-        $orders = Order::where('organization_id', $organizationUser->organization_id)->with('vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail')->latest()->paginate(FilteringService::getPaginate($request));       // this get multiple orders of the organization
+        // 2024-08-31
+        $orders = Order::where('organization_id', $request['organization_id'])->with('vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail')->latest()->paginate(FilteringService::getPaginate($request));       // this get multiple orders of the organization
 
         return OrderForOrganizationResource::collection($orders);
     }
@@ -56,15 +67,24 @@ class OrderController extends Controller
                 }
 
                 // get the logged in organization User
-                $user = auth()->user();
-                $organizationUser = OrganizationUser::find($user->id);
+                // 2024-08-31
+                // $user = auth()->user();
+                // $organizationUser = OrganizationUser::find($user->id);
 
                 // check if the organizationUser is organization admin
-                if ($organizationUser->is_admin !== 1) {
-                    return response()->json(['message' => 'UnAuthorized. you are not organization Admin'], 401); 
+                // 2024-08-31
+                // if ($organizationUser->is_admin !== 1) {
+                //     return response()->json(['message' => 'UnAuthorized. you are not organization Admin'], 401); 
+                // }
+
+
+
+                if (! $request->has('organization_id')) {
+                    return response()->json(['message' => 'must send organization id.'], 404); 
                 }
-
-
+                if (! isset($request['organization_id'])) { 
+                    return response()->json(['message' => 'must set organization id.'], 404); 
+                }
                 // Now do operations on each of the orders sent
                 foreach ($request->safe()->orders as $requestData) {
 
@@ -72,7 +92,9 @@ class OrderController extends Controller
                     $contractDetail = ContractDetail::where('id', $requestData['contract_detail_id'])->first();
                     $contract = Contract::where('id', $contractDetail->contract_id)->first();
 
-                    if ($organizationUser->organization_id != $contract->organization_id) {
+
+                    // 2024-08-31
+                    if ($request['organization_id'] != $contract->organization_id) {
                         return response()->json(['message' => 'invalid Vehicle Name is selected for the Order. or invalid Contract-Contact_Detail Selected. Deceptive request Aborted.'], 401); 
                     }
                     if ($contract->is_active != 1) {
@@ -151,7 +173,8 @@ class OrderController extends Controller
                     $order = Order::create([
                         'order_code' => $uniqueCode,
 
-                        'organization_id' => $organizationUser->organization_id,
+                        // 2024-08-31
+                        'organization_id' => $request['organization_id'],
                         'contract_detail_id' => $requestData['contract_detail_id'],
                         
                         'vehicle_name_id' => $contractDetail->vehicle_name_id,
