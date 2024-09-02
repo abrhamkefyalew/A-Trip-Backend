@@ -5,12 +5,11 @@ namespace App\Http\Resources\Api\V1\OrderResources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\Api\V1\DriverResources\DriverResource;
-use App\Http\Resources\Api\V1\SupplierResources\SupplierResource;
+use App\Http\Resources\Api\V1\VehicleResources\VehicleResource;
 use App\Http\Resources\Api\V1\VehicleNameResources\VehicleNameResource;
-use App\Http\Resources\Api\V1\VehicleResources\VehicleForOrganizationResource;
-use App\Http\Resources\Api\V1\ContractDetailResources\ContractDetailOrganizationResource;
+use App\Http\Resources\Api\V1\ContractDetailResources\ContractDetailSupplierResource;
 
-class OrderForOrganizationResource extends JsonResource
+class OrderForSupplierResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -22,13 +21,13 @@ class OrderForOrganizationResource extends JsonResource
         return [
             'id' => $this->id,
             'order_code' => $this->order_code,
-            'organization_id' => $this->organization_id,
             'contract_detail_id' => $this->contract_detail_id,
 
             'vehicle_name_id' => $this->vehicle_name_id,
             
             'vehicle_id' => $this->vehicle_id,
             'driver_id' => $this->driver_id,
+            'supplier_id' => $this->supplier_id,
 
             'start_date' => $this->start_date,
             'end_date' => $this->end_date,
@@ -54,7 +53,7 @@ class OrderForOrganizationResource extends JsonResource
                 return $this->vehicleName->load('vehicleType');
             })),
 
-            'vehicle' => VehicleForOrganizationResource::make($this->whenLoaded('vehicle', function () {
+            'vehicle' => VehicleResource::make($this->whenLoaded('vehicle', function () {
                 return $this->vehicle->load('address', 'media');
             })),
 
@@ -66,9 +65,7 @@ class OrderForOrganizationResource extends JsonResource
                 return $this->driver->load('address', 'media');
             })),
 
-            'contract_detail' => ContractDetailOrganizationResource::make($this->whenLoaded('contractDetail', function () {
-                return $this->contractDetail->load('contract');
-            })),
+            'contract_detail' => ContractDetailSupplierResource::make($this->whenLoaded('contractDetail')),
             
         ];
     }

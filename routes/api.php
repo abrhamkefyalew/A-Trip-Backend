@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\Admin\BankController;
 use App\Http\Controllers\Api\V1\Admin\AdminController;
 use App\Http\Controllers\Api\V1\Admin\OrderController;
+use App\Http\Controllers\Api\V1\Supplier\OrderController as OrderForSupplierController;
 use App\Http\Controllers\Api\V1\Admin\DriverController;
 use App\Http\Controllers\Api\V1\Admin\VehicleController;
 use App\Http\Controllers\Api\V1\Supplier\VehicleController as VehicleForSupplierController;
@@ -299,15 +300,15 @@ Route::prefix('v1')->group(function () {
                 // });
     
     
-                // Route::prefix('orders')->group(function () {
-                //     Route::post('/', [OrderForOrganizationController::class, 'store']);
-                //     Route::get('/', [OrderForOrganizationController::class, 'index']);
-                //     Route::prefix('/{contractDetail}')->group(function () {
-                //         Route::get('/', [OrderForOrganizationController::class, 'show']);
-                //         Route::put('/', [OrderForOrganizationController::class, 'update']);
-                //         Route::delete('/', [OrderForOrganizationController::class, 'destroy']);
-                //     }); 
-                // });
+                Route::prefix('orders')->group(function () {
+                    Route::post('/', [OrderForSupplierController::class, 'store']);
+                    Route::get('/', [OrderForSupplierController::class, 'index']);
+                    Route::prefix('/{contractDetail}')->group(function () {
+                        Route::get('/', [OrderForSupplierController::class, 'show']);
+                        Route::put('/', [OrderForSupplierController::class, 'update']);
+                        Route::delete('/', [OrderForSupplierController::class, 'destroy']);
+                    }); 
+                });
     
 
 

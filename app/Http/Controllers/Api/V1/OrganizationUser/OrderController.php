@@ -27,7 +27,7 @@ class OrderController extends Controller
         $user = auth()->user();
         $organizationUser = OrganizationUser::find($user->id);
         
-        $orders = Order::where('organization_id', $organizationUser->organization_id)->with('vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail')->latest()->paginate(FilteringService::getPaginate($request));       // this get multiple orders of the organization
+        $orders = Order::where('organization_id', $organizationUser->organization_id)->with('vehicleName', 'vehicle', 'driver', 'contractDetail')->latest()->paginate(FilteringService::getPaginate($request));       // this get multiple orders of the organization
 
         return OrderForOrganizationResource::collection($orders);
     }
@@ -198,7 +198,7 @@ class OrderController extends Controller
                 }
 
                 // WORKS
-                $orders = Order::whereIn('id', $orderIds)->with('vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail')->latest()->paginate(FilteringService::getPaginate($request));       // this get the orders created here
+                $orders = Order::whereIn('id', $orderIds)->with('vehicleName', 'vehicle', 'driver', 'contractDetail')->latest()->paginate(FilteringService::getPaginate($request));       // this get the orders created here
                 return OrderForOrganizationResource::collection($orders);
             
             }
@@ -229,13 +229,13 @@ class OrderController extends Controller
         }
 
 
-        return OrderForOrganizationResource::make($order->load('vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail'));
+        return OrderForOrganizationResource::make($order->load('vehicleName', 'vehicle', 'driver', 'contractDetail'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateOrderRequest $request, string $id)
+    public function update(UpdateOrderRequest $request, Order $order)
     {
         //
         // $var = DB::transaction(function () {
@@ -248,7 +248,7 @@ class OrderController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Order $order)
     {
         //
     }
