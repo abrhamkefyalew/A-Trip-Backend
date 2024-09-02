@@ -5,9 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\Admin\BankController;
 use App\Http\Controllers\Api\V1\Admin\AdminController;
 use App\Http\Controllers\Api\V1\Admin\OrderController;
-use App\Http\Controllers\Api\V1\OrganizationUser\OrderController as OrderForOrganizationController;
 use App\Http\Controllers\Api\V1\Admin\DriverController;
 use App\Http\Controllers\Api\V1\Admin\VehicleController;
+use App\Http\Controllers\Api\V1\Supplier\VehicleController as VehicleForSupplierController;
 use App\Http\Controllers\Api\V1\Admin\ContractController;
 use App\Http\Controllers\Api\V1\Admin\SupplierController;
 use App\Http\Controllers\Api\V1\Admin\DashBoardController;
@@ -15,10 +15,12 @@ use App\Http\Controllers\Api\V1\Admin\VehicleNameController;
 use App\Http\Controllers\Api\V1\Admin\VehicleTypeController;
 use App\Http\Controllers\Api\V1\Admin\OrganizationController;
 use App\Http\Controllers\Api\V1\Admin\ContractDetailController;
-use App\Http\Controllers\Api\V1\OrganizationUser\ContractDetailController as ContractDetailForOrganizationController;
 use App\Http\Controllers\Api\V1\Admin\OrganizationUserController;
 use App\Http\Controllers\Api\V1\Auth\AdminAuth\AdminAuthController;
+use App\Http\Controllers\Api\V1\Auth\SupplierAuth\SupplierAuthController;
 use App\Http\Controllers\Api\V1\Auth\OrganizationUserAuth\OrganizationUserAuthController;
+use App\Http\Controllers\Api\V1\OrganizationUser\OrderController as OrderForOrganizationController;
+use App\Http\Controllers\Api\V1\OrganizationUser\ContractDetailController as ContractDetailForOrganizationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -217,9 +219,9 @@ Route::prefix('v1')->group(function () {
     // organization users route (for organizations)
     Route::prefix('organization_user')->group(function () {
         Route::prefix('')->group(function () {
-            // there should NOT be hospitalWorker registration, -  
-            // hospitalWorker should be stored by an already existing hospitalWorker admin or super admin of the system -
-            // there should be a route for hospitalWorker storing by both hospitalWorker admin and super admin
+            // there should NOT be OrganizationUser registration, -  
+            // OrganizationUser should be stored by an already existing OrganizationUser admin or super admin of the system -
+            // there should be a route for OrganizationUser storing by both OrganizationUser admin and super admin
             Route::post('/login', [OrganizationUserAuthController::class, 'login']);
 
         });
@@ -262,6 +264,85 @@ Route::prefix('v1')->group(function () {
 
 
 
+
+
+
+
+
+
+        // Suppliers route (for Vehicle Suppliers)
+        Route::prefix('supplier')->group(function () {
+            Route::prefix('')->group(function () {
+                // there should NOT be Supplier registration, -  
+                // Supplier should be stored by super admin of the system -
+                // there should be a route for Supplier storing by super admin
+                Route::post('/login', [SupplierAuthController::class, 'login']);
+    
+            });
+    
+    
+            Route::middleware(['auth:sanctum', 'abilities:access-supplier'])->group(function () {
+    
+                Route::prefix('')->group(function () {
+                    Route::post('/logout', [SupplierAuthController::class, 'logout']);
+                    Route::post('/logout-all-devices', [SupplierAuthController::class, 'logoutAllDevices']);
+                });
+    
+                // Route::prefix('contract_details')->group(function () {
+                //     Route::post('/', [ContractDetailForOrganizationController::class, 'store']);
+                //     Route::get('/', [ContractDetailForOrganizationController::class, 'index']);
+                //     Route::prefix('/{contractDetail}')->group(function () {
+                //         Route::get('/', [ContractDetailForOrganizationController::class, 'show']);
+                //         Route::put('/', [ContractDetailForOrganizationController::class, 'update']);
+                //         Route::delete('/', [ContractDetailForOrganizationController::class, 'destroy']);
+                //     }); 
+                // });
+    
+    
+                // Route::prefix('orders')->group(function () {
+                //     Route::post('/', [OrderForOrganizationController::class, 'store']);
+                //     Route::get('/', [OrderForOrganizationController::class, 'index']);
+                //     Route::prefix('/{contractDetail}')->group(function () {
+                //         Route::get('/', [OrderForOrganizationController::class, 'show']);
+                //         Route::put('/', [OrderForOrganizationController::class, 'update']);
+                //         Route::delete('/', [OrderForOrganizationController::class, 'destroy']);
+                //     }); 
+                // });
+    
+
+
+                Route::prefix('vehicles')->group(function () {
+                    Route::post('/', [VehicleForSupplierController::class, 'store']);
+                    Route::get('/', [VehicleForSupplierController::class, 'index']);
+                    Route::prefix('/{vehicle}')->group(function () {
+                        Route::get('/', [VehicleForSupplierController::class, 'show']);
+                        Route::put('/', [VehicleForSupplierController::class, 'update']);
+                        Route::delete('/', [VehicleForSupplierController::class, 'destroy']);
+                    }); 
+                });
+
+                
+
+
+
+
+
+
+
+
+    
+            });
+    
+        });
+
+
+
+
+
+
+
+
+        
 
 
 

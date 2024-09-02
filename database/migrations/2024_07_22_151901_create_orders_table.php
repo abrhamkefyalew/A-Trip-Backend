@@ -17,7 +17,7 @@ return new class extends Migration
 
             $table->string('order_code'); // will be used if the a multiple vehicle order is made at once in one order request // so for them we use the same order code // it is not unique
 
-            $table->foreignId('organization_id')->constrained('organizations');
+            $table->foreignId('organization_id')->constrained('organizations'); // if super_admin updates orders table , he should not update this organization_id column // updating it may create a problem // so updating this is not a good idea
             $table->foreignId('contract_detail_id')->constrained('contract_details');
 
             $table->foreignId('vehicle_name_id')->constrained('vehicle_names'); // this should NOT be null

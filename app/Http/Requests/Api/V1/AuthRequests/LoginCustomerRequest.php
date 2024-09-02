@@ -4,7 +4,7 @@ namespace App\Http\Requests\Api\V1\AuthRequests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class LoginOrganizationUserRequest extends FormRequest
+class LoginCustomerRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,7 +22,7 @@ class LoginOrganizationUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-
+            //
             'email' => ['required', 'email'],
             // 'password' => ['required'],
             // 'phone_number' => [
