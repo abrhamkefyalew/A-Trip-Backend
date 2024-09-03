@@ -35,7 +35,7 @@ class ContractDetailResource extends JsonResource
             })),
 
             'vehicle_name' => VehicleNameResource::make($this->whenLoaded('vehicleName', function () {
-                return $this->vehicleName->load('vehicleType', 'vehicles');
+                return $this->vehicleName->load('vehicleType');
             })),
 
         ];

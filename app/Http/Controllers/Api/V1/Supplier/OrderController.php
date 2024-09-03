@@ -32,7 +32,7 @@ class OrderController extends Controller
 
         
         // from the vehicles of the logged in supplier lets get all the vehicle_name_ids separately
-        $vehicleNameIds = $vehicles->pluck('vehicle_name_id');
+        $vehicleNameIds = $vehicles->pluck('vehicle_name_id');  // ABRHAM CHECK , SAMSON // here we must REMOVE the duplicated vehicle_name ids from the vehicle_name_id list
 
 
         if ($request->has('order_status_search')) {

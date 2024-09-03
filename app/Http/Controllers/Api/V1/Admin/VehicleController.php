@@ -42,6 +42,16 @@ class VehicleController extends Controller
                 return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
             }
         }
+        else if ($request->has('vehicle_name_id_search')) {
+            if (isset($request['vehicle_name_id_search'])) {
+                $vehicleNameId = $request['vehicle_name_id_search'];
+
+                $vehicles = Vehicle::where('vehicle_name_id', $vehicleNameId);
+            } 
+            else {
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+            }
+        }
         else {
             $vehicles = Vehicle::whereNotNull('id');
         }
