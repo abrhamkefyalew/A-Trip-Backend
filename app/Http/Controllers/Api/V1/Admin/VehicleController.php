@@ -75,7 +75,7 @@ class VehicleController extends Controller
                 'vehicle_model' => $request['vehicle_model'],
                 'plate_number' => $request['plate_number'],
                 'year' => $request['year'],
-                'is_available' => $request->input('with_driver', Vehicle::VEHICLE_AVAILABLE),
+                'is_available' => $request->input('is_available', Vehicle::VEHICLE_AVAILABLE),
                 'with_driver' => (int) $request->input('with_driver', 0), // if the supplier_id does NOT send this field (the "with_driver" field) we will insert = 0 by default 
                                                                                     // 0 = means this vehicle do NOT have driver, i rent only the vehicle and NO driver will be included
 
