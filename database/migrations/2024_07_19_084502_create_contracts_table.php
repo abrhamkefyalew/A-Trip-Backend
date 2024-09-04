@@ -26,7 +26,7 @@ return new class extends Migration
 							                    // the "is_available" column in CONTRACT_DETAILs table should NOT be update separately,  // we ONLY update "is_available" when Terminating or UnTerminating the parent contract 
             
             $table->string('contract_name');
-            $table->string('contract_description')->nullable();
+            $table->longText('contract_description')->nullable();
 
 
 

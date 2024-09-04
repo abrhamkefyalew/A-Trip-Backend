@@ -53,7 +53,7 @@ return new class extends Migration
 
             $table->string('pr_status')->nullable(); // this is NULL when the order is made initially // this column is enum //
 
-            $table->string('order_description')->nullable();
+            $table->longText('order_description')->nullable();
 
 
             $table->timestamps();

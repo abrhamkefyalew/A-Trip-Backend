@@ -25,7 +25,7 @@ return new class extends Migration
 
 
             $table->string('vehicle_name')->nullable(); // should this column exist
-            $table->string('vehicle_description')->nullable();
+            $table->longText('vehicle_description')->nullable();
             $table->string('vehicle_model')->nullable(); // this column must exist
             $table->string('plate_number')->unique()->nullable(); // should this be nullable or required // check abrham // ASK SAMSON
             $table->string('year')->nullable();
