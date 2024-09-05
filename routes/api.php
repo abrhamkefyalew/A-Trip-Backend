@@ -305,7 +305,7 @@ Route::prefix('v1')->group(function () {
                     Route::get('/', [OrderForSupplierController::class, 'index']);
                     Route::prefix('/{contractDetail}')->group(function () {
                         Route::get('/', [OrderForSupplierController::class, 'show']);
-                        Route::put('/', [OrderForSupplierController::class, 'update']);
+                        Route::put('/', [OrderForSupplierController::class, 'acceptOrder']);
                         Route::delete('/', [OrderForSupplierController::class, 'destroy']);
                     }); 
                 });

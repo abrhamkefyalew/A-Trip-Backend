@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Api\V1\DriverRequests;
+namespace App\Http\Requests\Api\V1\SupplierRequests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateVehicleRequest extends FormRequest
+class UpdateOrderRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,7 +22,7 @@ class UpdateVehicleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // this update request is = to change VEHICLE_AVAILABLE, VEHICLE_NOT_AVAILABLE, VEHICLE_ON_TRIP, when a trip is completed, when vehicle is not available and when vehicle starts a trip - and such
+            // 
         ];
     }
 }

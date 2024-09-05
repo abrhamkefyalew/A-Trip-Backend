@@ -21,40 +21,42 @@ class VehicleController extends Controller
     {
         // $this->authorize('viewAny', Vehicle::class);
 
+        $vehicles = Vehicle::whereNotNull('id');
+        
         // use Filtering service OR Scope to do this
         if ($request->has('supplier_id_search')) {
             if (isset($request['supplier_id_search'])) {
                 $supplierId = $request['supplier_id_search'];
 
-                $vehicles = Vehicle::where('supplier_id', $supplierId);
+                $vehicles = $vehicles->where('supplier_id', $supplierId);
             } 
             else {
                 return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
             }
         }
-        else if ($request->has('driver_id_search')) {
+        if ($request->has('driver_id_search')) {
             if (isset($request['driver_id_search'])) {
                 $driverId = $request['driver_id_search'];
 
-                $vehicles = Vehicle::where('driver_id', $driverId);
+                $vehicles = $vehicles->where('driver_id', $driverId);
             } 
             else {
                 return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
             }
         }
-        else if ($request->has('vehicle_name_id_search')) {
+        if ($request->has('vehicle_name_id_search')) {
             if (isset($request['vehicle_name_id_search'])) {
                 $vehicleNameId = $request['vehicle_name_id_search'];
 
-                $vehicles = Vehicle::where('vehicle_name_id', $vehicleNameId);
+                $vehicles = $vehicles->where('vehicle_name_id', $vehicleNameId);
             } 
             else {
                 return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
             }
         }
-        else {
-            $vehicles = Vehicle::whereNotNull('id');
-        }
+        
+    
+        
         
 
         $vehicleData = $vehicles->with('media', 'vehicleName', 'address', 'supplier', 'driver', 'bank')->latest()->paginate(FilteringService::getPaginate($request));
@@ -137,7 +139,7 @@ class VehicleController extends Controller
                 MediaService::storeImage($vehicle, $file, $clearMedia, $collectionName);
             }
 
-            return VehicleResource::make($vehicle->load('media', 'vehicleName', 'supplier', 'driver', 'address'));
+            return VehicleResource::make($vehicle->load('media', 'vehicleName', 'address', 'supplier', 'driver', 'bank'));
 
 
             
@@ -152,7 +154,7 @@ class VehicleController extends Controller
     public function show(Vehicle $vehicle)
     {
         // $this->authorize('view', $vehicle);
-        return VehicleResource::make($vehicle->load('media', 'vehicleName', 'supplier', 'driver', 'address'));
+        return VehicleResource::make($vehicle->load('media', 'vehicleName', 'address', 'supplier', 'driver', 'bank'));
     }
 
     /**

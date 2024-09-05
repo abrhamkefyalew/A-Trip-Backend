@@ -27,6 +27,7 @@ return new class extends Migration
             $table->foreignId('driver_id')->nullable()->constrained('drivers'); // this is NULL when the order is made initially
             $table->foreignId('supplier_id')->nullable()->constrained('suppliers'); // this is NULL when the order is made initially
 
+            // these dates should NOT be null
             $table->date('start_date');    // if start_date is not mentioned OPTIONAL  // $table->date('start_date')->useCurrent(); OPTIONAL // is the OPTIONAL code insert it as default value CHECK
             $table->date('end_date'); // if the order is terminated , the order end_date will be assigned with the order termination date, and the original_end_date column will keep this original order end_date value 
                                                                                                                                                 // (because original_end_date column had been assigned the order end_date when the order is created initially)

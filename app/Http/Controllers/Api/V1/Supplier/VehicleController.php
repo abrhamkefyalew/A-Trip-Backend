@@ -22,24 +22,43 @@ class VehicleController extends Controller
         
         $user = auth()->user();
         $supplier = Supplier::find($user->id);
-        
-        if ($request->has('vehicle_name_id_search')) {
-            if (isset($request['vehicle_name_id_search'])) {
-                $vehicleNameId = $request['vehicle_name_id_search'];
 
-                $vehicles = Vehicle::where('supplier_id', $supplier->id)->where('vehicle_name_id', $vehicleNameId);
+        $vehicles = Vehicle::where('supplier_id', $supplier->id);
+
+        if ($request->has('driver_id_search')) {
+            if (isset($request['driver_id_search'])) {
+                $driverId = $request['driver_id_search'];
+
+                $vehicles = $vehicles->where('driver_id', $driverId);
             } 
             else {
                 return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
             }
-
         }
-        else {
-            $vehicles = Vehicle::where('supplier_id', $supplier->id);
+        if ($request->has('vehicle_name_id_search')) {
+            if (isset($request['vehicle_name_id_search'])) {
+                $vehicleNameId = $request['vehicle_name_id_search'];
+
+                $vehicles = $vehicles->where('vehicle_name_id', $vehicleNameId);
+            } 
+            else {
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+            }
         }
+        if ($request->has('with_driver_search')) {
+            if (isset($request['with_driver_search'])) {
+                $withDriverBoolValue = $request['with_driver_search'];  // IF supplier is filtering vehicles with vehicle_name_id TO ACCEPT AN ORDER,  then the with_driver_search value should be 0 // since supplier should see vehicles that have no driver
+
+                $vehicles = $vehicles->where('with_driver', $withDriverBoolValue);
+            } 
+            else {
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+            }
+        }
+        
 
 
-        $vehiclesData = $vehicles->with('media', 'vehicleName', 'address', 'supplier', 'driver', 'bank')->latest()->paginate(FilteringService::getPaginate($request));       // this get multiple vehicles of the supplier
+        $vehiclesData = $vehicles->with('media', 'vehicleName', 'address', 'driver', 'bank')->latest()->paginate(FilteringService::getPaginate($request));       // this get multiple vehicles of the supplier
 
         return VehicleResource::collection($vehiclesData);
     }
@@ -72,6 +91,8 @@ class VehicleController extends Controller
             // this vehicle is NOT be owned by the logged in supplier
             return response()->json(['message' => 'invalid Vehicle is selected or Requested. or the requested Vehicle is not found. Deceptive request Aborted.'], 401);
         }
+
+        return VehicleResource::make($vehicle->load('media', 'vehicleName', 'address', 'driver', 'bank'));
     }
 
     /**
