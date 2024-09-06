@@ -29,7 +29,7 @@ return new class extends Migration
 
             // these dates should NOT be null
             $table->date('start_date');    // if start_date is not mentioned OPTIONAL  // $table->date('start_date')->useCurrent(); OPTIONAL // is the OPTIONAL code insert it as default value CHECK
-            $table->date('end_date'); // if the order is terminated , the order end_date will be assigned with the order termination date, and the original_end_date column will keep this original order end_date value 
+            $table->date('end_date'); // if the order is terminated , the order end_date should be assigned with the order termination date, and the original_end_date column will keep this original order end_date value 
                                                                                                                                                 // (because original_end_date column had been assigned the order end_date when the order is created initially)
                                                                                                                                                         // as (original_end_date = the original order end_date value i.e [original_end_date = end_date] ) 
             // the start_date and end_date must be less than the Contract end_date

@@ -71,6 +71,11 @@ class OrderController extends Controller
                     $contractDetail = ContractDetail::where('id', $requestData['contract_detail_id'])->first();
                     $contract = Contract::where('id', $contractDetail->contract_id)->first();
 
+                    if (!$contract) {
+                        // contract not found
+                        return response()->json(['message' => 'Not Found - the server cannot find the requested resource. the Contract for the requested Vehicle Name does NOT exist.'], 404); 
+                    }
+
                     if ($organizationUser->organization_id != $contract->organization_id) {
                         return response()->json(['message' => 'invalid Vehicle Name is selected for the Order. or invalid Contract-Contact_Detail Selected. Deceptive request Aborted.'], 401); 
                     }

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Api\V1\Auth\SupplierAuth;
 
-use Illuminate\Http\Request;
 use App\Models\Supplier;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\Api\V1\AuthRequests\LoginSupplierRequest;
@@ -21,7 +21,7 @@ class SupplierAuthController extends Controller
         // better use load than with, since here after all we get the data , we are checking if the password does match,   
         // if password does not match all the data and relation and Eager Load is wasted and the data will NOT be returned
         // do first get only the supplier and if the password matches then get the other relations using load()
-        $supplier = Supplier::with(['address', 'media'])->where('email', $request->email)->where('is_active', 1)->first(); 
+        $supplier = Supplier::with(['address', 'media', 'vehicles'])->where('email', $request->email)->where('is_active', 1)->first(); 
 
         if ($supplier) {
             // if (Hash::check($request->password, $supplier->password)) {

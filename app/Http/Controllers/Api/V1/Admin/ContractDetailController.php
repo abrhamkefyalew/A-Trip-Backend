@@ -18,6 +18,11 @@ class ContractDetailController extends Controller
      * Display a listing of the resource.
      * 
      * in the below request, either he must send contract_id or organization_id
+     * 
+     * when the SUPER_ADMIN wants to make an order in behalf of an organization (i.e via call center), 
+     * he will use the following index method by passing organization_id , to list eligible contract details (with their corresponding vehicle_names)
+     * then he will select one of the contract details and make the order for the requester organization
+     * 
      */
     public function index(Request $request)
     {
@@ -123,7 +128,7 @@ class ContractDetailController extends Controller
                 'periodic' => (int) $request->input('periodic', 0),
                 'price_contract' => $request['price_contract'],
                 'price_vehicle_payment' => $request['price_vehicle_payment'],
-                'tax' => (int) $request->input('tax', ContractDetail::CONTRACT_DETAIL_DEFAULT_TAX_15),
+                'tax' => (int) $request->input('tax', ContractDetail::CONTRACT_DETAIL_DEFAULT_TAX_15), // use isset() or filled() on this one
                 'is_available' => 1, // is_available should be not be sent at ContractDetail store for the first time, it is "1" by default in the controller       // 1 = means parent contract not terminated   // 0 = means parent contract terminated
                             // the "is_available" column in CONTRACT_DETAILs table should NOT be update separately,  // we ONLY update "is_available" when Terminating or UnTerminating the PARENT CONTRACT
 							// if parent contract is Terminated (terminated_date=some_date)       // then we make all its child contract_details NOT Available by doing (is_available=0) 

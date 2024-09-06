@@ -28,9 +28,10 @@ class StoreVehicleRequest extends FormRequest
         return [
             //
             'vehicle_name_id' => 'required|integer|exists:vehicle_names,id',
-            'supplier_id' => 'sometimes|integer|exists:suppliers,id',
+            'supplier_id' => 'sometimes|nullable|integer|exists:suppliers,id',
             'driver_id' => [
                 'sometimes', 
+                'nullable',
                 'integer', 
                 'exists:drivers,id',            // Rule::exists('drivers'), // also works       // or       // Rule::exists('drivers', 'id'),
                 'unique:vehicles,driver_id',    // Rule::unique('vehicles'), // also works      // or       // Rule::unique('vehicles', 'driver_id'),

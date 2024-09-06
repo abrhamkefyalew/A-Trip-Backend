@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Api\V1\Admin;
 
 use Carbon\Carbon;
 use App\Models\Order;
+use App\Models\Driver;
+use App\Models\Vehicle;
 use App\Models\Contract;
+use App\Models\Supplier;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\ContractDetail;
@@ -12,8 +15,11 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Services\Api\V1\FilteringService;
 use App\Http\Resources\Api\V1\OrderResources\OrderResource;
+use App\Http\Requests\Api\V1\AdminRequests\StartOrderRequest;
 use App\Http\Requests\Api\V1\AdminRequests\StoreOrderRequest;
+use App\Http\Requests\Api\V1\AdminRequests\AcceptOrderRequest;
 use App\Http\Requests\Api\V1\AdminRequests\UpdateOrderRequest;
+use App\Http\Requests\Api\V1\AdminRequests\CompleteOrderRequest;
 
 class OrderController extends Controller
 {
@@ -24,20 +30,47 @@ class OrderController extends Controller
     {
         // $this->authorize('viewAny', Order::class);
 
+        $orders = Order::whereNotNull('id');
+
         // use Filtering service OR Scope to do this
         if ($request->has('organization_id_search')) {
             if (isset($request['organization_id_search'])) {
                 $organizationId = $request['organization_id_search'];
 
-                $orders = Order::where('organization_id', $organizationId);
+                $orders = $orders->where('organization_id', $organizationId);
             } 
             else {
                 return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
             } 
         }
-        else {
-            $orders = Order::whereNotNull('id');
+        if ($request->has('is_terminated_search')) {
+            if (isset($request['is_terminated_search'])) {
+                $isTerminated = $request['is_terminated_search'];
+
+                $orders = $orders->where('is_terminated', $isTerminated);
+            } 
+            else {
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+            } 
         }
+        if ($request->has('order_status_search')) {
+            if (isset($request['order_status_search'])) {
+                $orderStatus = $request['order_status_search'];
+
+                if (!in_array($orderStatus, [Order::ORDER_STATUS_PENDING, Order::ORDER_STATUS_SET, Order::ORDER_STATUS_START, Order::ORDER_STATUS_COMPLETE])) {
+                    return response()->json([
+                        'message' => 'order_status_search should only be ' . Order::ORDER_STATUS_PENDING . ', ' . Order::ORDER_STATUS_SET . ', ' . Order::ORDER_STATUS_START . ', or ' . Order::ORDER_STATUS_COMPLETE
+                    ], 422);
+                }
+
+                $orders = $orders->where('status', $orderStatus);
+            } 
+            else {
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+            }
+
+        }
+
 
         $ordersData = $orders->with('organization', 'vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail')->latest()->paginate(FilteringService::getPaginate($request));       // this get multiple orders of the organization
 
@@ -84,8 +117,11 @@ class OrderController extends Controller
                     $contractDetail = ContractDetail::where('id', $requestData['contract_detail_id'])->first();
                     $contract = Contract::where('id', $contractDetail->contract_id)->first();
 
+                    if (!$contract) {
+                        // contract not found
+                        return response()->json(['message' => 'Not Found - the server cannot find the requested resource. the Contract for the requested Vehicle Name does NOT exist.'], 404); 
+                    }
 
-                    // 2024-08-31
                     if ($request['organization_id'] != $contract->organization_id) {
                         return response()->json(['message' => 'The sent organization_id is NOT equal to the contract\'s organization_id for the selected vehicle_name. invalid Vehicle Name is selected for the Order. Deceptive request Aborted.'], 401); 
                     }
@@ -173,7 +209,6 @@ class OrderController extends Controller
                     $order = Order::create([
                         'order_code' => $uniqueCode,
 
-                        // 2024-08-31
                         'organization_id' => $request['organization_id'],
                         'contract_detail_id' => $requestData['contract_detail_id'],
                         
@@ -232,17 +267,384 @@ class OrderController extends Controller
         return OrderResource::make($order->load('organization', 'vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail'));
     }
 
+
+
     /**
      * Update the specified resource in storage.
+     * 
+     * to Accept Order = ORDER_STATUS_SET
+     */
+    public function acceptOrder(AcceptOrderRequest $request, Order $order)
+    {
+        //
+        $var = DB::transaction(function () use ($request, $order) {
+
+            $vehicle = Vehicle::find($request['vehicle_id']);
+            $supplier = Supplier::find($vehicle->supplier_id);  // i could use relation, instead of fetching all ,  =     $vehicle->supplier->is_active   and     $vehicle->supplier->is_approved         // check abrham samson
+            $driver = Driver::find($vehicle->driver_id);        // i could use relation, instead of fetching all ,  =     $vehicle->driver->is_active     and     $vehicle->supplier->is_approved         // check abrham samson
+            
+            if ($vehicle->vehicle_name_id !== $order->vehicle_name_id) {
+                return response()->json(['message' => 'invalid Vehicle is selected. or The Selected Vehicle does not match the orders requirement (the selected vehicle vehicle_name_id is NOT equal to the order vehicle_name_id). Deceptive request Aborted.'], 401); 
+            }
+
+            if ($vehicle->is_available !== Vehicle::VEHICLE_AVAILABLE) {
+                return response()->json(['message' => 'the selected vehicle is not currently available'], 401); 
+            }
+
+
+            // i could use relation, instead of fetching all ,  =     $vehicle->driver->is_active     and     $vehicle->supplier->is_approved         // check abrham samson
+            if ($driver) {
+                if ($driver->is_active != 1) {
+                    return response()->json(['message' => 'Forbidden: Deactivated Driver'], 403); 
+                }
+                if ($driver->is_approved != 1) {
+                    return response()->json(['message' => 'Forbidden: NOT Approved Driver'], 403); 
+                }
+            }
+            // i could use relation, instead of fetching all ,  =     $vehicle->supplier->is_active   and     $vehicle->supplier->is_approved         // check abrham samson
+            if ($supplier) {
+                if ($supplier->is_active != 1) {
+                    return response()->json(['message' => 'Forbidden: Deactivated Supplier'], 403); 
+                }
+                if ($supplier->is_approved != 1) {
+                    return response()->json(['message' => 'Forbidden: NOT Approved Supplier'], 403); 
+                }
+            }
+
+
+            
+
+
+
+
+
+
+
+
+            if ($order->status !== Order::ORDER_STATUS_PENDING) {
+                return response()->json(['message' => 'this order is not pending. it is already accepted , started or completed'], 403); 
+            }
+
+            if ($order->end_date < today()->toDateString()) {
+                return response()->json(['message' => 'this order is Expired already.'], 403); 
+            }
+
+            if ($order->is_terminated !== 0) {
+                return response()->json(['message' => 'this order is Terminated'], 403); 
+            }
+            
+            if (($order->vehicle_id !== null) || ($order->driver_id !== null) || ($order->supplier_id !== null)) {
+                return response()->json(['message' => 'this order is already being accepted and it already have a value on the columns (driver_id or supplier_id or vehicle_id) , for some reason'], 403); 
+            }
+
+
+            // TODO
+            // dd("order->contractDetail->with_driver" . $order->contractDetail->with_driver);
+
+            if ($vehicle->with_driver !== $order->contractDetail->with_driver) {        // TEST IF THIS DOES WORK = $order->contractDetail->with_driver         // check abrham samson
+
+                if (($vehicle->with_driver === 1) && ($order->contractDetail->with_driver === 0)) {
+                    return response()->json(['message' => 'the order does not need a driver'], 403); 
+                }
+                else if (($vehicle->with_driver === 0) && ($order->contractDetail->with_driver === 1)) {
+                    return response()->json(['message' => 'the order needs vehicle with a driver'], 403); 
+                }
+                
+
+                return response()->json(['message' => 'the vehicle with_driver value is not equal with that of the order requirement.'], 403); 
+                
+            }
+
+            // CHECK IF THE CONTRACT DETAIL IS NOT AVAILABLE
+            if ($order->contractDetail->is_available !== 1) { // TEST IF THIS DOES WORK = $order->contractDetail->with_driver       // also test if this condition is needed   // check abrham samson
+                return response()->json(['message' => 'this order contract_detail have is_available 0 currently for some reason, the contract_detail of this order should have is_available 1'], 403); 
+            }
+
+            // TODO check if the contract itself is expired or Terminated
+
+            
+            
+            $success = $order->update([
+                'vehicle_id' => $request['vehicle_id'],
+                'driver_id' => $vehicle->driver_id,         // handle if $vehicle->driver_id becomes NULL
+                'supplier_id' => $vehicle->supplier_id,     // handle if $vehicle->supplier_id becomes NULL
+                'status' => Order::ORDER_STATUS_SET,
+            ]);
+
+            
+            if (!$success) {
+                return response()->json(['message' => 'Update Failed'], 422);
+            }
+
+            $updatedOrder = Order::find($order->id);
+                
+            return OrderResource::make($updatedOrder->load('vehicleName', 'vehicle', 'supplier', 'contractDetail', 'organization'));
+                 
+        });
+
+        return $var;
+    }
+
+
+
+    /**
+     * Update the specified resource in storage.
+     * 
+     * to Start Order = ORDER_STATUS_START
+     * 
+     * 
+     */
+    public function startOrder(StartOrderRequest $request, Order $order)
+    {
+        // AUTOMATIC : - here we will make the vehicle is_available = VEHICLE_ON_TRIP
+
+    }
+
+
+
+    /**
+     * Update the specified resource in storage.
+     * 
+     * to Start Order = ORDER_STATUS_COMPLETE
+     * 
+     * 
+     */
+    public function completeOrder(CompleteOrderRequest $request, Order $order)
+    {
+        // AUTOMATIC : - here we will make the vehicle is_available = VEHICLE_AVAILABLE
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+    /**
+     * Update the specified resource in storage.
+     * 
+     * NOT RECOMMENDED, 
+     * 
+     * SHOULD BE TESTED in every way to ensure that it does not cause inconsistency and error
      */
     public function update(UpdateOrderRequest $request, Order $order)
     {
         //
-        // $var = DB::transaction(function () {
-            
-        // });
+        $var = DB::transaction(function () use ($request, $order) {
 
-        // return $var;
+            $vehicle = Vehicle::find($request['vehicle_id']);
+            $supplier = Supplier::find($vehicle->supplier_id);  // i could use relation, instead of fetching all ,  =     $vehicle->supplier->is_active   and     $vehicle->supplier->is_approved         // check abrham samson
+            $driver = Driver::find($vehicle->driver_id);        // i could use relation, instead of fetching all ,  =     $vehicle->driver->is_active     and     $vehicle->supplier->is_approved         // check abrham samson
+
+            if ($vehicle->vehicle_name_id !== $order->vehicle_name_id) {
+                return response()->json(['message' => 'invalid Vehicle is selected. or The Selected Vehicle does not match the orders requirement (the selected vehicle vehicle_name_id is NOT equal to the order vehicle_name_id). Deceptive request Aborted.'], 401); 
+            }
+
+            if ($vehicle->is_available !== Vehicle::VEHICLE_AVAILABLE) {
+                return response()->json(['message' => 'the selected vehicle is not currently available'], 401); 
+            }
+
+
+            // i could use relation, instead of fetching all ,  =     $vehicle->driver->is_active     and     $vehicle->supplier->is_approved         // check abrham samson
+            if ($driver) {
+                if ($driver->is_active != 1) {
+                    return response()->json(['message' => 'Forbidden: Deactivated Driver'], 403); 
+                }
+                if ($driver->is_approved != 1) {
+                    return response()->json(['message' => 'Forbidden: NOT Approved Driver'], 403); 
+                }
+            }
+            // i could use relation, instead of fetching all ,  =     $vehicle->supplier->is_active   and     $vehicle->supplier->is_approved         // check abrham samson
+            if ($supplier) {
+                if ($supplier->is_active != 1) {
+                    return response()->json(['message' => 'Forbidden: Deactivated Supplier'], 403); 
+                }
+                if ($supplier->is_approved != 1) {
+                    return response()->json(['message' => 'Forbidden: NOT Approved Supplier'], 403); 
+                }
+            }
+
+
+
+            // this contract_detail_id should be owned by the organization that the super_admin is making the order to
+            if ($request->has('contract_detail_id') && isset($request['contract_detail_id'])) {
+                $contractDetail = ContractDetail::where('id', $request['contract_detail_id'])->first();
+
+                if ($contractDetail) {
+                    if ($contractDetail->is_available != 1) {
+                        // the parent contract of this contract_detail is Terminated
+                        return response()->json(['message' => 'Not Found - the server cannot find the requested resource. The Contract Detail for this Vehicle Name is NOT Available, because the Contract for the requested Vehicle Name is Terminated.'], 404);
+                    }
+
+                    if ($vehicle->vehicle_name_id !== $contractDetail->vehicle_name_id) {
+                        return response()->json(['message' => 'the vehicle\'s vehicle_name_id is NOT equal to contractDetail\'s vehicle_name_id. Deceptive request Aborted.'], 401); 
+                    }
+
+                    $contract = Contract::where('id', $contractDetail->contract_id)->first();
+
+                    if ($contract) {
+                        if ($contract->terminated_date !== null) {
+                            // Contract is terminated
+                            return response()->json(['message' => 'Not Found - the server cannot find the requested resource. the Contract for the requested Vehicle Name is Terminated.'], 404); 
+                        }
+
+                        if ($request->has('organization_id') && isset($request['organization_id'])) {
+                            if ($request['organization_id'] != $contract->organization_id) {
+                                return response()->json(['message' => 'The sent organization_id is NOT equal to the contract\'s organization_id for the selected vehicle_name. invalid Vehicle Name is selected for the Order. Deceptive request Aborted.'], 401); 
+                            }
+                            
+                        }
+                    }
+                    else {
+                        return response()->json(['message' => 'Not Found - the server cannot find the requested resource. the contract_detail received from the request does not have Contract (Contract could not be found for the sent contract_detail in the request)'], 404); 
+                    }
+
+                } 
+                else {
+                    return response()->json(['message' => 'Not Found - the server cannot find the requested resource. the contract_detail received from the request does NOT exist'], 404); 
+                }
+            }
+
+            
+            
+
+
+            
+            
+            
+            // CHECK REQUEST DATEs (Order dates)
+            // todays date
+            $today = now()->format('Y-m-d');
+
+            if ($contract) {
+                $contractStartDate = Carbon::parse($contract->start_date)->toDateString();
+                $contractEndDate = Carbon::parse($contract->end_date)->toDateString();
+            }
+
+            // START DATE of order
+            if ($request->has('start_date') && isset($request['start_date'])) {
+
+                if (!strtotime($request['start_date'])) {
+                    return response()->json(['message' => 'Invalid date format.'], 400);
+                }
+                $orderRequestStartDate = Carbon::parse($request['start_date'])->toDateString();
+                
+
+                            
+                // order start date = must be today or in the days after today , (but start date can not be before today)
+                // Check if start_date is greater than or equal to today's date
+                if ($orderRequestStartDate < $today) {
+                    return response()->json(['message' => 'Order Start date must be greater than or equal to today\'s date.'], 400);
+                }
+
+                if ($contract) {
+                    if ($orderRequestStartDate < $contractStartDate) {
+                        return response()->json(['message' => 'Order Start date and end date must fall within the contract period.    order start_date can not be before the contract starting date'], 400);
+                    }
+                    if ($orderRequestStartDate > $contractEndDate) {
+                        return response()->json(['message' => 'Order Start date and end date must fall within the contract period.    order start_date can not be after the contract expiration date'], 400);
+                    }
+                }
+
+            }
+
+            // END DATE of order
+            if ($request->has('end_date') && isset($request['end_date'])) {
+
+                if (!strtotime($request['end_date'])) {
+                    return response()->json(['message' => 'Invalid date format.'], 400);
+                }
+                $orderRequestEndDate = Carbon::parse($request['end_date'])->toDateString();
+                
+
+                // order end date = must be today or in the days after today , (but end date can not be before today)
+                // Check if end_date is greater than or equal to today's date
+                if ($orderRequestEndDate < $today) {
+                    return response()->json(['message' => 'Order End date must be greater than or equal to today\'s date.'], 400);
+                }
+
+                if ($contract) {
+                    if ($orderRequestEndDate < $contractStartDate) {
+                        return response()->json(['message' => 'Order Start date and end date must fall within the contract period.    order end_date can not be before the contract starting date'], 400);
+                    }
+                    if ($orderRequestEndDate > $contractEndDate) {
+                        return response()->json(['message' => 'Order Start date and end date must fall within the contract period.    order end_date can not be after the contract expiration date'], 400);
+                    }
+                }
+                
+            }
+            
+            
+            if ( ($request->has('start_date') && isset($request['start_date'])) && ($request->has('end_date') && isset($request['end_date'])) ) {
+                // request_start_date should be =< request_end_date - for contracts and orders
+                if ($orderRequestStartDate > $orderRequestEndDate) {
+                    return response()->json(['message' => 'Order Start Date should not be greater than the Order End Date'], 400);
+                }
+            }
+
+
+
+
+
+
+
+            // DO THE ACTUAL UPDATE on Orders Table
+            $success = $order->update($request->validated());
+
+
+            if (isset($request['vehicle_id'])) {
+                $order->vehicle_id = $request['vehicle_id']; // this is duplicate , since the $success = $order->update($request->validated()); will have updated it , since it will find vehicle_id in $request->validated()
+                $order->driver_id = $vehicle->driver_id;
+                $order->supplier_id = $vehicle->supplier_id;
+            }
+            if ($request->has('is_terminated') && $request['is_terminated'] == 1) {
+                $order->end_date = today()->toDateString();
+            }
+            if ($request->has('contract_detail_id') && isset($request['contract_detail_id'])) {
+                // should the contract of the contract_detail be checked also // check abrham samson
+                $order->vehicle_name_id = $contractDetail->vehicle_name_id;
+                
+            }
+
+            $order->save();
+
+
+            if ($request->has('country') || $request->has('city')) {
+                if ($order->address) {
+                    $order->address()->update([
+                        'country' => $request->input('country'),
+                        'city' => $request->input('city'),
+                    ]);
+                } else {
+                    $order->address()->create([
+                        'country' => $request->input('country'),
+                        'city' => $request->input('city'),
+                    ]);
+                }
+            }
+
+
+            if (!$success) {
+                return response()->json(['message' => 'Update Failed'], 422);
+            }
+
+            $updatedOrder = Order::find($order->id);
+
+
+            return OrderResource::make($updatedOrder->load('organization', 'vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail'));
+
+            
+        });
+
+        return $var;
+
+        
     }
 
     /**

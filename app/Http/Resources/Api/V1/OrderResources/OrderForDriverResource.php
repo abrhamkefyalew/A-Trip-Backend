@@ -4,14 +4,13 @@ namespace App\Http\Resources\Api\V1\OrderResources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Http\Resources\Api\V1\DriverResources\DriverResource;
 use App\Http\Resources\Api\V1\VehicleResources\VehicleResource;
 use App\Http\Resources\Api\V1\SupplierResources\SupplierResource;
 use App\Http\Resources\Api\V1\VehicleNameResources\VehicleNameResource;
 use App\Http\Resources\Api\V1\OrganizationResources\OrganizationResource;
-use App\Http\Resources\Api\V1\ContractDetailResources\ContractDetailResource;
+use App\Http\Resources\Api\V1\ContractDetailResources\ContractDetailDriverResource;
 
-class OrderResource extends JsonResource
+class OrderForDriverResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -23,7 +22,6 @@ class OrderResource extends JsonResource
         return [
             'id' => $this->id,
             'order_code' => $this->order_code,
-            'organization_id' => $this->organization_id,
             'contract_detail_id' => $this->contract_detail_id,
 
             'vehicle_name_id' => $this->vehicle_name_id,
@@ -64,19 +62,12 @@ class OrderResource extends JsonResource
                 return $this->supplier->load('address', 'media');
             })), 
 
-
-            // ONE to ONE
-            // create custom DriverForOrganizationResource for organizations if you want
-            // but for now this will do
-            'vehicle_driver' => DriverResource::make($this->whenLoaded('driver', function () {
-                return $this->driver->load('address', 'media');
-            })),
-
+            // since he is the driver, he will meet with the organization, so he may as well see this relation
             'organization' => OrganizationResource::make($this->whenLoaded('organization', function () {
                 return $this->organization->load('address', 'media');
             })),
 
-            'contract_detail' => ContractDetailResource::make($this->whenLoaded('contractDetail')),
+            'contract_detail' => ContractDetailDriverResource::make($this->whenLoaded('contractDetail')),
             
         ];
     }

@@ -103,16 +103,15 @@ class Order extends Model implements HasMedia
     public const ORDER_STATUS_PENDING = 'PENDING'; // when order is made
     public const ORDER_STATUS_SET = 'SET'; // when a driver or supplier accepts an order 
 
-    // the below are only for order with driver
-    public const ORDER_STATUS_START = 'START'; // when the driver arrives at the place where the trip starts & meets the order maker and starts to transport him
-    public const ORDER_STATUS_COMPLETE = 'COMPLETE'; // when the driver takes the order maker to the destination and the order is completed
+    public const ORDER_STATUS_START = 'START'; // when the driver arrives at the place where the trip starts & meets the order maker and starts to transport him    or  when a vehicle departs from the supplier
+    public const ORDER_STATUS_COMPLETE = 'COMPLETE'; // when the driver takes the order maker to the destination and the order is completed                         or  when the vehicle is returned back to the supplier
 
 
     // PR status constants
     public const ORDER_PR_STARTED = 'PR_STARTED';
-    public const ORDER_PR_COMPLETED = 'PR_COMPLETED';
-    public const ORDER_PR_TERMINATED = 'PR_TERMINATED';
-    public const ORDER_PR_ABORTED = 'PR_ABORTED';
+    public const ORDER_PR_COMPLETED = 'PR_COMPLETED'; // IF pr asking for an Order is completed // but not paid yet
+    public const ORDER_PR_PAID = 'PR_PAID'; // when the PR is paid by the organization for the order we CLOSE it using this constant
+    public const ORDER_PR_TERMINATED = 'PR_TERMINATED'; // in any case if the pr payment is terminated
     
 
 }

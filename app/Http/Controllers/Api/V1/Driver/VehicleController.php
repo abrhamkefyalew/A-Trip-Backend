@@ -1,16 +1,15 @@
 <?php
 
-namespace App\Http\Controllers\Api\V1\Supplier;
+namespace App\Http\Controllers\Api\V1\Driver;
 
+use App\Models\Driver;
 use App\Models\Vehicle;
-use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Services\Api\V1\FilteringService;
 use App\Http\Resources\Api\V1\VehicleResources\VehicleResource;
-use App\Http\Requests\Api\V1\SupplierRequests\StoreVehicleRequest;
-use App\Http\Requests\Api\V1\SupplierRequests\UpdateVehicleRequest;
+use App\Http\Requests\Api\V1\DriverRequests\UpdateVehicleRequest;
 
 class VehicleController extends Controller
 {
@@ -20,22 +19,13 @@ class VehicleController extends Controller
     public function index(Request $request)
     {
         //
-        
+
         $user = auth()->user();
-        $supplier = Supplier::find($user->id);
+        $driver = Driver::find($user->id);
 
-        $vehicles = Vehicle::where('supplier_id', $supplier->id);
+        $vehicles = Vehicle::where('driver_id', $driver->id);
 
-        if ($request->has('driver_id_search')) {
-            if (isset($request['driver_id_search'])) {
-                $driverId = $request['driver_id_search'];
 
-                $vehicles = $vehicles->where('driver_id', $driverId);
-            } 
-            else {
-                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
-            }
-        }
         if ($request->has('vehicle_name_id_search')) {
             if (isset($request['vehicle_name_id_search'])) {
                 $vehicleNameId = $request['vehicle_name_id_search'];
@@ -46,28 +36,20 @@ class VehicleController extends Controller
                 return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
             }
         }
-        if ($request->has('with_driver_search')) {
-            if (isset($request['with_driver_search'])) {
-                $withDriverBoolValue = $request['with_driver_search'];  // IF supplier is filtering vehicles with vehicle_name_id TO ACCEPT AN ORDER,  then the with_driver_search value should be 0 // since supplier should ONLY see vehicles that have no driver
 
-                $vehicles = $vehicles->where('with_driver', $withDriverBoolValue);
-            } 
-            else {
-                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
-            }
-        }
         
-
-
-        $vehiclesData = $vehicles->with('media', 'vehicleName', 'address', 'driver', 'bank')->latest()->paginate(FilteringService::getPaginate($request));       // this get multiple vehicles of the logged in supplier
+        $vehiclesData = $vehicles->with('media', 'vehicleName', 'address', 'supplier', 'bank')->latest()->paginate(FilteringService::getPaginate($request));       // this get the single vehicle of the logged in driver // only one vehicle should be returned
 
         return VehicleResource::collection($vehiclesData);
     }
 
     /**
      * Store a newly created resource in storage.
+     * 
+     * Driver should NOT store vehicle
+     * 
      */
-    public function store(StoreVehicleRequest $request)
+    public function store(Request $request)
     {
         //
         // $var = DB::transaction(function () {
@@ -83,28 +65,27 @@ class VehicleController extends Controller
     public function show(Vehicle $vehicle)
     {
         //
-        // get the logged in supplier
+        // get the logged in driver
         $user = auth()->user();
-        $supplier = Supplier::find($user->id);
+        $driver = Driver::find($user->id);
 
         
-        if ($supplier->id != $vehicle->supplier_id) {
-            // this vehicle is NOT be owned by the logged in supplier
+        if ($driver->id != $vehicle->driver_id) {
+            // this vehicle is NOT be owned by the logged in driver
             return response()->json(['message' => 'invalid Vehicle is selected or Requested. or the requested Vehicle is not found. Deceptive request Aborted.'], 401);
         }
 
-        return VehicleResource::make($vehicle->load('media', 'vehicleName', 'address', 'driver', 'bank'));
+        return VehicleResource::make($vehicle->load('media', 'vehicleName', 'address', 'supplier', 'bank'));
     }
 
     /**
      * Update the specified resource in storage.
      * 
      * 
-     * supplier can change vehicle is_available here = is_available can be switched between (VEHICLE_NOT_AVAILABLE, VEHICLE_AVAILABLE, VEHICLE_ON_TRIP)
+     * driver can change vehicle is_available here = is_available can be switched between (VEHICLE_NOT_AVAILABLE, VEHICLE_AVAILABLE, VEHICLE_ON_TRIP)
      * 
-     * supplier can do driver DETACH and ATTACH here
-     * 
-     * supplier can also update other vehicle attributes (except his own supplier_id)
+     * driver can also update some of the other vehicle attributes // but NOT all of them // 
+     * Because of restrictions the Driver can only update some of the vehicle attributes , not all of them
      * 
      */
     public function update(UpdateVehicleRequest $request, Vehicle $vehicle)
@@ -113,17 +94,18 @@ class VehicleController extends Controller
         $var = DB::transaction(function () use ($request, $vehicle) {
 
             $user = auth()->user();
-            $supplier = Supplier::find($user->id);
+            $driver = Driver::find($user->id);
 
             
-            if ($supplier->id != $vehicle->supplier_id) {
-                // this vehicle is NOT be owned by the logged in supplier
+            if ($driver->id != $vehicle->driver_id) {
+                // this vehicle is NOT be owned by the logged in driver
                 return response()->json(['message' => 'invalid Vehicle is selected or Requested. or the requested Vehicle is not found. Deceptive request Aborted.'], 401);
             }
             
 
             $success = $vehicle->update($request->validated());
 
+            // since the driver is holding the vehicle moving it around in different locations, he too can update the location of the vehicle
             if ($request->has('country') || $request->has('city')) {
                 if ($vehicle->address) {
                     $vehicle->address()->update([
@@ -141,7 +123,7 @@ class VehicleController extends Controller
 
 
             // MEDIA CODE SECTION
-            // do not forget to do the MEDIA UPDATE also // check abrham samson // remember
+            // Driver should NOT be allowed to update any of the media section
 
 
 
@@ -152,18 +134,19 @@ class VehicleController extends Controller
             $updatedVehicle = Vehicle::find($vehicle->id);
 
 
-            return VehicleResource::make($updatedVehicle->load('media', 'vehicleName', 'address', 'driver', 'bank'));
+            return VehicleResource::make($updatedVehicle->load('media', 'vehicleName', 'address', 'supplier', 'bank'));
 
             
         });
 
         return $var;
+        
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Vehicle $vehicle)
+    public function destroy(string $id)
     {
         //
     }

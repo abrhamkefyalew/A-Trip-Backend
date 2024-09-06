@@ -46,7 +46,7 @@ class StoreDriverRequest extends FormRequest
             // this column can ONLY be Set by the SUPER_ADMIN, 
             // if Driver is registering himself , he can NOT send the is_approved field
             'is_approved' => [
-                'sometimes', 'nullable', 'boolean',
+                'required', 'nullable', 'boolean',
             ],
 
 
