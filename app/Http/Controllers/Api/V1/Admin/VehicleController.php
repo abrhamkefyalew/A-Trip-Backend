@@ -54,7 +54,16 @@ class VehicleController extends Controller
                 return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
             }
         }
-        
+        if ($request->has('with_driver_search')) {
+            if (isset($request['with_driver_search'])) {
+                $withDriverBool = $request['with_driver_search'];
+
+                $vehicles = $vehicles->where('with_driver', $withDriverBool);
+            } 
+            else {
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+            }
+        }
     
         
         
