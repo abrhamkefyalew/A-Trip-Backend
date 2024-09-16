@@ -101,7 +101,7 @@ class InvoiceController extends Controller
 
                 $invoices = $invoices->where('invoice_code', $invoiceCode);
 
-                $invoiceData = $invoices->with('order', 'organization')->latest()->get();
+                $invoiceData = $invoices->with('order')->latest()->get();
 
                 // $totalPriceAmount now contains the total price_amount of all invoices with the specified 'invoice_code' , status unpaid and paid_date null // it will do add all invoices with the specified invoice_code (that are not paid and have null paid date)
                 $totalPriceAmount = Invoice::where('invoice_code', $invoiceCode)
