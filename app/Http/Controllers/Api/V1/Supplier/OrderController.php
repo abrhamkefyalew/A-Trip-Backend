@@ -277,7 +277,7 @@ class OrderController extends Controller
      */
     public function startOrder(StartOrderRequest $request, Order $order)
     {
-        // AUTOMATIC : - here we will make the vehicle is_available = VEHICLE_ON_TRIP
+        // AUTOMATIC : - here we will make the vehicle is_available = VEHICLE_ON_TRIP           - ALSO order begin_date will be set to today()      - ALSO order status will be ORDER_STATUS_START
 
     }
 

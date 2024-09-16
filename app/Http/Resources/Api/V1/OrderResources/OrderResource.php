@@ -33,6 +33,7 @@ class OrderResource extends JsonResource
             'supplier_id' => $this->supplier_id,
 
             'start_date' => $this->start_date,
+            'begin_date' => $this->begin_date,
             'end_date' => $this->end_date,
 
             'start_location' => $this->start_location,

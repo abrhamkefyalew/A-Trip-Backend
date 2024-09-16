@@ -1,0 +1,433 @@
+<?php
+
+namespace App\Http\Controllers\Api\V1\Admin;
+
+use Carbon\Carbon;
+use App\Models\Order;
+use App\Models\Invoice;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use App\Services\Api\V1\FilteringService;
+use App\Http\Requests\Api\V1\AdminRequests\StoreInvoiceRequest;
+use App\Http\Resources\Api\V1\InvoiceResources\InvoiceResource;
+use App\Http\Requests\Api\V1\AdminRequests\UpdateInvoiceRequest;
+
+class InvoiceController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request)
+    {
+        // $this->authorize('viewAny', Invoice::class);
+
+        /* $validatedData = */ $request->validate([
+            'invoice_status_search' => [
+                'sometimes', 'string', Rule::in([Invoice::INVOICE_STATUS_NOT_PAYED, Invoice::INVOICE_STATUS_PAYED]),
+            ],
+            // Other validation rules if needed
+        ]);
+
+        $invoices = Invoice::whereNotNull('id');
+
+        // use Filtering service OR Scope to do this
+        if ($request->has('organization_id_search')) {
+            if (isset($request['organization_id_search'])) {
+                $organizationId = $request['organization_id_search'];
+
+                $invoices = $invoices->where('organization_id', $organizationId);
+            } 
+            else {
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+            } 
+        }
+        if ($request->has('order_id_search')) {
+            if (isset($request['order_id_search'])) {
+                $orderId = $request['order_id_search'];
+
+                $invoices = $invoices->where('order_id', $orderId);
+            } 
+            else {
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+            } 
+        }
+        if ($request->has('invoice_code_search')) {
+            if (isset($request['invoice_code_search'])) {
+                $invoiceCode = $request['invoice_code_search'];
+
+                $invoices = $invoices->where('invoice_code', $invoiceCode);
+            } 
+            else {
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+            } 
+        }
+        if ($request->has('invoice_status_search')) {
+            if (isset($request['invoice_status_search'])) {
+                $invoiceStatus = $request['invoice_status_search'];
+
+                $invoices = $invoices->where('status', $invoiceStatus);
+            } 
+            else {
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+            }
+
+        }
+
+        
+
+        $invoiceData = $invoices->with('order', 'organization')->latest()->paginate(FilteringService::getPaginate($request));
+
+        return InvoiceResource::collection($invoiceData);
+    }
+
+
+
+    /**
+     * Display a listing of the resource.
+     * 
+     * But Filtered by invoice_code
+     * 
+     * CAN ONLY see the UNPAID invoices of some invoice code (NOT PAID invoices of an invoice_code)
+     * 
+     */
+    public function indexByInvoiceCode(Request $request)
+    {
+        // $this->authorize('viewAny', Invoice::class);
+
+
+        $invoices = Invoice::whereNotNull('id');
+
+        // use Filtering service OR Scope to do this
+        if ($request->has('invoice_code_search')) {
+            if (isset($request['invoice_code_search'])) {
+                $invoiceCode = $request['invoice_code_search'];
+
+                $invoices = $invoices->where('invoice_code', $invoiceCode);
+
+                $invoiceData = $invoices->with('order', 'organization')->latest()->get();
+
+                // $totalPriceAmount now contains the total price_amount of all invoices with the specified 'invoice_code' , status unpaid and paid_date null // it will do add all invoices with the specified invoice_code (that are not paid and have null paid date)
+                $totalPriceAmount = Invoice::where('invoice_code', $invoiceCode)
+                    ->where('status', Invoice::INVOICE_STATUS_NOT_PAYED)
+                    ->where('paid_date', null)
+                    ->sum('price_amount');
+
+                return response()->json(
+                    [
+                        'price_amount_total' => $totalPriceAmount,
+                        'invoice_code_requested_value' => $invoiceCode,
+                        'data' => InvoiceResource::collection($invoiceData),
+                    ],
+                    200
+                );
+            } 
+            else {
+                return response()->json(['message' => 'Required parameter "invoice_code_search" is empty or Value Not Set'], 422);
+            } 
+        }
+        else {
+            return response()->json(['message' => 'Required parameter "invoice_code_search" is missing'], 422);
+        } 
+        
+    }
+
+
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StoreInvoiceRequest $request)
+    {
+        //
+        $var = DB::transaction(function () use ($request) {
+
+            if ($request->has('invoices')) {
+                
+                $invoiceIds = [];
+
+                
+                // Check if all orders have the same organization_id            // a PR request or multiple PR request should be sent for only one organization at a time
+                $orderIds = $request->input('invoices.*.order_id');
+                $organizationIds = Order::whereIn('id', $orderIds)->pluck('organization_id')->unique();
+                if ($organizationIds->count() > 1) {
+                    return response()->json(['message' => 'All orders must belong to the same organization.'], 422);
+                }
+                if ($organizationIds->count() < 1) {
+                    return response()->json(['message' => 'no valid organization_id for the order.'], 422);
+                }
+                // Now we are sure all the orders in the invoice request belong to one organization
+                // So let's get that one organization_id
+                $organizationId = $organizationIds->first(); // Retrieves the first organization_id from the unique collection  // // Now $organizationId contains the organization_id that can be used for insertion into subsequent tables
+
+                
+
+                // Generate a random invoice code
+                $uniqueCode = Str::random(20); // Adjust the length as needed
+
+                // Check if the generated code already exists in the database
+                while (Invoice::where('invoice_code', $uniqueCode)->exists()) {
+                    $uniqueCode = Str::random(20); // Regenerate the code if it already exists
+                }
+
+
+                // todays date
+                $today = now()->format('Y-m-d');
+
+
+
+
+
+
+
+
+
+
+
+
+                // this foreach is to check for every validation and error handling BEFORE diving in to the second foreach and doing the actual operation
+                // i used this approach so that      i would not ABORT in the second foreach when ERROR is found in the middle of doing the actual operation, // it is to decrease data inconsistency caused when handling errors in the second foreach
+                foreach ($request->safe()->invoices as $requestData) {
+                    $order = Order::find($requestData['order_id']);
+
+                    // lets check the order actual status
+                    if ($order->status === Order::ORDER_STATUS_PENDING) {
+                        return response()->json(['message' => 'you can not ask PR for an order with a status PENDING. order: ' . $order->id . ' , an order must have status START or COMPLETE to be eligible for PR asking.'], 404);
+                    }
+                    if ($order->status === Order::ORDER_STATUS_SET) {
+                        return response()->json(['message' => 'you can not ask PR for an order with a status SET. the order is only accepted and not started. order: ' . $order->id . ' , an order must have status START or COMPLETE to be eligible for PR asking.'], 404);
+                    }
+                    
+
+                    // lets check the order pr_status
+                    if ($order->pr_status === Order::ORDER_PR_LAST) {
+                        return response()->json(['message' => 'every Available PR request have been already asked for this order: ' . $order->id . ' , The order have PR_LAST status.'], 404);
+                    }
+                    if ($order->pr_status === Order::ORDER_PR_COMPLETED) {
+                        return response()->json(['message' => 'all PR is paid for this order: ' . $order->id . ' , The order have PR_COMPLETED status.'], 404);
+                    }
+                    if ($order->pr_status === Order::ORDER_PR_TERMINATED) {
+                        return response()->json(['message' => 'this order PR is terminated for some reason. please check with the organization why it is terminated. order: ' . $order->id . ' , The order have PR_TERMINATED status.'], 404);
+                    }
+
+
+                    // invoice date // from the request
+                    $invoiceRequestEndDateValue = Carbon::parse($requestData['end_date'])->toDateString();
+                    // order end date // from orders table in the database
+                    $orderEndDate = Carbon::parse($order->end_date)->toDateString();
+                   
+
+                    if ($invoiceRequestEndDateValue >= $today) {
+                        return response()->json(['message' => 'an invoice End date must be Less than Today.'], 400);
+                    }
+
+                    // invoice end_date from the request can NOT be greater than the order end_date. // but invoice end_date from the request can be EQUALs to the order end_date
+                    if ($invoiceRequestEndDateValue > $orderEndDate) {
+                        return response()->json(['message' => 'invoice end_date in the request can NOT be greater than the order end_date.    invoice asking end_date can NOT be after the date the order ends'], 400);
+                    }
+
+
+                    if ($order->pr_status === null) {
+                        // this means the PR request we are making is for the first time (PR request made for FIRST time)
+                        // in this case we include the order begin_date to calculate the price
+                        // this means = (DATE DIFFERENCE + 1) // because the begin_date is entitled for payment also
+
+
+                        // order begin date // from orders table in the database
+                        $orderBeginDate = Carbon::parse($order->begin_date)->toDateString();
+                        
+                        // invoice end_date from the request can NOT be less than the order begin_date. // but invoice end_date from the request can be EQUALs to the order begin_date
+                        if ($invoiceRequestEndDateValue < $orderBeginDate) {
+                            return response()->json(['message' => 'invoice end_date in the request can NOT be less than the order begin_date.    invoice asking end_date can NOT be before the date the order begins'], 400);
+                        }
+
+
+                    }
+                    else if ($order->pr_status === Order::ORDER_PR_STARTED && Invoice::where('order_id', $order->id)->exists()) {
+                        // this means the PR request we are making is NOT for the first time (PR request made for SUBSEQUENT time)
+                        // in this case we does NOT include the last invoice end_date to calculate the price BECAUSE that date is considered in price calculation in the last invoice
+                        // this means only = (DATE DIFFERENCE) // only the actual subtraction will be used
+
+
+                        // lets get the last invoice asked with this order_id
+                        $lastInvoice = $order->invoices()->latest()->first();
+
+                        if (!$lastInvoice) {
+                            return response()->json(['message' => 'The last invoice asked for this order can not be found. This Invoice Can NOT be Processed'], 422);
+                        }
+
+
+                        // the last asked invoice end_date of this order // from invoices table in the database
+                        $lastInvoiceEndDate = Carbon::parse($lastInvoice->end_date)->toDateString();
+
+                        // invoice end_date from the request can NOT be Less than or Equals to the last invoice end_date. // invoice end_date from the request should always be greater than the last invoice end_date
+                        if ($invoiceRequestEndDateValue <= $lastInvoiceEndDate) {
+                            return response()->json(['message' => 'invoice end_date in the request can NOT be Less than or Equal to the last asked invoice (end_date) of this order.    invoice end_date from the request should always be greater than the last asked invoice (end_date) of this order'], 400);
+                        }
+                        
+
+
+                    }
+                    else {
+                        return response()->json(['message' => 'This Invoice Can NOT be Processed'], 422);
+                    }
+
+
+
+                }
+
+
+
+
+
+
+
+
+                // Now We are sure all the impurities are filtered in the above foreach
+                // So do the ACTUAL Operations on each of the invoices sent in the request
+                foreach ($request->safe()->invoices as $requestData) {
+                    $order = Order::find($requestData['order_id']);
+
+
+                    // invoice date // from the request
+                    $invoiceRequestEndDate = Carbon::parse($requestData['end_date']); // because we need this for calculation we removed the toDateString
+                    $invoiceRequestEndDateStringVersion = Carbon::parse($requestData['end_date'])->toDateString(); // this is used for comparison in the following if condition
+                    // order end date // from orders table in the database
+                    $orderEndDate = Carbon::parse($order->end_date)->toDateString();
+
+                    // get the daily price of the order vehicle_name_id from contract_details_table;
+                    $orderPricePerDay = $order->contractDetail->price_contract;
+
+                    
+                    if ($invoiceRequestEndDateStringVersion < $orderEndDate) {
+                        $prStatus = Order::ORDER_PR_STARTED;
+                    }
+                    if ($invoiceRequestEndDateStringVersion = $orderEndDate) {
+                        $prStatus = Order::ORDER_PR_LAST;
+                    }
+                    
+
+                    
+                    if ($order->pr_status === null) {
+                        // this means the PR request we are making is for the first time (PR request made for FIRST time)
+                        // in this case we include the order begin_date to calculate the price
+                        // this means = (DATE DIFFERENCE + 1) // because the begin_date is entitled for payment also
+
+                        $invoiceStartDate = Carbon::parse($order->begin_date); // because we need this for calculation we removed the toDateString
+
+                        // the diffInDays method in Carbon accurately calculates the difference in days between two dates, considering the specific dates provided, including the actual number of days in each month and leap years. 
+                        // It does not assume all months have a fixed number of days like 30 days.
+                        $differenceInDays = $invoiceRequestEndDate->diffInDays($invoiceStartDate);
+
+                        // this means = (DATE DIFFERENCE + 1) // because the order begin_date is entitled for payment also
+                        $differenceInDaysPlusBeginDate = $differenceInDays + 1;
+                        
+                        $invoicePriceAmountOfAllAskedDays = $differenceInDaysPlusBeginDate * $orderPricePerDay;
+
+
+
+                    }
+                    else if ($order->pr_status === Order::ORDER_PR_STARTED && Invoice::where('order_id', $order->id)->exists()) {
+                        // this means the PR request we are making is NOT for the first time (PR request made for SUBSEQUENT time)
+                        // in this case we does NOT include the last invoice end_date to calculate the price BECAUSE that date is considered in price calculation in the last invoice
+                        // this means only = (DATE DIFFERENCE) // only the actual subtraction will be used
+
+
+                        // lets get the last invoice asked with this order_id
+                        $lastInvoice = $order->invoices()->latest()->first();
+
+                        if (!$lastInvoice) {
+                            return response()->json(['message' => 'The last invoice asked for this order can not be found. This Invoice Can NOT be Processed'], 422);
+                        }
+
+
+                        // the last asked invoice end_date of this order // from invoices table in the database
+                        $invoiceStartDate = Carbon::parse($lastInvoice->end_date); // because we need this for calculation we removed the toDateString
+
+                        // the diffInDays method in Carbon accurately calculates the difference in days between two dates, considering the specific dates provided, including the actual number of days in each month and leap years. 
+                        // It does not assume all months have a fixed number of days like 30 days.
+                        $differenceInDays = $invoiceRequestEndDate->diffInDays($invoiceStartDate);
+
+                        $invoicePriceAmountOfAllAskedDays = $differenceInDays * $orderPricePerDay;
+
+
+                    }
+                    else {
+                        return response()->json(['message' => 'This Invoice Can NOT be Processed'], 422);
+                    }
+
+
+                    $invoice = Invoice::create([
+                        'invoice_code' => $uniqueCode,
+
+                        'order_id' => $requestData['order_id'],
+                        'organization_id' => $organizationId,
+
+                        'start_date' => $invoiceStartDate,
+                        'end_date' => $requestData['end_date'],
+
+                        'price_amount' => $invoicePriceAmountOfAllAskedDays,
+                        'status' => Invoice::INVOICE_STATUS_NOT_PAYED,
+                        'paid_date' => null,                           // is NULL when the invoice is created initially, // and set when the invoice is paid by the organization                                                                                  
+                    ]);
+                    //
+                    if (!$invoice) {
+                        return response()->json(['message' => 'Invoice Create Failed'], 422);
+                    }
+
+
+                    $success = $order->update([
+                        'status' => $prStatus,
+                    ]);
+                    //
+                    if (!$success) {
+                        return response()->json(['message' => 'Order Update Failed'], 422);
+                    }
+
+                    $invoiceIds[] = $invoice->id;
+
+                }
+
+                // this get the invoices created from the above two if conditions 
+                $invoicesData = Invoice::whereIn('id', $invoiceIds)->with('order', 'organization')->latest()->paginate(FilteringService::getPaginate($request));   
+                return InvoiceResource::collection($invoicesData);
+                
+            }
+            
+            
+        });
+
+        return $var;
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Invoice $invoice)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(UpdateInvoiceRequest $request, Invoice $invoice)
+    {
+        //
+        // $var = DB::transaction(function () {
+            
+        // });
+
+        // return $var;
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Invoice $invoice)
+    {
+        //
+    }
+}

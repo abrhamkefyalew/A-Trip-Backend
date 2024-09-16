@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\Admin\BankController;
 use App\Http\Controllers\Api\V1\Admin\AdminController;
 use App\Http\Controllers\Api\V1\Admin\OrderController;
 use App\Http\Controllers\Api\V1\Admin\DriverController;
+use App\Http\Controllers\Api\V1\Admin\InvoiceController;
 use App\Http\Controllers\Api\V1\Admin\VehicleController;
 use App\Http\Controllers\Api\V1\Admin\ContractController;
 use App\Http\Controllers\Api\V1\Admin\SupplierController;
@@ -18,12 +19,13 @@ use App\Http\Controllers\Api\V1\Admin\OrganizationUserController;
 use App\Http\Controllers\Api\V1\Auth\AdminAuth\AdminAuthController;
 use App\Http\Controllers\Api\V1\Auth\DriverAuth\DriverAuthController;
 use App\Http\Controllers\Api\V1\Auth\SupplierAuth\SupplierAuthController;
-use App\Http\Controllers\Api\V1\Supplier\OrderController as OrderForSupplierController;
 use App\Http\Controllers\Api\V1\Driver\OrderController as OrderForDriverController;
+use App\Http\Controllers\Api\V1\Driver\VehicleController as VehicleForDriverController;
+use App\Http\Controllers\Api\V1\Supplier\OrderController as OrderForSupplierController;
 use App\Http\Controllers\Api\V1\Auth\OrganizationUserAuth\OrganizationUserAuthController;
 use App\Http\Controllers\Api\V1\Supplier\VehicleController as VehicleForSupplierController;
-use App\Http\Controllers\Api\V1\Driver\VehicleController as VehicleForDriverController;
 use App\Http\Controllers\Api\V1\OrganizationUser\OrderController as OrderForOrganizationController;
+use App\Http\Controllers\Api\V1\OrganizationUser\InvoiceController as InvoiceForOrganizationController;
 use App\Http\Controllers\Api\V1\OrganizationUser\ContractDetailController as ContractDetailForOrganizationController;
 
 /*
@@ -201,7 +203,21 @@ Route::prefix('v1')->group(function () {
                     Route::get('/', [OrderController::class, 'show']);
                     Route::put('/', [OrderController::class, 'update']);
                     Route::put('/accept_order', [OrderController::class, 'acceptOrder']);
+                    Route::put('/start_order', [OrderController::class, 'startOrder']);
+                    Route::put('/complete_order', [OrderController::class, 'completeOrder']);
                     Route::delete('/', [OrderController::class, 'destroy']);
+                }); 
+            });
+
+
+            Route::prefix('invoices')->group(function () {
+                Route::post('/', [InvoiceController::class, 'store']);
+                Route::get('/', [InvoiceController::class, 'index']);
+                Route::get('/index_by_invoice_code', [InvoiceController::class, 'indexByInvoiceCode']);
+                Route::prefix('/{invoice}')->group(function () {
+                    Route::get('/', [InvoiceController::class, 'show']);
+                    Route::put('/', [InvoiceController::class, 'update']);
+                    Route::delete('/', [InvoiceController::class, 'destroy']);
                 }); 
             });
 
@@ -257,6 +273,18 @@ Route::prefix('v1')->group(function () {
                     Route::get('/', [OrderForOrganizationController::class, 'show']);
                     Route::put('/', [OrderForOrganizationController::class, 'update']);
                     Route::delete('/', [OrderForOrganizationController::class, 'destroy']);
+                }); 
+            });
+
+
+            Route::prefix('invoices')->group(function () {
+                Route::post('/', [InvoiceForOrganizationController::class, 'store']);
+                Route::get('/', [InvoiceForOrganizationController::class, 'index']);
+                Route::get('/index_by_invoice_code', [InvoiceForOrganizationController::class, 'indexByInvoiceCode']);
+                Route::prefix('/{invoice}')->group(function () {
+                    Route::get('/', [InvoiceForOrganizationController::class, 'show']);
+                    Route::put('/', [InvoiceForOrganizationController::class, 'update']);
+                    Route::delete('/', [InvoiceForOrganizationController::class, 'destroy']);
                 }); 
             });
 

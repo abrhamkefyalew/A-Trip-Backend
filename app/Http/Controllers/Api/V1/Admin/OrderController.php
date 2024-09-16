@@ -91,7 +91,7 @@ class OrderController extends Controller
                     // since multiple orders can be sent at once 
                         // i will put similar order_code in OrderController = for those multiple orders that are sent at once
                         //
-                // Generate a unique random order code
+                // Generate a random order code
                 $uniqueCode = Str::random(20); // Adjust the length as needed
 
                 // Check if the generated code already exists in the database
@@ -151,7 +151,7 @@ class OrderController extends Controller
                     $contractStartDate = Carbon::parse($contract->start_date)->toDateString();
                     $contractEndDate = Carbon::parse($contract->end_date)->toDateString();
 
-                    // todays date
+                    // todays date  // it should be moved out of the foreach loop // check abrham samson
                     $today = now()->format('Y-m-d');
 
                     /* 
@@ -219,6 +219,7 @@ class OrderController extends Controller
                         'supplier_id' => null,    // is NULL when the order is created initially
 
                         'start_date' => $requestData['start_date'],
+                        'begin_date' => null,                           // is NULL when the order is created initially, // and set when the order is started
                         'end_date' => $requestData['end_date'],
 
                         'start_location' => $requestData['start_location'],
@@ -370,8 +371,7 @@ class OrderController extends Controller
                 'supplier_id' => $vehicle->supplier_id,     // handle if $vehicle->supplier_id becomes NULL
                 'status' => Order::ORDER_STATUS_SET,
             ]);
-
-            
+            //            
             if (!$success) {
                 return response()->json(['message' => 'Update Failed'], 422);
             }
@@ -396,7 +396,81 @@ class OrderController extends Controller
      */
     public function startOrder(StartOrderRequest $request, Order $order)
     {
-        // AUTOMATIC : - here we will make the vehicle is_available = VEHICLE_ON_TRIP
+        // AUTOMATIC : - here we will make the vehicle is_available = VEHICLE_ON_TRIP       - ALSO order begin_date will be set to today()      - ALSO order status will be ORDER_STATUS_START
+
+        $var = DB::transaction(function () use ($request, $order) {
+
+            if ($order->driver) {
+                if ($order->driver->is_active != 1) {
+                    return response()->json(['message' => 'Forbidden: Deactivated Driver'], 403); 
+                }
+                if ($order->driver->is_approved != 1) {
+                    return response()->json(['message' => 'Forbidden: NOT Approved Driver'], 403); 
+                }
+            }
+            if ($order->supplier) {
+                if ($order->supplier->is_active != 1) {
+                    return response()->json(['message' => 'Forbidden: Deactivated Supplier'], 403); 
+                }
+                if ($order->supplier->is_approved != 1) {
+                    return response()->json(['message' => 'Forbidden: NOT Approved Supplier'], 403); 
+                }
+            }
+
+
+            if ($order->status !== Order::ORDER_STATUS_SET) {
+                return response()->json(['message' => 'this order is not SET (ACCEPTED). order should be SET (ACCEPTED) before it can be STARTED.'], 403); 
+            }
+
+            if ($order->end_date < today()->toDateString()) {
+                return response()->json(['message' => 'this order is Expired already.'], 403); 
+            }
+
+            if ($order->is_terminated !== 0) {
+                return response()->json(['message' => 'this order is Terminated'], 403); 
+            }
+
+
+            // CHECK IF THE CONTRACT DETAIL IS NOT AVAILABLE
+            if ($order->contractDetail->is_available !== 1) { // TEST IF THIS DOES WORK = $order->contractDetail->with_driver       // also test if this condition is needed   // check abrham samson
+                return response()->json(['message' => 'this order contract_detail have is_available 0 currently for some reason, the contract_detail of this order should have is_available 1'], 403); 
+            }
+
+            // TODO check if the contract itself is expired or Terminated
+
+
+
+
+            $success = $order->update([
+                'status' => Order::ORDER_STATUS_START,
+                'begin_date' => today()->toDateString(),
+            ]);
+            //
+            if (!$success) {
+                return response()->json(['message' => 'Order Update Failed'], 422);
+            }
+
+            $vehicle = Vehicle::find($order->vehicle_id);
+            //
+            if (!$vehicle) {
+                return response()->json(['message' => 'we could not find the actual vehicle of the vehicle_id in this order'], 404);
+            }
+
+            $successTwo = $vehicle->update([
+                'is_available' => Vehicle::VEHICLE_ON_TRIP,
+            ]);
+            //
+            if (!$successTwo) {
+                return response()->json(['message' => 'Vehicle Update Failed'], 422);
+            }
+
+            $updatedOrder = Order::find($order->id);
+                
+            return OrderResource::make($updatedOrder->load('vehicleName', 'vehicle', 'supplier', 'contractDetail', 'organization'));
+
+        });
+
+        return $var;
 
     }
 
@@ -412,6 +486,43 @@ class OrderController extends Controller
     public function completeOrder(CompleteOrderRequest $request, Order $order)
     {
         // AUTOMATIC : - here we will make the vehicle is_available = VEHICLE_AVAILABLE
+
+        $var = DB::transaction(function () use ($request, $order) {
+
+            if ($order->status !== Order::ORDER_STATUS_START) {
+                return response()->json(['message' => 'this order is not STARTED. order should be STARTED before it can be COMPLETED.'], 403); 
+            }
+
+
+            $success = $order->update([
+                'status' => Order::ORDER_STATUS_COMPLETE,
+            ]);
+            //
+            if (!$success) {
+                return response()->json(['message' => 'Order Update Failed'], 422);
+            }
+
+            $vehicle = Vehicle::find($order->vehicle_id);
+            //
+            if (!$vehicle) {
+                return response()->json(['message' => 'we could not find the actual vehicle of the vehicle_id in this order'], 404);
+            }
+
+            $successTwo = $vehicle->update([
+                'is_available' => Vehicle::VEHICLE_AVAILABLE,
+            ]);
+            //
+            if (!$successTwo) {
+                return response()->json(['message' => 'Vehicle Update Failed'], 422);
+            }
+
+            $updatedOrder = Order::find($order->id);
+                
+            return OrderResource::make($updatedOrder->load('vehicleName', 'vehicle', 'supplier', 'contractDetail', 'organization'));
+
+        });
+
+        return $var;
 
     }
 

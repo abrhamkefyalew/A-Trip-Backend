@@ -1,0 +1,42 @@
+<?php
+
+use App\Models\Invoice;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('invoices', function (Blueprint $table) {
+            $table->id();
+
+            $table->string('invoice_code'); // Essential if the a multiple invoices (order PRs [Payment Requests]) is made at once for multiple orders which need to be considered at once // so for them we use the same invoice code // it is not unique
+
+            $table->foreignId('order_id')->constrained('orders');
+            $table->foreignId('organization_id')->constrained('organizations'); // since an already consumed order may be deleted , this situation may make an already used vehicle order un-payable // this column ensures that an invoice is always related to organization
+
+            $table->date('start_date');
+            $table->date('end_date');
+
+            $table->integer('price_amount'); // is (the date differences multiplied by the order contract_detail price)
+            $table->string('status')->default(Invoice::INVOICE_STATUS_NOT_PAYED); // this column is enum
+            $table->date('paid_date')->nullable(); // initially it is NULL // set when organization pays this invoice
+
+            $table->timestamps();
+            $table->softDeletes();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('invoices');
+    }
+};

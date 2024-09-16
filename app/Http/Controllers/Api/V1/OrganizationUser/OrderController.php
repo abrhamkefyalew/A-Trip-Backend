@@ -46,7 +46,7 @@ class OrderController extends Controller
                     // since multiple orders can be sent at once 
                         // i will put similar order_code in OrderController = for those multiple orders that are sent at once
                         //
-                // Generate a unique random order code
+                // Generate a random order code
                 $uniqueCode = Str::random(20); // Adjust the length as needed
 
                 // Check if the generated code already exists in the database
@@ -175,6 +175,7 @@ class OrderController extends Controller
                         'supplier_id' => null,    // is NULL when the order is created initially
 
                         'start_date' => $requestData['start_date'],
+                        'begin_date' => null,                           // is NULL when the order is created initially, // and set when the order is started
                         'end_date' => $requestData['end_date'],
 
                         'start_location' => $requestData['start_location'],
