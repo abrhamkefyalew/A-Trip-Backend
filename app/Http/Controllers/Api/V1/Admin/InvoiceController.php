@@ -146,9 +146,6 @@ class InvoiceController extends Controller
 
             if ($request->has('invoices')) {
                 
-                $invoiceIds = [];
-
-                
                 // Check if all orders have the same organization_id            // a PR request or multiple PR request should be sent for only one organization at a time
                 $orderIds = $request->input('invoices.*.order_id');
                 $organizationIds = Order::whereIn('id', $orderIds)->pluck('organization_id')->unique();
@@ -165,8 +162,8 @@ class InvoiceController extends Controller
 
                 
 
-                //  check if there is duplicate order_id in the json and if there Duplicate order_id is return ERROR
-                //  i do not want similar order_id values to be sent to me in the json 
+                //  check if there is duplicate order_id in the JSON and if there Duplicate order_id is return ERROR
+                //  i do not want similar order_id values to be sent to me in the JSON 
                 //  i want ONLY = ONE invoice for ONE ORDER
                 $orderIds = collect($request->invoices)->pluck('order_id');
                 //
@@ -297,6 +294,7 @@ class InvoiceController extends Controller
 
 
 
+                $invoiceIds = [];
 
                 // Now We are sure all the impurities are filtered in the above foreach
                 // So do the ACTUAL Operations on each of the invoices sent in the request
