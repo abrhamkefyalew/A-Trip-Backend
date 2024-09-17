@@ -26,7 +26,7 @@ class InvoiceController extends Controller
 
         /* $validatedData = */ $request->validate([
             'invoice_status_search' => [
-                'sometimes', 'string', Rule::in([Invoice::INVOICE_STATUS_NOT_PAYED, Invoice::INVOICE_STATUS_PAYED]),
+                'sometimes', 'string', Rule::in([Invoice::INVOICE_STATUS_NOT_PAID, Invoice::INVOICE_STATUS_PAID]),
             ],
             // Other validation rules if needed
         ]);
@@ -88,9 +88,9 @@ class InvoiceController extends Controller
     /**
      * Display a listing of the resource.
      * 
-     * But Filtered by invoice_code
+     * But Filtered by      invoice_code = invoice_code_search ,      status = NOT_PAYED ,      and      paid_date = NULL
      * 
-     * CAN ONLY see the UNPAID invoices of some invoice code (NOT PAID invoices of an invoice_code)
+     * CAN ONLY see the UNPAID invoices of an invoice_code (NOT PAID invoices of that invoice_code)
      * 
      */
     public function indexByInvoiceCode(Request $request)
@@ -105,13 +105,15 @@ class InvoiceController extends Controller
             if (isset($request['invoice_code_search'])) {
                 $invoiceCode = $request['invoice_code_search'];
 
-                $invoices = $invoices->where('invoice_code', $invoiceCode);
+                $invoices = $invoices->where('invoice_code', $invoiceCode)
+                    ->where('status', Invoice::INVOICE_STATUS_NOT_PAID)
+                    ->where('paid_date', null);
 
                 $invoiceData = $invoices->with('order', 'organization')->latest()->get();
 
                 // $totalPriceAmount now contains the total price_amount of all invoices with the specified 'invoice_code' , status unpaid and paid_date null // it will do add all invoices with the specified invoice_code (that are not paid and have null paid date)
                 $totalPriceAmount = Invoice::where('invoice_code', $invoiceCode)
-                    ->where('status', Invoice::INVOICE_STATUS_NOT_PAYED)
+                    ->where('status', Invoice::INVOICE_STATUS_NOT_PAID)
                     ->where('paid_date', null)
                     ->sum('price_amount');
 
@@ -380,7 +382,7 @@ class InvoiceController extends Controller
                         'end_date' => $requestData['end_date'],
 
                         'price_amount' => $invoicePriceAmountOfAllAskedDays,
-                        'status' => Invoice::INVOICE_STATUS_NOT_PAYED,
+                        'status' => Invoice::INVOICE_STATUS_NOT_PAID,
                         'paid_date' => null,                           // is NULL when the invoice is created initially, // and set when the invoice is paid by the organization                                                                                  
                     ]);
                     //

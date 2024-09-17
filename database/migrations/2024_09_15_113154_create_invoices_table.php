@@ -24,7 +24,7 @@ return new class extends Migration
             $table->date('end_date');
 
             $table->integer('price_amount'); // is (the date differences multiplied by the order contract_detail price)
-            $table->string('status')->default(Invoice::INVOICE_STATUS_NOT_PAYED); // this column is enum
+            $table->string('status')->default(Invoice::INVOICE_STATUS_NOT_PAID); // this column is enum
             $table->date('paid_date')->nullable(); // initially it is NULL // set when organization pays this invoice
 
             $table->timestamps();

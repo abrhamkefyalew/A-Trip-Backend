@@ -111,10 +111,11 @@ class Order extends Model implements HasMedia
 
 
     // PR status constants
-    public const ORDER_PR_STARTED = 'PR_STARTED';
-    public const ORDER_PR_LAST = 'PR_LAST'; // IF pr asking for an Order is completed // but not paid yet
-    public const ORDER_PR_COMPLETED = 'PR_COMPLETED'; // when all of the PR is paid in full by the organization for the order we CLOSE it using this constant
-    public const ORDER_PR_TERMINATED = 'PR_TERMINATED'; // in any case if the pr payment is terminated
+    // IF pr_status is null (in the database order table)           // it means PR asking of that Order is not started yet
+    public const ORDER_PR_STARTED = 'PR_STARTED';                   // it means PR asking of that order has been started  &  there are extra days left in that order that PR can be asked upon them
+    public const ORDER_PR_LAST = 'PR_LAST';                         // IF pr asking for an Order is completed // but not paid yet
+    public const ORDER_PR_COMPLETED = 'PR_COMPLETED';               // when all of the PR is paid in full by the organization for the order we CLOSE it using this constant
+    public const ORDER_PR_TERMINATED = 'PR_TERMINATED';             // in any case if the pr payment is terminated
     
 
 }

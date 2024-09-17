@@ -57,7 +57,7 @@ class Invoice extends Model
 
 
     // Invoice status constants
-    public const INVOICE_STATUS_PAYED = 'PAYED'; // paid invoice
-    public const INVOICE_STATUS_NOT_PAYED = 'NOT_PAYED'; // not payed invoice
+    public const INVOICE_STATUS_PAID = 'PAID'; // paid invoice
+    public const INVOICE_STATUS_NOT_PAID = 'NOT_PAID'; // not paid invoice
 
 }
