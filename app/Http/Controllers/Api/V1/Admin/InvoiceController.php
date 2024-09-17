@@ -159,10 +159,23 @@ class InvoiceController extends Controller
                     return response()->json(['message' => 'no valid organization_id for the order.'], 422);
                 }
                 // Now we are sure all the orders in the invoice request belong to one organization
-                // So let's get that one organization_id
-                $organizationId = $organizationIds->first(); // Retrieves the first organization_id from the unique collection  // // Now $organizationId contains the organization_id that can be used for insertion into subsequent tables
+                // So let's get that one organization_id      // it is worth to mention that the following collection only have one organization_id
+                // Now $organizationId contains the organization_id that can be used for insertion into subsequent tables
+                $organizationId = $organizationIds->first(); // Retrieves the first organization_id FROM our collection which in fact at this stage have ONLY one organization_id  
 
                 
+
+                //  check if there is duplicate order_id in the json and if there Duplicate order_id is return ERROR
+                //  i do not want similar order_id values to be sent to me in the json 
+                //  i want ONLY = ONE invoice for ONE ORDER
+                $orderIds = collect($request->invoices)->pluck('order_id');
+                //
+                if ($orderIds->count() !== $orderIds->unique()->count()) {
+                    return response()->json(['message' => 'Duplicate order_id values are not allowed.'], 400);
+                }
+                // Continue processing the request if no duplicate order_id values are found
+
+
 
                 // Generate a random invoice code
                 $uniqueCode = Str::random(20); // Adjust the length as needed
@@ -220,7 +233,7 @@ class InvoiceController extends Controller
                    
 
                     if ($invoiceRequestEndDateValue >= $today) {
-                        return response()->json(['message' => 'an invoice End date must be Less than Today.'], 400);
+                        return response()->json(['message' => 'invoice asking End date must be Less than Today.'], 400);
                     }
 
                     // invoice end_date from the request can NOT be greater than the order end_date. // but invoice end_date from the request can be EQUALs to the order end_date
@@ -389,6 +402,9 @@ class InvoiceController extends Controller
                     $invoiceIds[] = $invoice->id;
 
                 }
+
+
+                
 
                 // this get the invoices created from the above two if conditions 
                 $invoicesData = Invoice::whereIn('id', $invoiceIds)->with('order', 'organization')->latest()->paginate(FilteringService::getPaginate($request));   
