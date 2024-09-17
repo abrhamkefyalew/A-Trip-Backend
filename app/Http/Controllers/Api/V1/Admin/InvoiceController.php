@@ -202,7 +202,18 @@ class InvoiceController extends Controller
                 // this foreach is to check for every validation and error handling BEFORE diving in to the second foreach and doing the actual operation
                 // i used this approach so that      i would not ABORT in the second foreach when ERROR is found in the middle of doing the actual operation, // it is to decrease data inconsistency caused when handling errors in the second foreach
                 foreach ($request->safe()->invoices as $requestData) {
+                    
                     $order = Order::find($requestData['order_id']);
+
+
+                    if ($order->begin_date === null) {
+                        return response()->json(['message' => 'you can not ask PR for this Order. because this Order Begin Date is null, this order is not STARTED. order: ' . $order->id . ' , the order Begin Date must be set before asking PR for it.'], 404);
+                    }
+
+                    // Check if the begin_date is a valid date
+                    if (strtotime($order->begin_date) === false) {
+                        return response()->json(['message' => 'The Order Begin Date is not a valid date.'], 400);
+                    }
 
                     // lets check the order actual status
                     if ($order->status === Order::ORDER_STATUS_PENDING) {
@@ -301,6 +312,7 @@ class InvoiceController extends Controller
                 // Now We are sure all the impurities are filtered in the above foreach
                 // So do the ACTUAL Operations on each of the invoices sent in the request
                 foreach ($request->safe()->invoices as $requestData) {
+                    
                     $order = Order::find($requestData['order_id']);
 
 
