@@ -23,6 +23,18 @@ class PayInvoiceRequest extends FormRequest
     {
         return [
             //
+            'price_amount_total' => 'required|integer|between:0,9999999',
+
+
+
+            'invoices' => 'required|array',
+
+            'invoices.*' => 'sometimes',
+
+
+            'invoices.*.invoice_id' => 'required|integer|exists:invoices,id',
+
+
         ];
     }
 }

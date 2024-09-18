@@ -404,7 +404,7 @@ class InvoiceController extends Controller
 
 
                     $success = $order->update([
-                        'status' => $prStatus,
+                        'pr_status' => $prStatus,
                     ]);
                     //
                     if (!$success) {
