@@ -263,7 +263,7 @@ class InvoiceController extends Controller
                         
                         // invoice end_date from the request can NOT be less than the order begin_date. // but invoice end_date from the request can be EQUALs to the order begin_date
                         if ($invoiceRequestEndDateValue < $orderBeginDate) {
-                            return response()->json(['message' => 'invoice end_date in the request can NOT be less than the order begin_date.    invoice asking end_date can NOT be before the date the order begins'], 400);
+                            return response()->json(['message' => 'invoice asking end_date in the request can NOT be less than the order begin_date.    invoice asking end_date can NOT be before the date the order begins'], 400);
                         }
 
 

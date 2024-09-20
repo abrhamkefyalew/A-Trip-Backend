@@ -438,6 +438,15 @@ class OrderController extends Controller
 
             // TODO check if the contract itself is expired or Terminated
 
+            
+            // todays date
+            $today = now()->format('Y-m-d');
+
+            $orderStartDate = Carbon::parse($order->start_date)->toDateString();
+
+            if ($orderStartDate < $today) {
+                return response()->json(['message' => 'this order can not be made to begin now yet. the start date of the order is still in the future. you must wait another days and reach the start date of the order to start it.'], 400);
+            }            
 
 
 
@@ -493,9 +502,17 @@ class OrderController extends Controller
                 return response()->json(['message' => 'this order is not STARTED. order should be STARTED before it can be COMPLETED.'], 403); 
             }
 
-
+            // todays date
+            $today = now()->format('Y-m-d');
+            //
+            // if "order status is set to complete"  // the order end_date must be set to  $today().
+            // we do this Because if the order end date is in the future still and we sent ORDER_STATUS_COMPLETE, the project still charges the the organization for the remaining days until the project end_date is reached, even if the "order status is set to COPMPLETE"
+            // solution is the above, if we make the order end date = today(), when order is set to Complete , then the order end_date will match the order Complete status,  and there will not be any left over dates we ask payment to after the order is complete
+            //
+            //
             $success = $order->update([
                 'status' => Order::ORDER_STATUS_COMPLETE,
+                'end_date' => $today,                           /* // if "order status is set to complete"  // the order end_date must be set to  $today() */
             ]);
             //
             if (!$success) {
