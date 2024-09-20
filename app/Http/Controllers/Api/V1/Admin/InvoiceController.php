@@ -329,7 +329,7 @@ class InvoiceController extends Controller
                     if ($invoiceRequestEndDateStringVersion < $orderEndDate) {
                         $prStatus = Order::ORDER_PR_STARTED;
                     }
-                    if ($invoiceRequestEndDateStringVersion = $orderEndDate) {
+                    if ($invoiceRequestEndDateStringVersion === $orderEndDate) {
                         $prStatus = Order::ORDER_PR_LAST;
                     }
                     
