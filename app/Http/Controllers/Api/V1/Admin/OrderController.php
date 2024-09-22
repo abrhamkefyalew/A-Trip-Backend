@@ -248,7 +248,7 @@ class OrderController extends Controller
                 }
 
                 // WORKS
-                $orders = Order::whereIn('id', $orderIds)->with('organization', 'vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail')->latest()->paginate(FilteringService::getPaginate($request));       // this get the orders created here
+                $orders = Order::whereIn('id', $orderIds)->with('organization', 'vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail', 'invoices')->latest()->paginate(FilteringService::getPaginate($request));       // this get the orders created here
                 return OrderResource::collection($orders);
             
             }
@@ -265,7 +265,7 @@ class OrderController extends Controller
     {
         // $this->authorize('view', $order);
         
-        return OrderResource::make($order->load('organization', 'vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail'));
+        return OrderResource::make($order->load('organization', 'vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail', 'invoices'));
     }
 
 
@@ -400,6 +400,12 @@ class OrderController extends Controller
 
         $var = DB::transaction(function () use ($request, $order) {
 
+
+            // if ADIAMT wants to rent their own vehicles, They Can Register as SUPPLIERs Themselves
+            if (!$order->driver && !$order->supplier) { 
+                return response()->json(['message' => 'the order at least should be accepted by either a driver or supplier'], 403); 
+            }
+
             if ($order->driver) {
                 if ($order->driver->is_active != 1) {
                     return response()->json(['message' => 'Forbidden: Deactivated Driver'], 403); 
@@ -435,6 +441,18 @@ class OrderController extends Controller
             if ($order->contractDetail->is_available !== 1) { // TEST IF THIS DOES WORK = $order->contractDetail->with_driver       // also test if this condition is needed   // check abrham samson
                 return response()->json(['message' => 'this order contract_detail have is_available 0 currently for some reason, the contract_detail of this order should have is_available 1'], 403); 
             }
+
+            if ($order->contractDetail->with_fuel === 1) { 
+                return response()->json(['message' => 'this order requires fuel to be filled by adiamat. so it needs a driver to fill log-sheet for every trip. therefore the order needs a driver account be started, so a driver can only start this order'], 403); 
+            }
+
+            // check abrham samson
+            // is the following condition required 
+            // if ($order->contractDetail->periodic === 1) { 
+            //     return response()->json(['message' => 'this order is periodic. so the order needs a driver account to be started'], 403); 
+            // }
+
+
 
             // TODO check if the contract itself is expired or Terminated
 
