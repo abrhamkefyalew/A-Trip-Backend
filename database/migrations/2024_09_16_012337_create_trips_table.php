@@ -30,7 +30,8 @@ return new class extends Migration
 
             $table->longText('trip_description')->nullable(); // OPTIONAL and NULLABLE // can be left Null
 
-            $table->string('status_payment')->default(Trip::TRIP_STATUS_NOT_PAID); // this column is enum
+            $table->string('status')->default(Trip::TRIP_STATUS_NOT_APPROVED); // this column is enum
+            $table->string('status_payment')->default(Trip::TRIP_NOT_PAID); // this column is enum
 
             $table->timestamps();
             $table->softDeletes();

@@ -28,6 +28,7 @@ class Trip extends Model
         'destination',
         'trip_date',
         'trip_description',
+        'status',
         'status_payment',
     ];
 
@@ -59,10 +60,15 @@ class Trip extends Model
 
 
 
+    // Trip status constants // approved status constants
+    public const TRIP_STATUS_APPROVED = 'APPROVED'; // paid trip // or paid log sheet
+    public const TRIP_STATUS_NOT_APPROVED = 'NOT_APPROVED'; // not paid trip // or paid log sheet
 
-    // Trip status constants
-    public const TRIP_STATUS_PAID = 'PAID'; // paid trip // or paid log sheet
-    public const TRIP_STATUS_NOT_PAID = 'NOT_PAID'; // not paid trip // or paid log sheet
-    
+
+    // Trip status_payment constants // payment status constants
+    public const TRIP_PAID = 'PAID'; // paid trip // or paid log sheet
+    public const TRIP_NOT_PAID = 'NOT_PAID'; // not paid trip // or paid log sheet
+
+
 
 }
