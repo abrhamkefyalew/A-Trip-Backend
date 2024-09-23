@@ -232,7 +232,11 @@ class InvoiceController extends Controller
 
                 // compare actual total price from database with the sent total price from frontend
                 $totalPriceAmount = Invoice::whereIn('id', $invoiceIds)
+                    ->where('status', Invoice::INVOICE_STATUS_NOT_PAID)
+                    ->where('paid_date', null)
                     ->sum('price_amount');
+
+                    
 
                 if ($totalPriceAmount !== $requestData['price_amount_total']) {
                     return response()->json(['message' => 'the total price sent in the request does NOT match the total price of the requested invoice IDs in the database.'], 404);

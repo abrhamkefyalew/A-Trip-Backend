@@ -43,6 +43,16 @@ class OrderController extends Controller
                 return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
             } 
         }
+        if ($request->has('order_code_search')) {
+            if (isset($request['order_code_search'])) {
+                $orderCode = $request['order_code_search'];
+
+                $orders = $orders->where('order_code', $orderCode);
+            } 
+            else {
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+            } 
+        }
         if ($request->has('is_terminated_search')) {
             if (isset($request['is_terminated_search'])) {
                 $isTerminated = $request['is_terminated_search'];
@@ -64,6 +74,23 @@ class OrderController extends Controller
                 }
 
                 $orders = $orders->where('status', $orderStatus);
+            } 
+            else {
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+            }
+
+        }
+        if ($request->has('pr_status_search')) {
+            if (isset($request['pr_status_search'])) {
+                $prStatus = $request['pr_status_search'];
+
+                if (!in_array($prStatus, [null, Order::ORDER_PR_STARTED, Order::ORDER_PR_LAST, Order::ORDER_PR_COMPLETED, Order::ORDER_PR_TERMINATED])) {
+                    return response()->json([
+                        'message' => 'pr_status_search should only be : null, ' . Order::ORDER_PR_STARTED . ', ' . Order::ORDER_PR_LAST . ', ' . Order::ORDER_PR_COMPLETED . ', or ' . Order::ORDER_PR_TERMINATED
+                    ], 422);
+                }
+
+                $orders = $orders->where('pr_status', $prStatus);
             } 
             else {
                 return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
