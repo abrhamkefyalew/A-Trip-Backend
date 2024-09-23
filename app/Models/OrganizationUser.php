@@ -99,6 +99,12 @@ class OrganizationUser extends Authenticatable implements HasMedia
     }
 
 
+    public function trips()
+    {
+        return $this->hasMany(Trip::class);
+    }
+
+
     public function registerMediaConversions(Media $media = null): void
     {
         $this->addMediaConversion('optimized')

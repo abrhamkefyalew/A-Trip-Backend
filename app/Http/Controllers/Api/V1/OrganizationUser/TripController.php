@@ -1,12 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Api\V1\Admin;
+namespace App\Http\Controllers\Api\V1\OrganizationUser;
 
-use App\Models\Trip;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\V1\AdminRequests\StoreTripRequest;
-use App\Http\Requests\Api\V1\AdminRequests\UpdateTripRequest;
-
+use Illuminate\Http\Request;
 
 class TripController extends Controller
 {
@@ -15,13 +12,13 @@ class TripController extends Controller
      */
     public function index()
     {
-        // $this->authorize('viewAny', Trip::class);
+        //
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreTripRequest $request)
+    public function store(Request $request)
     {
         //
         // $var = DB::transaction(function () {
@@ -34,15 +31,15 @@ class TripController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Trip $trip)
+    public function show(string $id)
     {
-        // $this->authorize('view', $trip);
+        //
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateTripRequest $request, Trip $trip)
+    public function update(Request $request, string $id)
     {
         //
         // $var = DB::transaction(function () {
@@ -55,7 +52,7 @@ class TripController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Trip $trip)
+    public function destroy(string $id)
     {
         //
     }

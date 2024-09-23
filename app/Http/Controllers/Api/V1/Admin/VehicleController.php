@@ -163,6 +163,7 @@ class VehicleController extends Controller
     public function show(Vehicle $vehicle)
     {
         // $this->authorize('view', $vehicle);
+        
         return VehicleResource::make($vehicle->load('media', 'vehicleName', 'address', 'supplier', 'driver', 'bank'));
     }
 
