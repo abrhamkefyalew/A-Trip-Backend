@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
 
             $table->string('bank_name')->unique();
-            $table->string('bank_description')->nullable();
+            $table->longText('bank_description')->nullable();
 
             $table->timestamps();
             $table->softDeletes();

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1\Admin;
 
+use App\Models\Contract;
 use Illuminate\Http\Request;
 use App\Models\ContractDetail;
 use Illuminate\Support\Facades\DB;
@@ -15,31 +16,99 @@ class ContractDetailController extends Controller
 {
     /**
      * Display a listing of the resource.
+     * 
+     * in the below request, either he must send contract_id or organization_id
+     * 
+     * when the SUPER_ADMIN wants to make an order in behalf of an organization (i.e via call center), 
+     * he will use the following index method by passing organization_id , to list eligible contract details (with their corresponding vehicle_names)
+     * then he will select one of the contract details and make the order for the requester organization
+     * 
      */
     public function index(Request $request)
     {
         // $this->authorize('viewAny', ContractDetail::class);
 
         // use Filtering service OR Scope to do this
+
         if ($request->has('contract_id_search')) {
+            // he is seeing the contract // so knows IF the contract is terminated or not beforehand
             if (isset($request['contract_id_search'])) {
                 $contractId = $request['contract_id_search'];
 
-                $contractDetail = ContractDetail::where('contract_id', $contractId);
+                $contractDetails = ContractDetail::where('contract_id', $contractId);
             } else {
                 return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
             }
             
         }
         else {
-            $contractDetail = ContractDetail::whereNotNull('id');
+            /**
+             * This ELSE Condition Does the following
+             * 
+             * THIS LISTS VEHICLE_NAMES THAT CAN BE RENTED BY AN ORGANIZATION DEPENDING ON THE CONTRACT
+             * it lists all CONTRACT_DETAILs with their VEHICLE_NAMEs for ALL CONTRACTs THAT ARE CURRENTLY VALID
+             * 
+             * THIS List is NOT for Single Contract.  the list is for ALL VALID CONTRACTs of that organization
+             * 
+             * 
+             * the super_admin then will choose one of the vehicle_names and make an order
+             * 
+             * 
+             * in short when super_user wants to make an order for an organization he sees the vehicle_names using this function
+             * 
+             * 
+             * NOTE: - THIS METHOD SHOULD ONLY BE USED WHEN ADMIN IS MAKING ORDER FOR ORGANIZATIONS.    -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   - samson, abrham = you MUST READ THIS
+             *          Because it ONLY shows the CONTRACT_DETAILs that are Active and Eligible
+             *              i.e = WITH    
+             *                      "contract.terminated_date = null"       &       "contract.end_date >= today()"  
+             *                      "contract_detail.is_available = 1" 
+             * 
+             */
+            if (! $request->has('organization_id')) {
+                return response()->json(['message' => 'must send organization id.'], 404); 
+            }
+            if (! isset($request['organization_id'])) { 
+                return response()->json(['message' => 'must set organization id.'], 404); 
+            }
+
+            $contracts = Contract::where('organization_id', $request['organization_id'])
+                ->where('terminated_date', null)
+                ->whereDate('end_date', '>=', today()->toDateString()) // toDateString() is used , to get and use only the date value of today(), // so the time value is stripped out
+                ->latest()
+                ->get();       // this get multiple contracts of the organization
+
+            // Extract contract IDs from the $contracts collection
+                    // since it is a COLLECTION i can NOT get the contract_id like $contract->id.
+                    // $contract->id = this is for single model object.  does NOT work for a collection like in this scenario
+                    // Since $contract is a collection of contracts, i can't directly access the id attribute from the collection like i would with a single model object so i should do it like the following.
+            $contractIds = $contracts->pluck('id');
+
+
+            // check if the pagination works overall in this contract detail
+            $contractDetails = ContractDetail::whereIn('contract_id', $contractIds)->where('is_available', 1);
         }
         
 
-        $contractDetailData = $contractDetail->latest()->paginate(FilteringService::getPaginate($request));
+        $contractDetailData = $contractDetails->with('vehicleName', 'contract')->latest()->paginate(FilteringService::getPaginate($request));
 
         return ContractDetailResource::collection($contractDetailData);
     }
+
+
+
+
+
+
+    
+
+    // if anybody wants all ContractDetails list
+    // i will send the Contract as relation with the ContractDetail, because there is no contract end_date in ContractDetail Table, 
+    // but we can find a contract end_date from Contracts Table  // these way we can know the contract expiration from contracts table
+
+
+
+
+
 
     /**
      * Store a newly created resource in storage.
@@ -59,7 +128,12 @@ class ContractDetailController extends Controller
                 'periodic' => (int) $request->input('periodic', 0),
                 'price_contract' => $request['price_contract'],
                 'price_vehicle_payment' => $request['price_vehicle_payment'],
-                'tax' => (int) $request->input('tax', ContractDetail::CONTRACT_DETAIL_DEFAULT_TAX_15),
+                'tax' => (int) $request->input('tax', ContractDetail::CONTRACT_DETAIL_DEFAULT_TAX_15), // use isset() or filled() on this one
+                'is_available' => 1, // is_available should be not be sent at ContractDetail store for the first time, it is "1" by default in the controller       // 1 = means parent contract not terminated   // 0 = means parent contract terminated
+                            // the "is_available" column in CONTRACT_DETAILs table should NOT be update separately,  // we ONLY update "is_available" when Terminating or UnTerminating the PARENT CONTRACT
+							// if parent contract is Terminated (terminated_date=some_date)       // then we make all its child contract_details NOT Available by doing (is_available=0) 
+							// if parent contract is UnTerminated (terminated_date=NULL)           // then we make all its child contract_details  Re-Available by doing (is_available=1)
+							// 1 = means parent contract NOT terminated   // 0 = means parent contract terminated
             ]);
 
 
@@ -87,6 +161,8 @@ class ContractDetailController extends Controller
     {
         //
         // $var = DB::transaction(function () {
+            
+        //    // NOTE : - // the "is_available" column in CONTRACT_DETAILs table should NOT be update separately,  // we ONLY update "is_available" when Terminating or UnTerminating the PARENT CONTRACT
             
         // });
 

@@ -22,8 +22,53 @@ class VehicleController extends Controller
         // $this->authorize('viewAny', Vehicle::class);
 
         $vehicles = Vehicle::whereNotNull('id');
+        
+        // use Filtering service OR Scope to do this
+        if ($request->has('supplier_id_search')) {
+            if (isset($request['supplier_id_search'])) {
+                $supplierId = $request['supplier_id_search'];
 
-        $vehicleData = $vehicles->with('media', 'vehicleName', 'address', 'supplier', 'driver')->latest()->paginate(FilteringService::getPaginate($request));
+                $vehicles = $vehicles->where('supplier_id', $supplierId);
+            } 
+            else {
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+            }
+        }
+        if ($request->has('driver_id_search')) {
+            if (isset($request['driver_id_search'])) {
+                $driverId = $request['driver_id_search'];
+
+                $vehicles = $vehicles->where('driver_id', $driverId);
+            } 
+            else {
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+            }
+        }
+        if ($request->has('vehicle_name_id_search')) {
+            if (isset($request['vehicle_name_id_search'])) {
+                $vehicleNameId = $request['vehicle_name_id_search'];
+
+                $vehicles = $vehicles->where('vehicle_name_id', $vehicleNameId);
+            } 
+            else {
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+            }
+        }
+        if ($request->has('with_driver_search')) {
+            if (isset($request['with_driver_search'])) {
+                $withDriverBool = $request['with_driver_search'];
+
+                $vehicles = $vehicles->where('with_driver', $withDriverBool);
+            } 
+            else {
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+            }
+        }
+    
+        
+        
+
+        $vehicleData = $vehicles->with('media', 'vehicleName', 'address', 'supplier', 'driver', 'bank')->latest()->paginate(FilteringService::getPaginate($request));
 
         return VehicleResource::collection($vehicleData);
     }
@@ -51,7 +96,7 @@ class VehicleController extends Controller
                 'vehicle_model' => $request['vehicle_model'],
                 'plate_number' => $request['plate_number'],
                 'year' => $request['year'],
-                'is_available' => $request->input('with_driver', Vehicle::VEHICLE_AVAILABLE),
+                'is_available' => $request->input('is_available', Vehicle::VEHICLE_AVAILABLE),
                 'with_driver' => (int) $request->input('with_driver', 0), // if the supplier_id does NOT send this field (the "with_driver" field) we will insert = 0 by default 
                                                                                     // 0 = means this vehicle do NOT have driver, i rent only the vehicle and NO driver will be included
 
@@ -103,7 +148,7 @@ class VehicleController extends Controller
                 MediaService::storeImage($vehicle, $file, $clearMedia, $collectionName);
             }
 
-            return VehicleResource::make($vehicle->load('media', 'vehicleName', 'supplier', 'driver', 'address'));
+            return VehicleResource::make($vehicle->load('media', 'vehicleName', 'address', 'supplier', 'driver', 'bank'));
 
 
             
@@ -118,7 +163,7 @@ class VehicleController extends Controller
     public function show(Vehicle $vehicle)
     {
         // $this->authorize('view', $vehicle);
-        return VehicleResource::make($vehicle->load('media', 'vehicleName', 'supplier', 'driver', 'address'));
+        return VehicleResource::make($vehicle->load('media', 'vehicleName', 'address', 'supplier', 'driver', 'bank'));
     }
 
     /**

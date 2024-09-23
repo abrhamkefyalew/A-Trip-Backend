@@ -35,6 +35,7 @@ class DriverResource extends JsonResource
             'driver_id_front_image_path' => $this->getOptimizedImagePath(Driver::DRIVER_ID_FRONT_PICTURE),
             'driver_id_back_image_path' => $this->getOptimizedImagePath(Driver::DRIVER_ID_BACK_PICTURE),
             'driver_profile_image_path' => $this->getOptimizedImagePath(Driver::DRIVER_PROFILE_PICTURE),
+            
             'address' => AddressResource::make($this->whenLoaded('address')),
 
             // ONE to ONE

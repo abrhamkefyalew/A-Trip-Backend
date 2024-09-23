@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id()->from(10000);
 
             $table->string('vehicle_type_name')->unique();
-            $table->string('vehicle_type_description')->nullable();
+            $table->longText('vehicle_type_description')->nullable();
             // $table->string('vehicle_type_price')->nullable(); // OPTIONAL // for individual customers // but do we really need it // check first
             
             $table->timestamps();

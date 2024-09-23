@@ -23,7 +23,6 @@ class VehicleForOrganizationResource extends JsonResource
         return [
             'id' => $this->id,
             'vehicle_name_id' => $this->vehicle_name_id,
-            'supplier_id' => $this->supplier_id,
             'driver_id' => $this->driver_id,
             'vehicle_name' => $this->vehicle_name,
             'vehicle_description' => $this->vehicle_description,

@@ -7,6 +7,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\Api\V1\DriverResources\DriverResource;
 use App\Http\Resources\Api\V1\SupplierResources\SupplierResource;
 use App\Http\Resources\Api\V1\VehicleNameResources\VehicleNameResource;
+use App\Http\Resources\Api\V1\InvoiceResources\InvoiceForOrganizationResource;
 use App\Http\Resources\Api\V1\VehicleResources\VehicleForOrganizationResource;
 use App\Http\Resources\Api\V1\ContractDetailResources\ContractDetailOrganizationResource;
 
@@ -29,9 +30,9 @@ class OrderForOrganizationResource extends JsonResource
             
             'vehicle_id' => $this->vehicle_id,
             'driver_id' => $this->driver_id,
-            'supplier_id' => $this->supplier_id,
 
             'start_date' => $this->start_date,
+            'begin_date' => $this->begin_date,
             'end_date' => $this->end_date,
 
             'start_location' => $this->start_location,
@@ -59,10 +60,6 @@ class OrderForOrganizationResource extends JsonResource
                 return $this->vehicle->load('address', 'media');
             })),
 
-            // create custom SupplierForOrganizationResource for organizations if you want
-            // but for now this will do
-            'vehicle_supplier' => SupplierResource::make($this->whenLoaded('supplier')), // no need to load another relations, leave it just as it is
-
 
             // ONE to ONE
             // create custom DriverForOrganizationResource for organizations if you want
@@ -74,6 +71,8 @@ class OrderForOrganizationResource extends JsonResource
             'contract_detail' => ContractDetailOrganizationResource::make($this->whenLoaded('contractDetail', function () {
                 return $this->contractDetail->load('contract');
             })),
+
+            'order_invoices' => InvoiceForOrganizationResource::make($this->whenLoaded('invoices')),
             
         ];
     }

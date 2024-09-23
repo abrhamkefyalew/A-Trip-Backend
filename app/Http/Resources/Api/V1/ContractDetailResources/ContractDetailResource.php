@@ -26,6 +26,7 @@ class ContractDetailResource extends JsonResource
             'price_contract' => $this->price_contract,
             'price_vehicle_payment' => $this->price_vehicle_payment,
             'tax' => $this->tax,
+            'is_available' => $this->is_available, 
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
 
@@ -34,7 +35,7 @@ class ContractDetailResource extends JsonResource
             })),
 
             'vehicle_name' => VehicleNameResource::make($this->whenLoaded('vehicleName', function () {
-                return $this->vehicleName->load('vehicleType', 'vehicles');
+                return $this->vehicleName->load('vehicleType');
             })),
 
         ];

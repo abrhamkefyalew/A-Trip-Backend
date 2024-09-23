@@ -16,9 +16,9 @@ class ContractDetailController extends Controller
      * Display a listing of the resource.
      * 
      * THIS LISTS VEHICLE_NAMES THAT CAN BE RENTED BY AN ORGANIZATION DEPENDING ON THE CONTRACT
-     * IT LISTS THE CONTRACT_DETAIL ALONG WITH THE VEHICLE NAMES.
+     * it lists all CONTRACT_DETAILs with their VEHICLE_NAMEs for ALL CONTRACTs THAT ARE CURRENTLY VALID
      * 
-     * the organization_user then will choose one of the vehicle_names and make an order
+     * THIS List is NOT for Single Contract.  the list is for ALL VALID CONTRACTs of that organization
      * 
      * 
      * in short when organization_user wants to make an order he sees the vehicle_names using this function
@@ -27,14 +27,13 @@ class ContractDetailController extends Controller
     public function index(Request $request)
     {
 
-        // any organization user can see list of contract_details (i.e vehicle_names)
+        // any organizationUser with specified Organization id can see list of contract_details (i.e vehicle_names)
         $user = auth()->user();
         $organizationUser = OrganizationUser::find($user->id);
         
         $contracts = Contract::where('organization_id', $organizationUser->organization_id)
-            ->where('is_active', 1)
             ->where('terminated_date', null)
-            ->whereDate('end_date', '>=', today()->toDateString()) // toDateString() is used , to get and use only the date value of today()
+            ->whereDate('end_date', '>=', today()->toDateString()) // toDateString() is used , to get and use only the date value of today(), // so the time value is stripped out
             ->latest()
             ->get();       // this get multiple contracts of the organization
 
@@ -46,7 +45,7 @@ class ContractDetailController extends Controller
 
 
         // check if the pagination works overall in this contract detail
-        $contractDetails = ContractDetail::whereIn('contract_id', $contractIds)->with('vehicleName', 'contract')->latest()->paginate(FilteringService::getPaginate($request));
+        $contractDetails = ContractDetail::whereIn('contract_id', $contractIds)->where('is_available', 1)->with('vehicleName', 'contract')->latest()->paginate(FilteringService::getPaginate($request));
             
         return ContractDetailOrganizationResource::collection($contractDetails);
     }

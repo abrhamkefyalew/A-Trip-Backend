@@ -47,7 +47,11 @@ class VehicleResource extends JsonResource
             'vehicle_profile_image_path' => $this->getOptimizedImagePath(Vehicle::VEHICLE_PROFILE_PICTURE),
             
             'address' => AddressResource::make($this->whenLoaded('address')),
-            'vehicle_supplier' => SupplierResource::make($this->whenLoaded('supplier')),
+            
+            'vehicle_supplier' => SupplierResource::make($this->whenLoaded('supplier', function () {
+                return $this->supplier->load('address', 'media');
+            })),
+
             'vehicle_vehicleName' => VehicleNameResource::make($this->whenLoaded('vehicleName', function () {
                 return $this->vehicleName->load('vehicleType');
             })),

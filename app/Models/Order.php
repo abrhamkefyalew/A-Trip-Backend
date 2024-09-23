@@ -28,6 +28,7 @@ class Order extends Model implements HasMedia
         'driver_id',
         'supplier_id',
         'start_date',
+        'begin_date',
         'end_date',
         'start_location',
         'end_location',
@@ -51,6 +52,7 @@ class Order extends Model implements HasMedia
      */
     protected $casts = [
         'start_date' => 'date',
+        'begin_date' => 'date',
         'end_date' => 'date',
         'original_end_date' => 'date',
     ];
@@ -91,11 +93,12 @@ class Order extends Model implements HasMedia
     
 
 
-    // make organizationInvoice as Invoice and for individual customer = IndividualCustomerInvoice
-    // public function Invoices()
-    // {
-    //     return $this->hasMany(Invoice::class);
-    // }
+    // This is Organization Invoice
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
 
 
 
@@ -103,16 +106,16 @@ class Order extends Model implements HasMedia
     public const ORDER_STATUS_PENDING = 'PENDING'; // when order is made
     public const ORDER_STATUS_SET = 'SET'; // when a driver or supplier accepts an order 
 
-    // the below are only for order with driver
-    public const ORDER_STATUS_START = 'START'; // when the driver arrives at the place where the trip starts & meets the order maker and starts to transport him
-    public const ORDER_STATUS_COMPLETE = 'COMPLETE'; // when the driver takes the order maker to the destination and the order is completed
+    public const ORDER_STATUS_START = 'START'; // when the driver arrives at the place where the trip starts & meets the order maker and starts to transport him    or  when a vehicle departs from the supplier
+    public const ORDER_STATUS_COMPLETE = 'COMPLETE'; // when the driver takes the order maker to the destination and the order is completed                         or  when the vehicle is returned back to the supplier
 
 
     // PR status constants
-    public const ORDER_PR_STARTED = 'PR_STARTED';
-    public const ORDER_PR_COMPLETED = 'PR_COMPLETED';
-    public const ORDER_PR_TERMINATED = 'PR_TERMINATED';
-    public const ORDER_PR_ABORTED = 'PR_ABORTED';
+    // IF pr_status is null (in the database order table)           // it means PR asking of that Order is not started yet
+    public const ORDER_PR_STARTED = 'PR_STARTED';                   // it means PR asking of that order has been started  &  there are extra days left in that order that PR can be asked upon them
+    public const ORDER_PR_LAST = 'PR_LAST';                         // IF pr asking for an Order is completed // but not paid yet
+    public const ORDER_PR_COMPLETED = 'PR_COMPLETED';               // when all of the PR is paid in full by the organization for the order we CLOSE it using this constant
+    public const ORDER_PR_TERMINATED = 'PR_TERMINATED';             // in any case if the pr payment is terminated
     
 
 }

@@ -5,8 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\Admin\BankController;
 use App\Http\Controllers\Api\V1\Admin\AdminController;
 use App\Http\Controllers\Api\V1\Admin\OrderController;
-use App\Http\Controllers\Api\V1\OrganizationUser\OrderController as OrderForOrganizationController;
 use App\Http\Controllers\Api\V1\Admin\DriverController;
+use App\Http\Controllers\Api\V1\Admin\InvoiceController;
 use App\Http\Controllers\Api\V1\Admin\VehicleController;
 use App\Http\Controllers\Api\V1\Admin\ContractController;
 use App\Http\Controllers\Api\V1\Admin\SupplierController;
@@ -15,10 +15,18 @@ use App\Http\Controllers\Api\V1\Admin\VehicleNameController;
 use App\Http\Controllers\Api\V1\Admin\VehicleTypeController;
 use App\Http\Controllers\Api\V1\Admin\OrganizationController;
 use App\Http\Controllers\Api\V1\Admin\ContractDetailController;
-use App\Http\Controllers\Api\V1\OrganizationUser\ContractDetailController as ContractDetailForOrganizationController;
 use App\Http\Controllers\Api\V1\Admin\OrganizationUserController;
 use App\Http\Controllers\Api\V1\Auth\AdminAuth\AdminAuthController;
+use App\Http\Controllers\Api\V1\Auth\DriverAuth\DriverAuthController;
+use App\Http\Controllers\Api\V1\Auth\SupplierAuth\SupplierAuthController;
+use App\Http\Controllers\Api\V1\Driver\OrderController as OrderForDriverController;
+use App\Http\Controllers\Api\V1\Driver\VehicleController as VehicleForDriverController;
+use App\Http\Controllers\Api\V1\Supplier\OrderController as OrderForSupplierController;
 use App\Http\Controllers\Api\V1\Auth\OrganizationUserAuth\OrganizationUserAuthController;
+use App\Http\Controllers\Api\V1\Supplier\VehicleController as VehicleForSupplierController;
+use App\Http\Controllers\Api\V1\OrganizationUser\OrderController as OrderForOrganizationController;
+use App\Http\Controllers\Api\V1\OrganizationUser\InvoiceController as InvoiceForOrganizationController;
+use App\Http\Controllers\Api\V1\OrganizationUser\ContractDetailController as ContractDetailForOrganizationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -191,10 +199,25 @@ Route::prefix('v1')->group(function () {
             Route::prefix('orders')->group(function () {
                 Route::post('/', [OrderController::class, 'store']);
                 Route::get('/', [OrderController::class, 'index']);
-                Route::prefix('/{contractDetail}')->group(function () {
+                Route::prefix('/{order}')->group(function () {
                     Route::get('/', [OrderController::class, 'show']);
                     Route::put('/', [OrderController::class, 'update']);
+                    Route::put('/accept_order', [OrderController::class, 'acceptOrder']);
+                    Route::put('/start_order', [OrderController::class, 'startOrder']);
+                    Route::put('/complete_order', [OrderController::class, 'completeOrder']);
                     Route::delete('/', [OrderController::class, 'destroy']);
+                }); 
+            });
+
+
+            Route::prefix('invoices')->group(function () {
+                Route::post('/', [InvoiceController::class, 'store']);
+                Route::get('/', [InvoiceController::class, 'index']);
+                Route::get('/index_by_invoice_code', [InvoiceController::class, 'indexByInvoiceCode']);
+                Route::prefix('/{invoice}')->group(function () {
+                    Route::get('/', [InvoiceController::class, 'show']);
+                    Route::put('/', [InvoiceController::class, 'update']);
+                    Route::delete('/', [InvoiceController::class, 'destroy']);
                 }); 
             });
 
@@ -217,9 +240,9 @@ Route::prefix('v1')->group(function () {
     // organization users route (for organizations)
     Route::prefix('organization_user')->group(function () {
         Route::prefix('')->group(function () {
-            // there should NOT be hospitalWorker registration, -  
-            // hospitalWorker should be stored by an already existing hospitalWorker admin or super admin of the system -
-            // there should be a route for hospitalWorker storing by both hospitalWorker admin and super admin
+            // there should NOT be OrganizationUser registration, -  
+            // OrganizationUser should be stored by an already existing OrganizationUser admin or super admin of the system -
+            // there should be a route for OrganizationUser storing by both OrganizationUser admin and super admin
             Route::post('/login', [OrganizationUserAuthController::class, 'login']);
 
         });
@@ -246,10 +269,23 @@ Route::prefix('v1')->group(function () {
             Route::prefix('orders')->group(function () {
                 Route::post('/', [OrderForOrganizationController::class, 'store']);
                 Route::get('/', [OrderForOrganizationController::class, 'index']);
-                Route::prefix('/{contractDetail}')->group(function () {
+                Route::prefix('/{order}')->group(function () {
                     Route::get('/', [OrderForOrganizationController::class, 'show']);
                     Route::put('/', [OrderForOrganizationController::class, 'update']);
                     Route::delete('/', [OrderForOrganizationController::class, 'destroy']);
+                }); 
+            });
+
+
+            Route::prefix('invoices')->group(function () {
+                Route::post('/', [InvoiceForOrganizationController::class, 'store']);
+                Route::get('/', [InvoiceForOrganizationController::class, 'index']);
+                Route::get('/index_by_invoice_code', [InvoiceForOrganizationController::class, 'indexByInvoiceCode']);
+                Route::post('/pay_invoices', [InvoiceForOrganizationController::class, 'payInvoices']);
+                Route::prefix('/{invoice}')->group(function () {
+                    Route::get('/', [InvoiceForOrganizationController::class, 'show']);
+                    Route::put('/', [InvoiceForOrganizationController::class, 'update']);
+                    Route::delete('/', [InvoiceForOrganizationController::class, 'destroy']);
                 }); 
             });
 
@@ -262,6 +298,134 @@ Route::prefix('v1')->group(function () {
 
 
 
+
+
+
+
+
+
+        // Suppliers route (for Vehicle Suppliers)
+        Route::prefix('supplier')->group(function () {
+            Route::prefix('')->group(function () {
+                // there should NOT be Supplier registration, -  
+                // Supplier should be stored by super admin of the system -
+                // there should be a route for Supplier storing by super admin
+                Route::post('/login', [SupplierAuthController::class, 'login']);
+    
+            });
+    
+    
+            Route::middleware(['auth:sanctum', 'abilities:access-supplier'])->group(function () {
+    
+                Route::prefix('')->group(function () {
+                    Route::post('/logout', [SupplierAuthController::class, 'logout']);
+                    Route::post('/logout-all-devices', [SupplierAuthController::class, 'logoutAllDevices']);
+                });
+    
+    
+    
+                Route::prefix('orders')->group(function () {
+                    Route::post('/', [OrderForSupplierController::class, 'store']);
+                    Route::get('/', [OrderForSupplierController::class, 'index']);
+                    Route::get('/index_pending', [OrderForSupplierController::class, 'indexPending']);
+                    Route::prefix('/{order}')->group(function () {
+                        Route::get('/', [OrderForSupplierController::class, 'show']);
+                        Route::put('/accept_order', [OrderForSupplierController::class, 'acceptOrder']);
+                        Route::delete('/', [OrderForSupplierController::class, 'destroy']);
+                    }); 
+                });
+    
+
+
+                Route::prefix('vehicles')->group(function () {
+                    Route::post('/', [VehicleForSupplierController::class, 'store']);
+                    Route::get('/', [VehicleForSupplierController::class, 'index']);
+                    Route::prefix('/{vehicle}')->group(function () {
+                        Route::get('/', [VehicleForSupplierController::class, 'show']);
+                        Route::put('/', [VehicleForSupplierController::class, 'update']);
+                        Route::delete('/', [VehicleForSupplierController::class, 'destroy']);
+                    }); 
+                });
+
+                
+
+
+
+    
+            });
+    
+        });
+
+
+
+
+
+
+
+
+
+
+
+        // Drivers route (for Vehicle Drivers)
+        Route::prefix('driver')->group(function () {
+            Route::prefix('')->group(function () {
+                // there should NOT be Drivers registration, -  
+                // Drivers should be stored by super admin of the system -
+                // there should be a route for Drivers storing by super admin
+                Route::post('/login', [DriverAuthController::class, 'login']);
+    
+            });
+    
+    
+            Route::middleware(['auth:sanctum', 'abilities:access-driver'])->group(function () {
+    
+                Route::prefix('')->group(function () {
+                    Route::post('/logout', [DriverAuthController::class, 'logout']);
+                    Route::post('/logout-all-devices', [DriverAuthController::class, 'logoutAllDevices']);
+                });
+    
+    
+    
+                Route::prefix('orders')->group(function () {
+                    Route::post('/', [OrderForDriverController::class, 'store']);
+                    Route::get('/', [OrderForDriverController::class, 'index']);
+                    Route::get('/index_pending', [OrderForDriverController::class, 'indexPending']);
+                    Route::prefix('/{order}')->group(function () {
+                        Route::get('/', [OrderForDriverController::class, 'show']);
+                        Route::put('/accept_order', [OrderForDriverController::class, 'acceptOrder']);
+                        Route::delete('/', [OrderForDriverController::class, 'destroy']);
+                    }); 
+                });
+    
+
+
+                Route::prefix('vehicles')->group(function () {
+                    Route::post('/', [VehicleForDriverController::class, 'store']);
+                    Route::get('/', [VehicleForDriverController::class, 'index']);
+                    Route::prefix('/{vehicle}')->group(function () {
+                        Route::get('/', [VehicleForDriverController::class, 'show']);
+                        Route::put('/', [VehicleForDriverController::class, 'update']);
+                        Route::delete('/', [VehicleForDriverController::class, 'destroy']);
+                    }); 
+                });
+
+                
+
+
+
+    
+            });
+    
+        });
+
+
+
+
+
+
+
+
+        
 
 
 

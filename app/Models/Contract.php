@@ -26,8 +26,9 @@ class Contract extends Model implements HasMedia
         'organization_id',
         'start_date',
         'end_date',
-        'is_active',
         'terminated_date',
+        'contract_name',
+        'contract_description',
     ];
 
 

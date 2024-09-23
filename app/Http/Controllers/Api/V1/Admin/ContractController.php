@@ -65,15 +65,31 @@ class ContractController extends Controller
                 // by adding duplicated contract_code to signal that the contract is modified from its predecessor with similar contract code
                 // we can add duplicated contract code. // because the columns have no unique attribute
                 // since the column is not unique by nature, we can freely add a duplicated contract code 
-                        
+            
+
+
+            // todays date
+            $today = Carbon::parse(today())->toDateString();
+            
 
             // contract dates // from the request
             $contractRequestStartDate = Carbon::parse($request['start_date'])->toDateString();
             $contractRequestEndDate = Carbon::parse($request['end_date'])->toDateString();
+
             // request_start_date should be =< request_end_date - for contracts and orders
             if ($contractRequestStartDate > $contractRequestEndDate) {
                 return response()->json(['message' => 'Contract Start Date should not be greater than the Contract End Date'], 400);
             }
+
+            
+            // contract end date = must be today or after today , (but end date can not be before today)
+            // Check if end_date is greater than or equal to todays date
+            if ($contractRequestEndDate < $today) {
+                return response()->json(['message' => 'Contract End date must be greater than or equal to today\'s date.'], 400);
+            }
+
+            // contract start date can be anytime // since an already stated contract can be inserted in the system // ask samson
+
 
 
             // Create the contract with the unique code
@@ -82,8 +98,13 @@ class ContractController extends Controller
                 'organization_id' => $request['organization_id'],
                 'start_date' => $request['start_date'],
                 'end_date' => $request['end_date'],
-                'is_active' => (int) $request->input('is_active', 1),
                 'terminated_date' => null, // is NULL when the order is created initially // since we are creating this contract for the first time, it is not terminated yet
+                            // if parent contract is Terminated (terminated_date=some_date)       // then we make all its child contract_details NOT Available by doing (is_available=0)
+							// if parent contract is UnTerminated (terminated_date=NULL)           // then we make all its child contract_details  Re-Available by doing (is_available=1)
+							// the "is_available" column in CONTRACT_DETAILs table should NOT be update separately,  // we ONLY update "is_available" when Terminating or UnTerminating the parent contract 
+
+                'contract_name' => $request['contract_name'],
+                'contract_description' => $request['contract_description'],
             ]);
 
             // CONTRACT MEDIA // PDF
@@ -127,7 +148,9 @@ class ContractController extends Controller
     {
         //
         // $var = DB::transaction(function () {
-            
+        
+        //      // NOTE : - // During update, if we Terminate or UnTerminate a Contract here - then we should make all its child contract_details UnAvailable or Re-Available Respectively
+        
         // });
 
         // return $var;

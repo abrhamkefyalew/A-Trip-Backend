@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id()->from(10000);
 
             $table->string('name');
-            $table->string('organization_description')->nullable();
+            $table->longText('organization_description')->nullable();
             $table->string('email')->unique();
             $table->string('phone_number')->unique();
             $table->boolean('is_active')->default(1);
