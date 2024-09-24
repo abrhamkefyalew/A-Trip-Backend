@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('phone_number')->unique();
 
             $table->boolean('is_active')->default(1); // if the driver is active in the sys // the DRIVER can TOGGLE this depending on his availability 
-            $table->boolean('is_approved')->default(0); // should the driver be approved before he can operate in the system     // should this column exist
+            $table->boolean('is_approved')->default(1); // should the driver be approved before he can operate in the system     // should this column exist
 
             $table->timestamp('email_verified_at')->nullable();
             // $table->string('password'); // do we need this // check first // check login type

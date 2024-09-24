@@ -173,6 +173,6 @@ class ContractDetailController extends Controller
      */
     public function destroy(ContractDetail $contractDetail)
     {
-        //
+        // for now we will not do this // because there may be order by contract_detail_id
     }
 }
