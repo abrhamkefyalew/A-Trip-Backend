@@ -9,6 +9,7 @@ use App\Models\Vehicle;
 use App\Models\Contract;
 use App\Models\Supplier;
 use Illuminate\Support\Str;
+use App\Models\Organization;
 use Illuminate\Http\Request;
 use App\Models\ContractDetail;
 use Illuminate\Support\Facades\DB;
@@ -113,6 +114,10 @@ class OrderController extends Controller
         $var = DB::transaction(function () use ($request) {
 
             if ($request->has('orders')) {
+
+                // abrham samson check // check abrham samson
+                // here check all the sent contract_detail_id s in the request belonged to the same organization_id sent in the request
+                
                 
                 $orderIds = [];
                     // since multiple orders can be sent at once 
@@ -135,6 +140,15 @@ class OrderController extends Controller
                     return response()->json(['message' => 'must set organization id.'], 404); 
                 }
 
+                $organization = Organization::find($request['organization_id']);
+
+                if ($organization->is_approved !== 1) {
+                    return response()->json(['message' => 'this organization has been Unapproved, please please approve the organization'], 401); 
+                }
+
+                if ($organization->is_active !== 1) {
+                    return response()->json(['message' => 'this organization has been is NOT Active, please activate the organization first to make an order.'], 401); 
+                }
 
 
                 // Now do operations on each of the orders sent

@@ -41,6 +41,10 @@ class OrderController extends Controller
         $var = DB::transaction(function () use ($request) {
 
             if ($request->has('orders')) {
+
+                // abrham samson check // check abrham samson
+                // here check all the sent contract_detail_id s in the request belonged to the same organization_id sent in the request
+                
                 
                 $orderIds = [];
                     // since multiple orders can be sent at once 
@@ -61,6 +65,15 @@ class OrderController extends Controller
                 // check if the organizationUser is organization admin
                 if ($organizationUser->is_admin !== 1) {
                     return response()->json(['message' => 'UnAuthorized. you are not organization Admin'], 401); 
+                }
+
+
+                if ($organizationUser->organization->is_approved !== 1) {
+                    return response()->json(['message' => 'this organization has been Unapproved, please check with the system super admin'], 401); 
+                }
+
+                if ($organizationUser->organization->is_active !== 1) {
+                    return response()->json(['message' => 'this organization has been is NOT Active, please activate your organization first to make an order. you can activate your organization yourself'], 401); 
                 }
 
 
