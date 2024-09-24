@@ -275,7 +275,7 @@ class OrderController extends Controller
                 }
 
                 // WORKS
-                $orders = Order::whereIn('id', $orderIds)->with('organization', 'vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail', 'invoices')->latest()->paginate(FilteringService::getPaginate($request));       // this get the orders created here
+                $orders = Order::whereIn('id', $orderIds)->with('organization', 'vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail', 'invoices', 'trips')->latest()->get();       // this get the orders created here
                 return OrderResource::collection($orders);
             
             }
@@ -292,7 +292,7 @@ class OrderController extends Controller
     {
         // $this->authorize('view', $order);
         
-        return OrderResource::make($order->load('organization', 'vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail', 'invoices'));
+        return OrderResource::make($order->load('organization', 'vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail', 'invoices', 'trips'));
     }
 
 
@@ -405,7 +405,7 @@ class OrderController extends Controller
 
             $updatedOrder = Order::find($order->id);
                 
-            return OrderResource::make($updatedOrder->load('vehicleName', 'vehicle', 'supplier', 'contractDetail', 'organization'));
+            return OrderResource::make($updatedOrder->load('vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail', 'organization', 'invoices', 'trips'));
                  
         });
 
@@ -489,7 +489,7 @@ class OrderController extends Controller
 
             $orderStartDate = Carbon::parse($order->start_date)->toDateString();
 
-            if ($orderStartDate < $today) {
+            if ($orderStartDate > $today) {
                 return response()->json(['message' => 'this order can not be made to begin now yet. the start date of the order is still in the future. you must wait another days and reach the start date of the order to start it.'], 400);
             }            
 
@@ -520,7 +520,7 @@ class OrderController extends Controller
 
             $updatedOrder = Order::find($order->id);
                 
-            return OrderResource::make($updatedOrder->load('vehicleName', 'vehicle', 'supplier', 'contractDetail', 'organization'));
+            return OrderResource::make($updatedOrder->load('vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail', 'organization', 'invoices', 'trips'));
 
         });
 
@@ -539,7 +539,7 @@ class OrderController extends Controller
      */
     public function completeOrder(CompleteOrderRequest $request, Order $order)
     {
-        // AUTOMATIC : - here we will make the vehicle is_available = VEHICLE_AVAILABLE
+        // AUTOMATIC : - here we will make the vehicle is_available = VEHICLE_AVAILABLE // order status = ORDER_STATUS_COMPLETE // and order end_date = today()
 
         $var = DB::transaction(function () use ($request, $order) {
 
@@ -580,7 +580,7 @@ class OrderController extends Controller
 
             $updatedOrder = Order::find($order->id);
                 
-            return OrderResource::make($updatedOrder->load('vehicleName', 'vehicle', 'supplier', 'contractDetail', 'organization'));
+            return OrderResource::make($updatedOrder->load('vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail', 'organization', 'invoices', 'trips'));
 
         });
 
@@ -804,13 +804,13 @@ class OrderController extends Controller
 
 
             if (!$success) {
-                return response()->json(['message' => 'Update Failed'], 422);
+                return response()->json(['message' => 'Order Update Failed'], 422);
             }
 
             $updatedOrder = Order::find($order->id);
 
 
-            return OrderResource::make($updatedOrder->load('organization', 'vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail'));
+            return OrderResource::make($updatedOrder->load('vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail', 'organization', 'invoices', 'trips'));
 
             
         });

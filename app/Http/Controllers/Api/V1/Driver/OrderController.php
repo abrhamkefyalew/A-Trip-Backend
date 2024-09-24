@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1\Driver;
 
+use Carbon\Carbon;
 use App\Models\Order;
 use App\Models\Driver;
 use App\Models\Vehicle;
@@ -282,6 +283,116 @@ class OrderController extends Controller
     {
         // AUTOMATIC : - here we will make the vehicle is_available = VEHICLE_ON_TRIP         - ALSO order begin_date will be set to today()      - ALSO order status will be ORDER_STATUS_START
 
+        $var = DB::transaction(function () use ($request, $order) {
+
+            // get the driver identity
+            $user = auth()->user();
+            $driver = Driver::find($user->id);
+
+            if ($order->driver_id !== $driver->id) {
+                return response()->json(['message' => 'invalid Order is selected. Deceptive request Aborted.'], 403); 
+            }
+            
+            
+            if (!$order->driver) { 
+                return response()->json(['message' => 'this order needs a driver to be started'], 403); 
+            }
+
+            // if ADIAMT wants to rent their own vehicles, They Can Register as SUPPLIERs Themselves
+            if (!$order->supplier) { 
+                return response()->json(['message' => 'this order needs a supplier to be started'], 403); 
+            }
+
+            if ($order->driver) {
+                if ($order->driver->is_active != 1) {
+                    return response()->json(['message' => 'Forbidden: Deactivated Driver'], 403); 
+                }
+                if ($order->driver->is_approved != 1) {
+                    return response()->json(['message' => 'Forbidden: NOT Approved Driver'], 403); 
+                }
+            }
+            if ($order->supplier) {
+                if ($order->supplier->is_active != 1) {
+                    return response()->json(['message' => 'Forbidden: Deactivated Supplier'], 403); 
+                }
+                if ($order->supplier->is_approved != 1) {
+                    return response()->json(['message' => 'Forbidden: NOT Approved Supplier'], 403); 
+                }
+            }
+
+
+            if ($order->status !== Order::ORDER_STATUS_SET) {
+                return response()->json(['message' => 'this order is not SET (ACCEPTED). order should be SET (ACCEPTED) before it can be STARTED.'], 403); 
+            }
+
+            if ($order->end_date < today()->toDateString()) {
+                return response()->json(['message' => 'this order is Expired already.'], 403); 
+            }
+
+            if ($order->is_terminated !== 0) {
+                return response()->json(['message' => 'this order is Terminated'], 403); 
+            }
+
+
+            // CHECK IF THE CONTRACT DETAIL IS NOT AVAILABLE
+            if ($order->contractDetail->is_available !== 1) { // TEST IF THIS DOES WORK = $order->contractDetail->with_driver       // also test if this condition is needed   // check abrham samson
+                return response()->json(['message' => 'this order contract_detail have is_available 0 currently for some reason, the contract_detail of this order should have is_available 1'], 403); 
+            }
+
+            
+
+            // check abrham samson
+            // is the following condition required 
+            // if ($order->contractDetail->periodic === 1) { 
+            //     return response()->json(['message' => 'this order is periodic. so the order needs a driver account to be started'], 403); 
+            // }
+
+
+
+            // TODO check if the contract itself is expired or Terminated
+
+            
+            // todays date
+            $today = now()->format('Y-m-d');
+
+            $orderStartDate = Carbon::parse($order->start_date)->toDateString();
+
+            if ($orderStartDate > $today) {
+                return response()->json(['message' => 'this order can not be made to begin now yet. the start date of the order is still in the future. you must wait another days and reach the start date of the order to start it.'], 400);
+            }            
+
+
+
+            $success = $order->update([
+                'status' => Order::ORDER_STATUS_START,
+                'begin_date' => today()->toDateString(),
+            ]);
+            //
+            if (!$success) {
+                return response()->json(['message' => 'Order Update Failed'], 422);
+            }
+
+            $vehicle = Vehicle::find($order->vehicle_id);
+            //
+            if (!$vehicle) {
+                return response()->json(['message' => 'we could not find the actual vehicle of the vehicle_id in this order'], 404);
+            }
+
+            $successTwo = $vehicle->update([
+                'is_available' => Vehicle::VEHICLE_ON_TRIP,
+            ]);
+            //
+            if (!$successTwo) {
+                return response()->json(['message' => 'Vehicle Update Failed'], 422);
+            }
+
+            $updatedOrder = Order::find($order->id);
+                
+            return OrderForDriverResource::make($updatedOrder->load('vehicleName', 'vehicle', 'supplier', 'contractDetail', 'organization'));
+
+        });
+
+        return $var;
     }
 
 
@@ -295,7 +406,61 @@ class OrderController extends Controller
      */
     public function completeOrder(CompleteOrderRequest $request, Order $order)
     {
-        // AUTOMATIC : - here we will make the vehicle is_available = VEHICLE_AVAILABLE
+        // AUTOMATIC : - here we will make the vehicle is_available = VEHICLE_AVAILABLE // order status = ORDER_STATUS_COMPLETE // and order end_date = today()
+
+        $var = DB::transaction(function () use ($request, $order) {
+
+            // get the driver identity
+            $user = auth()->user();
+            $driver = Driver::find($user->id);
+
+            if ($order->driver_id !== $driver->id) {
+                return response()->json(['message' => 'invalid Order is selected. Deceptive request Aborted.'], 403); 
+            }
+            
+
+            if ($order->status !== Order::ORDER_STATUS_START) {
+                return response()->json(['message' => 'this order is not STARTED. order should be STARTED before it can be COMPLETED.'], 403); 
+            }
+
+            // todays date
+            $today = now()->format('Y-m-d');
+            //
+            // if "order status is set to complete"  // the order end_date must be set to  $today().
+            // we do this Because if the order end date is in the future still and we sent ORDER_STATUS_COMPLETE, the project still charges the the organization for the remaining days until the project end_date is reached, even if the "order status is set to COPMPLETE"
+            // solution is the above, if we make the order end date = today(), when order is set to Complete , then the order end_date will match the order Complete status,  and there will not be any left over dates we ask payment to after the order is complete
+            //
+            //
+            $success = $order->update([
+                'status' => Order::ORDER_STATUS_COMPLETE,
+                'end_date' => $today,                           /* // if "order status is set to complete"  // the order end_date must be set to  $today() */
+            ]);
+            //
+            if (!$success) {
+                return response()->json(['message' => 'Order Update Failed'], 422);
+            }
+
+            $vehicle = Vehicle::find($order->vehicle_id);
+            //
+            if (!$vehicle) {
+                return response()->json(['message' => 'we could not find the actual vehicle of the vehicle_id in this order'], 404);
+            }
+
+            $successTwo = $vehicle->update([
+                'is_available' => Vehicle::VEHICLE_AVAILABLE,
+            ]);
+            //
+            if (!$successTwo) {
+                return response()->json(['message' => 'Vehicle Update Failed'], 422);
+            }
+
+            $updatedOrder = Order::find($order->id);
+                
+            return OrderForDriverResource::make($updatedOrder->load('vehicleName', 'vehicle', 'supplier', 'contractDetail', 'organization'));
+
+        });
+
+        return $var;
 
     }
 

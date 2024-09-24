@@ -37,7 +37,7 @@ return new class extends Migration
             $table->softDeletes();
 
 
-            // WHEN APPROVING is done by organization_user , i.e filling the column "approved_by_organization_user_id", 
+            // WHEN APPROVING is done by organization_user , i.e filling the column status = APPROVED, 
             // - all  the columns must be filled : except description
 
 

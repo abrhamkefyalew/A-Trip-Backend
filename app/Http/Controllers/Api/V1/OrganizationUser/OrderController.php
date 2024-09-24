@@ -204,7 +204,7 @@ class OrderController extends Controller
                 }
 
                 // WORKS
-                $orders = Order::whereIn('id', $orderIds)->with('vehicleName', 'vehicle', 'driver', 'contractDetail', 'invoices')->latest()->paginate(FilteringService::getPaginate($request));       // this get the orders created here
+                $orders = Order::whereIn('id', $orderIds)->with('vehicleName', 'vehicle', 'driver', 'contractDetail', 'invoices', 'trips')->latest()->get();       // this get the orders created here
                 return OrderForOrganizationResource::collection($orders);
             
             }
@@ -235,7 +235,7 @@ class OrderController extends Controller
         }
 
 
-        return OrderForOrganizationResource::make($order->load('vehicleName', 'vehicle', 'driver', 'contractDetail', 'invoices'));
+        return OrderForOrganizationResource::make($order->load('vehicleName', 'vehicle', 'driver', 'contractDetail', 'invoices', 'trips'));
     }
 
     /**

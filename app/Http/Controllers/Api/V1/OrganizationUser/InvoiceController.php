@@ -112,6 +112,7 @@ class InvoiceController extends Controller
 
                 // $totalPriceAmount now contains the total price_amount of all invoices with the specified 'invoice_code' , status unpaid and paid_date null // it will do add all invoices with the specified invoice_code (that are not paid and have null paid date)
                 $totalPriceAmount = Invoice::where('invoice_code', $invoiceCode)
+                    ->where('organization_id', $organizationUser->organization_id)
                     ->where('status', Invoice::INVOICE_STATUS_NOT_PAID)
                     ->where('paid_date', null)
                     ->sum('price_amount');
@@ -231,6 +232,7 @@ class InvoiceController extends Controller
 
 
                 // compare actual total price from database with the sent total price from frontend
+                // but check if this woks perfect // check abrham samson
                 $totalPriceAmount = Invoice::whereIn('id', $invoiceIds)
                     ->where('status', Invoice::INVOICE_STATUS_NOT_PAID)
                     ->where('paid_date', null)
@@ -307,7 +309,7 @@ class InvoiceController extends Controller
 
 
                 // this get the invoices created from the above two if conditions 
-                $invoicesData = Invoice::whereIn('id', $invoiceIdList)->with('order')->latest()->paginate(FilteringService::getPaginate($request));   
+                $invoicesData = Invoice::whereIn('id', $invoiceIdList)->with('order')->latest()->get();   
                 return InvoiceForOrganizationResource::collection($invoicesData);
 
             }
