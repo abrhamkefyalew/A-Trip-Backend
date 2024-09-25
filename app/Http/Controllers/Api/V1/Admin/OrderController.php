@@ -443,9 +443,9 @@ class OrderController extends Controller
 
 
             // if ADIAMT wants to rent their own vehicles, They Can Register as SUPPLIERs Themselves
-            if (!$order->driver && !$order->supplier) { 
-                return response()->json(['message' => 'the order at least should be accepted by either a driver or supplier'], 403); 
-            }
+            // if (!$order->driver && !$order->supplier) { 
+            //     return response()->json(['message' => 'the order at least should be accepted by either a driver or supplier'], 403); 
+            // }
 
             if ($order->driver) {
                 if ($order->driver->is_active != 1) {

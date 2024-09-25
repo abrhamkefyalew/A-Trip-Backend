@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('organization_id')->constrained('organizations');
             $table->string('first_name');
             $table->string('last_name');
-            $table->string('email')->unique()->nullable();
+            $table->string('email')->unique();
             $table->string('phone_number')->unique();
             $table->boolean('is_active')->default(1);
             $table->boolean('is_admin')->default(0); // 1 or 0 // to check if the organization_user have admin privilege // default 0

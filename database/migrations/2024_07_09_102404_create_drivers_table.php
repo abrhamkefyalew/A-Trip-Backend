@@ -16,7 +16,7 @@ return new class extends Migration
 
             $table->string('first_name');
             $table->string('last_name');
-            $table->string('email')->unique()->nullable();
+            $table->string('email')->unique();
             $table->string('phone_number')->unique();
 
             $table->boolean('is_active')->default(1); // if the driver is active in the sys // the DRIVER can TOGGLE this depending on his availability 
