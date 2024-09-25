@@ -22,6 +22,8 @@ return new class extends Migration
             $table->string('status')->default(InvoiceUser::INVOICE_STATUS_NOT_PAID); // this column is enum
             $table->date('paid_date')->nullable(); // initially it is NULL // set when organization pays this invoice
 
+            $table->string('payment_method');
+
             $table->timestamps();
             $table->softDeletes();
         });
