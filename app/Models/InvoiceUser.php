@@ -10,6 +10,36 @@ class InvoiceUser extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $table = 'invoice_users';
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'order_id',
+        'price',
+        'status',
+        'paid_date',
+        'payment_method',
+    ];
+
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'paid_date' => 'date',
+    ];
+
+
+    public function orderUser()
+    {
+        return $this->belongsTo(OrderUser::class);
+    }
 
     
 

@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\V1\Admin\ContractDetailController;
 use App\Http\Controllers\Api\V1\Admin\OrganizationUserController;
 use App\Http\Controllers\Api\V1\Auth\AdminAuth\AdminAuthController;
 use App\Http\Controllers\Api\V1\Auth\DriverAuth\DriverAuthController;
+use App\Http\Controllers\Api\V1\Auth\CustomerAuth\CustomerAuthController;
 use App\Http\Controllers\Api\V1\Auth\SupplierAuth\SupplierAuthController;
 use App\Http\Controllers\Api\V1\Driver\TripController as TripForDriverController;
 use App\Http\Controllers\Api\V1\Driver\OrderController as OrderForDriverController;
@@ -466,6 +467,45 @@ Route::prefix('v1')->group(function () {
 
 
 
+
+
+
+
+
+    // Customers route (for individual Customers)
+    Route::prefix('customer')->group(function () {
+        Route::prefix('')->group(function () {
+            // there should be BOTH Customer registration and Customer Store, -  
+            //
+            // Customer can be registered by himself on the system -
+            // or
+            // Customer can be stored by super admin of the system -
+            //
+            // there should be a route for Customer Registration by himself
+            // there should be a route for Customer storing by super admin
+
+            Route::post('/register', [CustomerAuthController::class, 'register']);
+            Route::post('/login', [CustomerAuthController::class, 'login']);
+
+        });
+
+
+        Route::middleware(['auth:sanctum', 'abilities:access-customer'])->group(function () {
+
+            Route::prefix('')->group(function () {
+                Route::post('/logout', [CustomerAuthController::class, 'logout']);
+                Route::post('/logout-all-devices', [CustomerAuthController::class, 'logoutAllDevices']);
+            });
+
+
+
+            
+
+
+
+        });
+
+    });
 
 
 

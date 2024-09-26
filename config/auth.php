@@ -57,9 +57,9 @@ return [
         'organization_user' => [
             'provider' => 'organization_users',
         ],
-        // 'customer' => [
-        //     'provider' => 'customers',
-        // ],
+        'customer' => [
+            'provider' => 'customers',
+        ],
         'supplier' => [
             'provider' => 'suppliers',
         ],
@@ -112,10 +112,10 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\OrganizationUser::class,
         ],
-        // 'customers' => [
-        //     'driver' => 'eloquent',
-        //     'model' => App\Models\Customer::class,
-        // ],
+        'customers' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Customer::class,
+        ],
         'suppliers' => [
             'driver' => 'eloquent',
             'model' => App\Models\Supplier::class,
@@ -173,12 +173,12 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
-        // 'customers' => [
-        //     'provider' => 'customers',
-        //     'table' => 'password_reset_tokens',
-        //     'expire' => 60,
-        //     'throttle' => 60,
-        // ],
+        'customers' => [
+            'provider' => 'customers',
+            'table' => 'password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
         'suppliers' => [
             'provider' => 'suppliers',
             'table' => 'password_reset_tokens',

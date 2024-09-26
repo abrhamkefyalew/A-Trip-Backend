@@ -70,7 +70,7 @@ class Driver extends Authenticatable implements HasMedia
     // we are using OTP so this is commented, until further notice
     // public function sendPasswordResetNotification($token)
     // {
-    //     $url = 'https://adiamat.com/suppliers/reset-password/?token='.$token; // modify this url // depending on your route
+    //     $url = 'https://adiamat.com/drivers/reset-password/?token='.$token; // modify this url // depending on your route
 
     //      $this->notify(new ResetPasswordNotification($url));
     // }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api\V1\AuthRequests;
 
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class RegisterCustomerRequest extends FormRequest
@@ -23,6 +24,22 @@ class RegisterCustomerRequest extends FormRequest
     {
         return [
             //
+            'first_name' => [
+                'sometimes', 'nullable', 'string', 'regex:/^\S*$/u', 'alpha',
+            ],
+            'last_name' => [
+                'sometimes', 'nullable', 'string', 'regex:/^\S*$/u', 'alpha',
+            ],
+            'email' => [
+                'required', 'email', Rule::unique('customers'),
+            ],
+            'password' => [
+                'required', 'min:8', 'confirmed',
+            ],
+            'phone_number' => [
+                'required', 'numeric',  Rule::unique('customers'),
+            ],
+            
         ];
     }
 }
