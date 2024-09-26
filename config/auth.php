@@ -54,18 +54,18 @@ return [
 
         // the following users guards will be usable when their Models are created
         // // so are commented temporarily // abrham remember to uncomment later when their Models are created
-        // 'organization_user' => [
-        //     'provider' => 'organization_users',
-        // ],
-        // 'customer' => [
-        //     'provider' => 'customers',
-        // ],
-        // 'supplier' => [
-        //     'provider' => 'suppliers',
-        // ],
-        // 'driver' => [
-        //     'provider' => 'drivers',
-        // ],
+        'organization_user' => [
+            'provider' => 'organization_users',
+        ],
+        'customer' => [
+            'provider' => 'customers',
+        ],
+        'supplier' => [
+            'provider' => 'suppliers',
+        ],
+        'driver' => [
+            'provider' => 'drivers',
+        ],
 
 
     ],
@@ -108,22 +108,22 @@ return [
 
         // the following users providers will be usable when their Models are created
         // // so are commented temporarily // abrham remember to uncomment later when their Models are created
-        // 'organization_users' => [
-        //     'driver' => 'eloquent',
-        //     'model' => App\Models\OrganizationUser::class,
-        // ],
-        // 'customers' => [
-        //     'driver' => 'eloquent',
-        //     'model' => App\Models\Customer::class,
-        // ],
-        // 'suppliers' => [
-        //     'driver' => 'eloquent',
-        //     'model' => App\Models\Supplier::class,
-        // ],
-        // 'drivers' => [
-        //     'driver' => 'eloquent',
-        //     'model' => App\Models\Driver::class,
-        // ],
+        'organization_users' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\OrganizationUser::class,
+        ],
+        'customers' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Customer::class,
+        ],
+        'suppliers' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Supplier::class,
+        ],
+        'drivers' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Driver::class,
+        ],
 
         
     ],
@@ -167,30 +167,30 @@ return [
 
         // the following settings for the providers will be usable when their Models are created
         // // so are commented temporarily // abrham remember to uncomment later when their Models are created
-        // 'organization_users' => [
-        //     'provider' => 'organization_users',
-        //     'table' => 'password_reset_tokens',
-        //     'expire' => 60,
-        //     'throttle' => 60,
-        // ],
-        // 'customers' => [
-        //     'provider' => 'customers',
-        //     'table' => 'password_reset_tokens',
-        //     'expire' => 60,
-        //     'throttle' => 60,
-        // ],
-        // 'suppliers' => [
-        //     'provider' => 'suppliers',
-        //     'table' => 'password_reset_tokens',
-        //     'expire' => 60,
-        //     'throttle' => 60,
-        // ],
-        // 'drivers' => [
-        //     'provider' => 'drivers',
-        //     'table' => 'password_reset_tokens',
-        //     'expire' => 60,
-        //     'throttle' => 60,
-        // ],
+        'organization_users' => [
+            'provider' => 'organization_users',
+            'table' => 'password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+        'customers' => [
+            'provider' => 'customers',
+            'table' => 'password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+        'suppliers' => [
+            'provider' => 'suppliers',
+            'table' => 'password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+        'drivers' => [
+            'provider' => 'drivers',
+            'table' => 'password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
 
     ],
 

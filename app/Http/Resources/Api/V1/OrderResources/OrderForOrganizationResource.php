@@ -7,6 +7,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\Api\V1\DriverResources\DriverResource;
 use App\Http\Resources\Api\V1\SupplierResources\SupplierResource;
 use App\Http\Resources\Api\V1\VehicleNameResources\VehicleNameResource;
+use App\Http\Resources\Api\V1\TripResources\TripForOrganizationResource;
 use App\Http\Resources\Api\V1\InvoiceResources\InvoiceForOrganizationResource;
 use App\Http\Resources\Api\V1\VehicleResources\VehicleForOrganizationResource;
 use App\Http\Resources\Api\V1\ContractDetailResources\ContractDetailOrganizationResource;
@@ -72,7 +73,9 @@ class OrderForOrganizationResource extends JsonResource
                 return $this->contractDetail->load('contract');
             })),
 
-            'order_invoices' => InvoiceForOrganizationResource::make($this->whenLoaded('invoices')),
+            'order_invoices' => InvoiceForOrganizationResource::collection($this->whenLoaded('invoices')),
+            
+            'order_trips' => TripForOrganizationResource::collection($this->whenLoaded('trips')),
             
         ];
     }

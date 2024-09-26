@@ -20,9 +20,10 @@ return new class extends Migration
             $table->foreignId('organization_id')->constrained('organizations'); // if super_admin updates orders table , he should not update this organization_id column // updating it may create a problem // so updating this is not a good idea
             $table->foreignId('contract_detail_id')->constrained('contract_details');
 
-            // also this should NOT be referred from contract_detail B/C what if a contract_detail vehicle_name_id updated LONG AFTER an order is made or consumed, 
+            // also this should NOT be referred from contract_detail B/C what if a contract_detail vehicle_name_id updated LONG AFTER an order is made or consumed, // so vehicle_name_id column should be added in orders table here
             // so even if contract_detail is updated, the order must reflect that the order was intended for the initial vehicle_name_id mentioned in it , NOT the updated vehicle_name_id in contract_detail. 
-            // so using vehicle_name_id of contract_detail will alter the order history // that is why we put vehicle_name_id in orders table
+            // so using vehicle_name_id of contract_detail will alter the order history 
+            // that is why we put vehicle_name_id in orders table
             $table->foreignId('vehicle_name_id')->constrained('vehicle_names'); // this should NOT be null 
 
             // should nullable come before constrained or after // check first please

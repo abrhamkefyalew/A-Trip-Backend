@@ -42,7 +42,7 @@ class DriverController extends Controller
                 'email' => $request['email'], // what happens if the email does not get sent in the request // Error or Null will be inserted // check this
                 'phone_number' => $request['phone_number'],
                 'is_active' => (int) (isset($request['is_active']) ? $request['is_active'] : 1), // this works
-                'is_approved' => (int) $request->input('is_approved', 0), // this works also    // // this column can ONLY be Set by the SUPER_ADMIN,  // if Driver is registering himself , he can NOT send the is_approved field
+                'is_approved' => (int) $request->input('is_approved', 1), // this works also    // // this column can ONLY be Set by the SUPER_ADMIN,  // if Driver is registering himself , he can NOT send the is_approved field
                                                                                                    // so this //is_approved// code part will be removed when the Driver makes the request
             ]);
 
@@ -130,6 +130,7 @@ class DriverController extends Controller
      */
     public function destroy(Driver $driver)
     {
-        //
+        // should not delete driver 
+        // we only only un-approve (this should be separate end point so that i will do logout on the driver)
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Resources\Api\V1\OrderResources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\Api\V1\TripResources\TripResource;
 use App\Http\Resources\Api\V1\DriverResources\DriverResource;
 use App\Http\Resources\Api\V1\InvoiceResources\InvoiceResource;
 use App\Http\Resources\Api\V1\VehicleResources\VehicleResource;
@@ -80,7 +81,9 @@ class OrderResource extends JsonResource
 
             'contract_detail' => ContractDetailResource::make($this->whenLoaded('contractDetail')),
 
-            'order_invoices' => InvoiceResource::make($this->whenLoaded('invoices')),
+            'order_invoices' => InvoiceResource::collection($this->whenLoaded('invoices')),
+
+            'order_trips' => TripResource::collection($this->whenLoaded('trips')),
             
         ];
     }

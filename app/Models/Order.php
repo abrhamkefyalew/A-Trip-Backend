@@ -100,6 +100,11 @@ class Order extends Model implements HasMedia
     }
 
 
+    public function trips()
+    {
+        return $this->hasMany(Trip::class);
+    }
+
 
 
     // Order status constants

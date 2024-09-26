@@ -74,7 +74,6 @@ class ContractDetailController extends Controller
             $contracts = Contract::where('organization_id', $request['organization_id'])
                 ->where('terminated_date', null)
                 ->whereDate('end_date', '>=', today()->toDateString()) // toDateString() is used , to get and use only the date value of today(), // so the time value is stripped out
-                ->latest()
                 ->get();       // this get multiple contracts of the organization
 
             // Extract contract IDs from the $contracts collection
@@ -174,6 +173,6 @@ class ContractDetailController extends Controller
      */
     public function destroy(ContractDetail $contractDetail)
     {
-        //
+        // for now we will not do this // because there may be order by contract_detail_id
     }
 }

@@ -147,20 +147,45 @@ class ContractController extends Controller
     public function update(UpdateContractRequest $request, Contract $contract)
     {
         //
+        // contract_name, contract_description = we can only update these two
+        // 
+        //
+        //
         // $var = DB::transaction(function () {
         
-        //      // NOTE : - // During update, if we Terminate or UnTerminate a Contract here - then we should make all its child contract_details UnAvailable or Re-Available Respectively
+        //      
         
         // });
 
         // return $var;
     }
 
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function terminateContract(UpdateContractRequest $request, Contract $contract)
+    {
+        //
+        //
+        // 
+        // terminated_date = for this we need end point
+        //
+        // $var = DB::transaction(function () {
+        
+        //      // NOTE : -  if we Terminate or UnTerminate a Contract here - then we should make all its child contract_details UnAvailable or Re-Available Respectively
+        
+        // });
+
+        // return $var;
+    }
+
+
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(Contract $contract)
     {
-        //
+        // there should not be contract delete
     }
 }

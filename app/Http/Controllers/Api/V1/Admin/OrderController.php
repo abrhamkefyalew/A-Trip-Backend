@@ -9,6 +9,7 @@ use App\Models\Vehicle;
 use App\Models\Contract;
 use App\Models\Supplier;
 use Illuminate\Support\Str;
+use App\Models\Organization;
 use Illuminate\Http\Request;
 use App\Models\ContractDetail;
 use Illuminate\Support\Facades\DB;
@@ -43,6 +44,16 @@ class OrderController extends Controller
                 return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
             } 
         }
+        if ($request->has('order_code_search')) {
+            if (isset($request['order_code_search'])) {
+                $orderCode = $request['order_code_search'];
+
+                $orders = $orders->where('order_code', $orderCode);
+            } 
+            else {
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+            } 
+        }
         if ($request->has('is_terminated_search')) {
             if (isset($request['is_terminated_search'])) {
                 $isTerminated = $request['is_terminated_search'];
@@ -70,6 +81,23 @@ class OrderController extends Controller
             }
 
         }
+        if ($request->has('pr_status_search')) {
+            if (isset($request['pr_status_search'])) {
+                $prStatus = $request['pr_status_search'];
+
+                if (!in_array($prStatus, [null, Order::ORDER_PR_STARTED, Order::ORDER_PR_LAST, Order::ORDER_PR_COMPLETED, Order::ORDER_PR_TERMINATED])) {
+                    return response()->json([
+                        'message' => 'pr_status_search should only be : null, ' . Order::ORDER_PR_STARTED . ', ' . Order::ORDER_PR_LAST . ', ' . Order::ORDER_PR_COMPLETED . ', or ' . Order::ORDER_PR_TERMINATED
+                    ], 422);
+                }
+
+                $orders = $orders->where('pr_status', $prStatus);
+            } 
+            else {
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+            }
+
+        }
 
 
         $ordersData = $orders->with('organization', 'vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail')->latest()->paginate(FilteringService::getPaginate($request));       // this get multiple orders of the organization
@@ -86,6 +114,10 @@ class OrderController extends Controller
         $var = DB::transaction(function () use ($request) {
 
             if ($request->has('orders')) {
+
+                // abrham samson check // check abrham samson
+                // here check all the sent contract_detail_id s in the request belonged to the same organization_id sent in the request
+                
                 
                 $orderIds = [];
                     // since multiple orders can be sent at once 
@@ -108,6 +140,15 @@ class OrderController extends Controller
                     return response()->json(['message' => 'must set organization id.'], 404); 
                 }
 
+                $organization = Organization::find($request['organization_id']);
+
+                if ($organization->is_approved !== 1) {
+                    return response()->json(['message' => 'this organization has been Unapproved, please please approve the organization'], 401); 
+                }
+
+                if ($organization->is_active !== 1) {
+                    return response()->json(['message' => 'this organization has been is NOT Active, please activate the organization first to make an order.'], 401); 
+                }
 
 
                 // Now do operations on each of the orders sent
@@ -248,7 +289,7 @@ class OrderController extends Controller
                 }
 
                 // WORKS
-                $orders = Order::whereIn('id', $orderIds)->with('organization', 'vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail', 'invoices')->latest()->paginate(FilteringService::getPaginate($request));       // this get the orders created here
+                $orders = Order::whereIn('id', $orderIds)->with('organization', 'vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail', 'invoices', 'trips')->latest()->get();       // this get the orders created here
                 return OrderResource::collection($orders);
             
             }
@@ -265,7 +306,7 @@ class OrderController extends Controller
     {
         // $this->authorize('view', $order);
         
-        return OrderResource::make($order->load('organization', 'vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail', 'invoices'));
+        return OrderResource::make($order->load('organization', 'vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail', 'invoices', 'trips'));
     }
 
 
@@ -378,7 +419,7 @@ class OrderController extends Controller
 
             $updatedOrder = Order::find($order->id);
                 
-            return OrderResource::make($updatedOrder->load('vehicleName', 'vehicle', 'supplier', 'contractDetail', 'organization'));
+            return OrderResource::make($updatedOrder->load('vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail', 'organization', 'invoices', 'trips'));
                  
         });
 
@@ -402,9 +443,9 @@ class OrderController extends Controller
 
 
             // if ADIAMT wants to rent their own vehicles, They Can Register as SUPPLIERs Themselves
-            if (!$order->driver && !$order->supplier) { 
-                return response()->json(['message' => 'the order at least should be accepted by either a driver or supplier'], 403); 
-            }
+            // if (!$order->driver && !$order->supplier) { 
+            //     return response()->json(['message' => 'the order at least should be accepted by either a driver or supplier'], 403); 
+            // }
 
             if ($order->driver) {
                 if ($order->driver->is_active != 1) {
@@ -462,7 +503,7 @@ class OrderController extends Controller
 
             $orderStartDate = Carbon::parse($order->start_date)->toDateString();
 
-            if ($orderStartDate < $today) {
+            if ($orderStartDate > $today) {
                 return response()->json(['message' => 'this order can not be made to begin now yet. the start date of the order is still in the future. you must wait another days and reach the start date of the order to start it.'], 400);
             }            
 
@@ -493,7 +534,7 @@ class OrderController extends Controller
 
             $updatedOrder = Order::find($order->id);
                 
-            return OrderResource::make($updatedOrder->load('vehicleName', 'vehicle', 'supplier', 'contractDetail', 'organization'));
+            return OrderResource::make($updatedOrder->load('vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail', 'organization', 'invoices', 'trips'));
 
         });
 
@@ -512,7 +553,7 @@ class OrderController extends Controller
      */
     public function completeOrder(CompleteOrderRequest $request, Order $order)
     {
-        // AUTOMATIC : - here we will make the vehicle is_available = VEHICLE_AVAILABLE
+        // AUTOMATIC : - here we will make the vehicle is_available = VEHICLE_AVAILABLE // order status = ORDER_STATUS_COMPLETE // and order end_date = today()
 
         $var = DB::transaction(function () use ($request, $order) {
 
@@ -553,7 +594,7 @@ class OrderController extends Controller
 
             $updatedOrder = Order::find($order->id);
                 
-            return OrderResource::make($updatedOrder->load('vehicleName', 'vehicle', 'supplier', 'contractDetail', 'organization'));
+            return OrderResource::make($updatedOrder->load('vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail', 'organization', 'invoices', 'trips'));
 
         });
 
@@ -777,13 +818,13 @@ class OrderController extends Controller
 
 
             if (!$success) {
-                return response()->json(['message' => 'Update Failed'], 422);
+                return response()->json(['message' => 'Order Update Failed'], 422);
             }
 
             $updatedOrder = Order::find($order->id);
 
 
-            return OrderResource::make($updatedOrder->load('organization', 'vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail'));
+            return OrderResource::make($updatedOrder->load('vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail', 'organization', 'invoices', 'trips'));
 
             
         });

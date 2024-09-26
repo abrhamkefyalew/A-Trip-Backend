@@ -419,7 +419,7 @@ class InvoiceController extends Controller
                 
 
                 // this get the invoices created from the above two if conditions 
-                $invoicesData = Invoice::whereIn('id', $invoiceIds)->with('order', 'organization')->latest()->paginate(FilteringService::getPaginate($request));   
+                $invoicesData = Invoice::whereIn('id', $invoiceIds)->with('order', 'organization')->latest()->get();   
                 return InvoiceResource::collection($invoicesData);
                 
             }

@@ -112,6 +112,7 @@ class InvoiceController extends Controller
 
                 // $totalPriceAmount now contains the total price_amount of all invoices with the specified 'invoice_code' , status unpaid and paid_date null // it will do add all invoices with the specified invoice_code (that are not paid and have null paid date)
                 $totalPriceAmount = Invoice::where('invoice_code', $invoiceCode)
+                    ->where('organization_id', $organizationUser->organization_id)
                     ->where('status', Invoice::INVOICE_STATUS_NOT_PAID)
                     ->where('paid_date', null)
                     ->sum('price_amount');
@@ -150,8 +151,8 @@ class InvoiceController extends Controller
             if ($request->has('invoices')) {
 
                 // Check if all invoices have the same organization_id            // a PR payment request or multiple PR payment request should be sent for only one organization at a time
-                $invoiceIds = $request->input('invoices.*.invoice_id');
-                $organizationIds = Invoice::whereIn('id', $invoiceIds)->pluck('organization_id')->unique();
+                $invoiceIdsVal = $request->input('invoices.*.invoice_id');
+                $organizationIds = Invoice::whereIn('id', $invoiceIdsVal)->pluck('organization_id')->unique();
                 if ($organizationIds->count() > 1) {
                     return response()->json(['message' => 'All invoices must belong to the same organization.'], 422);
                 }
@@ -231,8 +232,13 @@ class InvoiceController extends Controller
 
 
                 // compare actual total price from database with the sent total price from frontend
+                // but check if this woks perfect // check abrham samson
                 $totalPriceAmount = Invoice::whereIn('id', $invoiceIds)
+                    ->where('status', Invoice::INVOICE_STATUS_NOT_PAID)
+                    ->where('paid_date', null)
                     ->sum('price_amount');
+
+                    
 
                 if ($totalPriceAmount !== $requestData['price_amount_total']) {
                     return response()->json(['message' => 'the total price sent in the request does NOT match the total price of the requested invoice IDs in the database.'], 404);
@@ -256,7 +262,7 @@ class InvoiceController extends Controller
 
 
 
-                $invoiceIds = [];
+                $invoiceIdList = [];
 
                 // Now We are sure all the impurities are filtered in the above foreach
                 // So do the ACTUAL Operations on each of the invoices sent in the request
@@ -292,9 +298,9 @@ class InvoiceController extends Controller
                     }
 
 
-                    // $invoiceIds[] = Invoice::find($invoice->id); // consumes more resource
+                    // $invoiceIdList[] = Invoice::find($invoice->id); // consumes more resource
 
-                    $invoiceIds[] = $invoice->id; // USED
+                    $invoiceIdList[] = $invoice->id; // USED
                 
 
                 }
@@ -303,7 +309,7 @@ class InvoiceController extends Controller
 
 
                 // this get the invoices created from the above two if conditions 
-                $invoicesData = Invoice::whereIn('id', $invoiceIds)->with('order')->latest()->paginate(FilteringService::getPaginate($request));   
+                $invoicesData = Invoice::whereIn('id', $invoiceIdList)->with('order')->latest()->get();   
                 return InvoiceForOrganizationResource::collection($invoicesData);
 
             }

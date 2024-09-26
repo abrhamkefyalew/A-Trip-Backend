@@ -22,10 +22,9 @@ class UpdateOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // this update request is = to make Supplier Accept Order  
-            // we set the following values
+            // not used
 
-            'vehicle_id' => 'required|integer|exists:vehicles,id',
+            // 'vehicle_id' => 'required|integer|exists:vehicles,id',
         ];
     }
 }

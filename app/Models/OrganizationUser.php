@@ -69,7 +69,7 @@ class OrganizationUser extends Authenticatable implements HasMedia
     // we are using OTP so this is commented, until further notice
     // public function sendPasswordResetNotification($token)
     // {
-    //     $url = 'https://adiamat.com/suppliers/reset-password/?token='.$token; // modify this url // depending on your route
+    //     $url = 'https://adiamat.com/organization-users/reset-password/?token='.$token; // modify this url // depending on your route
 
     //      $this->notify(new ResetPasswordNotification($url));
     // }
@@ -96,6 +96,12 @@ class OrganizationUser extends Authenticatable implements HasMedia
     public function organization()
     {
         return $this->belongsTo(Organization::class);
+    }
+
+
+    public function trips()
+    {
+        return $this->hasMany(Trip::class);
     }
 
 
