@@ -1,10 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Models\OrderUser;
-use App\Http\Requests\StoreOrderUserRequest;
-use App\Http\Requests\UpdateOrderUserRequest;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\AdminRequests\StoreOrderUserRequest;
+use App\Http\Requests\Api\V1\AdminRequests\UpdateOrderUserRequest;
+
 
 class OrderUserController extends Controller
 {
@@ -13,7 +15,7 @@ class OrderUserController extends Controller
      */
     public function index()
     {
-        //
+        // $this->authorize('viewAny', OrderUser::class);
     }
 
     /**
@@ -34,7 +36,7 @@ class OrderUserController extends Controller
      */
     public function show(OrderUser $orderUser)
     {
-        //
+        // $this->authorize('view', $orderUser);
     }
 
     /**

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Api\V1\AuthRequests;
+namespace App\Http\Requests\Api\V1\AdminRequests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class LoginCustomerRequest extends FormRequest
+class StoreBidRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -12,6 +12,8 @@ class LoginCustomerRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
+
+        // return $this->user()->can('create', Bid::class);
     }
 
     /**
@@ -23,12 +25,6 @@ class LoginCustomerRequest extends FormRequest
     {
         return [
             //
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-            // 'phone_number' => [
-            //     'required', 'numeric',  
-            // ],
-            
         ];
     }
 }

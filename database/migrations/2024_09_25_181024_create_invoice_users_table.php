@@ -17,12 +17,17 @@ return new class extends Migration
 
             $table->foreignId('order_id')->constrained('order_users');
 
-            // an invoice is payed two times , first initial payment (it could be 0 birr)     SECOND the Final payment (it is the left over pricet )
+            // an invoice is payed two times ,         1. first initial payment (it could be 0 birr)           2. SECOND the Final payment (it is the left over price)
+            
+
             $table->integer('price'); // this is the paid amount of an order, it could be the initial or the final payment of the order
             $table->string('status')->default(InvoiceUser::INVOICE_STATUS_NOT_PAID); // this column is enum
             $table->date('paid_date')->nullable(); // initially it is NULL // set when organization pays this invoice
 
-            $table->string('payment_method');
+            $table->string('payment_method'); // should not be null
+
+
+            // the columns below here are intended for the return data from the banks
 
             $table->timestamps();
             $table->softDeletes();

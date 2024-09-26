@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Api\V1\AdminRequests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateBidRequest extends FormRequest
+class StoreCustomerRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -12,6 +12,8 @@ class UpdateBidRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
+
+        // return $this->user()->can('create', Customer::class);
     }
 
     /**

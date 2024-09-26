@@ -1,10 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Models\InvoiceUser;
-use App\Http\Requests\StoreInvoiceUserRequest;
-use App\Http\Requests\UpdateInvoiceUserRequest;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\AdminRequests\StoreInvoiceUserRequest;
+use App\Http\Requests\Api\V1\AdminRequests\UpdateInvoiceUserRequest;
+
 
 class InvoiceUserController extends Controller
 {
@@ -13,7 +15,7 @@ class InvoiceUserController extends Controller
      */
     public function index()
     {
-        //
+        // $this->authorize('viewAny', InvoiceUser::class);
     }
 
     /**
@@ -34,7 +36,7 @@ class InvoiceUserController extends Controller
      */
     public function show(InvoiceUser $invoiceUser)
     {
-        //
+        // $this->authorize('view', $invoiceUser);
     }
 
     /**
