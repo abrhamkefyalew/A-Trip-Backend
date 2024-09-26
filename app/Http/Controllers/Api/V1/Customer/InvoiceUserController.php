@@ -1,13 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\Api\V1\Admin;
+namespace App\Http\Controllers\Api\V1\Customer;
 
 use App\Models\InvoiceUser;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\V1\AdminRequests\StoreInvoiceUserRequest;
-use App\Http\Requests\Api\V1\AdminRequests\UpdateInvoiceUserRequest;
-
 
 class InvoiceUserController extends Controller
 {
@@ -16,13 +13,13 @@ class InvoiceUserController extends Controller
      */
     public function index(Request $request)
     {
-        // $this->authorize('viewAny', InvoiceUser::class);
+        //
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreInvoiceUserRequest $request)
+    public function store(Request $request)
     {
         //
         // $var = DB::transaction(function () {
@@ -37,13 +34,13 @@ class InvoiceUserController extends Controller
      */
     public function show(InvoiceUser $invoiceUser)
     {
-        // $this->authorize('view', $invoiceUser);
+        //
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateInvoiceUserRequest $request, InvoiceUser $invoiceUser)
+    public function update(Request $request, InvoiceUser $invoiceUser)
     {
         //
         // $var = DB::transaction(function () {

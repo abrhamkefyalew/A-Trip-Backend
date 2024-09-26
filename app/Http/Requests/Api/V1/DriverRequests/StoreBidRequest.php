@@ -4,7 +4,7 @@ namespace App\Http\Requests\Api\V1\DriverRequests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateOrderRequest extends FormRequest
+class StoreBidRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,9 +22,7 @@ class UpdateOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // not used
-
-            // 'vehicle_id' => 'required|integer|exists:vehicles,id',
+            //
         ];
     }
 }
