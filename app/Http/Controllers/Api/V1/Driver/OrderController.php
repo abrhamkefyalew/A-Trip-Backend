@@ -240,6 +240,13 @@ class OrderController extends Controller
                 
             }
 
+            // this if is important and should be right here 
+            // this if should NOT be nested in any other if condition // this if should be independent and done just like this  // this if should be checked independently just like i did it right here
+            if (($vehicle->driver_id === null) && ($order->contractDetail->with_driver === 1)) {
+                return response()->json(['message' => 'the vehicle you selected for the order does not have actual driver currently'], 403); 
+            }
+
+
             // CHECK IF THE CONTRACT DETAIL IS NOT AVAILABLE
             if ($order->contractDetail->is_available !== 1) { // TEST IF THIS DOES WORK = $order->contractDetail->with_driver       // also test if this condition is needed   // check abrham samson
                 return response()->json(['message' => 'this order contract_detail have is_available 0 currently for some reason, the contract_detail of this order should have is_available 1'], 403); 
@@ -292,16 +299,16 @@ class OrderController extends Controller
             if ($order->driver_id !== $driver->id) {
                 return response()->json(['message' => 'invalid Order is selected. Deceptive request Aborted.'], 403); 
             }
-            
-            
+            //
+            // redundant
             if (!$order->driver) { 
                 return response()->json(['message' => 'this order needs a driver to be started'], 403); 
             }
 
-            // if ADIAMT wants to rent their own vehicles, They Can Register as SUPPLIERs Themselves
-            if (!$order->supplier) { 
-                return response()->json(['message' => 'this order needs a supplier to be started'], 403); 
-            }
+            // if ADIAMT wants to rent their own vehicles, They Can Register as SUPPLIERs Themselves // but i commented the below // so check abrham samson
+            // if (!$order->supplier) { 
+            //     return response()->json(['message' => 'this order needs a supplier to be started'], 403); 
+            // }
 
             if ($order->driver) {
                 if ($order->driver->is_active != 1) {
