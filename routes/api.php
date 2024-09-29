@@ -266,6 +266,17 @@ Route::prefix('v1')->group(function () {
         });
 
 
+        Route::prefix('call_backs')->group(function () {
+            
+            Route::prefix('invoices')->group(function () {
+                Route::prefix('tele_birr')->group(function () {
+                    Route::post('/pay_invoices_call_back_tele_birr', [InvoiceForOrganizationController::class, 'payInvoicesCallBackTelebirr']);
+                });
+            }); 
+
+        });
+
+
         Route::middleware(['auth:sanctum', 'abilities:access-organizationUser'])->group(function () {
 
             Route::prefix('')->group(function () {

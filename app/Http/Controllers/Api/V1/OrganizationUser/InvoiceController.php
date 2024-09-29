@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\OrganizationUser;
 
 use App\Models\Order;
 use App\Models\Invoice;
+use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Models\OrganizationUser;
@@ -15,6 +16,7 @@ use App\Http\Requests\Api\V1\OrganizationUserRequests\PayInvoiceRequest;
 use App\Http\Requests\Api\V1\OrganizationUserRequests\StoreInvoiceRequest;
 use App\Http\Requests\Api\V1\OrganizationUserRequests\UpdateInvoiceRequest;
 use App\Http\Resources\Api\V1\InvoiceResources\InvoiceForOrganizationResource;
+use App\Http\Requests\Api\V1\OrganizationUserRequests\PayInvoicesCallBackTelebirrRequest;
 
 class InvoiceController extends Controller
 {
@@ -163,10 +165,12 @@ class InvoiceController extends Controller
 
             if ($request->has('invoices')) {
 
-                $invoiceIdsVal = $request->input('invoices.*.invoice_id');
-
+                $invoiceIds = collect($request->invoices)->pluck('invoice_id');
+                // $invoiceIdsVal = $request->input('invoices.*.invoice_id'); // check if this works
+                //
+                //
                 // Check if all invoices have the same invoice_code            // a PR payment request for an invoice or multiple invoices should be sent for invoices that belong to only one invoice_code
-                $invoiceCodes = Invoice::whereIn('id', $invoiceIdsVal)->pluck('invoice_code')->unique();
+                $invoiceCodes = Invoice::whereIn('id', $invoiceIds)->pluck('invoice_code')->unique();
                 if ($invoiceCodes->count() !== 1) {
                     return response()->json(['message' => 'All invoices must belong to the same invoice code.'], 422);
                 }
@@ -179,7 +183,7 @@ class InvoiceController extends Controller
 
 
                 // Check if all invoices have the same organization_id            // a PR payment request or multiple PR payment request should be sent for only one organization at a time
-                $organizationIds = Invoice::whereIn('id', $invoiceIdsVal)->pluck('organization_id')->unique();
+                $organizationIds = Invoice::whereIn('id', $invoiceIds)->pluck('organization_id')->unique();
                 if ($organizationIds->count() > 1) {
                     return response()->json(['message' => 'All invoices must belong to the same organization.'], 422);
                 }
@@ -203,8 +207,7 @@ class InvoiceController extends Controller
 
 
                 //  check if there is duplicate invoice_id in the JSON and if there Duplicate invoice_id is return ERROR
-                $invoiceIds = collect($request->invoices)->pluck('invoice_id');
-                    //
+                //
                 if ($invoiceIds->count() !== $invoiceIds->unique()->count()) {
                     return response()->json(['message' => 'Duplicate invoice_id values are not allowed.'], 400);
                 }
@@ -220,35 +223,105 @@ class InvoiceController extends Controller
 
 
 
+
+
+
+
+
+
+
+
+
+
                 /*
                     now below i will to check 
                     1. all the ids from the invoice table with the invoice_code = $invoiceCode must exist in the invoice_ids that are sent in the request
                     2. all the invoice_id values in the request must exist in the invoice table
                 */
+                
+
+                /* 
+                    // METHOD ONE , this WORKS but it is more detailed so it is longer and complicated
+                
+                        // Retrieve all invoice_id values from the invoices table where invoice_code is $invoiceCode
+                        $databaseInvoiceIds = Invoice::where('invoice_code', $invoiceCode)->pluck('id')->toArray();
+
+                        // Get the invoice_id values from the request (assuming the request is in the $request variable)
+                        $requestInvoiceIds = collect($request->invoices)->pluck('invoice_id');
+
+                        // Check if all the database invoice ids exist in the request invoice_ids
+                        $allDatabaseIdsExistInRequest = collect($databaseInvoiceIds)->intersect($requestInvoiceIds)->count() === count($databaseInvoiceIds);
+
+                        // Check if all the request invoice_ids exist in the database invoice ids
+                        $allRequestIdsExistInDatabase = collect($requestInvoiceIds)->intersect($databaseInvoiceIds)->count() === count($requestInvoiceIds);
+
+                        if (!$allDatabaseIdsExistInRequest) {
+                            return response()->json([
+                                'message' => 'All invoice IDs from the database that have the invoice_code: ' . $invoiceCode . ' should be included in your payment request.'
+                            ], 400);
+                        }
+
+                        if (!$allRequestIdsExistInDatabase) {
+                            return response()->json([
+                                'message' => 'All invoice IDs included in your payment request should be under invoice_code: ' . $invoiceCode . ', or there are invoice_ids in the request that are not present in the database for the given invoice_code'
+                            ], 400);
+                        }
+                    //
+                    // end METHOD ONE
+                */
+                
+
+
+                // METHOD TWO , WORKS and it is short and preside and NOT complected, might consume resources though
                 //
-                // Retrieve all invoice_id values from the invoices table where invoice_code is $invoiceCode
-                $databaseInvoiceIds = Invoice::where('invoice_code', $invoiceCode)->pluck('id')->toArray();
+                // Extract the invoice IDs from the nested structure in the request using Arr::pluck()
+                $invoiceIdsFromRequestArr = Arr::pluck($request->input('invoices'), 'invoice_id');
+                //
+                // Extract the invoice IDs from the nested structure in the request using collection methods
+                // $invoiceIdsFromRequestCollection = collect($request->invoices)->pluck('invoice_id'); // this works also
 
-                // Get the invoice_id values from the request (assuming the request is in the $request variable)
-                $requestInvoiceIds = $request->input('invoices.*.invoice_id');
+                $invoiceIdsFromDatabase = Invoice::where('invoice_code', $invoiceCode)->pluck('id')->all();
 
-                // Check if all the database invoice ids exist in the request invoice_ids
-                $allDatabaseIdsExistInRequest = collect($databaseInvoiceIds)->intersect($requestInvoiceIds)->count() === count($databaseInvoiceIds);
+                // Sort the arrays before comparing to ensure order doesn't affect the comparison
+                sort($invoiceIdsFromRequestArr);
+                sort($invoiceIdsFromDatabase);
 
-                // Check if all the request invoice_ids exist in the database invoice ids
-                $allRequestIdsExistInDatabase = collect($requestInvoiceIds)->intersect($databaseInvoiceIds)->count() === count($requestInvoiceIds);
-
-                if (!$allDatabaseIdsExistInRequest) {
+                if ($invoiceIdsFromRequestArr !== $invoiceIdsFromDatabase) {
                     return response()->json([
-                        'message' => 'All invoice IDs from the database that have the invoice_code: ' . $invoiceCode . ' should be included in your payment request.'
+                        'message' => 'All invoice IDs included in your payment request should be Exactly equals with All invoice IDs from the database that have the invoice_code: ' . $invoiceCode
                     ], 400);
                 }
+                //
+                // end METHOD TWO
+                
 
-                if (!$allRequestIdsExistInDatabase) {
-                    return response()->json([
-                        'message' => 'All invoice IDs included in your payment request should be under invoice_code: ' . $invoiceCode . ', or there are invoice_ids in the request that are not present in the database for the given invoice_code'
-                    ], 400);
-                }
+
+                // METHOD THREE, This version efficiently compares the arrays lengths and elements without sorting, providing a more optimized solution in terms of resource usage
+                //
+                // Extract the invoice IDs from the nested structure in the request using Arr::pluck()
+                // $invoiceIdsFromRequestArr = Arr::pluck($request->input('invoices'), 'invoice_id');
+
+                // // Get the invoice IDs from the database for the given invoice code
+                // $invoiceIdsFromDatabase = Invoice::where('invoice_code', $invoiceCode)->pluck('id')->all();
+
+                // // Compare both arrays to find differences
+                // $diffInRequest = array_diff($invoiceIdsFromRequestArr, $invoiceIdsFromDatabase);
+                // $diffInDatabase = array_diff($invoiceIdsFromDatabase, $invoiceIdsFromRequestArr);
+
+                // // Check if both arrays have exactly the same values
+                // if (count($diffInRequest) > 0 || count($diffInDatabase) > 0) {
+                //     return response()->json([
+                //         'message' => 'All invoice IDs in the request should exactly match the invoice IDs from the database for invoice code: ' . $invoiceCode
+                //     ], 400);
+                // }
+                // end METHOD THREE
+
+
+
+
+
+
+
 
 
 
@@ -403,7 +476,7 @@ class InvoiceController extends Controller
 
 
 
-                // this get the invoices created from the above two if conditions 
+                // this get all the invoices updated above
                 $invoicesData = Invoice::whereIn('id', $invoiceIdList)->with('order')->latest()->get();   
                 return InvoiceForOrganizationResource::collection($invoicesData);
 
@@ -415,6 +488,69 @@ class InvoiceController extends Controller
         return $var;
     }
 
+
+
+    /**
+     * telebirr call back , to confirm payment
+     */
+    public function payInvoicesCallBackTelebirr(PayInvoicesCallBackTelebirrRequest $request)
+    {
+        //
+        $var = DB::transaction(function () use ($request) {
+
+            // todays date
+            $today = now()->format('Y-m-d');
+
+            $invoiceIdList = [];
+
+            // Get the invoice_code from the request
+            $invoiceCode = $request->invoice_code;
+
+            // Fetch all invoices where invoice_code matches the one from the request
+            $invoices = Invoice::where('invoice_code', $invoiceCode)->get();
+
+            foreach ($invoices as $invoice) {
+                if ($invoice->order->pr_status === Order::ORDER_PR_STARTED) {
+                    $orderPrStatus = Order::ORDER_PR_STARTED;
+                } elseif ($invoice->order->pr_status === Order::ORDER_PR_LAST) {
+                    $orderPrStatus = Order::ORDER_PR_COMPLETED;
+                } elseif ($invoice->order->pr_status === Order::ORDER_PR_COMPLETED) {
+                    $orderPrStatus = Order::ORDER_PR_COMPLETED;
+                }
+
+                // Update the invoice status and paid date
+                $success = $invoice->update([
+                    'status' => Invoice::INVOICE_STATUS_PAID,
+                    'paid_date' => $today,
+                ]);
+
+                // Handle update failure
+                if (!$success) {
+                    return response()->json(['message' => 'Invoice Update Failed'], 422);
+                }
+
+                // Update the order pr_status
+                $successTwo = $invoice->order()->update([
+                    'pr_status' => $orderPrStatus,
+                ]);
+
+                // Handle order update failure
+                if (!$successTwo) {
+                    return response()->json(['message' => 'Order Update Failed'], 422);
+                }
+
+                $invoiceIdList[] = $invoice->id;
+            }
+
+            // Fetch the updated invoices based on the invoice ids
+            $invoicesData = Invoice::whereIn('id', $invoiceIdList)->with('order')->latest()->get();
+
+            return InvoiceForOrganizationResource::collection($invoicesData);
+            
+        });
+
+        return $var;
+    }
 
 
 
