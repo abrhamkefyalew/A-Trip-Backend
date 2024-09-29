@@ -7,9 +7,10 @@ use Illuminate\Database\Eloquent\Builder;
 
 class PrPaymentService
 {
-    public static function payPrs($priceAmountTotal)
+    public static function payPrs($priceAmountTotalValue, $invoiceCodeValue)
     {
-        $priceAmountTotal = (int) $priceAmountTotal;
+        $priceAmountTotal = (int) $priceAmountTotalValue;
+        $invoiceCode = $invoiceCodeValue;
 
         // do the actual payment operation here
         // if success it will return true or success or some kind of string

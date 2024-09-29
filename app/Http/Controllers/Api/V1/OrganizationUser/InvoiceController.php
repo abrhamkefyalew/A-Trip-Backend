@@ -140,6 +140,19 @@ class InvoiceController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     * 
+     * this endpoint method is to pay only with invoice_code
+     * ALL the invoice_ids sent to me here MUST Belong to the SAME invoice_code , otherwise i will return ERROR
+     * 
+     * after everything is checked and verified 
+     * I will pass the invoice_code to the bank and
+     * after the payment is completed , when my callback endpoint is called by the banks, the banks will send me back the invoice_code
+     * i will use that invoice_code to update all the invoices under it (i.e to status = PAID , paid_date = today()  ,  and also change the pr_status of the parent orders of those invoices accordingly i.e $invoice->order->pr_status = some status)
+     * 
+     * 
+     * to do this the second foreach statement i put here must be moved to be under the callback endpoint
+     * so all the operations on the second foreach must be done under the callback endpoint that the banks call after the payment is complete
+     * 
      */
     public function payInvoices(PayInvoiceRequest $request)
     {
@@ -150,8 +163,22 @@ class InvoiceController extends Controller
 
             if ($request->has('invoices')) {
 
-                // Check if all invoices have the same organization_id            // a PR payment request or multiple PR payment request should be sent for only one organization at a time
                 $invoiceIdsVal = $request->input('invoices.*.invoice_id');
+
+                // Check if all invoices have the same invoice_code            // a PR payment request for an invoice or multiple invoices should be sent for invoices that belong to only one invoice_code
+                $invoiceCodes = Invoice::whereIn('id', $invoiceIdsVal)->pluck('invoice_code')->unique();
+                if ($invoiceCodes->count() !== 1) {
+                    return response()->json(['message' => 'All invoices must belong to the same invoice code.'], 422);
+                }
+                // Now we are sure all the invoices in the invoice request belong to one invoice_code
+                // So let's get that one invoice_code      // it is worth to mention that the following collection only have one invoice_code
+                $invoiceCode = $invoiceCodes->first(); // Retrieves the first invoice_code FROM our collection which in fact at this stage have ONLY one invoice_code
+
+
+                //
+
+
+                // Check if all invoices have the same organization_id            // a PR payment request or multiple PR payment request should be sent for only one organization at a time
                 $organizationIds = Invoice::whereIn('id', $invoiceIdsVal)->pluck('organization_id')->unique();
                 if ($organizationIds->count() > 1) {
                     return response()->json(['message' => 'All invoices must belong to the same organization.'], 422);
@@ -182,6 +209,52 @@ class InvoiceController extends Controller
                     return response()->json(['message' => 'Duplicate invoice_id values are not allowed.'], 400);
                 }
                 // Continue processing the request if no duplicate invoice_id values are found
+
+
+                // compare the number of invoices in the request   ,   with that of the database(that have invoice_code = $invoiceCode) 
+                $countInvoiceIds = Invoice::where('invoice_code', $invoiceCode)->count();
+
+                if ($countInvoiceIds !== $invoiceIds->unique()->count()) {
+                    return response()->json(['message' => 'the number of invoice ids sent from the request should be equal to the number of invoice ids in the database with invoice_code: '. $invoiceCode], 400);
+                }
+
+
+
+                /*
+                    now below i will to check 
+                    1. all the ids from the invoice table with the invoice_code = $invoiceCode must exist in the invoice_ids that are sent in the request
+                    2. all the invoice_id values in the request must exist in the invoice table
+                */
+                //
+                // Retrieve all invoice_id values from the invoices table where invoice_code is $invoiceCode
+                $databaseInvoiceIds = Invoice::where('invoice_code', $invoiceCode)->pluck('id')->toArray();
+
+                // Get the invoice_id values from the request (assuming the request is in the $request variable)
+                $requestInvoiceIds = $request->input('invoices.*.invoice_id');
+
+                // Check if all the database invoice ids exist in the request invoice_ids
+                $allDatabaseIdsExistInRequest = collect($databaseInvoiceIds)->intersect($requestInvoiceIds)->count() === count($databaseInvoiceIds);
+
+                // Check if all the request invoice_ids exist in the database invoice ids
+                $allRequestIdsExistInDatabase = collect($requestInvoiceIds)->intersect($databaseInvoiceIds)->count() === count($requestInvoiceIds);
+
+                if (!$allDatabaseIdsExistInRequest) {
+                    return response()->json([
+                        'message' => 'All invoice IDs from the database that have the invoice_code: ' . $invoiceCode . ' should be included in your payment request.'
+                    ], 400);
+                }
+
+                if (!$allRequestIdsExistInDatabase) {
+                    return response()->json([
+                        'message' => 'All invoice IDs included in your payment request should be under invoice_code: ' . $invoiceCode . ', or there are invoice_ids in the request that are not present in the database for the given invoice_code'
+                    ], 400);
+                }
+
+
+
+
+
+
 
 
                 // todays date
@@ -219,6 +292,9 @@ class InvoiceController extends Controller
                     if ($invoice->status === Invoice::INVOICE_STATUS_PAID) {
                         return response()->json(['message' => 'This Invoice is Already Paid.  Invoice: ' . $$invoice->id . ' , The Invoice have PAID status.'], 404);
                     }
+                    if ($invoice->paid_date !== null) {
+                        return response()->json(['message' => 'This Invoice is Already Paid.  Invoice: ' . $$invoice->id . ' , The Invoice have value in its paid date.'], 404);
+                    }
 
 
 
@@ -229,6 +305,7 @@ class InvoiceController extends Controller
                 // do something here to handle = if the actual associated ORDER of EACH requested INVOICE does NOT exit     
                 // should be checked separately using foreach or another method to handle those separately
 
+                
 
 
                 // compare actual total price from database with the sent total price from frontend
@@ -238,14 +315,21 @@ class InvoiceController extends Controller
                     ->where('paid_date', null)
                     ->sum('price_amount');
 
+
+                $totalPriceAmountByInvoiceCode = Invoice::where('invoice_code', $invoiceCode)
+                    ->sum('price_amount');
                     
 
-                if ($totalPriceAmount !== $requestData['price_amount_total']) {
-                    return response()->json(['message' => 'the total price sent in the request does NOT match the total price of the requested invoice IDs in the database.'], 404);
+
+                if ($totalPriceAmount !== $requestData['price_amount_total'] || 
+                    $totalPriceAmount !== $totalPriceAmountByInvoiceCode || 
+                    $requestData['price_amount_total'] !== $totalPriceAmountByInvoiceCode) {
+                    return response()->json(['message' => 'The total prices do not match between the request and actual database calculations.'], 404);
                 }
 
-                // do the actual payment
-                $valuePayment = PrPaymentService::payPrs($totalPriceAmount);
+                // do the actual payment 
+                // pass the $totalPriceAmount to be paid   and   pass the $invoiceCode so that it could be used in the callback endpoint to change the status of the paid invoices
+                $valuePayment = PrPaymentService::payPrs($totalPriceAmount, $invoiceCode);
 
                 if ($valuePayment != true) {
                     return response()->json(['message' => 'payment operation failed from the banks side'], 500);
@@ -262,6 +346,9 @@ class InvoiceController extends Controller
 
 
 
+                // the following code should be moved to the callback endpoint
+                // so all the operations on the second foreach must be done under the callback endpoint that the banks call after the payment is complete
+
                 $invoiceIdList = [];
 
                 // Now We are sure all the impurities are filtered in the above foreach
@@ -274,6 +361,14 @@ class InvoiceController extends Controller
                         $orderPrStatus = Order::ORDER_PR_STARTED;
                     }
                     if ($invoice->order->pr_status === Order::ORDER_PR_LAST) {
+                        $orderPrStatus = Order::ORDER_PR_COMPLETED;
+                    }
+                    if ($invoice->order->pr_status === Order::ORDER_PR_COMPLETED) { 
+                        // i added this condition because a multiple pr request can be made to the same order in consecutive timelines one after the other 
+                        // and from those invoices that are asked of the same order if the last invoice is asked of that order then the pr_status of the order would be PR_LAST
+                        // and if we pay any one of that order invoice, the order pr_status will be changed from PR_LAST to PR_COMPLETED
+                        // so when paying the rest of the invoices of that same order we must set the variable $orderPrStatus value (to PR_COMPLETED), even if the order shows PR_COMPLETED
+                        // this way we will have a variable to assign to the pr_status of order table as we did below (i.e = 'pr_status' => $orderPrStatus,)
                         $orderPrStatus = Order::ORDER_PR_COMPLETED;
                     }
 
