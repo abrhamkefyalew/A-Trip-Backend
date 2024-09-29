@@ -28,7 +28,11 @@ use App\Http\Controllers\Api\V1\Supplier\OrderController as OrderForSupplierCont
 use App\Http\Controllers\Api\V1\Auth\OrganizationUserAuth\OrganizationUserAuthController;
 use App\Http\Controllers\Api\V1\Supplier\VehicleController as VehicleForSupplierController;
 use App\Http\Controllers\Api\V1\OrganizationUser\TripController as TripForOrganizationController;
+use App\Http\Controllers\Api\V1\Customer\VehicleNameController as VehicleNameForCustomerController;
+use App\Http\Controllers\Api\V1\Customer\VehicleTypeController as VehicleTypeForCustomerController;
 use App\Http\Controllers\Api\V1\OrganizationUser\OrderController as OrderForOrganizationController;
+use App\Http\Controllers\Api\V1\Supplier\VehicleNameController as VehicleNameForSupplierController;
+use App\Http\Controllers\Api\V1\Supplier\VehicleTypeController as VehicleTypeForSupplierController;
 use App\Http\Controllers\Api\V1\OrganizationUser\InvoiceController as InvoiceForOrganizationController;
 use App\Http\Controllers\Api\V1\OrganizationUser\ContractDetailController as ContractDetailForOrganizationController;
 
@@ -379,6 +383,29 @@ Route::prefix('v1')->group(function () {
             });
 
 
+            Route::prefix('vehicle_types')->group(function () {
+                Route::post('/', [VehicleTypeForSupplierController::class, 'store']);
+                Route::get('/', [VehicleTypeForSupplierController::class, 'index']);
+                Route::prefix('/{vehicleType}')->group(function () {
+                    Route::get('/', [VehicleTypeForSupplierController::class, 'show']);
+                    Route::put('/', [VehicleTypeForSupplierController::class, 'update']);
+                    Route::delete('/', [VehicleTypeForSupplierController::class, 'destroy']);
+                }); 
+            });
+
+
+            Route::prefix('vehicle_names')->group(function () {
+                Route::post('/', [VehicleNameForSupplierController::class, 'store']);
+                Route::get('/', [VehicleNameForSupplierController::class, 'index']);
+                Route::get('/search_by_vehicle_type', [VehicleNameForSupplierController::class, 'searchByVehicleType']);
+                Route::prefix('/{vehicleName}')->group(function () {
+                    Route::get('/', [VehicleNameForSupplierController::class, 'show']);
+                    Route::put('/', [VehicleNameForSupplierController::class, 'update']);
+                    Route::delete('/', [VehicleNameForSupplierController::class, 'destroy']);
+                }); 
+            });
+
+
 
             Route::prefix('vehicles')->group(function () {
                 Route::post('/', [VehicleForSupplierController::class, 'store']);
@@ -508,6 +535,28 @@ Route::prefix('v1')->group(function () {
                 Route::post('/logout-all-devices', [CustomerAuthController::class, 'logoutAllDevices']);
             });
 
+
+            Route::prefix('vehicle_types')->group(function () {
+                Route::post('/', [VehicleTypeForCustomerController::class, 'store']);
+                Route::get('/', [VehicleTypeForCustomerController::class, 'index']);
+                Route::prefix('/{vehicleType}')->group(function () {
+                    Route::get('/', [VehicleTypeForCustomerController::class, 'show']);
+                    Route::put('/', [VehicleTypeForCustomerController::class, 'update']);
+                    Route::delete('/', [VehicleTypeForCustomerController::class, 'destroy']);
+                }); 
+            });
+
+
+            Route::prefix('vehicle_names')->group(function () {
+                Route::post('/', [VehicleNameForCustomerController::class, 'store']);
+                Route::get('/', [VehicleNameForCustomerController::class, 'index']);
+                Route::get('/search_by_vehicle_type', [VehicleNameForCustomerController::class, 'searchByVehicleType']);
+                Route::prefix('/{vehicleName}')->group(function () {
+                    Route::get('/', [VehicleNameForCustomerController::class, 'show']);
+                    Route::put('/', [VehicleNameForCustomerController::class, 'update']);
+                    Route::delete('/', [VehicleNameForCustomerController::class, 'destroy']);
+                }); 
+            });
 
 
             
