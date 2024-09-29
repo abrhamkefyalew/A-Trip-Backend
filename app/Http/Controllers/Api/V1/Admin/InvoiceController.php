@@ -276,6 +276,18 @@ class InvoiceController extends Controller
                         // this means only = (DATE DIFFERENCE) // only the actual subtraction will be used
 
 
+                        $orderInvoicesPaymentCheck = Invoice::where('order_id', $order->id)
+                                        ->where('status', Invoice::INVOICE_STATUS_NOT_PAID)
+                                        ->get();
+
+                        if (!$orderInvoicesPaymentCheck->isEmpty()) {
+                            return response()->json([
+                                'message' => 'there is NOT_PAID invoice in invoices table with this order: ' . $order->id,
+                                'order_id' => $order->id
+                            ], 400);
+                        }
+
+
                         // lets get the last invoice asked with this order_id
                         $lastInvoice = $order->invoices()->latest()->first();
 

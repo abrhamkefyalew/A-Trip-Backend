@@ -433,10 +433,20 @@ class InvoiceController extends Controller
                     if ($invoice->order->pr_status === Order::ORDER_PR_STARTED) {
                         $orderPrStatus = Order::ORDER_PR_STARTED;
                     }
-                    if ($invoice->order->pr_status === Order::ORDER_PR_LAST) {
-                        $orderPrStatus = Order::ORDER_PR_COMPLETED;
+                    else if ($invoice->order->pr_status === Order::ORDER_PR_LAST) {
+
+                        $orderInvoicesPaymentCheck = Invoice::where('order_id', $invoice->order->id)
+                                    ->where('status', Invoice::INVOICE_STATUS_NOT_PAID)
+                                    ->get();
+
+                        if ($orderInvoicesPaymentCheck->isEmpty()) {
+                            $orderPrStatus = Order::ORDER_PR_COMPLETED;
+                        } else {
+                            $orderPrStatus = Order::ORDER_PR_LAST;
+                        }
+
                     }
-                    if ($invoice->order->pr_status === Order::ORDER_PR_COMPLETED) { 
+                    else if ($invoice->order->pr_status === Order::ORDER_PR_COMPLETED) { 
                         // i added this condition because a multiple pr request can be made to the same order in consecutive timelines one after the other 
                         // and from those invoices that are asked of the same order if the last invoice is asked of that order then the pr_status of the order would be PR_LAST
                         // and if we pay any one of that order invoice, the order pr_status will be changed from PR_LAST to PR_COMPLETED
@@ -513,9 +523,21 @@ class InvoiceController extends Controller
             foreach ($invoices as $invoice) {
                 if ($invoice->order->pr_status === Order::ORDER_PR_STARTED) {
                     $orderPrStatus = Order::ORDER_PR_STARTED;
-                } elseif ($invoice->order->pr_status === Order::ORDER_PR_LAST) {
+                } else if ($invoice->order->pr_status === Order::ORDER_PR_LAST) {
+                    
                     $orderPrStatus = Order::ORDER_PR_COMPLETED;
-                } elseif ($invoice->order->pr_status === Order::ORDER_PR_COMPLETED) {
+
+                    // $orderInvoicesPaymentCheck = Invoice::where('order_id', $invoice->order->id)
+                    //                 ->where('status', Invoice::INVOICE_STATUS_NOT_PAID)
+                    //                 ->get();
+
+                    // if ($orderInvoicesPaymentCheck->isEmpty()) {
+                    //     $orderPrStatus = Order::ORDER_PR_COMPLETED;
+                    // } else {
+                    //     $orderPrStatus = Order::ORDER_PR_LAST;
+                    // }
+                    
+                } else if ($invoice->order->pr_status === Order::ORDER_PR_COMPLETED) {
                         // i added this condition because a multiple pr request can be made to the same order in consecutive timelines one after the other 
                         // and from those invoices that are asked of the same order if the last invoice is asked of that order then the pr_status of the order would be PR_LAST
                         // and if we pay any one of that order invoice, the order pr_status will be changed from PR_LAST to PR_COMPLETED

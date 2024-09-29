@@ -685,6 +685,11 @@ class OrderController extends Controller
             }
 
 
+            if ($order->status !== Order::ORDER_STATUS_PENDING) {
+                return response()->json(['message' => 'an order must be pending to be updated'], 403); 
+            }
+
+
 
             // this contract_detail_id should be owned by the organization that the super_admin is making the order to
             if ($request->has('contract_detail_id') && isset($request['contract_detail_id'])) {
