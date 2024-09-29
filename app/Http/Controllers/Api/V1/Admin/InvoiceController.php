@@ -283,7 +283,8 @@ class InvoiceController extends Controller
                         if (!$orderInvoicesPaymentCheck->isEmpty()) {
                             return response()->json([
                                 'message' => 'there is NOT_PAID invoice in invoices table with this order: ' . $order->id,
-                                'order_id' => $order->id
+                                'order_id' => $order->id,
+                                'order_vehicle_plate_number' => $order->vehicle->plate_number
                             ], 400);
                         }
 
