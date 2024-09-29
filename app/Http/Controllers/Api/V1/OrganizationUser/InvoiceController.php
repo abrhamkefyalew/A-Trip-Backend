@@ -527,6 +527,8 @@ class InvoiceController extends Controller
                     
                     $orderPrStatus = Order::ORDER_PR_COMPLETED;
 
+                    // this is no longer used since i am controlling it in invoice asking,
+                    // which means in invoice asking i will prevent super_admin not ask another invoice for an order if there is an already UnPaid invoice for that order in invoices table
                     // $orderInvoicesPaymentCheck = Invoice::where('order_id', $invoice->order->id)
                     //                 ->where('status', Invoice::INVOICE_STATUS_NOT_PAID)
                     //                 ->get();
