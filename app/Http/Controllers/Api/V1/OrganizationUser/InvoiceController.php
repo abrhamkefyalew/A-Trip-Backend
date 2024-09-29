@@ -409,6 +409,7 @@ class InvoiceController extends Controller
                 }
 
 
+                return 'link of payment'. $valuePayment;
 
 
 
@@ -417,8 +418,7 @@ class InvoiceController extends Controller
 
 
 
-
-
+                /*
                 // the following code should be moved to the callback endpoint
                 // so all the operations on the second foreach must be done under the callback endpoint that the banks call after the payment is complete
 
@@ -479,6 +479,7 @@ class InvoiceController extends Controller
                 // this get all the invoices updated above
                 $invoicesData = Invoice::whereIn('id', $invoiceIdList)->with('order')->latest()->get();   
                 return InvoiceForOrganizationResource::collection($invoicesData);
+                */
 
             }
 
