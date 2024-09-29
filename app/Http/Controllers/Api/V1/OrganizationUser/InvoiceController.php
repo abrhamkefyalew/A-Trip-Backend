@@ -515,6 +515,11 @@ class InvoiceController extends Controller
                 } elseif ($invoice->order->pr_status === Order::ORDER_PR_LAST) {
                     $orderPrStatus = Order::ORDER_PR_COMPLETED;
                 } elseif ($invoice->order->pr_status === Order::ORDER_PR_COMPLETED) {
+                        // i added this condition because a multiple pr request can be made to the same order in consecutive timelines one after the other 
+                        // and from those invoices that are asked of the same order if the last invoice is asked of that order then the pr_status of the order would be PR_LAST
+                        // and if we pay any one of that order invoice, the order pr_status will be changed from PR_LAST to PR_COMPLETED
+                        // so when paying the rest of the invoices of that same order we must set the variable $orderPrStatus value (to PR_COMPLETED), even if the order shows PR_COMPLETED
+                        // this way we will have a variable to assign to the pr_status of order table as we did below (i.e = 'pr_status' => $orderPrStatus,)
                     $orderPrStatus = Order::ORDER_PR_COMPLETED;
                 }
 
@@ -542,7 +547,7 @@ class InvoiceController extends Controller
                 $invoiceIdList[] = $invoice->id;
             }
 
-            // Fetch the updated invoices based on the invoice ids
+            // Fetch the above updated invoices based on the invoice ids
             $invoicesData = Invoice::whereIn('id', $invoiceIdList)->with('order')->latest()->get();
 
             return InvoiceForOrganizationResource::collection($invoicesData);
