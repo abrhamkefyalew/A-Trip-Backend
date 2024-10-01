@@ -212,6 +212,7 @@ class TripController extends Controller
      */
     public function update(UpdateTripRequest $request, Trip $trip)
     {
+        dd("here");
         //
         $var = DB::transaction(function () use ($request, $trip) {
 
