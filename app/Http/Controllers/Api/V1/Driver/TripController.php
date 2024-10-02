@@ -133,6 +133,10 @@ class TripController extends Controller
             if ($order->contractDetail->with_driver !== 1) {
                 return response()->json(['message' => 'Trip can not be created for this order, since the order does not need driver. only orders that require a driver are allowed to have Trip'], 403);
             }
+
+            if ($order->contractDetail->periodic === 1) {
+                return response()->json(['message' => 'Trip can not be created for this order, because this order is periodic'], 403);
+            }
             
 
 
@@ -185,7 +189,10 @@ class TripController extends Controller
             }
 
 
-            return TripForDriverResource::make($trip->load('order', 'organizationUser'));
+            $tripValue = Trip::find($trip->id);
+
+
+            return TripForDriverResource::make($tripValue->load('order', 'organizationUser'));
 
         });
 
@@ -220,6 +227,16 @@ class TripController extends Controller
             if ($trip->status === Trip::TRIP_STATUS_APPROVED) {
                 return response()->json(['message' => 'this Trip is already APPROVED , so no further updates on this trip is not allowed.'], 403); 
             }
+
+
+            $startDashboard = (int) $request['start_dashboard'];
+            $endDashboard = (int) $request['end_dashboard'];
+
+
+            if ($endDashboard < $startDashboard) {
+                return response()->json(['message' => 'the end dashboard reading should not be less than the start dashboard reading.'], 403); 
+            }
+            
 
 
             $success = $trip->update($request->validated());

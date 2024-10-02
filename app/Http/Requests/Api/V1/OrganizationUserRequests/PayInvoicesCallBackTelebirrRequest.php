@@ -1,12 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Api\V1\CustomerRequests;
+namespace App\Http\Requests\Api\V1\OrganizationUserRequests;
 
-use App\Models\InvoiceUser;
-use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class AcceptBidRequest extends FormRequest
+class PayInvoicesCallBackTelebirrRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,10 +22,14 @@ class AcceptBidRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
-            'payment_method' => [
-                'required', 'string', Rule::in([InvoiceUser::INVOICE_TELE_BIRR, InvoiceUser::INVOICE_CBE_MOBILE_BANKING, InvoiceUser::INVOICE_CBE_BIRR, InvoiceUser::INVOICE_BOA]),
+
+            'invoice_code' => [
+                'required', 
+                'string', 
+                'exists:invoices,invoice_code'
             ],
+
+            
         ];
     }
 }

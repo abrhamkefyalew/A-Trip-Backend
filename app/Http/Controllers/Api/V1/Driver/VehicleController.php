@@ -26,6 +26,7 @@ class VehicleController extends Controller
         $vehicles = Vehicle::where('driver_id', $driver->id);
 
 
+        // this filter is NOT necessary since Driver can only see one order
         if ($request->has('vehicle_name_id_search')) {
             if (isset($request['vehicle_name_id_search'])) {
                 $vehicleNameId = $request['vehicle_name_id_search'];

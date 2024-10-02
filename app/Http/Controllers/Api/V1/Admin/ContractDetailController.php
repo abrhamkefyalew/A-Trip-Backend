@@ -118,6 +118,12 @@ class ContractDetailController extends Controller
         $var = DB::transaction(function () use ($request) {
 
             // $validatedData = $request->validated();
+
+
+            if ($request['with_fuel'] == 1 && $request['with_driver'] == 0) {
+                return response()->json(['message' => 'since you set with_fuel = 1, with_driver must also be 1. a Contract Detail that require fuel must also require driver'], 400);
+            }
+
             
             $contractDetail = ContractDetail::create([
                 'contract_id' => $request['contract_id'],

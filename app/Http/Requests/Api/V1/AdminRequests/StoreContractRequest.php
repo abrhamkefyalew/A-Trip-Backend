@@ -45,7 +45,7 @@ class StoreContractRequest extends FormRequest
 
 
             'organization_contract_file' => [
-                'sometimes',
+                'required',
                 'file', // Change 'image' to 'file' for all file types
                 'mimes:pdf', // Allow only PDF files
                 'max:3072', // Maximum file size in kilobytes (adjust as needed)

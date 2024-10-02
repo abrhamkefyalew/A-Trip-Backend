@@ -23,7 +23,7 @@ return new class extends Migration
             $table->boolean('is_approved')->default(1); // should the driver be approved before he can operate in the system     // should this column exist
 
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password'); // do we need this // check first // check login type
+            $table->string('password'); // check first // check login type
 
             $table->timestamps();
             $table->softDeletes();

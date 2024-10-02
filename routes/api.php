@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\V1\Admin\BidController;
 use App\Http\Controllers\Api\V1\Admin\BankController;
 use App\Http\Controllers\Api\V1\Admin\TripController;
 use App\Http\Controllers\Api\V1\Admin\AdminController;
@@ -10,8 +11,11 @@ use App\Http\Controllers\Api\V1\Admin\DriverController;
 use App\Http\Controllers\Api\V1\Admin\InvoiceController;
 use App\Http\Controllers\Api\V1\Admin\VehicleController;
 use App\Http\Controllers\Api\V1\Admin\ContractController;
+use App\Http\Controllers\Api\V1\Admin\CustomerController;
 use App\Http\Controllers\Api\V1\Admin\SupplierController;
 use App\Http\Controllers\Api\V1\Admin\DashBoardController;
+use App\Http\Controllers\Api\V1\Admin\OrderUserController;
+use App\Http\Controllers\Api\V1\Admin\InvoiceUserController;
 use App\Http\Controllers\Api\V1\Admin\VehicleNameController;
 use App\Http\Controllers\Api\V1\Admin\VehicleTypeController;
 use App\Http\Controllers\Api\V1\Admin\OrganizationController;
@@ -21,14 +25,26 @@ use App\Http\Controllers\Api\V1\Auth\AdminAuth\AdminAuthController;
 use App\Http\Controllers\Api\V1\Auth\DriverAuth\DriverAuthController;
 use App\Http\Controllers\Api\V1\Auth\CustomerAuth\CustomerAuthController;
 use App\Http\Controllers\Api\V1\Auth\SupplierAuth\SupplierAuthController;
+use App\Http\Controllers\Api\V1\Driver\BidController as BidForDriverController;
 use App\Http\Controllers\Api\V1\Driver\TripController as TripForDriverController;
+use App\Http\Controllers\Api\V1\Customer\BidController as BidForCustomerController;
 use App\Http\Controllers\Api\V1\Driver\OrderController as OrderForDriverController;
+use App\Http\Controllers\Api\V1\Supplier\BidController as BidForSupplierController;
 use App\Http\Controllers\Api\V1\Driver\VehicleController as VehicleForDriverController;
 use App\Http\Controllers\Api\V1\Supplier\OrderController as OrderForSupplierController;
 use App\Http\Controllers\Api\V1\Auth\OrganizationUserAuth\OrganizationUserAuthController;
+use App\Http\Controllers\Api\V1\Driver\OrderUserController as OrderUserForDriverController;
 use App\Http\Controllers\Api\V1\Supplier\VehicleController as VehicleForSupplierController;
+use App\Http\Controllers\Api\V1\Customer\CustomerController as CustomerForCustomerController;
+use App\Http\Controllers\Api\V1\Customer\OrderUserController as OrderUserForCustomerController;
+use App\Http\Controllers\Api\V1\Supplier\OrderUserController as OrderUserForSupplierController;
 use App\Http\Controllers\Api\V1\OrganizationUser\TripController as TripForOrganizationController;
+use App\Http\Controllers\Api\V1\Customer\InvoiceUserController as InvoiceUserForCustomerController;
+use App\Http\Controllers\Api\V1\Customer\VehicleNameController as VehicleNameForCustomerController;
+use App\Http\Controllers\Api\V1\Customer\VehicleTypeController as VehicleTypeForCustomerController;
 use App\Http\Controllers\Api\V1\OrganizationUser\OrderController as OrderForOrganizationController;
+use App\Http\Controllers\Api\V1\Supplier\VehicleNameController as VehicleNameForSupplierController;
+use App\Http\Controllers\Api\V1\Supplier\VehicleTypeController as VehicleTypeForSupplierController;
 use App\Http\Controllers\Api\V1\OrganizationUser\InvoiceController as InvoiceForOrganizationController;
 use App\Http\Controllers\Api\V1\OrganizationUser\ContractDetailController as ContractDetailForOrganizationController;
 
@@ -240,6 +256,59 @@ Route::prefix('v1')->group(function () {
 
 
 
+
+            // routes for individual customers (for admin) are below
+
+            Route::prefix('customers')->group(function () {
+                Route::post('/', [CustomerController::class, 'store']);
+                Route::get('/', [CustomerController::class, 'index']);
+                Route::prefix('/{customer}')->group(function () {
+                    Route::get('/', [CustomerController::class, 'show']);
+                    Route::put('/', [CustomerController::class, 'update']);
+                    Route::delete('/', [CustomerController::class, 'destroy']);
+                }); 
+            });
+
+
+            Route::prefix('order_users')->group(function () {
+                Route::post('/', [OrderUserController::class, 'store']);
+                Route::post('/store_bid', [OrderUserController::class, 'storeBid']);
+                Route::get('/', [OrderUserController::class, 'index']);
+                Route::prefix('/{orderUser}')->group(function () {
+                    Route::get('/', [OrderUserController::class, 'show']);
+                    Route::put('/', [OrderUserController::class, 'update']);
+                    Route::put('/start_order', [OrderUserController::class, 'startOrder']);
+                    Route::put('/complete_order', [OrderUserController::class, 'completeOrder']);
+                    Route::delete('/', [OrderUserController::class, 'destroy']);
+                }); 
+            });
+
+
+            // currently this invoice_users route is NOT functional
+            Route::prefix('invoice_users')->group(function () {
+                Route::post('/', [InvoiceUserController::class, 'store']);
+                Route::get('/', [InvoiceUserController::class, 'index']);
+                Route::prefix('/{invoiceUser}')->group(function () {
+                    Route::get('/', [InvoiceUserController::class, 'show']);
+                    Route::put('/', [InvoiceUserController::class, 'update']);
+                    Route::delete('/', [InvoiceUserController::class, 'destroy']);
+                }); 
+            });
+
+
+            // currently this bids route is NOT functional
+            Route::prefix('bids')->group(function () {
+                Route::post('/', [BidController::class, 'store']);
+                Route::get('/', [BidController::class, 'index']);
+                Route::prefix('/{bid}')->group(function () {
+                    Route::get('/', [BidController::class, 'show']);
+                    Route::put('/', [BidController::class, 'update']);
+                    Route::delete('/', [BidController::class, 'destroy']);
+                }); 
+            });
+
+
+
             Route::prefix('dash_board')->group(function () {
                 Route::get('/dash_board_count_one', [DashBoardController::class, 'DashBoardCountOne']);
             });
@@ -262,6 +331,17 @@ Route::prefix('v1')->group(function () {
             // OrganizationUser should be stored by an already existing OrganizationUser admin or super admin of the system -
             // there should be a route for OrganizationUser storing by both OrganizationUser admin and super admin
             Route::post('/login', [OrganizationUserAuthController::class, 'login']);
+
+        });
+
+
+        Route::prefix('call_backs')->group(function () {
+            
+            Route::prefix('invoices')->group(function () {
+                Route::prefix('tele_birr')->group(function () {
+                    Route::post('/pay_invoices_call_back_tele_birr', [InvoiceForOrganizationController::class, 'payInvoicesCallBackTelebirr']);
+                });
+            }); 
 
         });
 
@@ -354,6 +434,41 @@ Route::prefix('v1')->group(function () {
 
 
 
+
+            Route::prefix('vehicle_types')->group(function () {
+                Route::post('/', [VehicleTypeForSupplierController::class, 'store']);
+                Route::get('/', [VehicleTypeForSupplierController::class, 'index']);
+                Route::prefix('/{vehicleType}')->group(function () {
+                    Route::get('/', [VehicleTypeForSupplierController::class, 'show']);
+                    Route::put('/', [VehicleTypeForSupplierController::class, 'update']);
+                    Route::delete('/', [VehicleTypeForSupplierController::class, 'destroy']);
+                }); 
+            });
+
+
+            Route::prefix('vehicle_names')->group(function () {
+                Route::post('/', [VehicleNameForSupplierController::class, 'store']);
+                Route::get('/', [VehicleNameForSupplierController::class, 'index']);
+                Route::get('/search_by_vehicle_type', [VehicleNameForSupplierController::class, 'searchByVehicleType']);
+                Route::prefix('/{vehicleName}')->group(function () {
+                    Route::get('/', [VehicleNameForSupplierController::class, 'show']);
+                    Route::put('/', [VehicleNameForSupplierController::class, 'update']);
+                    Route::delete('/', [VehicleNameForSupplierController::class, 'destroy']);
+                }); 
+            });
+
+
+            Route::prefix('vehicles')->group(function () {
+                Route::post('/', [VehicleForSupplierController::class, 'store']);
+                Route::get('/', [VehicleForSupplierController::class, 'index']);
+                Route::prefix('/{vehicle}')->group(function () {
+                    Route::get('/', [VehicleForSupplierController::class, 'show']);
+                    Route::put('/', [VehicleForSupplierController::class, 'update']);
+                    Route::delete('/', [VehicleForSupplierController::class, 'destroy']);
+                }); 
+            });
+
+
             Route::prefix('orders')->group(function () {
                 Route::post('/', [OrderForSupplierController::class, 'store']);
                 Route::get('/', [OrderForSupplierController::class, 'index']);
@@ -369,16 +484,34 @@ Route::prefix('v1')->group(function () {
 
 
 
-            Route::prefix('vehicles')->group(function () {
-                Route::post('/', [VehicleForSupplierController::class, 'store']);
-                Route::get('/', [VehicleForSupplierController::class, 'index']);
-                Route::prefix('/{vehicle}')->group(function () {
-                    Route::get('/', [VehicleForSupplierController::class, 'show']);
-                    Route::put('/', [VehicleForSupplierController::class, 'update']);
-                    Route::delete('/', [VehicleForSupplierController::class, 'destroy']);
+
+            // routes for individual customers (for supplier) are below
+
+            Route::prefix('order_users')->group(function () {
+                Route::post('/', [OrderUserForSupplierController::class, 'store']);
+                Route::post('/store_bid', [OrderUserForSupplierController::class, 'storeBid']);
+                Route::get('/', [OrderUserForSupplierController::class, 'index']);
+                Route::get('/index_pending', [OrderUserForSupplierController::class, 'indexPending']);
+                Route::prefix('/{orderUser}')->group(function () {
+                    Route::get('/', [OrderUserForSupplierController::class, 'show']);
+                    Route::put('/', [OrderUserForSupplierController::class, 'update']);
+                    Route::put('/start_order', [OrderUserForSupplierController::class, 'startOrder']);
+                    Route::put('/complete_order', [OrderUserForSupplierController::class, 'completeOrder']);
+                    Route::delete('/', [OrderUserForSupplierController::class, 'destroy']);
                 }); 
             });
 
+
+            // currently this bids route is NOT functional
+            Route::prefix('bids')->group(function () {
+                Route::post('/', [BidForSupplierController::class, 'store']);
+                Route::get('/', [BidForSupplierController::class, 'index']);
+                Route::prefix('/{bid}')->group(function () {
+                    Route::get('/', [BidForSupplierController::class, 'show']);
+                    Route::put('/', [BidForSupplierController::class, 'update']);
+                    Route::delete('/', [BidForSupplierController::class, 'destroy']);
+                }); 
+            });
             
 
 
@@ -418,6 +551,17 @@ Route::prefix('v1')->group(function () {
 
 
 
+            Route::prefix('vehicles')->group(function () {
+                Route::post('/', [VehicleForDriverController::class, 'store']);
+                Route::get('/', [VehicleForDriverController::class, 'index']);
+                Route::prefix('/{vehicle}')->group(function () {
+                    Route::get('/', [VehicleForDriverController::class, 'show']);
+                    Route::put('/', [VehicleForDriverController::class, 'update']);
+                    Route::delete('/', [VehicleForDriverController::class, 'destroy']);
+                }); 
+            });
+
+
             Route::prefix('orders')->group(function () {
                 Route::post('/', [OrderForDriverController::class, 'store']);
                 Route::get('/', [OrderForDriverController::class, 'index']);
@@ -428,18 +572,6 @@ Route::prefix('v1')->group(function () {
                     Route::put('/start_order', [OrderForDriverController::class, 'startOrder']);
                     Route::put('/complete_order', [OrderForDriverController::class, 'completeOrder']);
                     Route::delete('/', [OrderForDriverController::class, 'destroy']);
-                }); 
-            });
-
-
-
-            Route::prefix('vehicles')->group(function () {
-                Route::post('/', [VehicleForDriverController::class, 'store']);
-                Route::get('/', [VehicleForDriverController::class, 'index']);
-                Route::prefix('/{vehicle}')->group(function () {
-                    Route::get('/', [VehicleForDriverController::class, 'show']);
-                    Route::put('/', [VehicleForDriverController::class, 'update']);
-                    Route::delete('/', [VehicleForDriverController::class, 'destroy']);
                 }); 
             });
 
@@ -455,6 +587,36 @@ Route::prefix('v1')->group(function () {
             });
 
             
+
+
+            // routes for individual customers (for driver) are below
+
+            Route::prefix('order_users')->group(function () {
+                Route::post('/', [OrderUserForDriverController::class, 'store']);
+                Route::post('/store_bid', [OrderUserForDriverController::class, 'storeBid']);
+                Route::get('/', [OrderUserForDriverController::class, 'index']);
+                Route::get('/index_pending', [OrderUserForDriverController::class, 'indexPending']);
+                Route::prefix('/{orderUser}')->group(function () {
+                    Route::get('/', [OrderUserForDriverController::class, 'show']);
+                    Route::put('/', [OrderUserForDriverController::class, 'update']);
+                    Route::put('/start_order', [OrderUserForDriverController::class, 'startOrder']);
+                    Route::put('/complete_order', [OrderUserForDriverController::class, 'completeOrder']);
+                    Route::delete('/', [OrderUserForDriverController::class, 'destroy']);
+                }); 
+            });
+
+
+            // currently this bids route is NOT functional
+            Route::prefix('bids')->group(function () {
+                Route::post('/', [BidForDriverController::class, 'store']);
+                Route::get('/', [BidForDriverController::class, 'index']);
+                Route::prefix('/{bid}')->group(function () {
+                    Route::get('/', [BidForDriverController::class, 'show']);
+                    Route::put('/', [BidForDriverController::class, 'update']);
+                    Route::delete('/', [BidForDriverController::class, 'destroy']);
+                }); 
+            });
+
 
 
 
@@ -490,11 +652,95 @@ Route::prefix('v1')->group(function () {
         });
 
 
+        Route::prefix('call_backs')->group(function () {
+            
+            Route::prefix('invoice_users')->group(function () {
+                Route::prefix('tele_birr')->group(function () {
+                    Route::post('/pay_invoice_users_call_back_tele_birr', [InvoiceUserForCustomerController::class, 'payInvoiceCallBackTelebirr']);
+                    
+                });
+            }); 
+
+        });
+
+
         Route::middleware(['auth:sanctum', 'abilities:access-customer'])->group(function () {
 
             Route::prefix('')->group(function () {
                 Route::post('/logout', [CustomerAuthController::class, 'logout']);
                 Route::post('/logout-all-devices', [CustomerAuthController::class, 'logoutAllDevices']);
+            });
+
+
+
+            // currently this customers route is NOT functional, 
+            // because customer is registering in the open routes, and when they logs in i will return their full info
+            Route::prefix('customer_details')->group(function () {
+                Route::get('/', [CustomerForCustomerController::class, 'index']);
+                Route::prefix('/{customer}')->group(function () {
+                    Route::get('/', [CustomerForCustomerController::class, 'show']);
+                    Route::put('/', [CustomerForCustomerController::class, 'update']);
+                }); 
+            });
+
+
+
+            Route::prefix('vehicle_types')->group(function () {
+                Route::post('/', [VehicleTypeForCustomerController::class, 'store']);
+                Route::get('/', [VehicleTypeForCustomerController::class, 'index']);
+                Route::prefix('/{vehicleType}')->group(function () {
+                    Route::get('/', [VehicleTypeForCustomerController::class, 'show']);
+                    Route::put('/', [VehicleTypeForCustomerController::class, 'update']);
+                    Route::delete('/', [VehicleTypeForCustomerController::class, 'destroy']);
+                }); 
+            });
+
+
+            Route::prefix('vehicle_names')->group(function () {
+                Route::post('/', [VehicleNameForCustomerController::class, 'store']);
+                Route::get('/', [VehicleNameForCustomerController::class, 'index']);
+                Route::get('/search_by_vehicle_type', [VehicleNameForCustomerController::class, 'searchByVehicleType']);
+                Route::prefix('/{vehicleName}')->group(function () {
+                    Route::get('/', [VehicleNameForCustomerController::class, 'show']);
+                    Route::put('/', [VehicleNameForCustomerController::class, 'update']);
+                    Route::delete('/', [VehicleNameForCustomerController::class, 'destroy']);
+                }); 
+            });
+
+
+
+            Route::prefix('order_users')->group(function () {
+                Route::post('/', [OrderUserForCustomerController::class, 'store']);
+                Route::get('/', [OrderUserForCustomerController::class, 'index']);
+                Route::prefix('/{orderUser}')->group(function () {
+                    Route::get('/', [OrderUserForCustomerController::class, 'show']);
+                    Route::put('/', [OrderUserForCustomerController::class, 'update']);
+                    Route::delete('/', [OrderUserForCustomerController::class, 'destroy']);
+                }); 
+            });
+
+            
+
+            Route::prefix('bids')->group(function () {
+                Route::post('/', [BidForCustomerController::class, 'store']);
+                Route::get('/', [BidForCustomerController::class, 'index']);
+                Route::prefix('/{bid}')->group(function () {
+                    Route::get('/', [BidForCustomerController::class, 'show']);
+                    Route::put('/', [BidForCustomerController::class, 'update']);
+                    Route::put('/accept_bid', [BidForCustomerController::class, 'acceptBid']);
+                    Route::delete('/', [BidForCustomerController::class, 'destroy']);
+                }); 
+            });
+
+
+            Route::prefix('invoices')->group(function () {
+                Route::post('/', [InvoiceUserForCustomerController::class, 'store']);
+                Route::get('/', [InvoiceUserForCustomerController::class, 'index']);
+                Route::prefix('/{invoice}')->group(function () {
+                    Route::get('/', [InvoiceUserForCustomerController::class, 'show']);
+                    Route::put('/', [InvoiceUserForCustomerController::class, 'update']);
+                    Route::delete('/', [InvoiceUserForCustomerController::class, 'destroy']);
+                }); 
             });
 
 

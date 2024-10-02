@@ -39,6 +39,9 @@ class OrderUser extends Model
         'price_total',
         'payed_complete_status',
         'order_description',
+        'with_driver',
+        'with_fuel',
+        'periodic',
     ];
     
 
@@ -63,22 +66,23 @@ class OrderUser extends Model
     }
 
 
-    public function vehicle()
-    {
-        return $this->belongsTo(Vehicle::class);
-    }
 
     public function vehicleName()
     {
         return $this->belongsTo(VehicleName::class);
     }
 
+    public function vehicle()
+    {
+        return $this->belongsTo(Vehicle::class);
+    }
+
+    
     
     public function driver()
     {
         return $this->belongsTo(Driver::class);
     }
-
 
     public function supplier()
     {
@@ -88,19 +92,16 @@ class OrderUser extends Model
     
 
 
-    // This is individual Customer Invoice
-    public function invoiceUsers()
-    {
-        return $this->hasMany(InvoiceUser::class);
-    }
-
-
     public function bids()
     {
         return $this->hasMany(Bid::class);
     }
 
-
+    // This is individual Customer Invoice
+    public function invoiceUsers()
+    {
+        return $this->hasMany(InvoiceUser::class);
+    }
 
 
 

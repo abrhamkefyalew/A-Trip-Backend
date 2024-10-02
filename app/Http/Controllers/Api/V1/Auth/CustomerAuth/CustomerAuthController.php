@@ -16,7 +16,7 @@ class CustomerAuthController extends Controller
     public function register(RegisterCustomerRequest $request)
     {
         $customer = Customer::create($request->validated());
-        // is_active and is_approved values will be the default values = "1"    -   -   -   - (as it was set in the customers table migration)
+        // is_active and is_approved values will be the default values = "1"    -   -   -   - (as it was SET in the customers table migration)
 
 
         if ($request->has('country') || $request->has('city')) {

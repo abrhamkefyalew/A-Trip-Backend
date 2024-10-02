@@ -27,7 +27,7 @@ return new class extends Migration
             $table->string('vehicle_name')->nullable(); // should this column exist
             $table->longText('vehicle_description')->nullable();
             $table->string('vehicle_model')->nullable(); // this column must exist
-            $table->string('plate_number')->unique()->nullable(); // should this be nullable or required // check abrham // ASK SAMSON
+            $table->string('plate_number')->unique(); // should this be nullable or required // check abrham // ASK SAMSON
             $table->string('year')->nullable();
             $table->string('is_available')->default(Vehicle::VEHICLE_AVAILABLE); // this column is enum // check if this works // and if using constants this way is the recommended way of doing it
 

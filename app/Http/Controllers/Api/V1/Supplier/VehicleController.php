@@ -26,6 +26,7 @@ class VehicleController extends Controller
 
         $vehicles = Vehicle::where('supplier_id', $supplier->id);
 
+        // use Filtering service OR Scope to do this
         if ($request->has('driver_id_search')) {
             if (isset($request['driver_id_search'])) {
                 $driverId = $request['driver_id_search'];
@@ -51,6 +52,16 @@ class VehicleController extends Controller
                 $withDriverBoolValue = $request['with_driver_search'];  // IF supplier is filtering vehicles with vehicle_name_id TO ACCEPT AN ORDER,  then the with_driver_search value should be 0 // since supplier should ONLY see vehicles that have no driver
 
                 $vehicles = $vehicles->where('with_driver', $withDriverBoolValue);
+            } 
+            else {
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+            }
+        }
+        if ($request->has('plate_number_search')) {
+            if (isset($request['plate_number_search'])) {
+                $plateNumber = $request['plate_number_search'];
+
+                $vehicles = $vehicles->where('plate_number', $plateNumber);
             } 
             else {
                 return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);

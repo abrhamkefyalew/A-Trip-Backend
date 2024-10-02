@@ -23,6 +23,9 @@ class StoreBidRequest extends FormRequest
     {
         return [
             //
+            'order_id' => 'required|integer|exists:orders,id',
+            'vehicle_id' => 'required|integer|exists:vehicles,id',
+            'price_total' => 'required|integer|between:0,9999999',
         ];
     }
 }
