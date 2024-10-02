@@ -23,6 +23,31 @@ class StoreOrderUserRequest extends FormRequest
     {
         return [
             //
+            // multiple orders can be sent at once 
+            // i will put similar order_code in OrderUserController = for those multiple orders that are sent at once
+            'orders' => 'required|array',
+
+            'orders.*' => 'sometimes',
+
+
+            'orders.*.vehicle_name_id' => 'required|integer|exists:vehicle_names,id',
+            'orders.*.start_date' => 'required|date|date_format:Y-m-d', 
+            'orders.*.end_date' => 'required|date|date_format:Y-m-d', 
+            
+            'orders.*.start_location' => 'nullable|string',
+            'orders.*.end_location' => 'nullable|string',
+
+            'orders.*.start_latitude' => ['sometimes', 'nullable', 'numeric', 'between:-90,90'],
+            'orders.*.start_longitude' => ['sometimes', 'nullable', 'numeric', 'between:-180,180'],
+            'orders.*.end_latitude' => ['sometimes', 'nullable', 'numeric', 'between:-90,90'],
+            'orders.*.end_longitude' => ['sometimes', 'nullable', 'numeric', 'between:-180,180'],
+
+            'orders.*.order_description' => 'sometimes|nullable|string',
+
+            'orders.*.with_driver' => 'required|boolean',
+            'orders.*.with_fuel' => 'sometimes|nullable|boolean',
+            'orders.*.periodic' => 'sometimes|nullable|boolean',
+
         ];
     }
 }

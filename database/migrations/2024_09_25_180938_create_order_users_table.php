@@ -52,10 +52,14 @@ return new class extends Migration
                                                                                                                             // so this column i.e (original_end_date) keeps the original order end_date for us, when the order is terminated and end_date is altered
 
                                                                                                                             
-            $table->integer('price_total')->nullable(); // initially this is NULL // it will be inserted a bid is selected
+            $table->integer('price_total')->nullable(); // initially this is NULL // it will be inserted when a bid is selected by the customer
             $table->boolean('payed_complete_status')->default(0); // this will be 1 when both invoices of the order are paid  // it is 0 even if the initial amount is paid
 
             $table->longText('order_description')->nullable();
+
+            $table->boolean('with_driver')->default(0);
+            $table->boolean('with_fuel')->default(0);
+            $table->boolean('periodic')->default(0);
 
 
             $table->timestamps();

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Api\V1\CustomerResources;
 
+use App\Models\Customer;
 use Illuminate\Http\Request;
 use App\Traits\Api\V1\GetMedia;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -24,7 +25,7 @@ class CustomerForSupplierResource extends JsonResource
             'last_name' => $this->last_name,
             'is_active' => $this->is_active,
             'is_approved' => $this->is_approved,
-            'profile_image_path' => $this->getOptimizedImagePath(),
+            'customer_profile_image_path' => $this->getOptimizedImagePath(Customer::CUSTOMER_PROFILE_PICTURE),
             'address' => AddressResource::make($this->whenLoaded('address')),
 
         ];

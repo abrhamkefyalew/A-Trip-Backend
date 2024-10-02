@@ -248,7 +248,7 @@ class OrderController extends Controller
             // this if is important and should be right here 
             // this if should NOT be nested in any other if condition // this if should be independent and done just like this  // this if should be checked independently just like i did it right here
             if (($vehicle->driver_id === null) && ($order->contractDetail->with_driver === 1)) {
-                return response()->json(['message' => 'the vehicle you selected for the order does not have actual driver currently'], 403); 
+                return response()->json(['message' => 'the vehicle you selected for the order does not have actual driver currently. This Order Needs Vehicle that have Driver'], 403); 
             }
             
 
@@ -345,7 +345,7 @@ class OrderController extends Controller
             }
 
             // CHECK IF THE CONTRACT DETAIL IS NOT AVAILABLE
-            if ($order->contractDetail->is_available !== 1) { // TEST IF THIS DOES WORK = $order->contractDetail->with_driver       // also test if this condition is needed   // check abrham samson
+            if ($order->contractDetail->is_available !== 1) { // TEST IF THIS DOES WORK  // check abrham samson
                 return response()->json(['message' => 'this order contract_detail have is_available 0 currently for some reason, the contract_detail of this order should have is_available 1'], 403); 
             }
 

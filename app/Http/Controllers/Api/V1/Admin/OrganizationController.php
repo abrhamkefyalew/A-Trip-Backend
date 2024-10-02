@@ -24,6 +24,18 @@ class OrganizationController extends Controller
 
         $organizations = Organization::whereNotNull('id');
 
+        // use Filtering service OR Scope to do this
+        if ($request->has('phone_number_search')) {
+            if (isset($request['phone_number_search'])) {
+                $phoneNumber = $request['phone_number_search'];
+
+                $organizations = $organizations->where('phone_number', $phoneNumber);
+            } 
+            else {
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+            }
+        }
+
         $organizationData = $organizations->with('media')->latest()->paginate(FilteringService::getPaginate($request));
 
         return OrganizationResource::collection($organizationData);

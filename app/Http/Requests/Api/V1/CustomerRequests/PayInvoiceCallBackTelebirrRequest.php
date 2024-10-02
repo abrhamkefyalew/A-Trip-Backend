@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Api\V1\OrganizationUserRequests;
+namespace App\Http\Requests\Api\V1\CustomerRequests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class PayInvoicesCallBackTelebirrRequest extends FormRequest
+class PayInvoiceCallBackTelebirrRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,14 +22,16 @@ class PayInvoicesCallBackTelebirrRequest extends FormRequest
     public function rules(): array
     {
         return [
-
-            'invoice_code' => [
+            //
+            'invoice_id' => [
                 'required', 
-                'string', 
-                'exists:invoices,invoice_code'
+                'integer', 
+                'exists:invoices,id'
             ],
-
             
+            // 'invoice_id' => 'required|integer|exists:invoices,id',
+
+
         ];
     }
 }

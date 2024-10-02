@@ -23,6 +23,38 @@ class OrganizationUserController extends Controller
 
         $organizationUsers = OrganizationUser::whereNotNull('id');
 
+        // use Filtering service OR Scope to do this
+        if ($request->has('phone_number_search')) {
+            if (isset($request['phone_number_search'])) {
+                $phoneNumber = $request['phone_number_search'];
+
+                $organizationUsers = $organizationUsers->where('phone_number', $phoneNumber);
+            } 
+            else {
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+            }
+        }
+        if ($request->has('organization_id_search')) {
+            if (isset($request['organization_id_search'])) {
+                $organizationId = $request['organization_id_search'];
+
+                $organizationUsers = $organizationUsers->where('organization_id', $organizationId);
+            } 
+            else {
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+            }
+        }
+        if ($request->has('is_admin_search')) {
+            if (isset($request['is_admin_search'])) {
+                $isAdmin = $request['is_admin_search'];
+
+                $organizationUsers = $organizationUsers->where('is_admin', $isAdmin);
+            } 
+            else {
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+            }
+        }
+
         $organizationUserData = $organizationUsers->with('media', 'organization')->latest()->paginate(FilteringService::getPaginate($request));
 
         return OrganizationUserResource::collection($organizationUserData);

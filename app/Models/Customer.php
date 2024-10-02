@@ -98,6 +98,7 @@ class Customer extends Authenticatable implements HasMedia
     }
 
 
+    // NO need for invoiceUsers or bids relation, since they are related with OrderUser (order of the customer) not the customer himself
 
 
 

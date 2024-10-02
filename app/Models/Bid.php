@@ -31,4 +31,8 @@ class Bid extends Model
         return $this->belongsTo(OrderUser::class);
     }
 
+
+    // constants // initial payment percent
+    public const BID_ORDER_INITIAL_PAYMENT = '25';      // these can not be 0 for the moment, it means there must always be initial payment 
+
 }

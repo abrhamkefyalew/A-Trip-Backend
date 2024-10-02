@@ -23,6 +23,18 @@ class DriverController extends Controller
 
         $drivers = Driver::whereNotNull('id');
 
+        // use Filtering service OR Scope to do this
+        if ($request->has('phone_number_search')) {
+            if (isset($request['phone_number_search'])) {
+                $phoneNumber = $request['phone_number_search'];
+
+                $drivers = $drivers->where('phone_number', $phoneNumber);
+            } 
+            else {
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+            }
+        }
+
         $driverData = $drivers->with('media')->latest()->paginate(FilteringService::getPaginate($request));
 
         return DriverResource::collection($driverData);

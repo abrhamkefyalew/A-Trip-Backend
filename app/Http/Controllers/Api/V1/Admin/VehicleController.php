@@ -64,6 +64,16 @@ class VehicleController extends Controller
                 return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
             }
         }
+        if ($request->has('plate_number_search')) {
+            if (isset($request['plate_number_search'])) {
+                $plateNumber = $request['plate_number_search'];
+
+                $vehicles = $vehicles->where('plate_number', $plateNumber);
+            } 
+            else {
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+            }
+        }
     
         
         
@@ -86,6 +96,23 @@ class VehicleController extends Controller
             // if "with_driver" = 0 , driver_id must NOT come in the request, otherwise = I will return ERROR 
             // if "with_driver" = 1 , driver_id MUST also come in the request, otherwise = I will return ERROR
             // should we return error for such requests.
+            if ($request['with_driver'] == 0) {
+                if ($request->has('driver_id')) {
+                    return response()->json(['message' => 'request can NOT contain a driver_id. You have set with_driver = 0, so driver_id should NOT be included your request.'], 400);
+                }
+                // if ($request['driver_id'] !== null) {
+                //     return response()->json(['message' => 'you can NOT set a driver_id in the request. You have set with_driver = 0, so driver_id must be null in your request.'], 400);
+                // }
+            }
+            if ($request['with_driver'] == 1) {
+                if (!$request->has('driver_id')) {
+                    return response()->json(['message' => 'request missing driver_id. You have set with_driver = 1, so you must Provide driver_id for your vehicle with your request.'], 400);
+                }
+                if ($request['driver_id'] === null) {
+                    return response()->json(['message' => 'driver_id value is NOT set in the request. You have set with_driver = 1, so you must Provide driver_id for your vehicle with your request.'], 400);
+                }
+            }
+
             
             $vehicle = Vehicle::create([
                 'vehicle_name_id' => $request['vehicle_name_id'],

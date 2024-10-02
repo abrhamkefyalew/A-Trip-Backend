@@ -393,24 +393,33 @@ class InvoiceController extends Controller
                     ->sum('price_amount');
                     
 
+                $totalPriceAmountFromRequest = (int) $requestData['price_amount_total'];
 
-                if ($totalPriceAmount !== $requestData['price_amount_total'] || 
+
+                if ($totalPriceAmount !== $totalPriceAmountFromRequest || 
                     $totalPriceAmount !== $totalPriceAmountByInvoiceCode || 
-                    $requestData['price_amount_total'] !== $totalPriceAmountByInvoiceCode) {
+                    $totalPriceAmountFromRequest !== $totalPriceAmountByInvoiceCode) {
                     return response()->json(['message' => 'The total prices do not match between the request and actual database calculations.'], 404);
                 }
+
+
+
+
+
+                 /* START Payment Service Call */
 
                 // do the actual payment 
                 // pass the $totalPriceAmount to be paid   and   pass the $invoiceCode so that it could be used in the callback endpoint to change the status of the paid invoices
                 $valuePayment = PrPaymentService::payPrs($totalPriceAmount, $invoiceCode);
 
-                if ($valuePayment != true) {
+                if ($valuePayment === false) {
                     return response()->json(['message' => 'payment operation failed from the banks side'], 500);
                 }
 
 
-                return 'link of payment'. $valuePayment;
+                return 'payment_link'. $valuePayment;
 
+                 /* END Payment Service Call */
 
 
 
@@ -502,12 +511,12 @@ class InvoiceController extends Controller
 
 
     /**
-     * telebirr call back , to confirm payment
+     * telebirr call back , to confirm payment // for organization
      */
     public function payInvoicesCallBackTelebirr(PayInvoicesCallBackTelebirrRequest $request)
     {
         //
-        $var = DB::transaction(function () use ($request) {
+        DB::transaction(function () use ($request) {
 
             // todays date
             $today = now()->format('Y-m-d');
@@ -554,7 +563,7 @@ class InvoiceController extends Controller
                     'paid_date' => $today,
                 ]);
 
-                // Handle update failure
+                // Handle invoice update failure
                 if (!$success) {
                     return response()->json(['message' => 'Invoice Update Failed'], 422);
                 }
@@ -572,14 +581,17 @@ class InvoiceController extends Controller
                 $invoiceIdList[] = $invoice->id;
             }
 
-            // Fetch the above updated invoices based on the invoice ids
-            $invoicesData = Invoice::whereIn('id', $invoiceIdList)->with('order')->latest()->get();
+            // since it is call back we will not return value to the banks
+            // or may be 200 OK response // check abrham samson
+            //
+            // // Fetch the above updated invoices based on the invoice ids
+            // $invoicesData = Invoice::whereIn('id', $invoiceIdList)->with('order')->latest()->get();
 
-            return InvoiceForOrganizationResource::collection($invoicesData);
+            // return InvoiceForOrganizationResource::collection($invoicesData);
             
         });
 
-        return $var;
+        // return $var;
     }
 
 

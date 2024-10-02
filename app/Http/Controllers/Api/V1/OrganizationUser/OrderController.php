@@ -44,6 +44,7 @@ class OrderController extends Controller
 
                 // abrham samson check // check abrham samson
                 // here check all the sent contract_detail_id s in the request belonged to the same organization_id sent in the request
+                // But it is been taken care of in the below foreach // even though it is checked individually
                 
                 
                 $orderIds = [];
@@ -61,6 +62,11 @@ class OrderController extends Controller
                 // get the logged in organization User
                 $user = auth()->user();
                 $organizationUser = OrganizationUser::find($user->id);
+
+
+                if ($organizationUser->is_active !== 1) {
+                    return response()->json(['message' => 'Not Active. your account is De-Activated so you can not make an order'], 401); 
+                }
 
                 // check if the organizationUser is organization admin
                 if ($organizationUser->is_admin !== 1) {

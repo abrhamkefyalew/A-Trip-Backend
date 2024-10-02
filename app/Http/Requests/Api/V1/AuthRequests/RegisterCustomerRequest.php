@@ -39,6 +39,14 @@ class RegisterCustomerRequest extends FormRequest
             'phone_number' => [
                 'required', 'numeric',  Rule::unique('customers'),
             ],
+
+            // not implemented yet
+            'customer_profile_image' => [
+                'sometimes',
+                'nullable',
+                'image',
+                'max:3072',
+            ],
             
         ];
     }

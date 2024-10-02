@@ -27,7 +27,7 @@ return new class extends Migration
             $table->string('payment_method'); // should not be null
 
 
-            // the columns below here are intended for the return data from the banks
+            // the columns that will be added below in the future here, are intended for the return data from the banks
 
             $table->timestamps();
             $table->softDeletes();
