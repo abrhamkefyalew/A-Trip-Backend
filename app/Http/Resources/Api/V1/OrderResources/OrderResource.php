@@ -50,6 +50,9 @@ class OrderResource extends JsonResource
             'is_terminated' => $this->is_terminated,
 
             'pr_status' => $this->pr_status,
+
+            'vehicle_paid_status' => $this->vehicle_paid_status,
+            
             'order_description' => $this->order_description,
             
             'created_at' => $this->created_at,

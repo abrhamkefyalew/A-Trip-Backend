@@ -37,7 +37,8 @@ class OrderUser extends Model
         'is_terminated',
         'original_end_date',
         'price_total',
-        'payed_complete_status',
+        'paid_complete_status',
+        'vehicle_paid_status',
         'order_description',
         'with_driver',
         'with_fuel',
@@ -113,5 +114,12 @@ class OrderUser extends Model
 
     public const ORDER_STATUS_START = 'START'; // when the driver arrives at the place where the trip starts & meets the order maker and starts to transport him    or  when a vehicle departs from the supplier
     public const ORDER_STATUS_COMPLETE = 'COMPLETE'; // when the driver takes the order maker to the destination and the order is completed                         or  when the vehicle is returned back to the supplier
+
+
+    // vehicle payment status constants
+    // this status checks if the payment share of the order is paid for the vehicles (i.e. the suppliers) 
+    //                                                                            //BUT NOT the drivers, the drivers can deal with the supplier with the supplier himself
+    public const ORDER_STATUS_VEHICLE_PAYMENT_PAID = 'PAID'; 
+    public const ORDER_STATUS_VEHICLE_PAYMENT_NOT_PAID = 'NOT_PAID';
     
 }

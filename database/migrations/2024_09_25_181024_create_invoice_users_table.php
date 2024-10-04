@@ -17,7 +17,7 @@ return new class extends Migration
 
             $table->foreignId('order_id')->constrained('order_users');
 
-            // an invoice is payed two times ,         1. first initial payment (it could be 0 birr)           2. SECOND the Final payment (it is the left over price)
+            // an invoice is paid two times ,         1. first initial payment (it could be 0 birr)           2. SECOND the Final payment (it is the left over price)
             
 
             $table->integer('price'); // this is the paid amount of an order, it could be the initial or the final payment of the order

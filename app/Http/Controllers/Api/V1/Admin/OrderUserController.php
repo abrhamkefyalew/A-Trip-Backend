@@ -102,11 +102,11 @@ class OrderUserController extends Controller
                 return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
             }
         }
-        if ($request->has('payed_complete_status_search')) {
-            if (isset($request['payed_complete_status_search'])) {
-                $payedCompleteStatus = $request['payed_complete_status_search'];
+        if ($request->has('paid_complete_status_search')) {
+            if (isset($request['paid_complete_status_search'])) {
+                $paidCompleteStatus = $request['paid_complete_status_search'];
 
-                $ordersUsers = $ordersUsers->where('payed_complete_status', $payedCompleteStatus);
+                $ordersUsers = $ordersUsers->where('paid_complete_status', $paidCompleteStatus);
             } 
             else {
                 return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
@@ -225,7 +225,9 @@ class OrderUserController extends Controller
                                                                         // if the order is terminated the end_date will be assigned the termination_date.      // So (original_end_date) holds the original order (end_date) as backup 
         
                         'price_total' => null,    // is NULL when the order is created initially
-                        'payed_complete_status' => 0,    // is 0 (false) when order is created initially
+                        'paid_complete_status' => 0,    // is 0 (false) when order is created initially
+
+                        'vehicle_paid_status' => OrderUser::ORDER_STATUS_VEHICLE_PAYMENT_NOT_PAID,
 
                         'order_description' => $requestData['order_description'],
 

@@ -40,6 +40,7 @@ class Order extends Model implements HasMedia
         'is_terminated',
         'original_end_date',
         'pr_status',
+        'vehicle_paid_status',
         'order_description',
     ];
     
@@ -121,6 +122,13 @@ class Order extends Model implements HasMedia
     public const ORDER_PR_LAST = 'PR_LAST';                         // IF pr asking for an Order is completed // but not paid yet
     public const ORDER_PR_COMPLETED = 'PR_COMPLETED';               // when all of the PR is paid in full by the organization for the order we CLOSE it using this constant
     public const ORDER_PR_TERMINATED = 'PR_TERMINATED';             // in any case if the pr payment is terminated
+
+
+    // vehicle payment status constants
+    // this status checks if the payment share of the order is paid for the vehicles (i.e. the suppliers) 
+    //                                                                            //BUT NOT the drivers, the drivers can deal with the supplier with the supplier himself
+    public const ORDER_STATUS_VEHICLE_PAYMENT_PAID = 'PAID'; 
+    public const ORDER_STATUS_VEHICLE_PAYMENT_NOT_PAID = 'NOT_PAID';
     
 
 }
