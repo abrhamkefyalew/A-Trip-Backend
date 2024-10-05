@@ -134,7 +134,9 @@ class OrderUserController extends Controller
                                                                         // if the order is terminated the end_date will be assigned the termination_date.      // So (original_end_date) holds the original order (end_date) as backup 
         
                         'price_total' => null,    // is NULL when the order is created initially
-                        'payed_complete_status' => 0,    // is 0 (false) when order is created initially
+                        'paid_complete_status' => 0,    // is 0 (false) when order is created initially
+
+                        'vehicle_paid_status' => OrderUser::ORDER_STATUS_VEHICLE_PAYMENT_NOT_PAID,
 
                         'order_description' => $requestData['order_description'],
 

@@ -733,10 +733,10 @@ Route::prefix('v1')->group(function () {
             });
 
 
-            Route::prefix('invoices')->group(function () {
+            Route::prefix('invoice_users')->group(function () {
                 Route::post('/', [InvoiceUserForCustomerController::class, 'store']);
                 Route::get('/', [InvoiceUserForCustomerController::class, 'index']);
-                Route::prefix('/{invoice}')->group(function () {
+                Route::prefix('/{invoiceUser}')->group(function () {
                     Route::get('/', [InvoiceUserForCustomerController::class, 'show']);
                     Route::put('/', [InvoiceUserForCustomerController::class, 'update']);
                     Route::delete('/', [InvoiceUserForCustomerController::class, 'destroy']);

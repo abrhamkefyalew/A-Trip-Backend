@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1\Customer;
 
+use App\Models\OrderUser;
 use App\Models\InvoiceUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -67,28 +68,29 @@ class InvoiceUserController extends Controller
             }
 
 
-            $totalPayedAmountCheck = InvoiceUser::where('order_id', $invoiceUser->order_id)
+            $totalPaidAmountCheck = InvoiceUser::where('order_id', $invoiceUser->order_id)
                 ->where('status', InvoiceUser::INVOICE_STATUS_PAID)
                 ->whereNotNull('paid_date')
                 ->sum('price');
 
 
-            
+            $orderPaidCompleteStatus = 0; // default value // initializing
 
-            if ($totalPayedAmountCheck >= $invoiceUser->orderUser->price_total)
+            if ($totalPaidAmountCheck >= $invoiceUser->orderUser->price_total)
             {
-                $orderPayedCompleteStatus = 1;
+                $orderPaidCompleteStatus = 1;
             }
-            else if ($totalPayedAmountCheck < $invoiceUser->orderUser->price_total)
+            else if ($totalPaidAmountCheck < $invoiceUser->orderUser->price_total)
             {
-                $orderPayedCompleteStatus = 0;
+                $orderPaidCompleteStatus = 0;
             }
 
 
 
-            // Update the order payed_complete_status
+            // Update the order paid_complete_status
             $successTwo = $invoiceUser->orderUser()->update([
-                'payed_complete_status' => $orderPayedCompleteStatus,
+                'paid_complete_status' => $orderPaidCompleteStatus,
+                'status' => OrderUser::ORDER_STATUS_SET,
             ]);
             //
             // Handle order update failure

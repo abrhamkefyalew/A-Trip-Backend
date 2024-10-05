@@ -53,7 +53,10 @@ return new class extends Migration
 
                                                                                                                             
             $table->integer('price_total')->nullable(); // initially this is NULL // it will be inserted when a bid is selected by the customer
-            $table->boolean('payed_complete_status')->default(0); // this will be 1 when both invoices of the order are paid  // it is 0 even if the initial amount is paid
+            $table->boolean('paid_complete_status')->default(0); // this will be 1 when both invoices of the order are paid  // it is 0 even if the initial amount is paid
+
+            // this status checks if the payment share of the order is paid for the vehicles (i.e. the suppliers) 
+            $table->string('vehicle_paid_status')->default(OrderUser::ORDER_STATUS_VEHICLE_PAYMENT_NOT_PAID); // this column is enum //
 
             $table->longText('order_description')->nullable();
 

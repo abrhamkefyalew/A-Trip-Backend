@@ -340,9 +340,10 @@ class OrderController extends Controller
                 return response()->json(['message' => 'a supplier can not start this order, since this order requires fuel. so this order can only be started with a driver account.'], 403);
             }
 
-            if ($order->driver) { 
-                return response()->json(['message' => 'this order have a driver id, so it can not be started by a supplier, since this order requires driver to be started'], 403); 
-            }
+            // NOT NEEDED since we checked with_driver above
+            // if ($order->driver) { 
+            //     return response()->json(['message' => 'this order have a driver id, so it can not be started by a supplier, since this order requires driver to be started'], 403); 
+            // }
 
             // CHECK IF THE CONTRACT DETAIL IS NOT AVAILABLE
             if ($order->contractDetail->is_available !== 1) { // TEST IF THIS DOES WORK  // check abrham samson

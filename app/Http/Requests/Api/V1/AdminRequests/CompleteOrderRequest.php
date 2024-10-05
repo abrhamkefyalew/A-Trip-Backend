@@ -12,6 +12,8 @@ class CompleteOrderRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
+
+        // do AUTH here or in the controller
     }
 
     /**

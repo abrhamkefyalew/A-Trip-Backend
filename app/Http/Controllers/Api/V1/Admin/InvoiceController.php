@@ -88,7 +88,7 @@ class InvoiceController extends Controller
     /**
      * Display a listing of the resource.
      * 
-     * But Filtered by      invoice_code = invoice_code_search ,      status = NOT_PAYED ,      and      paid_date = NULL
+     * But Filtered by      invoice_code = invoice_code_search ,      status = NOT_PAID ,      and      paid_date = NULL
      * 
      * CAN ONLY see the UNPAID invoices of an invoice_code (NOT PAID invoices of that invoice_code)
      * 

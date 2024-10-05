@@ -25,7 +25,7 @@ return new class extends Migration
 
             // 
             $table->integer('price_contract'); // the contract winning price                                                                            // the driver or vehicle_supplier should not see this price
-            $table->integer('price_vehicle_payment'); // the price that is to be paid for vehicle_supplier or driver (i.e payed to the vehicle account) // the organization should not see this price
+            $table->integer('price_vehicle_payment'); // the price that is to be paid for vehicle_supplier or driver (i.e intended to be paid to the vehicle account) // the organization should not see this price
             // the above integer is more suitable since we are ignoring cents
             // $table->decimal('price_contract', 10, 2); 
             // $table->decimal('price_vehicle_payment', 10, 2); 
