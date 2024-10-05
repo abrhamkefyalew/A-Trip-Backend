@@ -340,7 +340,8 @@ class OrderController extends Controller
      */
     public function acceptOrder(AcceptOrderRequest $request, Order $order)
     {
-        //
+        // do AUTH here or in the controller
+
         $var = DB::transaction(function () use ($request, $order) {
 
             $vehicle = Vehicle::find($request['vehicle_id']);
@@ -470,6 +471,8 @@ class OrderController extends Controller
      */
     public function startOrder(StartOrderRequest $request, Order $order)
     {
+        // do AUTH here or in the controller
+
         // AUTOMATIC : - here we will make the vehicle is_available = VEHICLE_ON_TRIP       - ALSO order begin_date will be set to today()      - ALSO order status will be ORDER_STATUS_START
 
         $var = DB::transaction(function () use ($request, $order) {
@@ -586,6 +589,8 @@ class OrderController extends Controller
      */
     public function completeOrder(CompleteOrderRequest $request, Order $order)
     {
+        // do AUTH here or in the controller
+        
         // AUTOMATIC : - here we will make the vehicle is_available = VEHICLE_AVAILABLE // order status = ORDER_STATUS_COMPLETE // and order end_date = today()
 
         $var = DB::transaction(function () use ($request, $order) {
@@ -829,6 +834,14 @@ class OrderController extends Controller
                 $order->supplier_id = $vehicle->supplier_id;
             }
             if ($request->has('is_terminated') && $request['is_terminated'] == 1) {
+
+                if ($order->status === Order::ORDER_STATUS_START) {
+                    return response()->json(['message' => 'this order can not be terminated. because the order is already started'], 403); 
+                }
+                if ($order->status === Order::ORDER_STATUS_COMPLETE) {
+                    return response()->json(['message' => 'this order can not be terminated. because the order is already completed'], 403); 
+                }
+
                 $order->end_date = today()->toDateString();
             }
             if ($request->has('contract_detail_id') && isset($request['contract_detail_id'])) {

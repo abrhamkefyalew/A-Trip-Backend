@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1\Customer;
 
+use App\Models\OrderUser;
 use App\Models\InvoiceUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -89,6 +90,7 @@ class InvoiceUserController extends Controller
             // Update the order paid_complete_status
             $successTwo = $invoiceUser->orderUser()->update([
                 'paid_complete_status' => $orderPaidCompleteStatus,
+                'status' => OrderUser::ORDER_STATUS_SET,
             ]);
             //
             // Handle order update failure
