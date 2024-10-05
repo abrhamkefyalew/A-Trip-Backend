@@ -733,7 +733,7 @@ Route::prefix('v1')->group(function () {
             });
 
 
-            Route::prefix('invoices')->group(function () {
+            Route::prefix('invoice_users')->group(function () {
                 Route::post('/', [InvoiceUserForCustomerController::class, 'store']);
                 Route::get('/', [InvoiceUserForCustomerController::class, 'index']);
                 Route::prefix('/{invoiceUser}')->group(function () {
