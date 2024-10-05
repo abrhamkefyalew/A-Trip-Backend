@@ -25,9 +25,9 @@ class UpdateVehicleNameRequest extends FormRequest
     {
         return [
             //
-            'vehicle_type_id' => 'sometimes|integer|exists:vehicle_types,id',
-            'vehicle_name' => ['sometimes', 'string'],
-            'vehicle_description' => ['sometimes', 'string'],
+            'vehicle_type_id' => 'sometimes|integer|exists:vehicle_types,id',   // should NOT be nullable // since id (foreign key id) can NOT be updated to be null
+            'vehicle_name' => ['sometimes', 'string'],                          // should NOT be nullable // since name can NOT be updated to be null
+            'vehicle_description' => ['sometimes', 'nullable', 'string'],       // should be nullable // since description can be updated to be empty or null
         ];
     }
 }
