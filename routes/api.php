@@ -250,6 +250,7 @@ Route::prefix('v1')->group(function () {
                     Route::get('/', [TripController::class, 'show']);
                     Route::put('/', [TripController::class, 'update']);
                     Route::put('/approve_trip', [TripController::class, 'approveTrip']);
+                    Route::put('/pay_trip', [TripController::class, 'payTrip']);
                     Route::delete('/', [TripController::class, 'destroy']);
                 }); 
             });

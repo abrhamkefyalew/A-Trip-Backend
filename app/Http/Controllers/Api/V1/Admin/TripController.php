@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\Admin;
 use App\Models\Trip;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Services\Api\V1\FilteringService;
 use App\Http\Resources\Api\V1\TripResources\TripResource;
@@ -114,6 +115,109 @@ class TripController extends Controller
     {
         // $this->authorize('view', $trip);
     }
+
+
+    
+    /**
+     * Update the specified resource in storage.
+     */
+    public function approveTrip(Request $request, Trip $trip)
+    {
+        //
+        $var = DB::transaction(function () use ($request, $trip) {
+            
+            if ($trip->status === Trip::TRIP_STATUS_APPROVED) {
+                return response()->json(['message' => 'this Trip is already APPROVED.'], 403); 
+            }
+
+            if ($trip->order_id === null ||
+                $trip->driver_id === null ||
+                $trip->organization_user_id === null ||
+                $trip->start_dashboard === null ||
+                $trip->end_dashboard === null ||
+                $trip->source === null ||
+                $trip->destination === null ||
+                $trip->trip_date === null ||
+                $trip->status === null ||
+                $trip->status_payment === null) {
+                
+                return response()->json(['error' => 'Trip Can Not be Approved, Because some important values of the Trip are Not filled yet. Thr Driver should complete filling all the required Trip Values Before it can be approved.'], 400);
+            }
+            
+
+            $success = $trip->update([
+                'status' => Trip::TRIP_STATUS_APPROVED,
+            ]);
+            //
+            if (!$success) {
+                return response()->json(['message' => 'Trip Update Failed'], 422);
+            }
+
+            
+            $updatedTrip = Trip::find($trip->id);
+
+            // since this condition is for the organization admin we return him the organizationUser relation
+            return TripResource::make($updatedTrip->load('order', 'driver', 'organizationUser'));
+            
+        });
+
+        return $var;
+    }
+
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function payTrip(Request $request, Trip $trip)
+    {
+        //
+        $var = DB::transaction(function () use ($request, $trip) {
+            
+            if ($trip->status !== Trip::TRIP_STATUS_APPROVED) {
+                return response()->json(['message' => 'this Trip is should be APPROVED first.'], 403); 
+            }
+
+            if ($trip->status_payment === Trip::TRIP_PAID) {
+                return response()->json(['message' => 'this Trip is already PAID.'], 403); 
+            }
+
+            if ($trip->order_id === null ||
+                $trip->driver_id === null ||
+                $trip->organization_user_id === null ||
+                $trip->start_dashboard === null ||
+                $trip->end_dashboard === null ||
+                $trip->source === null ||
+                $trip->destination === null ||
+                $trip->trip_date === null ||
+                $trip->status === null ||
+                $trip->status_payment === null) {
+                
+                return response()->json(['error' => 'Trip Can Not be Approved, Because some important values of the Trip are Not filled yet. Thr Driver should complete filling all the required Trip Values Before it can be approved.'], 400);
+            }
+            
+            
+
+            $success = $trip->update([
+                'status_payment' => Trip::TRIP_PAID,
+            ]);
+            //
+            if (!$success) {
+                return response()->json(['message' => 'Trip Update Failed'], 422);
+            }
+
+            
+            $updatedTrip = Trip::find($trip->id);
+
+            // since this condition is for the organization admin we return him the organizationUser relation
+            return TripResource::make($updatedTrip->load('order', 'driver', 'organizationUser'));
+            
+        });
+
+        return $var;
+    }
+
+
+
 
     /**
      * Update the specified resource in storage.

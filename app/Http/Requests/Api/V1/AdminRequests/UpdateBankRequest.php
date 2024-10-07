@@ -31,7 +31,7 @@ class UpdateBankRequest extends FormRequest
                 'string', 
                 Rule::unique('banks')->ignore($this->bank->id),
             ],
-            'bank_description' => ['sometimes', 'string'],
+            'bank_description' => ['sometimes', 'nullable', 'string'],
         ];
     }
 }
