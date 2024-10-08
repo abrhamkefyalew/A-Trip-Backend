@@ -25,7 +25,7 @@ class UpdateVehicleRequest extends FormRequest
     {
         return [
             //
-            'vehicle_name_id' => 'sometimes|integer|exists:vehicle_names,id',
+            // 'vehicle_name_id' => 'sometimes|integer|exists:vehicle_names,id',
             'driver_id' => [
                 'sometimes', 
                 'nullable',
@@ -36,23 +36,32 @@ class UpdateVehicleRequest extends FormRequest
             
 
             'vehicle_name' => [
-                'sometimes', 'string',
+                'sometimes', 'nullable', 'string',
             ],
             'vehicle_description' => [
-                'sometimes', 'string',
+                'sometimes', 'nullable', 'string',
             ],
             'vehicle_model' => [
-                'sometimes', 'string',
+                'sometimes', 'nullable', 'string',
             ],
             'plate_number' => [
-                'sometimes', 'string', Rule::unique('vehicles'),
+                'sometimes', 'string', Rule::unique('vehicles')->ignore($this->vehicle->id),
             ],
             'year' => [
                 'sometimes', 'string',
             ],
-            'is_available' => [
-                'sometimes', 'string', Rule::in([Vehicle::VEHICLE_NOT_AVAILABLE, Vehicle::VEHICLE_AVAILABLE, Vehicle::VEHICLE_ON_TRIP]),
-            ],
+
+            // there should be separate endpoint to update this 
+                // this update should be allowed only               
+                    // 1. if the vehicle is not in orders table     - or -    2. or even if the vehicle is in orders table:- the order (orders) that owns the vehicle should NOT be STARTED,
+                            //
+                            // (PENDING order with vehicle_id is less likely, and should NOT exist)
+                            // if order is ACCEPTED (SET), and if vehicle is_available is sent , what should i do, check abrham samson // ask samson
+                            //
+            // 'is_available' => [
+            //     'sometimes', 'string', Rule::in([Vehicle::VEHICLE_NOT_AVAILABLE, Vehicle::VEHICLE_AVAILABLE, Vehicle::VEHICLE_ON_TRIP]),
+            // ],
+
             'with_driver' => [
                 'sometimes', 'boolean',
             ],

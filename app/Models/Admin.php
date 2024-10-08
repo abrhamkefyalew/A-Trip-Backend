@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use App\Notifications\Api\V1\ResetPasswordNotification;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class Admin extends Authenticatable implements HasMedia
@@ -34,6 +35,7 @@ class Admin extends Authenticatable implements HasMedia
         'password',
     ];
 
+    
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -54,12 +56,28 @@ class Admin extends Authenticatable implements HasMedia
     ];
 
 
+    // mutator function 
+    // mutator functions are called automatically by laravel,       // so setPasswordAttribute is mutator function and called by laravel automatically
+    // This method is a mutator that automatically processes the password value before saving it to the password attribute of the model.
+    // if hashed password is sent = it will not be hashed.                     if UN-hashed password is sent = it will be hashed 
     public function setPasswordAttribute($password)
     {
         if ($password) {
             $this->attributes['password'] = app('hash')->needsRehash($password) ? Hash::make($password) : $password;
         }
     }
+
+
+    // currently commented because admin password reset is not needed // admin password reset is Dangerous for the admins, so it should be removed
+    // public function sendPasswordResetNotification($token)
+    // {
+    //     $url = 'https://adiamat.com/admins/reset-password/?token='.$token; // modify this url // depending on your route
+
+    //      $this->notify(new ResetPasswordNotification($url));
+    // }
+
+
+    
 
     public function address()
     {

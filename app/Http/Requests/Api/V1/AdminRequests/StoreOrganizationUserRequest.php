@@ -34,24 +34,24 @@ class StoreOrganizationUserRequest extends FormRequest
                 'required', 'string', 'regex:/^\S*$/u', 'alpha',
             ],
             'email' => [
-                'sometimes', 'email', Rule::unique('organization_users'),
+                'required', 'email', Rule::unique('organization_users'),
             ],
             'phone_number' => [
-                'required', 'numeric',  Rule::unique('organization_users'),
+                'required', 'numeric', Rule::unique('organization_users'),
             ],
             'is_active' => [
-                'sometimes', 'nullable', 'boolean',
+                'sometimes', 'boolean',
             ],
             
             'is_admin' => [
-                'sometimes', 'nullable', 'boolean',
+                'sometimes', 'boolean',
             ],
 
 
             // we are using OTP , so password is commented until further notice
-            // 'password' => [
-            //     'required', 'min:8', 'confirmed',
-            // ],
+            'password' => [
+                'required', 'min:8', 'confirmed',
+            ],
 
 
 

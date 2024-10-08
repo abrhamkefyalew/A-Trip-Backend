@@ -48,11 +48,11 @@ class SupplierController extends Controller
         //
         $var = DB::transaction(function () use ($request) {
 
-
             $supplier = Supplier::create([
                 'first_name' => $request['first_name'],
                 'last_name' => $request['last_name'],
                 'email' => $request['email'],
+                'password' => $request['password'],
                 'phone_number' => $request['phone_number'],
                 'is_active' => (int) (isset($request['is_active']) ? $request['is_active'] : 1), // this works
                 'is_approved' => (int) $request->input('is_approved', 1), // this works also    // // this column can ONLY be Set by the SUPER_ADMIN, // if Supplier is registering himself , he can NOT send the is_approved field
@@ -121,11 +121,63 @@ class SupplierController extends Controller
     public function update(UpdateSupplierRequest $request, Supplier $supplier)
     {
         //
-        // $var = DB::transaction(function () {
+        $var = DB::transaction(function () use ($request, $supplier) {
             
-        // });
+            $success = $supplier->update($request->validated());
+            //
+            if (!$success) {
+                return response()->json(['message' => 'Update Failed'], 422);
+            }
+            
 
-        // return $var;
+            if ($request->has('country') || $request->has('city')) {
+                if ($supplier->address) {
+                    $supplier->address()->update([
+                        'country' => $request->input('country'),
+                        'city' => $request->input('city'),
+                    ]);
+                } else {
+                    $supplier->address()->create([
+                        'country' => $request->input('country'),
+                        'city' => $request->input('city'),
+                    ]);
+                }
+            }
+
+
+
+            // MEDIA CODE SECTION
+            // REMEMBER = (clearMedia) ALL media should NOT be Cleared at once, media should be cleared by id, like one picture. so the whole collection should NOT be cleared using $clearMedia the whole collection // check abrham samson // remember
+            //
+            if ($request->has('supplier_id_front_image')) {
+                $file = $request->file('supplier_id_front_image');
+                $clearMedia = $request->input('supplier_id_front_image_remove', false);
+                $collectionName = Supplier::SUPPLIER_ID_FRONT_PICTURE;
+                MediaService::storeImage($supplier, $file, $clearMedia, $collectionName);
+            }
+
+            if ($request->has('supplier_id_back_image')) {
+                $file = $request->file('supplier_id_back_image');
+                $clearMedia = $request->input('supplier_id_back_image_remove', false);
+                $collectionName = Supplier::SUPPLIER_ID_BACK_PICTURE;
+                MediaService::storeImage($supplier, $file, $clearMedia, $collectionName);
+            }
+
+            if ($request->has('supplier_profile_image')) {
+                $file = $request->file('supplier_profile_image');
+                $clearMedia = (isset($request['supplier_profile_image_remove']) ? $request['supplier_profile_image_remove'] : false);
+                $collectionName = Supplier::SUPPLIER_PROFILE_PICTURE;
+                MediaService::storeImage($supplier, $file, $clearMedia, $collectionName);
+            }
+
+            
+            $updatedSupplier = Supplier::find($supplier->id);
+
+            return SupplierResource::make($updatedSupplier->load('media', 'address', 'vehicles'));
+
+        });
+
+        return $var;
     }
 
     /**

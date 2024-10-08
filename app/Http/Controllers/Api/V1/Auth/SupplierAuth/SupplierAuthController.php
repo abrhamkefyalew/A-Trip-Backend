@@ -24,7 +24,7 @@ class SupplierAuthController extends Controller
         $supplier = Supplier::with(['address', 'media', 'vehicles'])->where('email', $request->email)->where('is_active', 1)->where('is_approved', 1)->first(); 
 
         if ($supplier) {
-            // if (Hash::check($request->password, $supplier->password)) {
+            if (Hash::check($request->password, $supplier->password)) {
                 $tokenResult = $supplier->createToken('Personal Access Token', ['access-supplier']);
                 $expiresAt = now()->addMinutes(9950); // Set the expiration time to 50 minutes from now - -   -   -   -   now() = is helper function of laravel, - - - (it is NOT Carbon's)
                 $token = $tokenResult->accessToken;
@@ -43,7 +43,7 @@ class SupplierAuthController extends Controller
                     ],
                     200
                 );
-            // }
+            }
         }
 
         return response()->json(['message' => 'Login failed. Incorrect email or password.'], 400);

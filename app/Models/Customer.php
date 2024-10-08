@@ -35,6 +35,7 @@ class Customer extends Authenticatable implements HasMedia
         'password',
     ];
 
+    
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -44,6 +45,7 @@ class Customer extends Authenticatable implements HasMedia
         'password',
         'remember_token',
     ];
+
 
     /**
      * The attributes that should be cast.
@@ -55,6 +57,10 @@ class Customer extends Authenticatable implements HasMedia
     ];
 
 
+    // mutator function 
+    // mutator functions are called automatically by laravel,       // so setPasswordAttribute is mutator function and called by laravel automatically
+    // This method is a mutator that automatically processes the password value before saving it to the password attribute of the model.
+    // if hashed password is sent = it will not be hashed.                     if UN-hashed password is sent = it will be hashed 
     public function setPasswordAttribute($password)
     {
         if ($password) {

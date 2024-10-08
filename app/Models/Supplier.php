@@ -32,6 +32,7 @@ class Supplier extends Authenticatable implements HasMedia
         'phone_number',
         'is_active',
         'is_approved',
+        'password',
     ];
 
 
@@ -40,11 +41,10 @@ class Supplier extends Authenticatable implements HasMedia
      *
      * @var array<int, string>
      */
-    // we are using OTP so this is commented, until further notice
-    // protected $hidden = [
-    //     'password',
-    //     'remember_token',
-    // ];
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
 
     
     /**
@@ -57,22 +57,25 @@ class Supplier extends Authenticatable implements HasMedia
     ];
 
 
-    // we are using OTP so this is commented, until further notice
-    // public function setPasswordAttribute($password)
-    // {
-    //     if ($password) {
-    //         $this->attributes['password'] = app('hash')->needsRehash($password) ? Hash::make($password) : $password;
-    //     }
-    // }
+    // mutator function 
+    // mutator functions are called automatically by laravel,       // so setPasswordAttribute is mutator function and called by laravel automatically
+    // This method is a mutator that automatically processes the password value before saving it to the password attribute of the model.
+    // if hashed password is sent = it will not be hashed.                     if UN-hashed password is sent = it will be hashed 
+    public function setPasswordAttribute($password)
+    {
+        if ($password) {
+            $this->attributes['password'] = app('hash')->needsRehash($password) ? Hash::make($password) : $password;
+        }
+    }
 
 
-    // we are using OTP so this is commented, until further notice
-    // public function sendPasswordResetNotification($token)
-    // {
-    //     $url = 'https://adiamat.com/suppliers/reset-password/?token='.$token; // modify this url // depending on your route
+    public function sendPasswordResetNotification($token)
+    {
+        $url = 'https://adiamat.com/suppliers/reset-password/?token='.$token; // modify this url // depending on your route
 
-    //      $this->notify(new ResetPasswordNotification($url));
-    // }
+         $this->notify(new ResetPasswordNotification($url));
+    }
+
 
 
 

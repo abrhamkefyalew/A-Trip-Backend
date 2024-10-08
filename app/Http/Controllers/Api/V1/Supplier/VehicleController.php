@@ -134,6 +134,11 @@ class VehicleController extends Controller
             
 
             $success = $vehicle->update($request->validated());
+            //
+            if (!$success) {
+                return response()->json(['message' => 'Update Failed'], 422);
+            }
+            
 
             if ($request->has('country') || $request->has('city')) {
                 if ($vehicle->address) {
@@ -154,11 +159,6 @@ class VehicleController extends Controller
             // MEDIA CODE SECTION
             // do not forget to do the MEDIA UPDATE also // check abrham samson // remember
 
-
-
-            if (!$success) {
-                return response()->json(['message' => 'Update Failed'], 422);
-            }
 
             $updatedVehicle = Vehicle::find($vehicle->id);
 

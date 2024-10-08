@@ -24,7 +24,7 @@ class LoginSupplierRequest extends FormRequest
         return [
             //
             'email' => ['required', 'email'],
-            // 'password' => ['required'],
+            'password' => ['required'],
             // 'phone_number' => [
             //     'required', 'numeric',  
             // ],

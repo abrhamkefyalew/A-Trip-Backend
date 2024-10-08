@@ -702,6 +702,7 @@ class OrderController extends Controller
 
 
 
+            $contractDetail = null;
             // this contract_detail_id should be owned by the organization that the super_admin is making the order to
             if ($request->has('contract_detail_id') && isset($request['contract_detail_id'])) {
                 $contractDetail = ContractDetail::where('id', $request['contract_detail_id'])->first();

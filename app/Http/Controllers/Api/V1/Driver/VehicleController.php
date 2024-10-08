@@ -105,6 +105,11 @@ class VehicleController extends Controller
             
 
             $success = $vehicle->update($request->validated());
+            //
+            if (!$success) {
+                return response()->json(['message' => 'Update Failed'], 422);
+            }
+            
 
             // since the driver is holding the vehicle moving it around in different locations, he too can update the location of the vehicle
             if ($request->has('country') || $request->has('city')) {
@@ -126,11 +131,6 @@ class VehicleController extends Controller
             // MEDIA CODE SECTION
             // Driver should NOT be allowed to update any of the media section
 
-
-
-            if (!$success) {
-                return response()->json(['message' => 'Update Failed'], 422);
-            }
 
             $updatedVehicle = Vehicle::find($vehicle->id);
 

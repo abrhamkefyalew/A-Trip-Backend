@@ -22,7 +22,7 @@ return new class extends Migration
             $table->boolean('is_active')->default(1);
             $table->boolean('is_admin')->default(0); // 1 or 0 // to check if the organization_user have admin privilege // default 0
             $table->timestamp('email_verified_at')->nullable();
-            // $table->string('password');
+            $table->string('password');
 
             // profile picture will be contained in media table
             

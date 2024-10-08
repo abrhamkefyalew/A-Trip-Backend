@@ -24,8 +24,8 @@ class AdminSeeder extends Seeder
             'password' => bcrypt('password'),
         ]);
 
-        $role_id = Role::where('title', Role::SUPER_ADMIN_ROLE)->first('id')->id;
+        $roleId = Role::where('title', Role::SUPER_ADMIN_ROLE)->first('id')->id;
 
-        $admin->roles()->sync($role_id);
+        $admin->roles()->sync($roleId);
     }
 }

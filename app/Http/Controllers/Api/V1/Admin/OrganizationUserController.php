@@ -73,6 +73,7 @@ class OrganizationUserController extends Controller
                 'first_name' => $request['first_name'],
                 'last_name' => $request['last_name'],
                 'email' => $request['email'],
+                'password' => $request['password'],
                 'phone_number' => $request['phone_number'],
                 'is_active' => (int) (isset($request['is_active']) ? $request['is_active'] : 1), // this works
                 'is_admin' => (int) $request->input('is_admin', 0), // this works also
