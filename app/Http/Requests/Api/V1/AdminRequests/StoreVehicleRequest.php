@@ -48,10 +48,10 @@ class StoreVehicleRequest extends FormRequest
                 'sometimes', 'string',
             ],
             'plate_number' => [
-                'sometimes', 'string', Rule::unique('vehicles'),
+                'required', 'string', Rule::unique('vehicles'),
             ],
             'year' => [
-                'sometimes', 'string',
+                'required', 'string',
             ],
             'is_available' => [
                 'required', 'string', Rule::in([Vehicle::VEHICLE_NOT_AVAILABLE, Vehicle::VEHICLE_AVAILABLE, Vehicle::VEHICLE_ON_TRIP]),
@@ -80,17 +80,17 @@ class StoreVehicleRequest extends FormRequest
 
             // should the following medias be required or sometimes
             'vehicle_libre_image' => [
-                'sometimes',
+                'required',
                 'image',
                 'max:3072',
             ],
             'vehicle_third_person_image' => [
-                'sometimes',
+                'required',
                 'image',
                 'max:3072',
             ],
             'vehicle_power_of_attorney_image' => [
-                'sometimes',
+                'required',
                 'image',
                 'max:3072',
             ],
