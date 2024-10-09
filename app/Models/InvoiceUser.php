@@ -18,7 +18,7 @@ class InvoiceUser extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'order_id',
+        'order_user_id',
         'price',
         'status',
         'paid_date',

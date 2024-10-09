@@ -285,7 +285,6 @@ Route::prefix('v1')->group(function () {
 
             Route::prefix('order_users')->group(function () {
                 Route::post('/', [OrderUserController::class, 'store']);
-                Route::post('/store_bid', [OrderUserController::class, 'storeBid']);
                 Route::get('/', [OrderUserController::class, 'index']);
                 Route::prefix('/{orderUser}')->group(function () {
                     Route::get('/', [OrderUserController::class, 'show']);
@@ -502,7 +501,6 @@ Route::prefix('v1')->group(function () {
 
             Route::prefix('order_users')->group(function () {
                 Route::post('/', [OrderUserForSupplierController::class, 'store']);
-                Route::post('/store_bid', [OrderUserForSupplierController::class, 'storeBid']);
                 Route::get('/', [OrderUserForSupplierController::class, 'index']);
                 Route::get('/index_pending', [OrderUserForSupplierController::class, 'indexPending']);
                 Route::prefix('/{orderUser}')->group(function () {
@@ -606,7 +604,6 @@ Route::prefix('v1')->group(function () {
 
             Route::prefix('order_users')->group(function () {
                 Route::post('/', [OrderUserForDriverController::class, 'store']);
-                Route::post('/store_bid', [OrderUserForDriverController::class, 'storeBid']);
                 Route::get('/', [OrderUserForDriverController::class, 'index']);
                 Route::get('/index_pending', [OrderUserForDriverController::class, 'indexPending']);
                 Route::prefix('/{orderUser}')->group(function () {

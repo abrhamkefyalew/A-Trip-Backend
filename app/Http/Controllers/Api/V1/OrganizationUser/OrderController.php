@@ -79,7 +79,7 @@ class OrderController extends Controller
                 }
 
                 if ($organizationUser->organization->is_active !== 1) {
-                    return response()->json(['message' => 'this organization has been is NOT Active, please activate your organization first to make an order. you can activate your organization yourself'], 401); 
+                    return response()->json(['message' => 'this organization is NOT Active, please activate your organization first to make an order. you can activate your organization yourself'], 401); 
                 }
 
 

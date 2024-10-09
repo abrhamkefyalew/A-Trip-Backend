@@ -79,7 +79,7 @@ class OrderResource extends JsonResource
             })),
 
             'organization' => OrganizationResource::make($this->whenLoaded('organization', function () {
-                return $this->organization->load('address', 'media');
+                return $this->organization->load('address', 'media', 'organizationUsers');
             })),
 
             'contract_detail' => ContractDetailResource::make($this->whenLoaded('contractDetail')),

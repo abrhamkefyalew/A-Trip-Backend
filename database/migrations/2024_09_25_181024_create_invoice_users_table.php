@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('invoice_users', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('order_id')->constrained('order_users');
+            $table->foreignId('order_user_id')->constrained('order_users');
 
             // an invoice is paid two times ,         1. first initial payment (it could be 0 birr)           2. SECOND the Final payment (it is the left over price)
             

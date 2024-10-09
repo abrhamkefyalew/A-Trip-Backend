@@ -25,6 +25,23 @@ class UpdateTripRequest extends FormRequest
     {
         return [
             //
+            'driver_id' => [
+                'sometimes', 
+                'integer', 
+                'exists:drivers,id',            // Rule::exists('drivers'), // also works       // or       // Rule::exists('drivers', 'id'),
+            ],
+            
+            'organization_user_id' => 'sometimes|integer|exists:organization_users,id',
+            
+            'start_dashboard' => 'sometimes|integer|min:0|max:9223372036854775807',
+            'end_dashboard' => 'sometimes|integer|min:0|max:9223372036854775807',
+
+            'source' => 'sometimes|string',
+            'destination' => 'sometimes|string',
+
+            'trip_date' => 'sometimes|date|date_format:Y-m-d',
+
+            'trip_description' => 'sometimes|nullable|string',
         ];
     }
 }

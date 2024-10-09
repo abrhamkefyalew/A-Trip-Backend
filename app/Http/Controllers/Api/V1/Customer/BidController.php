@@ -58,6 +58,10 @@ class BidController extends Controller
             $customer = Customer::find($user->id);
 
             
+            if (!$bid->orderUser) {
+                return response()->json(['message' => 'The Parent Order of this Bid does NOT Exist.'], 404);
+            }
+
             if ($customer->id != $bid->orderUser->customer_id) {
                 return response()->json(['message' => 'invalid Bid is selected or Requested. or the requested Bid is not found. Deceptive request Aborted.'], 401);
             }
@@ -146,12 +150,13 @@ class BidController extends Controller
             }
 
             // get the order id of the selected bid
-            $bidOrderId = $bid->order->id;
+            $bidOrderId = $bid->orderUser->id;
+            
 
 
             // create invoice for this order
             $invoice = InvoiceUser::create([
-                'order_id' => $bidOrderId,
+                'order_user_id' => $bidOrderId,
 
                 'price' => $bid->price_initial,
                 'status' => InvoiceUser::INVOICE_STATUS_NOT_PAID,
@@ -193,12 +198,7 @@ class BidController extends Controller
 
 
             
-            // DELETE All the BIDS of this ORDER
-            // // Soft delete all Bid records with order_id equal to $bid->order->id
-            // Bid::where('order_id', $bid->order->id)->delete();
-            //
-            // // Force delete all Bid records with order_id equal to $bid->order->id
-            Bid::where('order_id', $bidOrderId)->forceDelete();
+            
             
 
             

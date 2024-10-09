@@ -66,7 +66,7 @@ class OrderForDriverResource extends JsonResource
 
             // since he is the driver, he will meet with the organization, so he may as well see this relation
             'organization' => OrganizationResource::make($this->whenLoaded('organization', function () {
-                return $this->organization->load('address', 'media');
+                return $this->organization->load('address', 'media', 'organizationUsers');
             })),
 
             'contract_detail' => ContractDetailDriverResource::make($this->whenLoaded('contractDetail')),

@@ -18,7 +18,7 @@ class Bid extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'order_id',
+        'order_user_id',
         'vehicle_id',
         'price_total',
         'price_initial',
@@ -32,7 +32,5 @@ class Bid extends Model
     }
 
 
-    // constants // initial payment percent
-    // public const BID_ORDER_INITIAL_PAYMENT = '25';      // these can not be 0 for the moment, it means there must always be initial payment 
 
 }

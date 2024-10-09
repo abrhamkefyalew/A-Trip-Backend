@@ -15,6 +15,7 @@ use App\Services\Api\V1\FilteringService;
 use App\Http\Requests\Api\V1\DriverRequests\StoreTripRequest;
 use App\Http\Requests\Api\V1\DriverRequests\UpdateTripRequest;
 use App\Http\Resources\Api\V1\TripResources\TripForDriverResource;
+use App\Models\OrganizationUser;
 
 class TripController extends Controller
 {
@@ -100,6 +101,7 @@ class TripController extends Controller
             $user = auth()->user();
             $driver = Driver::find($user->id);
 
+            // check order
             $order = Order::find($request['order_id']);
 
             if ($order->driver_id !== $driver->id) {
@@ -137,9 +139,30 @@ class TripController extends Controller
             if ($order->contractDetail->periodic === 1) {
                 return response()->json(['message' => 'Trip can not be created for this order, because this order is periodic'], 403);
             }
+
+
+            // check organization
+            if ($order->organization->is_active !== 1) {
+                return response()->json(['message' => 'Trip can not be created for this order, because this organization that owns the order is NOT Active. organization should be Activated first to create trip'], 403);
+            }
+
+            if ($order->organization->is_approved !== 1) {
+                return response()->json(['message' => 'Trip can not be created for this order, because this organization that owns the order is Unapproved. organization should be Approved first to create trip'], 403);
+            }
+
+            // check organization User
+            $organizationUser = OrganizationUser::find($request['organization_user_id']);
             
+            if ($organizationUser->organization_id != $order->organization_id) {
+                return response()->json(['message' => 'invalid Organization User is selected or Requested. or the Organization User provided is not found. Deceptive request Aborted.'], 401);
+            }
+
+            if ($organizationUser->is_active != 1) {
+                return response()->json(['message' => 'this organization User has been is De-Activated, please activate the organization user first to make a trip this user.'], 401); 
+            }
 
 
+            // check contract
             $contract = Contract::find($order->contractDetail->contract_id);
 
             if (!$contract) {

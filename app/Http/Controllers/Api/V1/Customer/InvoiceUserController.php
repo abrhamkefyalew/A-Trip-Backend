@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1\Customer;
 
+use App\Models\Bid;
 use App\Models\OrderUser;
 use App\Models\InvoiceUser;
 use Illuminate\Http\Request;
@@ -54,7 +55,7 @@ class InvoiceUserController extends Controller
             $today = now()->format('Y-m-d');
 
 
-            $invoiceUser = InvoiceUser::find($request['invoice_id']);
+            $invoiceUser = InvoiceUser::find($request['invoice_user_id']);
 
             // Update the invoice status and paid date
             $success = $invoiceUser->update([
@@ -68,7 +69,7 @@ class InvoiceUserController extends Controller
             }
 
 
-            $totalPaidAmountCheck = InvoiceUser::where('order_id', $invoiceUser->order_id)
+            $totalPaidAmountCheck = InvoiceUser::where('order_user_id', $invoiceUser->order_user_id)
                 ->where('status', InvoiceUser::INVOICE_STATUS_PAID)
                 ->whereNotNull('paid_date')
                 ->sum('price');
@@ -98,6 +99,15 @@ class InvoiceUserController extends Controller
                 return response()->json(['message' => 'Order Update Failed'], 422);
             }
 
+
+            // DELETE All the BIDS of this ORDER
+            // // Soft delete all Bid records with order_user_id equal to $bid->order->id
+            // Bid::where('order_user_id', $bid->order->id)->delete();
+            //
+            // // Force delete all Bid records with order_user_id equal to $bid->order->id
+            Bid::where('order_user_id', $invoiceUser->orderUser->id)->forceDelete();
+
+            
 
             // since it is call back we will not return value to the banks
             // or may be 200 OK response // check abrham samson
