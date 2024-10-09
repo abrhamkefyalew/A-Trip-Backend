@@ -107,6 +107,31 @@ Route::prefix('v1')->group(function () {
                 }); 
             });
 
+
+
+            
+            Route::prefix('constants')->group(function () {
+                Route::post('/', [ConstantController::class, 'store']);
+                Route::get('/', [ConstantController::class, 'index']);
+                Route::prefix('/{constant}')->group(function () {
+                    Route::get('/', [ConstantController::class, 'show']);
+                    Route::put('/', [ConstantController::class, 'update']);
+                    Route::delete('/', [ConstantController::class, 'destroy']);
+                }); 
+            });
+            
+
+            Route::prefix('banks')->group(function () {
+                Route::post('/', [BankController::class, 'store']);
+                Route::get('/', [BankController::class, 'index']);
+                Route::prefix('/{bank}')->group(function () {
+                    Route::get('/', [BankController::class, 'show']);
+                    Route::put('/', [BankController::class, 'update']);
+                    Route::delete('/', [BankController::class, 'destroy']);
+                }); 
+            });
+
+
             
 
             Route::prefix('suppliers')->group(function () {
@@ -127,28 +152,6 @@ Route::prefix('v1')->group(function () {
                     Route::get('/', [DriverController::class, 'show']);
                     Route::put('/', [DriverController::class, 'update']);
                     Route::delete('/', [DriverController::class, 'destroy']);
-                }); 
-            });
-
-
-            Route::prefix('constants')->group(function () {
-                Route::post('/', [ConstantController::class, 'store']);
-                Route::get('/', [ConstantController::class, 'index']);
-                Route::prefix('/{constant}')->group(function () {
-                    Route::get('/', [ConstantController::class, 'show']);
-                    Route::put('/', [ConstantController::class, 'update']);
-                    Route::delete('/', [ConstantController::class, 'destroy']);
-                }); 
-            });
-            
-
-            Route::prefix('banks')->group(function () {
-                Route::post('/', [BankController::class, 'store']);
-                Route::get('/', [BankController::class, 'index']);
-                Route::prefix('/{bank}')->group(function () {
-                    Route::get('/', [BankController::class, 'show']);
-                    Route::put('/', [BankController::class, 'update']);
-                    Route::delete('/', [BankController::class, 'destroy']);
                 }); 
             });
 
