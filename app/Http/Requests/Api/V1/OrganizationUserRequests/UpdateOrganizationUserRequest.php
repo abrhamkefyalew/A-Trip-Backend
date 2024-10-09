@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Api\V1\CustomerRequests;
+namespace App\Http\Requests\Api\V1\OrganizationUserRequests;
 
 use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateCustomerRequest extends FormRequest
+class UpdateOrganizationUserRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,32 +24,29 @@ class UpdateCustomerRequest extends FormRequest
     {
         return [
             //
+            'organization_id' => 'sometimes|integer|exists:organizations,id',
             'first_name' => [
-                'sometimes', 'nullable', 'string', 'regex:/^\S*$/u', 'alpha',
+                'sometimes', 'string', 'regex:/^\S*$/u', 'alpha',
             ],
             'last_name' => [
-                'sometimes', 'nullable', 'string', 'regex:/^\S*$/u', 'alpha',
+                'sometimes', 'string', 'regex:/^\S*$/u', 'alpha',
             ],
             // email should NOT be updated , Because it is being used for login currently
             // 'email' => [
-            //     'sometimes', 'email', Rule::unique('customers')->ignore($this->customer->id),
+            //     'sometimes', 'email', Rule::unique('organization_users')->ignore($this->organizationUser->id),
             // ],
-
             'phone_number' => [
-                'sometimes', 'numeric',  Rule::unique('customers')->ignore($this->customer->id),
+                'sometimes', 'numeric', Rule::unique('organization_users')->ignore($this->organizationUser->id),
             ],
 
-            'is_active' => [
-                'sometimes', 'boolean',
-            ],
-
-            // this column can ONLY be Set by the SUPER_ADMIN, 
-            // if Driver is registering himself , he can NOT send the is_approved field
-            // there should be separate endpoint to update this
-            // 'is_approved' => [
+            // there should be separate endpoint to update this , // if 0, the user will be automatically logged out
+            // 'is_active' => [
             //     'sometimes', 'boolean',
             // ],
-
+            
+            'is_admin' => [
+                'sometimes', 'boolean',
+            ],
 
 
             // password should NOT be updated here
@@ -60,25 +57,20 @@ class UpdateCustomerRequest extends FormRequest
 
 
 
-
             'country' => [
                 'sometimes', 'string',
             ],
             'city' => [
                 'sometimes', 'string',
             ],
-
-
-
+            
 
             // MEDIA ADD
-            'customer_profile_image' => [
+            'organization_user_profile_image' => [
                 'sometimes',
-                'nullable',
                 'image',
                 'max:3072',
             ],
-
 
             // MEDIA REMOVE
             
@@ -86,11 +78,10 @@ class UpdateCustomerRequest extends FormRequest
             
 
             // BAD IDEA = when doing remove image try to do it for specific collection
-            'customer_profile_image_remove' => [
+            'organization_user_profile_image_remove' => [
                 'sometimes', 'boolean',
             ],
-
-
+            
         ];
     }
 }

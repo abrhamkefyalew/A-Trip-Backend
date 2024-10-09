@@ -40,7 +40,16 @@ class RegisterCustomerRequest extends FormRequest
                 'required', 'numeric',  Rule::unique('customers'),
             ],
 
-            // not implemented yet
+
+            'country' => [
+                'sometimes', 'string',
+            ],
+            'city' => [
+                'sometimes', 'string',
+            ],
+
+
+            // MEDIA ADD
             'customer_profile_image' => [
                 'sometimes',
                 'nullable',

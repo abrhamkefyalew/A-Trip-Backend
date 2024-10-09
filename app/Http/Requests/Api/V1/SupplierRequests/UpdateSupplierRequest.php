@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Api\V1\CustomerRequests;
+namespace App\Http\Requests\Api\V1\SupplierRequests;
 
 use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateCustomerRequest extends FormRequest
+class UpdateSupplierRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,28 +24,28 @@ class UpdateCustomerRequest extends FormRequest
     {
         return [
             //
+
             'first_name' => [
-                'sometimes', 'nullable', 'string', 'regex:/^\S*$/u', 'alpha',
+                'sometimes', 'string', 'regex:/^\S*$/u', 'alpha',
             ],
             'last_name' => [
-                'sometimes', 'nullable', 'string', 'regex:/^\S*$/u', 'alpha',
+                'sometimes', 'string', 'regex:/^\S*$/u', 'alpha',
             ],
             // email should NOT be updated , Because it is being used for login currently
             // 'email' => [
-            //     'sometimes', 'email', Rule::unique('customers')->ignore($this->customer->id),
+            //     'sometimes', 'email', Rule::unique('suppliers')->ignore($this->supplier->id),
             // ],
-
             'phone_number' => [
-                'sometimes', 'numeric',  Rule::unique('customers')->ignore($this->customer->id),
+                'sometimes', 'numeric', Rule::unique('suppliers')->ignore($this->supplier->id),
             ],
-
             'is_active' => [
                 'sometimes', 'boolean',
             ],
 
+
             // this column can ONLY be Set by the SUPER_ADMIN, 
-            // if Driver is registering himself , he can NOT send the is_approved field
-            // there should be separate endpoint to update this
+            // if Supplier is registering himself , he can NOT send the is_approved field
+            // there should be separate endpoint to update this 
             // 'is_approved' => [
             //     'sometimes', 'boolean',
             // ],
@@ -58,9 +58,6 @@ class UpdateCustomerRequest extends FormRequest
             //     'sometimes', 'min:8', 'confirmed',
             // ],
 
-
-
-
             'country' => [
                 'sometimes', 'string',
             ],
@@ -70,15 +67,28 @@ class UpdateCustomerRequest extends FormRequest
 
 
 
-
             // MEDIA ADD
-            'customer_profile_image' => [
-                'sometimes',
-                'nullable',
+
+            'supplier_id_front_image' => [
+                'sometimes',       // this should be sometimes abrham check
+                'nullable',     // this should be sometimes abrham check
+                'image',
+                'max:3072',
+            ],
+            'supplier_id_back_image' => [
+                'sometimes',    // this should be sometimes abrham check
+                'nullable',     // this should be sometimes abrham check
+                'image',
+                'max:3072',
+            ],
+            'supplier_profile_image' => [
+                'sometimes',       // this should be sometimes abrham check
+                'nullable',     // this should be sometimes abrham check
                 'image',
                 'max:3072',
             ],
 
+            
 
             // MEDIA REMOVE
             
@@ -86,11 +96,16 @@ class UpdateCustomerRequest extends FormRequest
             
 
             // BAD IDEA = when doing remove image try to do it for specific collection
-            'customer_profile_image_remove' => [
+            'supplier_id_front_image_remove' => [
                 'sometimes', 'boolean',
             ],
-
-
+            'supplier_id_back_image_remove' => [
+                'sometimes', 'boolean',
+            ],
+            'supplier_profile_image_remove' => [
+                'sometimes', 'boolean',
+            ],
+            
         ];
     }
 }

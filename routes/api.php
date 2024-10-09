@@ -31,12 +31,14 @@ use App\Http\Controllers\Api\V1\Driver\TripController as TripForDriverController
 use App\Http\Controllers\Api\V1\Customer\BidController as BidForCustomerController;
 use App\Http\Controllers\Api\V1\Driver\OrderController as OrderForDriverController;
 use App\Http\Controllers\Api\V1\Supplier\BidController as BidForSupplierController;
+use App\Http\Controllers\Api\V1\Driver\DriverController as DriverForDriverController;
 use App\Http\Controllers\Api\V1\Driver\VehicleController as VehicleForDriverController;
 use App\Http\Controllers\Api\V1\Supplier\OrderController as OrderForSupplierController;
 use App\Http\Controllers\Api\V1\Auth\OrganizationUserAuth\OrganizationUserAuthController;
 use App\Http\Controllers\Api\V1\Driver\OrderUserController as OrderUserForDriverController;
 use App\Http\Controllers\Api\V1\Supplier\VehicleController as VehicleForSupplierController;
 use App\Http\Controllers\Api\V1\Customer\CustomerController as CustomerForCustomerController;
+use App\Http\Controllers\Api\V1\Supplier\SupplierController as SupplierForSupplierController;
 use App\Http\Controllers\Api\V1\Customer\OrderUserController as OrderUserForCustomerController;
 use App\Http\Controllers\Api\V1\Supplier\OrderUserController as OrderUserForSupplierController;
 use App\Http\Controllers\Api\V1\OrganizationUser\TripController as TripForOrganizationController;
@@ -47,7 +49,9 @@ use App\Http\Controllers\Api\V1\OrganizationUser\OrderController as OrderForOrga
 use App\Http\Controllers\Api\V1\Supplier\VehicleNameController as VehicleNameForSupplierController;
 use App\Http\Controllers\Api\V1\Supplier\VehicleTypeController as VehicleTypeForSupplierController;
 use App\Http\Controllers\Api\V1\OrganizationUser\InvoiceController as InvoiceForOrganizationController;
+use App\Http\Controllers\Api\V1\OrganizationUser\OrganizationController as OrganizationForOrganizationController;
 use App\Http\Controllers\Api\V1\OrganizationUser\ContractDetailController as ContractDetailForOrganizationController;
+use App\Http\Controllers\Api\V1\OrganizationUser\OrganizationUserController as OrganizationUserForOrganizationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -365,6 +369,27 @@ Route::prefix('v1')->group(function () {
                 Route::post('/logout-all-devices', [OrganizationUserAuthController::class, 'logoutAllDevices']);
             });
 
+
+            Route::prefix('organization_profile')->group(function () {
+                //
+                Route::prefix('/{organization}')->group(function () {
+                    Route::get('/', [OrganizationForOrganizationController::class, 'show']);
+                    Route::put('/', [OrganizationForOrganizationController::class, 'update']);
+                }); 
+            });
+
+
+            Route::prefix('organization_user_profile')->group(function () {
+                //
+                Route::prefix('/{organizationUser}')->group(function () {
+                    Route::get('/', [OrganizationUserForOrganizationController::class, 'show']);
+                    Route::put('/', [OrganizationUserForOrganizationController::class, 'update']);
+                }); 
+            });
+
+
+
+
             Route::prefix('contract_details')->group(function () {
                 Route::post('/', [ContractDetailForOrganizationController::class, 'store']);
                 Route::get('/', [ContractDetailForOrganizationController::class, 'index']);
@@ -442,6 +467,15 @@ Route::prefix('v1')->group(function () {
             Route::prefix('')->group(function () {
                 Route::post('/logout', [SupplierAuthController::class, 'logout']);
                 Route::post('/logout-all-devices', [SupplierAuthController::class, 'logoutAllDevices']);
+            });
+
+
+            Route::prefix('supplier_profile')->group(function () {
+                // 
+                Route::prefix('/{supplier}')->group(function () {
+                    Route::get('/', [SupplierForSupplierController::class, 'show']);
+                    Route::put('/', [SupplierForSupplierController::class, 'update']);
+                }); 
             });
 
 
@@ -559,6 +593,16 @@ Route::prefix('v1')->group(function () {
                 Route::post('/logout', [DriverAuthController::class, 'logout']);
                 Route::post('/logout-all-devices', [DriverAuthController::class, 'logoutAllDevices']);
             });
+
+
+            Route::prefix('driver_profile')->group(function () {
+                // 
+                Route::prefix('/{driver}')->group(function () {
+                    Route::get('/', [DriverForDriverController::class, 'show']);
+                    Route::put('/', [DriverForDriverController::class, 'update']);
+                }); 
+            });
+
 
 
 
@@ -685,8 +729,8 @@ Route::prefix('v1')->group(function () {
 
             // currently this customers route is NOT functional, 
             // because customer is registering in the open routes, and when they logs in i will return their full info
-            Route::prefix('customer_details')->group(function () {
-                Route::get('/', [CustomerForCustomerController::class, 'index']);
+            Route::prefix('customer_profile')->group(function () {
+                // 
                 Route::prefix('/{customer}')->group(function () {
                     Route::get('/', [CustomerForCustomerController::class, 'show']);
                     Route::put('/', [CustomerForCustomerController::class, 'update']);

@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Api\V1\CustomerRequests;
+namespace App\Http\Requests\Api\V1\OrganizationUserRequests;
 
 use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateCustomerRequest extends FormRequest
+class UpdateOrganizationRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,42 +24,27 @@ class UpdateCustomerRequest extends FormRequest
     {
         return [
             //
-            'first_name' => [
-                'sometimes', 'nullable', 'string', 'regex:/^\S*$/u', 'alpha',
+            'name' => [
+                'sometimes', 'string',
             ],
-            'last_name' => [
-                'sometimes', 'nullable', 'string', 'regex:/^\S*$/u', 'alpha',
+            'organization_description' => [
+                'sometimes', 'nullable', 'string',
             ],
-            // email should NOT be updated , Because it is being used for login currently
-            // 'email' => [
-            //     'sometimes', 'email', Rule::unique('customers')->ignore($this->customer->id),
-            // ],
-
+            'email' => [
+                'sometimes', 'email', Rule::unique('organizations')->ignore($this->organization->id),
+            ],
             'phone_number' => [
-                'sometimes', 'numeric',  Rule::unique('customers')->ignore($this->customer->id),
+                'sometimes', 'numeric', Rule::unique('organizations')->ignore($this->organization->id),
             ],
-
             'is_active' => [
                 'sometimes', 'boolean',
             ],
 
-            // this column can ONLY be Set by the SUPER_ADMIN, 
-            // if Driver is registering himself , he can NOT send the is_approved field
-            // there should be separate endpoint to update this
+            // this will only be here , in the admin request // it will be removed from the request list for Everyone Else who is making a request
+            // there should be separate endpoint to update this  // if 0, all organization users should be logged out Automatically
             // 'is_approved' => [
             //     'sometimes', 'boolean',
             // ],
-
-
-
-            // password should NOT be updated here
-            // there is a different procedure for resetting password called=(forget-password and reset-password)
-            // 'password' => [
-            //     'sometimes', 'min:8', 'confirmed',
-            // ],
-
-
-
 
             'country' => [
                 'sometimes', 'string',
@@ -69,12 +54,9 @@ class UpdateCustomerRequest extends FormRequest
             ],
 
 
-
-
             // MEDIA ADD
-            'customer_profile_image' => [
+            'organization_profile_image' => [
                 'sometimes',
-                'nullable',
                 'image',
                 'max:3072',
             ],
@@ -86,11 +68,10 @@ class UpdateCustomerRequest extends FormRequest
             
 
             // BAD IDEA = when doing remove image try to do it for specific collection
-            'customer_profile_image_remove' => [
+            'organization_profile_image_remove' => [
                 'sometimes', 'boolean',
             ],
-
-
+            
         ];
     }
 }
