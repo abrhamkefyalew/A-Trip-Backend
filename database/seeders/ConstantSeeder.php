@@ -22,7 +22,7 @@ class ConstantSeeder extends Seeder
             ],
             // [
             //     'title' => Constant::OTHER_CONSTANT_ONE,
-            //     'percent_value' => 1,
+            //     'percent_value' => 100,
             // ],
             // [
             //     'title' => Constant::OTHER_CONSTANT_TWO,
@@ -30,7 +30,7 @@ class ConstantSeeder extends Seeder
             // ],
             // [
             //     'title' => Constant::OTHER_CONSTANT_THREE,
-            //     'percent_value' => 1,
+            //     'percent_value' => 50,
             // ],
         ];
 
