@@ -164,14 +164,25 @@ class ContractDetailController extends Controller
      */
     public function update(UpdateContractDetailRequest $request, ContractDetail $contractDetail)
     {
-        //
-        // $var = DB::transaction(function () {
+        
+        $var = DB::transaction(function () use ($request, $contractDetail) {
             
-        //    // NOTE : - // the "is_available" column in CONTRACT_DETAILs table should NOT be update separately,  // we ONLY update "is_available" when Terminating or UnTerminating the PARENT CONTRACT
-            
-        // });
+           // NOTE : - // the "is_available" column in CONTRACT_DETAILs table should NOT be update separately,  // we ONLY update "is_available" when Terminating or UnTerminating the PARENT CONTRACT
 
-        // return $var;
+           $success = $contractDetail->update($request->validated());
+            //
+            if (!$success) {
+                return response()->json(['message' => 'Update Failed'], 422);
+            }
+
+
+            $updatedContractDetail = ContractDetail::find($contractDetail->id);
+
+            return ContractDetailResource::make($updatedContractDetail->load('contract', 'vehicleName'));
+            
+        });
+
+        return $var;
     }
 
     /**
