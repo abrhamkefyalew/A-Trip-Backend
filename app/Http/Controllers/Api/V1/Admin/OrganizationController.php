@@ -154,11 +154,49 @@ class OrganizationController extends Controller
     public function update(UpdateOrganizationRequest $request, Organization $organization)
     {
         //
-        // $var = DB::transaction(function () {
+        $var = DB::transaction(function () use ($request, $organization) {
             
-        // });
+            $success = $organization->update($request->validated());
+            //
+            if (!$success) {
+                return response()->json(['message' => 'Update Failed'], 422);
+            }
+            
 
-        // return $var;
+            if ($request->has('country') || $request->has('city')) {
+                if ($organization->address) {
+                    $organization->address()->update([
+                        'country' => $request->input('country'),
+                        'city' => $request->input('city'),
+                    ]);
+                } else {
+                    $organization->address()->create([
+                        'country' => $request->input('country'),
+                        'city' => $request->input('city'),
+                    ]);
+                }
+            }
+
+
+
+            // MEDIA CODE SECTION
+            // REMEMBER = (clearMedia) ALL media should NOT be Cleared at once, media should be cleared by id, like one picture. so the whole collection should NOT be cleared using $clearMedia the whole collection // check abrham samson // remember
+            //
+            if ($request->has('organization_profile_image')) {
+                $file = $request->file('organization_profile_image');
+                $clearMedia = $request->input('organization_profile_image_remove', false);
+                $collectionName = Organization::ORGANIZATION_PROFILE_PICTURE;
+                MediaService::storeImage($organization, $file, $clearMedia, $collectionName);
+            }
+
+            
+            $updatedOrganization = Organization::find($organization->id);
+
+            return OrganizationResource::make($updatedOrganization->load('media', 'address', 'contracts' /*, 'orders'*/ , 'organizationUsers'));
+
+        });
+
+        return $var;
     }
 
     /**

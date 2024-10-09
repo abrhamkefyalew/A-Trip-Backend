@@ -123,11 +123,50 @@ class OrganizationUserController extends Controller
     public function update(UpdateOrganizationUserRequest $request, OrganizationUser $organizationUser)
     {
         //
-        // $var = DB::transaction(function () {
+        $var = DB::transaction(function () use ($request, $organizationUser) {
             
-        // });
+            $success = $organizationUser->update($request->validated());
+            //
+            if (!$success) {
+                return response()->json(['message' => 'Update Failed'], 422);
+            }
+            
 
-        // return $var;
+            if ($request->has('country') || $request->has('city')) {
+                if ($organizationUser->address) {
+                    $organizationUser->address()->update([
+                        'country' => $request->input('country'),
+                        'city' => $request->input('city'),
+                    ]);
+                } else {
+                    $organizationUser->address()->create([
+                        'country' => $request->input('country'),
+                        'city' => $request->input('city'),
+                    ]);
+                }
+            }
+
+
+
+            // MEDIA CODE SECTION
+            // REMEMBER = (clearMedia) ALL media should NOT be Cleared at once, media should be cleared by id, like one picture. so the whole collection should NOT be cleared using $clearMedia the whole collection // check abrham samson // remember
+            //
+            if ($request->has('organization_user_profile_image')) {
+                $file = $request->file('organization_user_profile_image');
+                $clearMedia = $request->input('organization_user_profile_image_remove', false);
+                $collectionName = OrganizationUser::ORGANIZATION_USER_PROFILE_PICTURE;
+                MediaService::storeImage($organizationUser, $file, $clearMedia, $collectionName);
+            }
+
+            
+            $updatedOrganizationUser = OrganizationUser::find($organizationUser->id);
+
+            return OrganizationUserResource::make($updatedOrganizationUser->load('media', 'organization', 'address'));
+
+        });
+
+        return $var;
+
     }
 
     /**

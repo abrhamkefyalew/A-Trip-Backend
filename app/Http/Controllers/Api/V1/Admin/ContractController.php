@@ -147,17 +147,40 @@ class ContractController extends Controller
     public function update(UpdateContractRequest $request, Contract $contract)
     {
         //
-        // contract_name, contract_description = we can only update these two
+        // contract_name, contract_description = we should only update these two // check abrham samson // ask samson
         // 
         //
         //
-        // $var = DB::transaction(function () {
-        
-        //      
-        
-        // });
+       
+        $var = DB::transaction(function () use ($request, $contract) {
+            
+            $success = $contract->update($request->validated());
+            //
+            if (!$success) {
+                return response()->json(['message' => 'Update Failed'], 422);
+            }
 
-        // return $var;
+
+
+            // MEDIA CODE SECTION
+            // REMEMBER = (clearMedia) ALL media should NOT be Cleared at once, media should be cleared by id, like one picture. so the whole collection should NOT be cleared using $clearMedia the whole collection // check abrham samson // remember
+            //
+            if ($request->has('organization_contract_file')) {
+                $file = $request->file('organization_contract_file');
+                $clearMedia = $request->input('organization_contract_file_remove', false);
+                $collectionName = Contract::ORGANIZATION_CONTRACT_FILE;
+                MediaService::storeFile($contract, $file, $clearMedia, $collectionName);
+            }
+
+            
+            $updatedContract = Contract::find($contract->id);
+
+            return ContractResource::make($updatedContract->load('media', 'contractDetails', 'organization'));
+
+        });
+
+        return $var;
+
     }
 
 

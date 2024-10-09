@@ -172,7 +172,7 @@ class VehicleController extends Controller
                 MediaService::storeImage($vehicle, $file, $clearMedia, $collectionName);
             }
 
-            return VehicleResource::make($vehicle->load('media', 'vehicleName', 'address', 'supplier', 'driver', 'bank'));
+            return VehicleResource::make($vehicle->load('media', 'vehicleName', 'address', 'driver', 'bank'));
 
 
             
@@ -250,7 +250,35 @@ class VehicleController extends Controller
 
 
             // MEDIA CODE SECTION
-            // do not forget to do the MEDIA UPDATE also // check abrham samson // remember
+            // REMEMBER = (clearMedia) ALL media should NOT be Cleared at once, media should be cleared by id, like one picture. so the whole collection should NOT be cleared using $clearMedia the whole collection // check abrham samson // remember
+            //
+            if ($request->has('vehicle_libre_image')) {
+                $file = $request->file('vehicle_libre_image');
+                $clearMedia = $request->input('vehicle_libre_image_remove', false); 
+                $collectionName = Vehicle::VEHICLE_LIBRE_PICTURE;
+                MediaService::storeImage($vehicle, $file, $clearMedia, $collectionName);
+            }
+            
+            if ($request->has('vehicle_third_person_image')) {
+                $file = $request->file('vehicle_third_person_image');
+                $clearMedia = $request->input('vehicle_third_person_image_remove', false);
+                $collectionName = Vehicle::VEHICLE_THIRD_PERSON_PICTURE;
+                MediaService::storeImage($vehicle, $file, $clearMedia, $collectionName);
+            }
+
+            if ($request->has('vehicle_power_of_attorney_image')) {
+                $file = $request->file('vehicle_power_of_attorney_image');
+                $clearMedia = $request->input('vehicle_power_of_attorney_image_remove', false);
+                $collectionName = Vehicle::VEHICLE_POWER_OF_ATTORNEY_PICTURE;
+                MediaService::storeImage($vehicle, $file, $clearMedia, $collectionName);
+            }
+
+            if ($request->has('vehicle_profile_image')) {
+                $file = $request->file('vehicle_profile_image');
+                $clearMedia = (isset($request['vehicle_profile_image_remove']) ? $request['vehicle_profile_image_remove'] : false);
+                $collectionName = Vehicle::VEHICLE_PROFILE_PICTURE;
+                MediaService::storeImage($vehicle, $file, $clearMedia, $collectionName);
+            }
 
 
             $updatedVehicle = Vehicle::find($vehicle->id);

@@ -25,7 +25,9 @@ class UpdateVehicleRequest extends FormRequest
     {
         return [
             //
+            // there should be separate endpoint to update this 
             // 'vehicle_name_id' => 'sometimes|integer|exists:vehicle_names,id',
+
             'driver_id' => [
                 'sometimes', 
                 'nullable',
@@ -84,32 +86,50 @@ class UpdateVehicleRequest extends FormRequest
             ],
 
 
-            // TODO 
-            // 'vehicle_libre_image' => [
-            //     'sometimes',
-            //     'image',
-            //     'max:3072',
-            // ],
-            // 'vehicle_third_person_image' => [
-            //     'sometimes',
-            //     'image',
-            //     'max:3072',
-            // ],
-            // 'vehicle_power_of_attorney_image' => [
-            //     'sometimes',
-            //     'image',
-            //     'max:3072',
-            // ],
-            // 'vehicle_profile_image' => [
-            //     'sometimes',
-            //     'image',
-            //     'max:3072',
-            // ],
+            // MEDIA ADD 
 
-            // // also when doing remove image try to do it for specific collection
-            // 'remove_image' => [
-            //     'sometimes', 'boolean',
-            // ],
+            'vehicle_libre_image' => [
+                'sometimes',
+                'image',
+                'max:3072',
+            ],
+            'vehicle_third_person_image' => [
+                'sometimes',
+                'image',
+                'max:3072',
+            ],
+            'vehicle_power_of_attorney_image' => [
+                'sometimes',
+                'image',
+                'max:3072',
+            ],
+            'vehicle_profile_image' => [
+                'sometimes',
+                'image',
+                'max:3072',
+            ],
+
+
+            // MEDIA REMOVE
+            
+            // GOOD IDEA = ALL media should NOT be Cleared at once, media should be cleared by id, like one picture. so the whole collection should NOT be cleared using $clearMedia the whole collection
+            
+
+            // BAD IDEA = when doing remove image try to do it for specific collection
+            'vehicle_libre_image_remove' => [
+                'sometimes', 'boolean',
+            ],
+            'vehicle_third_person_image_remove' => [
+                'sometimes', 'boolean',
+            ],
+            'vehicle_power_of_attorney_image_remove' => [
+                'sometimes', 'boolean',
+            ],
+            'vehicle_profile_image_remove' => [
+                'sometimes', 'boolean',
+            ],
+
+
         ];
     }
 }
