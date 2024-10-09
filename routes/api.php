@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\V1\Admin\OrderController;
 use App\Http\Controllers\Api\V1\Admin\DriverController;
 use App\Http\Controllers\Api\V1\Admin\InvoiceController;
 use App\Http\Controllers\Api\V1\Admin\VehicleController;
+use App\Http\Controllers\Api\V1\Admin\ConstantController;
 use App\Http\Controllers\Api\V1\Admin\ContractController;
 use App\Http\Controllers\Api\V1\Admin\CustomerController;
 use App\Http\Controllers\Api\V1\Admin\SupplierController;
@@ -125,6 +126,17 @@ Route::prefix('v1')->group(function () {
                 }); 
             });
 
+
+            Route::prefix('constants')->group(function () {
+                Route::post('/', [ConstantController::class, 'store']);
+                Route::get('/', [ConstantController::class, 'index']);
+                Route::prefix('/{constant}')->group(function () {
+                    Route::get('/', [ConstantController::class, 'show']);
+                    Route::put('/', [ConstantController::class, 'update']);
+                    Route::delete('/', [ConstantController::class, 'destroy']);
+                }); 
+            });
+            
 
             Route::prefix('banks')->group(function () {
                 Route::post('/', [BankController::class, 'store']);

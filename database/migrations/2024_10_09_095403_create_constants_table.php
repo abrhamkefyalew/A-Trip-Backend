@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('constants', function (Blueprint $table) {
             $table->id()->from(10000);
             
-            $table->string('title')->nullable()->unique(); // this column must always be constant value from Constant Model (i.e Constant::ORDER_USER_INITIAL_PAYMENT_PERCENT)
+            $table->string('title')->unique(); // this column must always be constant value from Constant Model (i.e Constant::ORDER_USER_INITIAL_PAYMENT_PERCENT)
             $table->integer('percent_value')->default(25); // this column holds the percent value of that constant table 
                                                            // these can not be 0 for the moment, it means there must always be initial payment 
                                                            // the default value of this column is set to 25 (i.e 25 %)

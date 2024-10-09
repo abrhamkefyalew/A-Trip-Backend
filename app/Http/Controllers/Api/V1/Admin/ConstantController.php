@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Models\Constant;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Services\Api\V1\FilteringService;
 use App\Http\Requests\Api\V1\AdminRequests\StoreConstantRequest;
@@ -63,11 +64,22 @@ class ConstantController extends Controller
     public function update(UpdateConstantRequest $request, Constant $constant)
     {
         //
-        // $var = DB::transaction(function () {
-            
-        // });
+        $var = DB::transaction(function () use($request, $constant) {
 
-        // return $var;
+            // this is not needed, if the percent_value is not sent in the request, then $request->validated() will be empty array, Laravel will not do update on any field, the table and the data in the table will remain as it was
+            // if (! $request->has('percent_value')) {
+            //     return response()->json(['message' => 'must send percent value.'], 404); 
+            // }
+            // if (! isset($request['percent_value'])) { 
+            //     return response()->json(['message' => 'must set percent value.'], 404); 
+            // }
+
+            $constant->update($request->validated());
+
+            return ConstantResource::make($constant);
+        });
+
+        return $var;
     }
 
     /**

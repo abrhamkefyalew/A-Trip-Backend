@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\Supplier;
 use Carbon\Carbon;
 use App\Models\Bid;
 use App\Models\Vehicle;
+use App\Models\Constant;
 use App\Models\Supplier;
 use App\Models\OrderUser;
 use Illuminate\Http\Request;
@@ -247,7 +248,26 @@ class OrderUserController extends Controller
 
             // calculate the initial payment for this bid entry
             $priceTotalFromRequest = (int) $request['price_total'];
-            $initialPaymentMultiplierConstant = ((int) Bid::BID_ORDER_INITIAL_PAYMENT)/100;
+            
+            $constant = Constant::where('title', Constant::ORDER_USER_INITIAL_PAYMENT_PERCENT)->first();
+            //
+            if (!$constant) {
+                return response()->json(['message' => 'initial payment percent for individual customers orders is not found table.  ORDER_USER_INITIAL_PAYMENT_PERCENT from constants table does not exist'], 403); 
+            }
+            // check if $constant->percent_value is NULL
+            if ($constant->percent_value === null) {
+                return response()->json([
+                    'message' => 'Invalid percent value retrieved from the constants table. The percent value can not be null.'
+                ], 403);
+            }
+            // Check if the percent value is within the valid range
+            if ($constant->percent_value < 1 || $constant->percent_value > 100) {
+                return response()->json([
+                    'message' => 'Invalid percent value retrieved from the constants table. The percent value must be between 1 and 100.'
+                ], 403);
+            }
+            $orderUserInitialPaymentPercentConstant = $constant->percent_value;
+            $initialPaymentMultiplierConstant = ((int) $orderUserInitialPaymentPercentConstant)/100;
 
             $priceInitial = $priceTotalFromRequest * $initialPaymentMultiplierConstant;
             

@@ -33,6 +33,6 @@ class Bid extends Model
 
 
     // constants // initial payment percent
-    public const BID_ORDER_INITIAL_PAYMENT = '25';      // these can not be 0 for the moment, it means there must always be initial payment 
+    // public const BID_ORDER_INITIAL_PAYMENT = '25';      // these can not be 0 for the moment, it means there must always be initial payment 
 
 }

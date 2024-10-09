@@ -25,6 +25,7 @@ class UpdateConstantRequest extends FormRequest
     {
         return [
             //
+            'percent_value' => 'sometimes|integer|between:1,100',
         ];
     }
 }
