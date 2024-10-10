@@ -13,7 +13,6 @@ use App\Http\Controllers\Controller;
 use App\Services\Api\V1\Customer\PrPaymentService;
 use App\Http\Requests\Api\V1\CustomerRequests\AcceptBidRequest;
 use App\Http\Resources\Api\V1\OrderUserResources\OrderUserForCustomerResource;
-use App\Http\Resources\Api\V1\OrderUserResources\OrderUserForSupplierResource;
 
 class BidController extends Controller
 {
