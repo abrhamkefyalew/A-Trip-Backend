@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Services\Api\V1\Customer\PrPaymentService;
 use App\Http\Requests\Api\V1\CustomerRequests\AcceptBidRequest;
+use App\Http\Resources\Api\V1\OrderUserResources\OrderUserForCustomerResource;
 use App\Http\Resources\Api\V1\OrderUserResources\OrderUserForSupplierResource;
 
 class BidController extends Controller
@@ -206,7 +207,7 @@ class BidController extends Controller
             return response()->json(
                 [
                     'payment_link' => $valuePayment,
-                    'data' => OrderUserForSupplierResource::make($updatedOrderUser->load('vehicleName', 'vehicle', 'driver', 'bids', 'invoiceUsers')),
+                    'data' => OrderUserForCustomerResource::make($updatedOrderUser->load('vehicleName', 'vehicle', 'driver', 'bids', 'invoiceUsers')),
                 ],
                 200
             );

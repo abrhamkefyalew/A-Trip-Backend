@@ -24,7 +24,7 @@ class UpdateOrganizationUserRequest extends FormRequest
     {
         return [
             //
-            'organization_id' => 'sometimes|integer|exists:organizations,id',
+            
             'first_name' => [
                 'sometimes', 'string', 'regex:/^\S*$/u', 'alpha',
             ],
