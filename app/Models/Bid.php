@@ -31,6 +31,11 @@ class Bid extends Model
         return $this->belongsTo(OrderUser::class);
     }
 
+    public function vehicle()
+    {
+        return $this->belongsTo(Vehicle::class);
+    }
+
 
 
 }
