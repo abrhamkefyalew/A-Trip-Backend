@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Models\Trip;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Validation\Rule;
 use App\Models\OrganizationUser;
 use Illuminate\Support\Facades\DB;
@@ -269,6 +270,41 @@ class TripController extends Controller
      */
     public function destroy(Trip $trip)
     {
-        //
+        // $this->authorize('delete', $trip);
+
+        $var = DB::transaction(function () use ($trip) {
+
+            $trip->delete();
+
+            return response()->json(true, 200);
+
+        });
+
+        return $var;
     }
+
+
+    public function restore(string $id)
+    {
+        $trip = Trip::withTrashed()->find($id);
+
+        // $this->authorize('restore', $trip);
+
+        $var = DB::transaction(function () use ($trip) {
+            
+            if (!$trip) {
+                abort(404);    
+            }
+    
+            $trip->restore();
+    
+            return response()->json(true, 200);
+
+        });
+
+        return $var;
+        
+    }
+
+
 }

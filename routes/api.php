@@ -128,6 +128,7 @@ Route::prefix('v1')->group(function () {
                     Route::get('/', [BankController::class, 'show']);
                     Route::put('/', [BankController::class, 'update']);
                     Route::delete('/', [BankController::class, 'destroy']);
+                    Route::post('/restore', [BankController::class, 'restore']);
                 }); 
             });
 
@@ -383,10 +384,12 @@ Route::prefix('v1')->group(function () {
 
 
             Route::prefix('organization_user_profile')->group(function () {
-                //
+                Route::post('/', [OrganizationUserForOrganizationController::class, 'store']);
+                Route::get('/', [OrganizationUserForOrganizationController::class, 'index']);
                 Route::prefix('/{organizationUser}')->group(function () {
                     Route::get('/', [OrganizationUserForOrganizationController::class, 'show']);
                     Route::put('/', [OrganizationUserForOrganizationController::class, 'update']);
+                    Route::delete('/', [OrganizationUserForOrganizationController::class, 'destroy']);
                 }); 
             });
 

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Models\Bank;
+use App\Models\Vehicle;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Services\Api\V1\FilteringService;
@@ -83,6 +85,54 @@ class BankController extends Controller
      */
     public function destroy(Bank $bank)
     {
-        //
+        // $this->authorize('delete', $bank);
+
+        $var = DB::transaction(function () use ($bank) {
+
+            if (Vehicle::where('bank_id', $bank->id)->exists()) {
+                
+                // this works
+                // return response()->json([
+                //     'message' => 'Cannot delete the bank because it is in use by Vehicles.',
+                // ], 409);
+
+                // this also works
+                return response()->json([
+                    'message' => 'Cannot delete the bank because it is in use by Vehicles.'
+                ], Response::HTTP_CONFLICT);
+            }
+
+            $bank->delete();
+
+            return response()->json(true, 200);
+
+        });
+
+        return $var;
     }
+
+    
+    public function restore(string $id)
+    {
+        $bank = Bank::withTrashed()->find($id);
+
+        // $this->authorize('restore', $bank);
+
+        $var = DB::transaction(function () use ($bank) {
+            
+            if (!$bank) {
+                abort(404);    
+            }
+    
+            $bank->restore();
+    
+            return response()->json(true, 200);
+
+        });
+
+        return $var;
+        
+    }
+
+
 }

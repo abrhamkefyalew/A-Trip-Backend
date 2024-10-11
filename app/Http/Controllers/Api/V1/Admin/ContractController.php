@@ -6,6 +6,8 @@ use Carbon\Carbon;
 use App\Models\Contract;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use App\Models\ContractDetail;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Services\Api\V1\MediaService;
@@ -209,6 +211,55 @@ class ContractController extends Controller
      */
     public function destroy(Contract $contract)
     {
-        // there should not be contract delete
+        // $this->authorize('delete', $contract);
+
+        $var = DB::transaction(function () use ($contract) {
+
+            if (ContractDetail::where('contract_id', $contract->id)->exists()) {
+                
+                // this works
+                // return response()->json([
+                //     'message' => 'Cannot delete the contract because it is in use by Contract Details.',
+                // ], 409);
+
+                // this also works
+                return response()->json([
+                    'message' => 'Cannot delete the contract because it is in use by Contract Details.'
+                ], Response::HTTP_CONFLICT);
+            }
+
+            $contract->delete();
+
+            return response()->json(true, 200);
+
+        });
+
+        return $var;
     }
+
+
+    public function restore(string $id)
+    {
+        $contract = Contract::withTrashed()->find($id);
+
+        // $this->authorize('restore', $contract);
+
+        $var = DB::transaction(function () use ($contract) {
+            
+            if (!$contract) {
+                abort(404);    
+            }
+    
+            $contract->restore();
+    
+            return response()->json(true, 200);
+
+        });
+
+        return $var;
+        
+    }
+
+
+
 }

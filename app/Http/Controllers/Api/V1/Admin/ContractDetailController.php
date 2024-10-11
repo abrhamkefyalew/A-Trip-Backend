@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Api\V1\Admin;
 
+use App\Models\Order;
 use App\Models\Contract;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use App\Models\ContractDetail;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -190,6 +192,54 @@ class ContractDetailController extends Controller
      */
     public function destroy(ContractDetail $contractDetail)
     {
-        // for now we will not do this // because there may be order by contract_detail_id
+        // $this->authorize('delete', $contractDetail);
+
+        $var = DB::transaction(function () use ($contractDetail) {
+
+            if (Order::where('contract_detail_id', $contractDetail->id)->exists()) {
+                
+                // this works
+                // return response()->json([
+                //     'message' => 'Cannot delete the Contract Detail because it is in use by organization Orders.',
+                // ], 409);
+
+                // this also works
+                return response()->json([
+                    'message' => 'Cannot delete the Contract Detail because it is in use by organization Orders.'
+                ], Response::HTTP_CONFLICT);
+            }
+
+            $contractDetail->delete();
+
+            return response()->json(true, 200);
+
+        });
+
+        return $var;
     }
+
+
+    public function restore(string $id)
+    {
+        $contractDetail = ContractDetail::withTrashed()->find($id);
+
+        // $this->authorize('restore', $contractDetail);
+
+        $var = DB::transaction(function () use ($contractDetail) {
+            
+            if (!$contractDetail) {
+                abort(404);    
+            }
+    
+            $contractDetail->restore();
+    
+            return response()->json(true, 200);
+
+        });
+
+        return $var;
+        
+    }
+
+
 }

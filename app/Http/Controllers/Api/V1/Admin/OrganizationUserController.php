@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Api\V1\Admin;
 
+use App\Models\Trip;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use App\Models\OrganizationUser;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -174,6 +176,54 @@ class OrganizationUserController extends Controller
      */
     public function destroy(OrganizationUser $organizationUser)
     {
-        //
+        // $this->authorize('delete', $organizationUser);
+
+        $var = DB::transaction(function () use ($organizationUser) {
+
+            if (Trip::where('organization_user_id', $organizationUser->id)->exists()) {
+                
+                // this works
+                // return response()->json([
+                //     'message' => 'Cannot delete the Organization User because it is in use by Trips.',
+                // ], 409);
+
+                // this also works
+                return response()->json([
+                    'message' => 'Cannot delete the Organization User because it is in use by Trips.'
+                ], Response::HTTP_CONFLICT);
+            }
+
+            $organizationUser->delete();
+
+            return response()->json(true, 200);
+
+        });
+
+        return $var;
     }
+
+    
+    public function restore(string $id)
+    {
+        $organizationUser = OrganizationUser::withTrashed()->find($id);
+
+        // $this->authorize('restore', $organizationUser);
+
+        $var = DB::transaction(function () use ($organizationUser) {
+            
+            if (!$organizationUser) {
+                abort(404);    
+            }
+    
+            $organizationUser->restore();
+    
+            return response()->json(true, 200);
+
+        });
+
+        return $var;
+        
+    }
+
+    
 }

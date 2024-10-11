@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1\Admin;
 
+use App\Models\Bid;
+use App\Models\Order;
 use App\Models\Vehicle;
+use App\Models\OrderUser;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Services\Api\V1\MediaService;
@@ -292,6 +296,80 @@ class VehicleController extends Controller
      */
     public function destroy(Vehicle $vehicle)
     {
-        //
+        // $this->authorize('delete', $vehicle);
+
+        $var = DB::transaction(function () use ($vehicle) {
+
+            if (Order::where('vehicle_id', $vehicle->id)->exists()) {
+                
+                // this works
+                // return response()->json([
+                //     'message' => 'Cannot delete the vehicle because it is in use by organization Orders.',
+                // ], 409);
+
+                // this also works
+                return response()->json([
+                    'message' => 'Cannot delete the vehicle because it is in use by organization Orders.'
+                ], Response::HTTP_CONFLICT);
+            }
+
+            if (Bid::where('vehicle_id', $vehicle->id)->exists()) {
+                
+                // this works
+                // return response()->json([
+                //     'message' => 'Cannot delete the vehicle because it is in use by Bids.',
+                // ], 409);
+
+                // this also works
+                return response()->json([
+                    'message' => 'Cannot delete the vehicle because it is in use by Bids.'
+                ], Response::HTTP_CONFLICT);
+            }
+
+            if (OrderUser::where('vehicle_id', $vehicle->id)->exists()) {
+                
+                // this works
+                // return response()->json([
+                //     'message' => 'Cannot delete the vehicle because it is in use by individual customer Orders.',
+                // ], 409);
+
+                // this also works
+                return response()->json([
+                    'message' => 'Cannot delete the vehicle because it is in use by individual customer Orders.'
+                ], Response::HTTP_CONFLICT);
+            }
+
+            $vehicle->delete();
+
+            return response()->json(true, 200);
+
+        });
+
+        return $var;
     }
+
+
+    public function restore(string $id)
+    {
+        $vehicle = Vehicle::withTrashed()->find($id);
+
+        // $this->authorize('restore', $vehicle);
+
+        $var = DB::transaction(function () use ($vehicle) {
+            
+            if (!$vehicle) {
+                abort(404);    
+            }
+    
+            $vehicle->restore();
+    
+            return response()->json(true, 200);
+
+        });
+
+        return $var;
+        
+    }
+
+    
 }

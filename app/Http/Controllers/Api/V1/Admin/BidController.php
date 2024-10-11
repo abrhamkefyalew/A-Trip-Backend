@@ -9,6 +9,7 @@ use App\Models\Constant;
 use App\Models\Supplier;
 use App\Models\OrderUser;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\V1\BidResources\BidResource;
@@ -251,6 +252,41 @@ class BidController extends Controller
      */
     public function destroy(Bid $bid)
     {
-        //
+        // $this->authorize('delete', $bid);
+
+        $var = DB::transaction(function () use ($bid) {
+
+            $bid->delete();
+
+            return response()->json(true, 200);
+
+        });
+
+        return $var;
     }
+
+
+    public function restore(string $id)
+    {
+        $bid = Bid::withTrashed()->find($id);
+
+        // $this->authorize('restore', $bid);
+
+        $var = DB::transaction(function () use ($bid) {
+            
+            if (!$bid) {
+                abort(404);    
+            }
+    
+            $bid->restore();
+    
+            return response()->json(true, 200);
+
+        });
+
+        return $var;
+        
+    }
+
+
 }

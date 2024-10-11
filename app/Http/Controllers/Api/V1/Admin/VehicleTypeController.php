@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Api\V1\Admin;
 
+use App\Models\VehicleName;
 use App\Models\VehicleType;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Services\Api\V1\FilteringService;
@@ -82,6 +84,54 @@ class VehicleTypeController extends Controller
      */
     public function destroy(VehicleType $vehicleType)
     {
-        //
+        // $this->authorize('delete', $vehicleType);
+
+        $var = DB::transaction(function () use ($vehicleType) {
+
+            if (VehicleName::where('vehicle_type_id', $vehicleType->id)->exists()) {
+                
+                // this works
+                // return response()->json([
+                //     'message' => 'Cannot delete the vehicleType because it is in use by Vehicle Names category.',
+                // ], 409);
+
+                // this also works
+                return response()->json([
+                    'message' => 'Cannot delete the vehicleType because it is in use by Vehicle Names category.'
+                ], Response::HTTP_CONFLICT);
+            }
+
+            $vehicleType->delete();
+
+            return response()->json(true, 200);
+
+        });
+
+        return $var;
     }
+
+
+    public function restore(string $id)
+    {
+        $vehicleType = VehicleType::withTrashed()->find($id);
+        
+        // $this->authorize('restore', $vehicleType);
+
+        $var = DB::transaction(function () use ($vehicleType) {
+            
+            if (!$vehicleType) {
+                abort(404);    
+            }
+    
+            $vehicleType->restore();
+    
+            return response()->json(true, 200);
+
+        });
+
+        return $var;
+        
+    }
+
+
 }
