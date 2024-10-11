@@ -23,10 +23,10 @@ class PayInvoiceCallBackTelebirrRequest extends FormRequest
     {
         return [
             //
-            'invoice_id' => [
+            'invoice_user_id' => [
                 'required', 
                 'integer', 
-                'exists:invoices,id'
+                'exists:invoice_users,id'
             ],
             
             // 'invoice_id' => 'required|integer|exists:invoices,id',

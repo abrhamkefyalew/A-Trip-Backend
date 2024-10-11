@@ -72,6 +72,6 @@ class AdminController extends Controller
      */
     public function destroy(Admin $admin)
     {
-        //
+        // $this->authorize('delete', $admin);
     }
 }

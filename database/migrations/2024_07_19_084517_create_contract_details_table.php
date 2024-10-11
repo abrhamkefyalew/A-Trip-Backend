@@ -30,7 +30,7 @@ return new class extends Migration
             // $table->decimal('price_contract', 10, 2); 
             // $table->decimal('price_vehicle_payment', 10, 2); 
 
-            $table->decimal('tax', 4, 2)->default(ContractDetail::CONTRACT_DETAIL_DEFAULT_TAX_15);
+            $table->decimal('tax', 4, 2)->default(ContractDetail::CONTRACT_DETAIL_DEFAULT_TAX_15); // tax constants in percent
 
             $table->boolean('is_available')->default(1);  
                                             // the "is_available" column in CONTRACT_DETAILs table should NOT be update separately,  // we ONLY update "is_available" when Terminating or UnTerminating the PARENT CONTRACT                                                     

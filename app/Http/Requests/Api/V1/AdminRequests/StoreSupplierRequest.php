@@ -34,28 +34,28 @@ class StoreSupplierRequest extends FormRequest
                 'required', 'string', 'regex:/^\S*$/u', 'alpha',
             ],
             'email' => [
-                'sometimes', 'nullable', 'email', Rule::unique('suppliers'),
+                'required', 'email', Rule::unique('suppliers'),
             ],
             'phone_number' => [
-                'required', 'numeric',  Rule::unique('suppliers'),
+                'required', 'numeric', Rule::unique('suppliers'),
             ],
             'is_active' => [
-                'required', 'boolean',
+                'sometimes', 'boolean',
             ],
 
 
             // this column can ONLY be Set by the SUPER_ADMIN, 
             // if Supplier is registering himself , he can NOT send the is_approved field
             'is_approved' => [
-                'required', 'nullable', 'boolean',
+                'sometimes', 'boolean',
             ],
 
 
 
             // we are using OTP so this is commented, until further notice
-            // 'password' => [
-            //     'required', 'min:8', 'confirmed',
-            // ],
+            'password' => [
+                'required', 'min:8', 'confirmed',
+            ],
 
             'country' => [
                 'sometimes', 'string',

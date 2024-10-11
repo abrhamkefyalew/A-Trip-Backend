@@ -30,8 +30,8 @@ class UpdateVehicleTypeRequest extends FormRequest
                 'sometimes', 
                 'string', 
                 Rule::unique('vehicle_types')->ignore($this->vehicleType->id),
-            ],
-            'vehicle_type_description' => ['sometimes', 'string'],
+            ],  // should NOT be nullable // since name can NOT be updated to be null
+            'vehicle_type_description' => ['sometimes', 'nullable', 'string'],  // should be nullable // since description can be updated to be empty or null
         ];
     }
 }

@@ -21,10 +21,10 @@ class SupplierAuthController extends Controller
         // better use load than with, since here after all we get the data , we are checking if the password does match,   
         // if password does not match all the data and relation and Eager Load is wasted and the data will NOT be returned
         // do first get only the supplier and if the password matches then get the other relations using load()
-        $supplier = Supplier::with(['address', 'media', 'vehicles'])->where('email', $request->email)->where('is_active', 1)->where('is_approved', 1)->first(); 
+        $supplier = Supplier::with(['address', 'media', 'vehicles'])->where('email', $request->email)->where('is_approved', 1)->first(); 
 
         if ($supplier) {
-            // if (Hash::check($request->password, $supplier->password)) {
+            if (Hash::check($request->password, $supplier->password)) {
                 $tokenResult = $supplier->createToken('Personal Access Token', ['access-supplier']);
                 $expiresAt = now()->addMinutes(9950); // Set the expiration time to 50 minutes from now - -   -   -   -   now() = is helper function of laravel, - - - (it is NOT Carbon's)
                 $token = $tokenResult->accessToken;
@@ -43,7 +43,7 @@ class SupplierAuthController extends Controller
                     ],
                     200
                 );
-            // }
+            }
         }
 
         return response()->json(['message' => 'Login failed. Incorrect email or password.'], 400);

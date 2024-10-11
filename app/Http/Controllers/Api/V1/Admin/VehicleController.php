@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1\Admin;
 
+use App\Models\Bid;
+use App\Models\Order;
 use App\Models\Vehicle;
+use App\Models\OrderUser;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Services\Api\V1\MediaService;
@@ -219,11 +223,72 @@ class VehicleController extends Controller
 
 
         //
-        // $var = DB::transaction(function () {
+        $var = DB::transaction(function () use ($request, $vehicle) {
             
-        // });
+            $success = $vehicle->update($request->validated());
+            //
+            if (!$success) {
+                return response()->json(['message' => 'Update Failed'], 422);
+            }
 
-        // return $var;
+
+            if ($request->has('country') || $request->has('city')) {
+                if ($vehicle->address) {
+                    $vehicle->address()->update([
+                        'country' => $request->input('country'),
+                        'city' => $request->input('city'),
+                    ]);
+                } else {
+                    $vehicle->address()->create([
+                        'country' => $request->input('country'),
+                        'city' => $request->input('city'),
+                    ]);
+                }
+            }
+
+
+
+            // MEDIA CODE SECTION
+            // REMEMBER = (clearMedia) ALL media should NOT be Cleared at once, media should be cleared by id, like one picture. so the whole collection should NOT be cleared using $clearMedia the whole collection // check abrham samson // remember
+            //
+            if ($request->has('vehicle_libre_image')) {
+                $file = $request->file('vehicle_libre_image');
+                $clearMedia = $request->input('vehicle_libre_image_remove', false); 
+                $collectionName = Vehicle::VEHICLE_LIBRE_PICTURE;
+                MediaService::storeImage($vehicle, $file, $clearMedia, $collectionName);
+            }
+            
+            if ($request->has('vehicle_third_person_image')) {
+                $file = $request->file('vehicle_third_person_image');
+                $clearMedia = $request->input('vehicle_third_person_image_remove', false);
+                $collectionName = Vehicle::VEHICLE_THIRD_PERSON_PICTURE;
+                MediaService::storeImage($vehicle, $file, $clearMedia, $collectionName);
+            }
+
+            if ($request->has('vehicle_power_of_attorney_image')) {
+                $file = $request->file('vehicle_power_of_attorney_image');
+                $clearMedia = $request->input('vehicle_power_of_attorney_image_remove', false);
+                $collectionName = Vehicle::VEHICLE_POWER_OF_ATTORNEY_PICTURE;
+                MediaService::storeImage($vehicle, $file, $clearMedia, $collectionName);
+            }
+
+            if ($request->has('vehicle_profile_image')) {
+                $file = $request->file('vehicle_profile_image');
+                $clearMedia = (isset($request['vehicle_profile_image_remove']) ? $request['vehicle_profile_image_remove'] : false);
+                $collectionName = Vehicle::VEHICLE_PROFILE_PICTURE;
+                MediaService::storeImage($vehicle, $file, $clearMedia, $collectionName);
+            }
+
+
+            $updatedVehicle = Vehicle::find($vehicle->id);
+
+            return VehicleResource::make($updatedVehicle->load('media', 'vehicleName', 'address', 'supplier', 'driver', 'bank'));
+
+            
+        });
+
+        return $var;
+        
     }
 
     /**
@@ -231,6 +296,80 @@ class VehicleController extends Controller
      */
     public function destroy(Vehicle $vehicle)
     {
-        //
+        // $this->authorize('delete', $vehicle);
+
+        $var = DB::transaction(function () use ($vehicle) {
+
+            if (Order::where('vehicle_id', $vehicle->id)->exists()) {
+                
+                // this works
+                // return response()->json([
+                //     'message' => 'Cannot delete the vehicle because it is in use by organization Orders.',
+                // ], 409);
+
+                // this also works
+                return response()->json([
+                    'message' => 'Cannot delete the vehicle because it is in use by organization Orders.'
+                ], Response::HTTP_CONFLICT);
+            }
+
+            if (Bid::where('vehicle_id', $vehicle->id)->exists()) {
+                
+                // this works
+                // return response()->json([
+                //     'message' => 'Cannot delete the vehicle because it is in use by Bids.',
+                // ], 409);
+
+                // this also works
+                return response()->json([
+                    'message' => 'Cannot delete the vehicle because it is in use by Bids.'
+                ], Response::HTTP_CONFLICT);
+            }
+
+            if (OrderUser::where('vehicle_id', $vehicle->id)->exists()) {
+                
+                // this works
+                // return response()->json([
+                //     'message' => 'Cannot delete the vehicle because it is in use by individual customer Orders.',
+                // ], 409);
+
+                // this also works
+                return response()->json([
+                    'message' => 'Cannot delete the vehicle because it is in use by individual customer Orders.'
+                ], Response::HTTP_CONFLICT);
+            }
+
+            $vehicle->delete();
+
+            return response()->json(true, 200);
+
+        });
+
+        return $var;
     }
+
+
+    public function restore(string $id)
+    {
+        $vehicle = Vehicle::withTrashed()->find($id);
+
+        // $this->authorize('restore', $vehicle);
+
+        $var = DB::transaction(function () use ($vehicle) {
+            
+            if (!$vehicle) {
+                abort(404);    
+            }
+    
+            $vehicle->restore();
+    
+            return response()->json(true, 200);
+
+        });
+
+        return $var;
+        
+    }
+
+    
 }

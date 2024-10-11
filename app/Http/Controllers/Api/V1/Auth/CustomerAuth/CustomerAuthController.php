@@ -6,6 +6,7 @@ use App\Models\Customer;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
+use App\Services\Api\V1\MediaService;
 use App\Http\Requests\Api\V1\AuthRequests\LoginCustomerRequest;
 use App\Http\Requests\Api\V1\AuthRequests\RegisterCustomerRequest;
 use App\Http\Resources\Api\V1\CustomerResources\CustomerForCustomerResource;
@@ -24,6 +25,13 @@ class CustomerAuthController extends Controller
                 'country' => $request->input('country'),
                 'city' => $request->input('city'),
             ]);
+        }
+
+        if ($request->has('customer_profile_image')) {
+            $file = $request->file('customer_profile_image');
+            $clearMedia = false; // or true // // NO Customer image remove, since it is the first time the driver is being Registered
+            $collectionName = Customer::CUSTOMER_PROFILE_PICTURE;
+            MediaService::storeImage($customer, $file, $clearMedia, $collectionName);
         }
 
         $tokenResult = $customer->createToken('Personal Access Token', ['access-customer']);
@@ -49,7 +57,7 @@ class CustomerAuthController extends Controller
         // better use load than with, since here after all we get the data , we are checking if the password does match, 
         // if password does not match all the data and relation and Eager Load is wasted and the data will NOT be returned
         // do first get only the customer and if the password matches then get the other relations using load()
-        $customer = Customer::with(['address', 'media'])->where('email', $request->email)->where('is_active', 1)->where('is_approved', 1)->first();  // only if is_active = 1 he can login
+        $customer = Customer::with(['address', 'media'])->where('email', $request->email)->where('is_approved', 1)->first();  // only if is_active = 1 he can login
 
         // request()->request->add(['customer-permission-groups' => true]);
 

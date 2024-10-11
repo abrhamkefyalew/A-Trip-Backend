@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Api\V1\Admin;
 
+use App\Models\Trip;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use App\Models\OrganizationUser;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -73,6 +75,7 @@ class OrganizationUserController extends Controller
                 'first_name' => $request['first_name'],
                 'last_name' => $request['last_name'],
                 'email' => $request['email'],
+                'password' => $request['password'],
                 'phone_number' => $request['phone_number'],
                 'is_active' => (int) (isset($request['is_active']) ? $request['is_active'] : 1), // this works
                 'is_admin' => (int) $request->input('is_admin', 0), // this works also
@@ -122,11 +125,50 @@ class OrganizationUserController extends Controller
     public function update(UpdateOrganizationUserRequest $request, OrganizationUser $organizationUser)
     {
         //
-        // $var = DB::transaction(function () {
+        $var = DB::transaction(function () use ($request, $organizationUser) {
             
-        // });
+            $success = $organizationUser->update($request->validated());
+            //
+            if (!$success) {
+                return response()->json(['message' => 'Update Failed'], 422);
+            }
+            
 
-        // return $var;
+            if ($request->has('country') || $request->has('city')) {
+                if ($organizationUser->address) {
+                    $organizationUser->address()->update([
+                        'country' => $request->input('country'),
+                        'city' => $request->input('city'),
+                    ]);
+                } else {
+                    $organizationUser->address()->create([
+                        'country' => $request->input('country'),
+                        'city' => $request->input('city'),
+                    ]);
+                }
+            }
+
+
+
+            // MEDIA CODE SECTION
+            // REMEMBER = (clearMedia) ALL media should NOT be Cleared at once, media should be cleared by id, like one picture. so the whole collection should NOT be cleared using $clearMedia the whole collection // check abrham samson // remember
+            //
+            if ($request->has('organization_user_profile_image')) {
+                $file = $request->file('organization_user_profile_image');
+                $clearMedia = $request->input('organization_user_profile_image_remove', false);
+                $collectionName = OrganizationUser::ORGANIZATION_USER_PROFILE_PICTURE;
+                MediaService::storeImage($organizationUser, $file, $clearMedia, $collectionName);
+            }
+
+            
+            $updatedOrganizationUser = OrganizationUser::find($organizationUser->id);
+
+            return OrganizationUserResource::make($updatedOrganizationUser->load('media', 'organization', 'address'));
+
+        });
+
+        return $var;
+
     }
 
     /**
@@ -134,6 +176,54 @@ class OrganizationUserController extends Controller
      */
     public function destroy(OrganizationUser $organizationUser)
     {
-        //
+        // $this->authorize('delete', $organizationUser);
+
+        $var = DB::transaction(function () use ($organizationUser) {
+
+            if (Trip::where('organization_user_id', $organizationUser->id)->exists()) {
+                
+                // this works
+                // return response()->json([
+                //     'message' => 'Cannot delete the Organization User because it is in use by Trips.',
+                // ], 409);
+
+                // this also works
+                return response()->json([
+                    'message' => 'Cannot delete the Organization User because it is in use by Trips.'
+                ], Response::HTTP_CONFLICT);
+            }
+
+            $organizationUser->delete();
+
+            return response()->json(true, 200);
+
+        });
+
+        return $var;
     }
+
+    
+    public function restore(string $id)
+    {
+        $organizationUser = OrganizationUser::withTrashed()->find($id);
+
+        // $this->authorize('restore', $organizationUser);
+
+        $var = DB::transaction(function () use ($organizationUser) {
+            
+            if (!$organizationUser) {
+                abort(404);    
+            }
+    
+            $organizationUser->restore();
+    
+            return response()->json(true, 200);
+
+        });
+
+        return $var;
+        
+    }
+
+    
 }

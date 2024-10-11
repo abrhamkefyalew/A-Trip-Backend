@@ -6,6 +6,8 @@ use Carbon\Carbon;
 use App\Models\Contract;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use App\Models\ContractDetail;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Services\Api\V1\MediaService;
@@ -147,17 +149,40 @@ class ContractController extends Controller
     public function update(UpdateContractRequest $request, Contract $contract)
     {
         //
-        // contract_name, contract_description = we can only update these two
+        // contract_name, contract_description = we should only update these two // check abrham samson // ask samson
         // 
         //
         //
-        // $var = DB::transaction(function () {
-        
-        //      
-        
-        // });
+       
+        $var = DB::transaction(function () use ($request, $contract) {
+            
+            $success = $contract->update($request->validated());
+            //
+            if (!$success) {
+                return response()->json(['message' => 'Update Failed'], 422);
+            }
 
-        // return $var;
+
+
+            // MEDIA CODE SECTION
+            // REMEMBER = (clearMedia) ALL media should NOT be Cleared at once, media should be cleared by id, like one picture. so the whole collection should NOT be cleared using $clearMedia the whole collection // check abrham samson // remember
+            //
+            if ($request->has('organization_contract_file')) {
+                $file = $request->file('organization_contract_file');
+                $clearMedia = $request->input('organization_contract_file_remove', false);
+                $collectionName = Contract::ORGANIZATION_CONTRACT_FILE;
+                MediaService::storeFile($contract, $file, $clearMedia, $collectionName);
+            }
+
+            
+            $updatedContract = Contract::find($contract->id);
+
+            return ContractResource::make($updatedContract->load('media', 'contractDetails', 'organization'));
+
+        });
+
+        return $var;
+
     }
 
 
@@ -186,6 +211,55 @@ class ContractController extends Controller
      */
     public function destroy(Contract $contract)
     {
-        // there should not be contract delete
+        // $this->authorize('delete', $contract);
+
+        $var = DB::transaction(function () use ($contract) {
+
+            if (ContractDetail::where('contract_id', $contract->id)->exists()) {
+                
+                // this works
+                // return response()->json([
+                //     'message' => 'Cannot delete the contract because it is in use by Contract Details.',
+                // ], 409);
+
+                // this also works
+                return response()->json([
+                    'message' => 'Cannot delete the contract because it is in use by Contract Details.'
+                ], Response::HTTP_CONFLICT);
+            }
+
+            $contract->delete();
+
+            return response()->json(true, 200);
+
+        });
+
+        return $var;
     }
+
+
+    public function restore(string $id)
+    {
+        $contract = Contract::withTrashed()->find($id);
+
+        // $this->authorize('restore', $contract);
+
+        $var = DB::transaction(function () use ($contract) {
+            
+            if (!$contract) {
+                abort(404);    
+            }
+    
+            $contract->restore();
+    
+            return response()->json(true, 200);
+
+        });
+
+        return $var;
+        
+    }
+
+
+
 }

@@ -22,7 +22,7 @@ class MediaService
 
         $extension = $image->getClientOriginalExtension();
 
-        $object->addMedia($image)->usingFileName(Str::random(12).$extension)->toMediaCollection($mediaCollection);
+        $object->addMedia($image)->usingFileName(Str::random(12) . '.' . $extension)->toMediaCollection($mediaCollection);
 
         return $object;
     }
@@ -36,7 +36,7 @@ class MediaService
         foreach ($images as $image) {
             $extension = $image->getClientOriginalExtension();
 
-            $object->addMedia($image)->usingFileName(Str::random(12).$extension)->toMediaCollection($mediaCollection);
+            $object->addMedia($image)->usingFileName(Str::random(12) . '.' . $extension)->toMediaCollection($mediaCollection);
         }
 
         return $object;

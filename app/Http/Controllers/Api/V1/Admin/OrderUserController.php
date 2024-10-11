@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\Bid;
 use App\Models\Driver;
 use App\Models\Vehicle;
+use App\Models\Constant;
 use App\Models\Customer;
 use App\Models\Supplier;
 use App\Models\OrderUser;
@@ -270,133 +271,7 @@ class OrderUserController extends Controller
 
 
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function storeBid(StoreBidRequest $request)
-    {
-        // do AUTH here or in the controller
-        
-        $var = DB::transaction(function () use ($request) {
-
-            $vehicle = Vehicle::find($request['vehicle_id']);
-            $supplier = Supplier::find($vehicle->supplier_id);  // i could use relation, instead of fetching all ,  =     $vehicle->supplier->is_active   and     $vehicle->supplier->is_approved         // check abrham samson
-            $driver = Driver::find($vehicle->driver_id);        // i could use relation, instead of fetching all ,  =     $vehicle->driver->is_active     and     $vehicle->supplier->is_approved         // check abrham samson
-            $orderUser = OrderUser::find($request['order_id']);
-
-            
-            if ($vehicle->vehicle_name_id !== $orderUser->vehicle_name_id) {
-                return response()->json(['message' => 'invalid Vehicle is selected. or The Selected Vehicle does not match the orders requirement (the selected vehicle vehicle_name_id is NOT equal to the order vehicle_name_id). Deceptive request Aborted.'], 401); 
-            }
-
-            if (Bid::where('vehicle_id', $vehicle->id)->exists()) {
-                return response()->json(['message' => 'you already bid for this order with this vehicle'], 403); 
-            }
-
-            if ($vehicle->is_available !== Vehicle::VEHICLE_AVAILABLE) {
-                return response()->json(['message' => 'the selected vehicle is not currently available'], 401); 
-            }
-
-
-            // i could use relation, instead of fetching all ,  =     $vehicle->driver->is_active     and     $vehicle->supplier->is_approved         // check abrham samson
-            if ($driver) {
-                if ($driver->is_active != 1) {
-                    return response()->json(['message' => 'Forbidden: Deactivated Driver'], 403); 
-                }
-                if ($driver->is_approved != 1) {
-                    return response()->json(['message' => 'Forbidden: NOT Approved Driver'], 403); 
-                }
-            }
-            // i could use relation, instead of fetching all ,  =     $vehicle->supplier->is_active   and     $vehicle->supplier->is_approved         // check abrham samson
-            if ($supplier) {
-                if ($supplier->is_active != 1) {
-                    return response()->json(['message' => 'Forbidden: Deactivated Supplier'], 403); 
-                }
-                if ($supplier->is_approved != 1) {
-                    return response()->json(['message' => 'Forbidden: NOT Approved Supplier'], 403); 
-                }
-            }
-
-
-            
-
-
-
-
-
-
-
-
-            if ($orderUser->status !== OrderUser::ORDER_STATUS_PENDING) {
-                return response()->json(['message' => 'this order is not pending. it is already accepted , started or completed'], 403); 
-            }
-
-            if ($orderUser->end_date < today()->toDateString()) {
-                return response()->json(['message' => 'this order is Expired already.'], 403); 
-            }
-
-            if ($orderUser->is_terminated !== 0) {
-                return response()->json(['message' => 'this order is Terminated'], 403); 
-            }
-            
-            if (($orderUser->vehicle_id !== null) || ($orderUser->driver_id !== null) || ($orderUser->supplier_id !== null)) {
-                return response()->json(['message' => 'this order is already being accepted and it already have a value on the columns (driver_id or supplier_id or vehicle_id) , for some reason'], 403); 
-            }
-
-
-            
-            
-
-            if ($vehicle->with_driver !== $orderUser->with_driver) {
-
-                if (($vehicle->with_driver === 1) && ($orderUser->with_driver === 0)) {
-                    return response()->json(['message' => 'the order does not need a driver'], 403); 
-                }
-                else if (($vehicle->with_driver === 0) && ($orderUser->with_driver === 1)) {
-                    return response()->json(['message' => 'the order needs vehicle with a driver'], 403); 
-                }
-                
-
-                return response()->json(['message' => 'the vehicle with_driver value is not equal with that of the order requirement.'], 403); 
-                
-            }
-
-            // this if is important and should be right here 
-            // this if should NOT be nested in any other if condition // this if should be independent and done just like this  // this if should be checked independently just like i did it right here
-            if (($vehicle->driver_id === null) && ($orderUser->with_driver === 1)) {
-                return response()->json(['message' => 'the vehicle you selected for the order does not have actual driver currently. This Order Needs Vehicle that have Driver'], 403); 
-            }
-            
-
-            // calculate the initial payment for this bid entry
-            $priceTotalFromRequest = (int) $request['price_total'];
-            $initialPaymentMultiplierConstant = ((int) Bid::BID_ORDER_INITIAL_PAYMENT)/100;
-
-            $priceInitial = $priceTotalFromRequest * $initialPaymentMultiplierConstant;
-            
-            
-            $bid = Bid::create([
-                'order_id' => $request['order_id'],
-                'vehicle_id' => $request['vehicle_id'],
-
-                'price_total' => $request['price_total'],
-                'price_initial' => $priceInitial,
-            ]);
-            //
-            if (!$bid) {
-                return response()->json(['message' => 'Bid Create Failed'], 422);
-            }
-
-
-            $bidValue = Bid::find($bid->id);
-
-
-            return BidResource::make($bidValue->load('orderUser'));
-                 
-        });
-
-        return $var;
-    }
+    
 
 
 

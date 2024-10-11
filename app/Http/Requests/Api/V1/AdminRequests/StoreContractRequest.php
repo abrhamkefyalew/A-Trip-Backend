@@ -48,7 +48,7 @@ class StoreContractRequest extends FormRequest
                 'required',
                 'file', // Change 'image' to 'file' for all file types
                 'mimes:pdf', // Allow only PDF files
-                'max:3072', // Maximum file size in kilobytes (adjust as needed)
+                'max:49072', // Maximum file size in kilobytes (adjust as needed)
             ],
 
 

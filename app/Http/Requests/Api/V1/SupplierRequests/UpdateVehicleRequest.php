@@ -25,7 +25,9 @@ class UpdateVehicleRequest extends FormRequest
     {
         return [
             //
-            'vehicle_name_id' => 'sometimes|integer|exists:vehicle_names,id',
+            // there should be separate endpoint to update this 
+            // 'vehicle_name_id' => 'sometimes|integer|exists:vehicle_names,id',
+
             'driver_id' => [
                 'sometimes', 
                 'nullable',
@@ -36,23 +38,32 @@ class UpdateVehicleRequest extends FormRequest
             
 
             'vehicle_name' => [
-                'sometimes', 'string',
+                'sometimes', 'nullable', 'string',
             ],
             'vehicle_description' => [
-                'sometimes', 'string',
+                'sometimes', 'nullable', 'string',
             ],
             'vehicle_model' => [
-                'sometimes', 'string',
+                'sometimes', 'nullable', 'string',
             ],
             'plate_number' => [
-                'sometimes', 'string', Rule::unique('vehicles'),
+                'sometimes', 'string', Rule::unique('vehicles')->ignore($this->vehicle->id),
             ],
             'year' => [
                 'sometimes', 'string',
             ],
-            'is_available' => [
-                'sometimes', 'string', Rule::in([Vehicle::VEHICLE_NOT_AVAILABLE, Vehicle::VEHICLE_AVAILABLE, Vehicle::VEHICLE_ON_TRIP]),
-            ],
+
+            // there should be separate endpoint to update this 
+                // this update should be allowed only               
+                    // 1. if the vehicle is not in orders table     - or -    2. or even if the vehicle is in orders table:- the order (orders) that owns the vehicle should NOT be STARTED,
+                            //
+                            // (PENDING order with vehicle_id is less likely, and should NOT exist)
+                            // if order is ACCEPTED (SET), and if vehicle is_available is sent , what should i do, check abrham samson // ask samson
+                            //
+            // 'is_available' => [
+            //     'sometimes', 'string', Rule::in([Vehicle::VEHICLE_NOT_AVAILABLE, Vehicle::VEHICLE_AVAILABLE, Vehicle::VEHICLE_ON_TRIP]),
+            // ],
+
             'with_driver' => [
                 'sometimes', 'boolean',
             ],
@@ -75,32 +86,50 @@ class UpdateVehicleRequest extends FormRequest
             ],
 
 
-            // TODO 
-            // 'vehicle_libre_image' => [
-            //     'sometimes',
-            //     'image',
-            //     'max:3072',
-            // ],
-            // 'vehicle_third_person_image' => [
-            //     'sometimes',
-            //     'image',
-            //     'max:3072',
-            // ],
-            // 'vehicle_power_of_attorney_image' => [
-            //     'sometimes',
-            //     'image',
-            //     'max:3072',
-            // ],
-            // 'vehicle_profile_image' => [
-            //     'sometimes',
-            //     'image',
-            //     'max:3072',
-            // ],
+            // MEDIA ADD 
 
-            // // also when doing remove image try to do it for specific collection
-            // 'remove_image' => [
-            //     'sometimes', 'boolean',
-            // ],
+            'vehicle_libre_image' => [
+                'sometimes',
+                'image',
+                'max:3072',
+            ],
+            'vehicle_third_person_image' => [
+                'sometimes',
+                'image',
+                'max:3072',
+            ],
+            'vehicle_power_of_attorney_image' => [
+                'sometimes',
+                'image',
+                'max:3072',
+            ],
+            'vehicle_profile_image' => [
+                'sometimes',
+                'image',
+                'max:3072',
+            ],
+
+
+            // MEDIA REMOVE
+            
+            // GOOD IDEA = ALL media should NOT be Cleared at once, media should be cleared by id, like one picture. so the whole collection should NOT be cleared using $clearMedia the whole collection
+            
+
+            // BAD IDEA = when doing remove image try to do it for specific collection
+            'vehicle_libre_image_remove' => [
+                'sometimes', 'boolean',
+            ],
+            'vehicle_third_person_image_remove' => [
+                'sometimes', 'boolean',
+            ],
+            'vehicle_power_of_attorney_image_remove' => [
+                'sometimes', 'boolean',
+            ],
+            'vehicle_profile_image_remove' => [
+                'sometimes', 'boolean',
+            ],
+
+
         ];
     }
 }

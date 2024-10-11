@@ -142,9 +142,19 @@ class OrderController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Order $order)
     {
         //
+        // get the logged in driver
+        $user = auth()->user();
+        $driver = Driver::find($user->id);
+
+        if ($driver->id != $order->driver_id) {
+            // this vehicle is NOT be owned by the logged in driver
+            return response()->json(['message' => 'invalid Order is selected or Requested. or the requested Order is not found. Deceptive request Aborted.'], 401);
+        }
+
+        return OrderForDriverResource::make($order->load('vehicleName', 'vehicle', 'supplier', 'contractDetail', 'organization'));
     }
 
     
@@ -488,7 +498,7 @@ class OrderController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Order $order)
     {
         //
     }

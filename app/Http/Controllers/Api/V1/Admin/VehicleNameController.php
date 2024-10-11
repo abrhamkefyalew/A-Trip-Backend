@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1\Admin;
 
+use App\Models\Vehicle;
+use App\Models\OrderUser;
 use App\Models\VehicleName;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use App\Models\ContractDetail;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Services\Api\V1\FilteringService;
@@ -108,6 +112,80 @@ class VehicleNameController extends Controller
      */
     public function destroy(VehicleName $vehicleName)
     {
-        //
+        // $this->authorize('delete', $vehicleName);
+
+        $var = DB::transaction(function () use ($vehicleName) {
+
+            if (Vehicle::where('vehicle_name_id', $vehicleName->id)->exists()) {
+                
+                // this works
+                // return response()->json([
+                //     'message' => 'Cannot delete the Vehicle Name Category because it is in use by vehicles.',
+                // ], 409);
+
+                // this also works
+                return response()->json([
+                    'message' => 'Cannot delete the Vehicle Name Category because it is in use by vehicles.'
+                ], Response::HTTP_CONFLICT);
+            }
+
+            if (ContractDetail::where('vehicle_name_id', $vehicleName->id)->exists()) {
+                
+                // this works
+                // return response()->json([
+                //     'message' => 'Cannot delete the Vehicle Name Category because it is in use by organization Contract Details.',
+                // ], 409);
+
+                // this also works
+                return response()->json([
+                    'message' => 'Cannot delete the Vehicle Name Category because it is in use by organization Contract Details.'
+                ], Response::HTTP_CONFLICT);
+            }
+
+            if (OrderUser::where('vehicle_name_id', $vehicleName->id)->exists()) {
+                
+                // this works
+                // return response()->json([
+                //     'message' => 'Cannot delete the Vehicle Name Category because it is in use by individual customer Orders.',
+                // ], 409);
+
+                // this also works
+                return response()->json([
+                    'message' => 'Cannot delete the Vehicle Name Category because it is in use by individual customer Orders.'
+                ], Response::HTTP_CONFLICT);
+            }
+
+            $vehicleName->delete();
+
+            return response()->json(true, 200);
+
+        });
+
+        return $var;
     }
+
+
+    public function restore(string $id)
+    {
+        $vehicleName = VehicleName::withTrashed()->find($id);
+
+        // $this->authorize('restore', $vehicleName);
+
+        $var = DB::transaction(function () use ($vehicleName) {
+
+            if (!$vehicleName) {
+                abort(404);    
+            }
+    
+            $vehicleName->restore();
+    
+            return response()->json(true, 200);
+
+        });
+
+        return $var;
+        
+    }
+
+
 }

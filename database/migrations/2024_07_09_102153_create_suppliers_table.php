@@ -23,7 +23,7 @@ return new class extends Migration
             $table->boolean('is_approved')->default(1);
 
             $table->timestamp('email_verified_at')->nullable();
-            // $table->string('password'); // do we need this // check first // check login type
+            $table->string('password'); // do we need this // check first // check login type
 
             // identification_card, passport, profile picture will be contained in media table
             

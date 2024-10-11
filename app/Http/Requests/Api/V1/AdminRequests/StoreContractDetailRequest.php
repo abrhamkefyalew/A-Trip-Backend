@@ -35,7 +35,7 @@ class StoreContractDetailRequest extends FormRequest
                 'required', 'boolean',
             ],
             'periodic' => [
-                'sometimes', 'nullable', 'boolean',
+                'sometimes', 'boolean',
             ],
             'price_contract' => 'required|integer|between:0,9999999',
             'price_vehicle_payment' => 'required|integer|between:0,9999999',
@@ -45,7 +45,7 @@ class StoreContractDetailRequest extends FormRequest
 
             // is_available = should be not be sent at ContractDetail store for the first time, it is "1" by default in the controller
             // 'is_available' => [
-            //     'sometimes', 'nullable', 'boolean',
+            //     'sometimes', 'boolean',
             // ],
 
         ];

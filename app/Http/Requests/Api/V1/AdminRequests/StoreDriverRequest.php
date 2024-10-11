@@ -33,28 +33,28 @@ class StoreDriverRequest extends FormRequest
                 'required', 'string', 'regex:/^\S*$/u', 'alpha',
             ],
             'email' => [
-                'sometimes', 'email', Rule::unique('drivers'),
+                'required', 'email', Rule::unique('drivers'),
             ],
             'phone_number' => [
-                'required', 'numeric',  Rule::unique('drivers'),
+                'required', 'numeric', Rule::unique('drivers'),
             ],
             'is_active' => [
-                'required', 'boolean',
+                'sometimes', 'boolean',
             ],
 
 
             // this column can ONLY be Set by the SUPER_ADMIN, 
             // if Driver is registering himself , he can NOT send the is_approved field
             'is_approved' => [
-                'required', 'nullable', 'boolean',
+                'sometimes', 'boolean',
             ],
 
 
 
             // we are using OTP so this is commented, until further notice
-            // 'password' => [
-            //     'required', 'min:8', 'confirmed',
-            // ],
+            'password' => [
+                'required', 'min:8', 'confirmed',
+            ],
 
             'country' => [
                 'sometimes', 'string',

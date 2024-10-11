@@ -25,5 +25,5 @@ class Bank extends Model
     }
 
 
-    // May be do the boot function here when VehicleType is deleted
+    
 }

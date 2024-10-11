@@ -23,11 +23,9 @@ return new class extends Migration
             $table->boolean('is_approved')->default(1); // should the driver be approved before he can operate in the system     // should this column exist
 
             $table->timestamp('email_verified_at')->nullable();
-            // $table->string('password'); // do we need this // check first // check login type
+            $table->string('password'); // do we need this // check first // check login type
 
             // IF NEEDED drivers license, identification card, passport, Profile Picture will be contained in media table
-
-            // $table->boolean('is_available')->default(1); // NOT NEEDED, the above is_active column is enough to decide the driver availability // DELETE THIS COLUMN
             
             $table->timestamps();
             $table->softDeletes();

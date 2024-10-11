@@ -27,7 +27,7 @@ class StoreVehicleNameRequest extends FormRequest
             //
             'vehicle_type_id' => 'required|integer|exists:vehicle_types,id',
             'vehicle_name' => ['required', 'string'],
-            'vehicle_description' => ['sometimes', 'string'],
+            'vehicle_description' => ['sometimes', 'nullable', 'string'],
         ];
     }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Api\V1\SupplierRequests;
 
+use App\Models\Vehicle;
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreVehicleRequest extends FormRequest
@@ -23,6 +25,77 @@ class StoreVehicleRequest extends FormRequest
     {
         return [
             //
+            'vehicle_name_id' => 'required|integer|exists:vehicle_names,id',
+            'driver_id' => [
+                'sometimes', 
+                'nullable',
+                'integer', 
+                'exists:drivers,id',            // Rule::exists('drivers'), // also works       // or       // Rule::exists('drivers', 'id'),
+                'unique:vehicles,driver_id',    // Rule::unique('vehicles'), // also works      // or       // Rule::unique('vehicles', 'driver_id'),
+            ],
+            
+
+            'vehicle_name' => [
+                'sometimes', 'string',
+            ],
+            'vehicle_description' => [
+                'sometimes', 'string',
+            ],
+            'vehicle_model' => [
+                'sometimes', 'string',
+            ],
+            'plate_number' => [
+                'required', 'string', Rule::unique('vehicles'),
+            ],
+            'year' => [
+                'required', 'string',
+            ],
+            'is_available' => [
+                'required', 'string', Rule::in([Vehicle::VEHICLE_NOT_AVAILABLE, Vehicle::VEHICLE_AVAILABLE, Vehicle::VEHICLE_ON_TRIP]),
+            ],
+            'with_driver' => [
+                'required', 'boolean',
+            ],
+
+            // the following vehicle bank information are nullable and sometimes BECAUSE of the following reason
+                     // REASON 1- since ADIAMAT might have their own vehicles (that means adiamat will not pay adiamat themselves for their own vehicles), this should be nullable
+            'bank_id' =>  'sometimes|nullable|integer|exists:banks,id',
+            'bank_account' => [
+                'sometimes', 'nullable', 'string',
+            ],
+
+
+            // the car location is used to know if the vehicle is available or found in what location
+            // should i also add latitude and longitude
+            // so the question is, should they be required or sometimes // check first // ask samson
+            'country' => [
+                'sometimes', 'string',
+            ],
+            'city' => [
+                'sometimes', 'string',
+            ],
+
+            // should the following medias be required or sometimes
+            'vehicle_libre_image' => [
+                'required',
+                'image',
+                'max:3072',
+            ],
+            'vehicle_third_person_image' => [
+                'required',
+                'image',
+                'max:3072',
+            ],
+            'vehicle_power_of_attorney_image' => [
+                'required',
+                'image',
+                'max:3072',
+            ],
+            'vehicle_profile_image' => [
+                'sometimes',
+                'image',
+                'max:3072',
+            ],
         ];
     }
 }

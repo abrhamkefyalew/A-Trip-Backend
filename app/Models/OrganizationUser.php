@@ -4,12 +4,14 @@ namespace App\Models;
 
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\MediaLibrary\HasMedia;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use App\Notifications\Api\V1\ResetPasswordNotification;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class OrganizationUser extends Authenticatable implements HasMedia
@@ -32,6 +34,7 @@ class OrganizationUser extends Authenticatable implements HasMedia
         'phone_number',
         'is_active',
         'is_admin',
+        'password',
     ];
 
 
@@ -40,11 +43,10 @@ class OrganizationUser extends Authenticatable implements HasMedia
      *
      * @var array<int, string>
      */
-    // we are using OTP so this is commented, until further notice
-    // protected $hidden = [
-    //     'password',
-    //     'remember_token',
-    // ];
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
 
     
     /**
@@ -57,36 +59,38 @@ class OrganizationUser extends Authenticatable implements HasMedia
     ];
 
 
-    // we are using OTP so this is commented, until further notice
-    // public function setPasswordAttribute($password)
-    // {
-    //     if ($password) {
-    //         $this->attributes['password'] = app('hash')->needsRehash($password) ? Hash::make($password) : $password;
-    //     }
-    // }
+    // mutator function 
+    // mutator functions are called automatically by laravel,       // so setPasswordAttribute is mutator function and called by laravel automatically
+    // This method is a mutator that automatically processes the password value before saving it to the password attribute of the model.
+    // if hashed password is sent = it will not be hashed.                     if UN-hashed password is sent = it will be hashed 
+    public function setPasswordAttribute($password)
+    {
+        if ($password) {
+            $this->attributes['password'] = app('hash')->needsRehash($password) ? Hash::make($password) : $password;
+        }
+    }
 
 
-    // we are using OTP so this is commented, until further notice
-    // public function sendPasswordResetNotification($token)
-    // {
-    //     $url = 'https://adiamat.com/organization-users/reset-password/?token='.$token; // modify this url // depending on your route
+    public function sendPasswordResetNotification($token)
+    {
+        $url = 'https://adiamat.com/organization-users/reset-password/?token='.$token; // modify this url // depending on your route
 
-    //      $this->notify(new ResetPasswordNotification($url));
-    // }
-
+         $this->notify(new ResetPasswordNotification($url));
+    }
 
 
 
-    // since organization_user is a minor entity i will not be needing the following now // may be uncomment later when i need them
-    // public function getNameAttribute()
-    // {
-    //     return $this->getFullNameAttribute();
-    // }
 
-    // public function getFullNameAttribute()
-    // {
-    //     return $this->first_name.' '.$this->last_name;
-    // }
+    // since organization_user is a minor entity i will not be needing the following now // but incase
+    public function getNameAttribute()
+    {
+        return $this->getFullNameAttribute();
+    }
+
+    public function getFullNameAttribute()
+    {
+        return $this->first_name.' '.$this->last_name;
+    }
 
     public function address()
     {

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('roles', function (Blueprint $table) {
             $table->id()->from(10000);
             
-            $table->string('title')->nullable()->unique();
+            $table->string('title')->unique();
             $table->boolean('is_system_created')->default(false);
             
             $table->timestamps();

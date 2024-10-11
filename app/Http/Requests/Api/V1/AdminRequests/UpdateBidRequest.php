@@ -25,6 +25,7 @@ class UpdateBidRequest extends FormRequest
     {
         return [
             //
+            'price_total' => 'sometimes|integer|between:0,9999999',
         ];
     }
 }

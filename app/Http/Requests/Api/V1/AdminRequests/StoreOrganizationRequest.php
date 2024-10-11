@@ -39,12 +39,12 @@ class StoreOrganizationRequest extends FormRequest
                 'required', 'numeric', Rule::unique('organizations'),
             ],
             'is_active' => [
-                'sometimes', 'nullable', 'boolean',
+                'sometimes', 'boolean',
             ],
 
             // this will only be here , in the admin request // it will be removed from the request list for Everyone Else who is making a request
             'is_approved' => [
-                'sometimes', 'nullable', 'boolean',
+                'sometimes', 'boolean',
             ],
 
             'country' => [
@@ -76,13 +76,13 @@ class StoreOrganizationRequest extends FormRequest
                 'required', 'string', 'regex:/^\S*$/u', 'alpha',
             ],
             'user_email' => [
-                'sometimes', 'nullable', 'email', 'unique:organization_users,email',
+                'required', 'email', 'unique:organization_users,email',
             ],
             'user_phone_number' => [
                 'required', 'numeric', 'unique:organization_users,phone_number',
             ],
             'user_is_active' => [
-                'sometimes', 'nullable', 'boolean',
+                'sometimes', 'boolean',
             ],
             // Because it is the first time the organization is being registered by admin, the organizationUser created with it must be OrganizationAdmin
             // 'user_is_admin' => [
@@ -91,9 +91,9 @@ class StoreOrganizationRequest extends FormRequest
 
 
             // we are using OTP , so password is commented until further notice
-            // 'password' => [
-            //     'required', 'min:8', 'confirmed',
-            // ],
+            'user_password' => [
+                'required', 'min:8', 'confirmed',
+            ],
 
 
 

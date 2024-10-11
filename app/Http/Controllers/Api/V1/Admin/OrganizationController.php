@@ -65,7 +65,7 @@ class OrganizationController extends Controller
                 'email' => $request['email'],
                 'phone_number' => $request['phone_number'],
                 'is_active' => (int) (isset($request['is_active']) ? $request['is_active'] : 1), // this works
-                'is_approved' => (int) $request->input('is_approved', 0), // this works also    // // this column can ONLY be Set by the SUPER_ADMIN, // if Organization is registering himself , he can NOT send the is_approved field
+                'is_approved' => (int) $request->input('is_approved', 1), // this works also    // // this column can ONLY be Set by the SUPER_ADMIN, // if Organization is registering himself , he can NOT send the is_approved field
                                                                                                    // so this //is_approved// code part will be removed when the Organization makes the request
             ]);
 
@@ -101,6 +101,7 @@ class OrganizationController extends Controller
                 'first_name' => $request['user_first_name'],
                 'last_name' => $request['user_last_name'],
                 'email' => $request['user_email'],
+                'password' => $request['user_password'],
                 'phone_number' => $request['user_phone_number'],
                 'is_active' => (int) (isset($request['user_is_active']) ? $request['user_is_active'] : 1), // this works
                 'is_admin' => 1,    // the organization user stored with the organization here (when the organization is created for the first time) must always be admin regardless of the user input
@@ -153,11 +154,49 @@ class OrganizationController extends Controller
     public function update(UpdateOrganizationRequest $request, Organization $organization)
     {
         //
-        // $var = DB::transaction(function () {
+        $var = DB::transaction(function () use ($request, $organization) {
             
-        // });
+            $success = $organization->update($request->validated());
+            //
+            if (!$success) {
+                return response()->json(['message' => 'Update Failed'], 422);
+            }
+            
 
-        // return $var;
+            if ($request->has('country') || $request->has('city')) {
+                if ($organization->address) {
+                    $organization->address()->update([
+                        'country' => $request->input('country'),
+                        'city' => $request->input('city'),
+                    ]);
+                } else {
+                    $organization->address()->create([
+                        'country' => $request->input('country'),
+                        'city' => $request->input('city'),
+                    ]);
+                }
+            }
+
+
+
+            // MEDIA CODE SECTION
+            // REMEMBER = (clearMedia) ALL media should NOT be Cleared at once, media should be cleared by id, like one picture. so the whole collection should NOT be cleared using $clearMedia the whole collection // check abrham samson // remember
+            //
+            if ($request->has('organization_profile_image')) {
+                $file = $request->file('organization_profile_image');
+                $clearMedia = $request->input('organization_profile_image_remove', false);
+                $collectionName = Organization::ORGANIZATION_PROFILE_PICTURE;
+                MediaService::storeImage($organization, $file, $clearMedia, $collectionName);
+            }
+
+            
+            $updatedOrganization = Organization::find($organization->id);
+
+            return OrganizationResource::make($updatedOrganization->load('media', 'address', 'contracts' /*, 'orders'*/ , 'organizationUsers'));
+
+        });
+
+        return $var;
     }
 
     /**

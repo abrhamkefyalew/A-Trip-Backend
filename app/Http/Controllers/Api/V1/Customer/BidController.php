@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Services\Api\V1\Customer\PrPaymentService;
 use App\Http\Requests\Api\V1\CustomerRequests\AcceptBidRequest;
-use App\Http\Resources\Api\V1\OrderUserResources\OrderUserForSupplierResource;
+use App\Http\Resources\Api\V1\OrderUserResources\OrderUserForCustomerResource;
 
 class BidController extends Controller
 {
@@ -58,6 +58,10 @@ class BidController extends Controller
             $customer = Customer::find($user->id);
 
             
+            if (!$bid->orderUser) {
+                return response()->json(['message' => 'The Parent Order of this Bid does NOT Exist.'], 404);
+            }
+
             if ($customer->id != $bid->orderUser->customer_id) {
                 return response()->json(['message' => 'invalid Bid is selected or Requested. or the requested Bid is not found. Deceptive request Aborted.'], 401);
             }
@@ -101,9 +105,10 @@ class BidController extends Controller
                 return response()->json(['message' => 'this bid parent order is Terminated'], 403); 
             }
             
-            if (($bid->orderUser->vehicle_id !== null) || ($bid->orderUser->driver_id !== null) || ($bid->orderUser->supplier_id !== null)) {
-                return response()->json(['message' => 'this bid can not be selected. Because its order is already being accepted and it already have a value on the columns (driver_id or supplier_id or vehicle_id) , for some reason'], 403); 
-            }
+            // this is commented because of samson // check abrham samson
+            // if (($bid->orderUser->vehicle_id !== null) || ($bid->orderUser->driver_id !== null) || ($bid->orderUser->supplier_id !== null)) {
+            //     return response()->json(['message' => 'this bid can not be selected. Because its order is already being accepted and it already have a value on the columns (driver_id or supplier_id or vehicle_id) , for some reason'], 403); 
+            // }
 
 
             if ($bid->vehicle->with_driver !== $bid->orderUser->with_driver) {
@@ -134,7 +139,7 @@ class BidController extends Controller
             //
             //
             $success = $bid->orderUser()->update([
-                'vehicle_id' => $request['vehicle_id'],
+                'vehicle_id' => $bid->vehicle_id,
                 'driver_id' => $driverId,
                 'supplier_id' => $bid->vehicle->supplier_id,
                 'price_total' => $bid->price_total,
@@ -146,12 +151,13 @@ class BidController extends Controller
             }
 
             // get the order id of the selected bid
-            $bidOrderId = $bid->order->id;
+            $bidOrderId = $bid->orderUser->id;
+            
 
 
             // create invoice for this order
             $invoice = InvoiceUser::create([
-                'order_id' => $bidOrderId,
+                'order_user_id' => $bidOrderId,
 
                 'price' => $bid->price_initial,
                 'status' => InvoiceUser::INVOICE_STATUS_NOT_PAID,
@@ -193,12 +199,7 @@ class BidController extends Controller
 
 
             
-            // DELETE All the BIDS of this ORDER
-            // // Soft delete all Bid records with order_id equal to $bid->order->id
-            // Bid::where('order_id', $bid->order->id)->delete();
-            //
-            // // Force delete all Bid records with order_id equal to $bid->order->id
-            Bid::where('order_id', $bidOrderId)->forceDelete();
+            
             
 
             
@@ -206,7 +207,7 @@ class BidController extends Controller
             return response()->json(
                 [
                     'payment_link' => $valuePayment,
-                    'data' => OrderUserForSupplierResource::make($updatedOrderUser->load('vehicleName', 'vehicle', 'driver', 'bids', 'invoiceUsers')),
+                    'data' => OrderUserForCustomerResource::make($updatedOrderUser->load('vehicleName', 'vehicle', 'driver', 'bids', 'invoiceUsers')),
                 ],
                 200
             );

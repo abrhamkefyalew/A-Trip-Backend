@@ -51,7 +51,8 @@ class DriverController extends Controller
             $driver = Driver::create([
                 'first_name' => $request['first_name'],
                 'last_name' => $request['last_name'],
-                'email' => $request['email'], // what happens if the email does not get sent in the request // Error or Null will be inserted // check this
+                'email' => $request['email'],
+                'password' => $request['password'],
                 'phone_number' => $request['phone_number'],
                 'is_active' => (int) (isset($request['is_active']) ? $request['is_active'] : 1), // this works
                 'is_approved' => (int) $request->input('is_approved', 1), // this works also    // // this column can ONLY be Set by the SUPER_ADMIN,  // if Driver is registering himself , he can NOT send the is_approved field
@@ -130,11 +131,77 @@ class DriverController extends Controller
     public function update(UpdateDriverRequest $request, Driver $driver)
     {
         //
-        // $var = DB::transaction(function () {
+        $var = DB::transaction(function () use ($request, $driver) {
             
-        // });
+            $success = $driver->update($request->validated());
+            //
+            if (!$success) {
+                return response()->json(['message' => 'Update Failed'], 422);
+            }
+            
 
-        // return $var;
+            if ($request->has('country') || $request->has('city')) {
+                if ($driver->address) {
+                    $driver->address()->update([
+                        'country' => $request->input('country'),
+                        'city' => $request->input('city'),
+                    ]);
+                } else {
+                    $driver->address()->create([
+                        'country' => $request->input('country'),
+                        'city' => $request->input('city'),
+                    ]);
+                }
+            }
+
+
+
+            // MEDIA CODE SECTION
+            // REMEMBER = (clearMedia) ALL media should NOT be Cleared at once, media should be cleared by id, like one picture. so the whole collection should NOT be cleared using $clearMedia the whole collection // check abrham samson // remember
+            //
+            if ($request->has('driver_license_front_image')) {
+                $file = $request->file('driver_license_front_image');
+                $clearMedia = $request->input('driver_license_front_image_remove', false);
+                $collectionName = Driver::DRIVER_LICENSE_FRONT_PICTURE;
+                MediaService::storeImage($driver, $file, $clearMedia, $collectionName);
+            }
+
+            if ($request->has('driver_license_back_image')) {
+                $file = $request->file('driver_license_back_image');
+                $clearMedia = $request->input('driver_license_back_image_remove', false);
+                $collectionName = Driver::DRIVER_LICENSE_BACK_PICTURE;
+                MediaService::storeImage($driver, $file, $clearMedia, $collectionName);
+            }
+            
+            if ($request->has('driver_id_front_image')) {
+                $file = $request->file('driver_id_front_image');
+                $clearMedia = $request->input('driver_id_front_image_remove', false);
+                $collectionName = Driver::DRIVER_ID_FRONT_PICTURE;
+                MediaService::storeImage($driver, $file, $clearMedia, $collectionName);
+            }
+
+            if ($request->has('driver_id_back_image')) {
+                $file = $request->file('driver_id_back_image');
+                $clearMedia = $request->input('driver_id_back_image_remove', false); 
+                $collectionName = Driver::DRIVER_ID_BACK_PICTURE;
+                MediaService::storeImage($driver, $file, $clearMedia, $collectionName);
+            }
+
+            if ($request->has('driver_profile_image')) {
+                $file = $request->file('driver_profile_image');
+                $clearMedia = (isset($request['driver_profile_image_remove']) ? $request['driver_profile_image_remove'] : false);
+                $collectionName = Driver::DRIVER_PROFILE_PICTURE;
+                MediaService::storeImage($driver, $file, $clearMedia, $collectionName);
+            }
+
+            
+            $updatedDriver = Driver::find($driver->id);
+
+            return DriverResource::make($updatedDriver->load('media', 'address', 'vehicle'));
+
+        });
+
+        return $var;
     }
 
     /**

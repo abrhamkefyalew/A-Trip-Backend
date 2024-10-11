@@ -163,11 +163,11 @@ class OrderController extends Controller
                 $organization = Organization::find($request['organization_id']);
 
                 if ($organization->is_approved !== 1) {
-                    return response()->json(['message' => 'this organization has been Unapproved, please please approve the organization'], 401); 
+                    return response()->json(['message' => 'this organization has been Unapproved, please approve the organization first to make an order'], 401); 
                 }
 
                 if ($organization->is_active !== 1) {
-                    return response()->json(['message' => 'this organization has been is NOT Active, please activate the organization first to make an order.'], 401); 
+                    return response()->json(['message' => 'this organization is NOT Active, please activate the organization first to make an order.'], 401); 
                 }
 
 
@@ -702,6 +702,7 @@ class OrderController extends Controller
 
 
 
+            $contractDetail = null;
             // this contract_detail_id should be owned by the organization that the super_admin is making the order to
             if ($request->has('contract_detail_id') && isset($request['contract_detail_id'])) {
                 $contractDetail = ContractDetail::where('id', $request['contract_detail_id'])->first();
@@ -828,21 +829,22 @@ class OrderController extends Controller
             $success = $order->update($request->validated());
 
 
-            if (isset($request['vehicle_id'])) {
+            if ($request->has('vehicle_id') && isset($request['vehicle_id'])) {
                 $order->vehicle_id = $request['vehicle_id']; // this is duplicate , since the $success = $order->update($request->validated()); will have updated it , since it will find vehicle_id in $request->validated()
                 $order->driver_id = $vehicle->driver_id;
                 $order->supplier_id = $vehicle->supplier_id;
             }
-            if ($request->has('is_terminated') && $request['is_terminated'] == 1) {
-
-                if ($order->status === Order::ORDER_STATUS_START) {
-                    return response()->json(['message' => 'this order can not be terminated. because the order is already started'], 403); 
+            if ($request->has('is_terminated') && isset($request['is_terminated'])) {
+                if ($request['is_terminated'] == 1) {
+                    if ($order->status === Order::ORDER_STATUS_START) {
+                        return response()->json(['message' => 'this order can not be terminated. because the order is already started'], 403); 
+                    }
+                    if ($order->status === Order::ORDER_STATUS_COMPLETE) {
+                        return response()->json(['message' => 'this order can not be terminated. because the order is already completed'], 403); 
+                    }
+    
+                    $order->end_date = today()->toDateString();
                 }
-                if ($order->status === Order::ORDER_STATUS_COMPLETE) {
-                    return response()->json(['message' => 'this order can not be terminated. because the order is already completed'], 403); 
-                }
-
-                $order->end_date = today()->toDateString();
             }
             if ($request->has('contract_detail_id') && isset($request['contract_detail_id'])) {
                 // should the contract of the contract_detail be checked also // check abrham samson
