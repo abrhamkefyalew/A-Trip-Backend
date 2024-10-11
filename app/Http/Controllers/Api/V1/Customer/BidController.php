@@ -105,9 +105,10 @@ class BidController extends Controller
                 return response()->json(['message' => 'this bid parent order is Terminated'], 403); 
             }
             
-            if (($bid->orderUser->vehicle_id !== null) || ($bid->orderUser->driver_id !== null) || ($bid->orderUser->supplier_id !== null)) {
-                return response()->json(['message' => 'this bid can not be selected. Because its order is already being accepted and it already have a value on the columns (driver_id or supplier_id or vehicle_id) , for some reason'], 403); 
-            }
+            // this is commented because of samson // check abrham samson
+            // if (($bid->orderUser->vehicle_id !== null) || ($bid->orderUser->driver_id !== null) || ($bid->orderUser->supplier_id !== null)) {
+            //     return response()->json(['message' => 'this bid can not be selected. Because its order is already being accepted and it already have a value on the columns (driver_id or supplier_id or vehicle_id) , for some reason'], 403); 
+            // }
 
 
             if ($bid->vehicle->with_driver !== $bid->orderUser->with_driver) {
@@ -138,7 +139,7 @@ class BidController extends Controller
             //
             //
             $success = $bid->orderUser()->update([
-                'vehicle_id' => $request['vehicle_id'],
+                'vehicle_id' => $bid->vehicle_id,
                 'driver_id' => $driverId,
                 'supplier_id' => $bid->vehicle->supplier_id,
                 'price_total' => $bid->price_total,
