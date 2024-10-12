@@ -48,7 +48,7 @@ class BidController extends Controller
                 return response()->json(['message' => 'invalid Vehicle is selected. or The Selected Vehicle does not match the orders requirement (the selected vehicle vehicle_name_id is NOT equal to the order vehicle_name_id). Deceptive request Aborted.'], 401); 
             }
 
-            if (Bid::where('vehicle_id', $vehicle->id)->exists()) {
+            if (Bid::where('vehicle_id', $vehicle->id)->where('order_user_id', $orderUser->id)->exists()) {
                 return response()->json(['message' => 'you already bid for this order with this vehicle'], 403); 
             }
 
