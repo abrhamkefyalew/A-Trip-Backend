@@ -7,6 +7,7 @@ use App\Models\OrderUser;
 use App\Models\InvoiceUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\CustomerRequests\PayInvoiceCallBackTelebirrRequest;
 
@@ -51,11 +52,28 @@ class InvoiceUserController extends Controller
         //
         DB::transaction(function () use ($request) {
             
+            // if paid status code from the bank is NOT 200 -> i will log and abort
+            // if paid status code from the bank is 200,  ->  I wil do the following
+            
+
+
             // todays date
             $today = now()->format('Y-m-d');
 
 
             $invoiceUser = InvoiceUser::find($request['invoice_user_id']);
+
+            if (!$invoiceUser) {
+                // I CHECK condition because:- 
+                            // because : - i Commented ('exists:invoice_users,id') in the request 
+                                   // ('exists:invoice_users,id') is COMMENTED in the request Because: -  we have prefix on the invoice_user_id, (lke    "o1"-for organization  or   "i1"-for individual customer )
+                                                                                                          // the prefix will not let us check the existence of the id in the database, 
+                                                                                                          // so we have to do existence check manually in the controller // using this if condition
+                
+                // LOG it here                                            return response()->json(['message' => 'the invoice_user_id does not exist'], 403); // change this to log
+                Log::alert('BOA: the invoice_user_id does not exist!');
+                abort(403, 'the invoice_user_id does not exist!');
+            }
 
             // Update the invoice status and paid date
             $success = $invoiceUser->update([
@@ -65,7 +83,8 @@ class InvoiceUserController extends Controller
             //
             // Handle invoice update failure
             if (!$success) {
-                return response()->json(['message' => 'Invoice Update Failed'], 422);
+                Log::alert('BOA: Invoice Update Failed!');
+                abort(422, 'Invoice Update Failed!');
             }
 
 

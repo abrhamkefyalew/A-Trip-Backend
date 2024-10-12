@@ -17,6 +17,9 @@ return new class extends Migration
 
             $table->foreignId('order_user_id')->constrained('order_users');
 
+            $table->uuid('transaction_id_system')->unique(); // this is our transaction id, which is created all the time
+            $table->string('transaction_id_banks')->nullable(); // this is the transaction id that comes from the banks during callback
+
             // an invoice is paid two times ,         1. first initial payment (it could be 0 birr)           2. SECOND the Final payment (it is the left over price)
             
 

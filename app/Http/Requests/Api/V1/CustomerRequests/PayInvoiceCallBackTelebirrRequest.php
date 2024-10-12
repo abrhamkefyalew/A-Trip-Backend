@@ -26,10 +26,11 @@ class PayInvoiceCallBackTelebirrRequest extends FormRequest
             'invoice_user_id' => [
                 'required', 
                 'integer', 
-                'exists:invoice_users,id'
+                // 'exists:invoice_users,id'  // COMMENTED because: - we have prefix on the invoice_user_id, (lke    "o1"-for organization  or   "i1"-for individual customer )  
+                                              // the prefix will not let us check the existence of the id in the database
+                                              // so we have to do existence check manually in the controller
             ],
             
-            // 'invoice_id' => 'required|integer|exists:invoices,id',
 
 
         ];

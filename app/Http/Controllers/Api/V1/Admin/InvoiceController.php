@@ -398,12 +398,15 @@ class InvoiceController extends Controller
                         return response()->json(['message' => 'This Invoice Can NOT be Processed'], 422);
                     }
 
+                    $uuidTransactionIdSystem = Str::uuid();
 
                     $invoice = Invoice::create([
                         'invoice_code' => $uniqueCode,
 
                         'order_id' => $requestData['order_id'],
                         'organization_id' => $organizationId,
+
+                        'transaction_id_system' => $uuidTransactionIdSystem,
 
                         'start_date' => $invoiceStartDate,
                         'end_date' => $requestData['end_date'],

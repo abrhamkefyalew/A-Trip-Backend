@@ -410,7 +410,9 @@ class InvoiceController extends Controller
 
                 // do the actual payment 
                 // pass the $totalPriceAmount to be paid   and   pass the $invoiceCode so that it could be used in the callback endpoint to change the status of the paid invoices
-                $valuePayment = PrPaymentService::payPrs($totalPriceAmount, $invoiceCode);
+                $prPaymentService = new PrPaymentService($totalPriceAmount, $invoiceCode);
+                $valuePayment = $prPaymentService->payPrs();
+
 
                 if ($valuePayment === false) {
                     return response()->json(['message' => 'payment operation failed from the banks side'], 500);

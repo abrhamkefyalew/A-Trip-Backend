@@ -20,6 +20,9 @@ return new class extends Migration
             $table->foreignId('order_id')->constrained('orders');
             $table->foreignId('organization_id')->constrained('organizations'); // since an already consumed order may be deleted , this situation may make an already used vehicle order un-payable // this column ensures that an invoice is always related to organization
 
+            $table->uuid('transaction_id_system')->unique(); // this is our transaction id, which is created all the time
+            $table->string('transaction_id_banks')->nullable(); // this is the transaction id that comes from the banks during callback
+            
             $table->date('start_date');
             $table->date('end_date');
 

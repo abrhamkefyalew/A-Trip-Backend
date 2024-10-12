@@ -7,6 +7,7 @@ use App\Models\Vehicle;
 use App\Models\Customer;
 use App\Models\OrderUser;
 use App\Models\InvoiceUser;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -153,11 +154,15 @@ class BidController extends Controller
             // get the order id of the selected bid
             $bidOrderId = $bid->orderUser->id;
             
+            // remove all the previous upaid invoices for that order
+            InvoiceUser::where('order_user_id', $bid->orderUser->id)->where('status', InvoiceUser::INVOICE_STATUS_NOT_PAID)->where('paid_date', null)->forceDelete();
 
+            $uuidTransactionIdSystem = Str::uuid();
 
             // create invoice for this order
             $invoice = InvoiceUser::create([
                 'order_user_id' => $bidOrderId,
+                'transaction_id_system' => $uuidTransactionIdSystem,
 
                 'price' => $bid->price_initial,
                 'status' => InvoiceUser::INVOICE_STATUS_NOT_PAID,

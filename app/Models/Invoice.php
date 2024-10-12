@@ -21,6 +21,8 @@ class Invoice extends Model
         'invoice_code',
         'order_id',
         'organization_id',
+        'transaction_id_system',
+        'transaction_id_banks',
         'start_date',
         'end_date',
         'price_amount',
