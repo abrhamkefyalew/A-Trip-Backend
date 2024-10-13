@@ -100,7 +100,20 @@ class Supplier extends Authenticatable implements HasMedia
     }
 
 
-    // supplier hasMany Order as a logic // but we do not define it here // Becuase we can get the suppliers orders, through his vehicles
+
+
+    // supplier hasMany Order as a logic 
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    
+    public function orderUsers()
+    {
+        return $this->hasMany(OrderUser::class);
+    }
 
 
     public function registerMediaConversions(Media $media = null): void

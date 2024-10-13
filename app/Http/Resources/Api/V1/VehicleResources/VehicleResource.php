@@ -6,6 +6,7 @@ use App\Models\Vehicle;
 use Illuminate\Http\Request;
 use App\Traits\Api\V1\GetMedia;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\Api\V1\BidResources\BidResource;
 use App\Http\Resources\Api\V1\BankResources\BankResource;
 use App\Http\Resources\Api\V1\DriverResources\DriverResource;
 use App\Http\Resources\Api\V1\AddressResources\AddressResource;
@@ -47,6 +48,8 @@ class VehicleResource extends JsonResource
             'vehicle_profile_image_path' => $this->getOptimizedImagePath(Vehicle::VEHICLE_PROFILE_PICTURE),
             
             'address' => AddressResource::make($this->whenLoaded('address')),
+
+            'vehicle_bank_detail' => BankResource::make($this->whenLoaded('bank')),
             
             'vehicle_supplier' => SupplierResource::make($this->whenLoaded('supplier', function () {
                 return $this->supplier->load('address', 'media');
@@ -61,7 +64,11 @@ class VehicleResource extends JsonResource
                 return $this->driver->load('address', 'media');
             })),
 
-            'vehicle_bank_detail' => BankResource::make($this->whenLoaded('bank')),
+
+            'vehicle_bids' => BidResource::make($this->whenLoaded('bids', function () {
+                return $this->bids->load('orderUser');
+            })),
+
         ];
     }
 }

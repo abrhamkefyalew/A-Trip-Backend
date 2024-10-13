@@ -114,6 +114,12 @@ class Driver extends Authenticatable implements HasMedia
     }
 
 
+    public function orderUsers()
+    {
+        return $this->hasMany(OrderUser::class);
+    }
+
+
     public function registerMediaConversions(Media $media = null): void
     {
         $this->addMediaConversion('optimized')

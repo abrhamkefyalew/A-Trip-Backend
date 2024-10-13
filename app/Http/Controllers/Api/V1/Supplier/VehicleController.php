@@ -172,7 +172,7 @@ class VehicleController extends Controller
                 MediaService::storeImage($vehicle, $file, $clearMedia, $collectionName);
             }
 
-            return VehicleResource::make($vehicle->load('media', 'vehicleName', 'address', 'driver', 'bank'));
+            return VehicleResource::make($vehicle->load('media', 'vehicleName', 'address', 'driver', 'bank', 'bids'));
 
 
             
@@ -197,7 +197,7 @@ class VehicleController extends Controller
             return response()->json(['message' => 'invalid Vehicle is selected or Requested. or the requested Vehicle is not found. Deceptive request Aborted.'], 401);
         }
 
-        return VehicleResource::make($vehicle->load('media', 'vehicleName', 'address', 'driver', 'bank'));
+        return VehicleResource::make($vehicle->load('media', 'vehicleName', 'address', 'driver', 'bank', 'bids'));
     }
 
     /**
@@ -284,7 +284,7 @@ class VehicleController extends Controller
             $updatedVehicle = Vehicle::find($vehicle->id);
 
 
-            return VehicleResource::make($updatedVehicle->load('media', 'vehicleName', 'address', 'driver', 'bank'));
+            return VehicleResource::make($updatedVehicle->load('media', 'vehicleName', 'address', 'driver', 'bank', 'bids'));
 
             
         });

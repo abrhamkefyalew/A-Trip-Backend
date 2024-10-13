@@ -53,7 +53,7 @@ class BidController extends Controller
             }
 
             if ($vehicle->is_available !== Vehicle::VEHICLE_AVAILABLE) {
-                return response()->json(['message' => 'the selected vehicle is not currently available'], 401); 
+                return response()->json(['message' => 'the selected vehicle is not currently available'], 403); 
             }
 
 

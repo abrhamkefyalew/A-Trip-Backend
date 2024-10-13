@@ -276,13 +276,13 @@ class InvoiceController extends Controller
                         // this means only = (DATE DIFFERENCE) // only the actual subtraction will be used
 
 
-                        $orderInvoicesPaymentCheck = Invoice::where('order_id', $order->id)
+                        $unPaidOrderInvoiceExist = Invoice::where('order_id', $order->id)
                                         ->where('status', Invoice::INVOICE_STATUS_NOT_PAID)
-                                        ->get();
-
-                        if (!$orderInvoicesPaymentCheck->isEmpty()) {
+                                        ->exists();
+                        
+                        if ($unPaidOrderInvoiceExist) {
                             return response()->json([
-                                'message' => 'there is NOT_PAID invoice in invoices table with this order: ' . $order->id,
+                                'message' => 'there is NOT_PAID invoice in invoices table with this order, you need to ask the organization to pay the previous PR for this particular order before asking another PR for this particular Order: ' . $order->id,
                                 'order_id' => $order->id,
                                 'order_vehicle_plate_number' => $order->vehicle->plate_number
                             ], 400);

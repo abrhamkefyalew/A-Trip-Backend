@@ -76,6 +76,19 @@ class Vehicle extends Model implements HasMedia
     }
 
 
+    public function orderUsers()
+    {
+        return $this->hasMany(OrderUser::class);
+    }
+
+
+    public function bids()
+    {
+        return $this->hasMany(Bid::class);
+    }
+
+    
+
     public function registerMediaConversions(Media $media = null): void
     {
         $this->addMediaConversion('optimized')

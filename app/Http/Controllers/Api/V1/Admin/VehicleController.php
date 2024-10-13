@@ -179,7 +179,7 @@ class VehicleController extends Controller
                 MediaService::storeImage($vehicle, $file, $clearMedia, $collectionName);
             }
 
-            return VehicleResource::make($vehicle->load('media', 'vehicleName', 'address', 'supplier', 'driver', 'bank'));
+            return VehicleResource::make($vehicle->load('media', 'vehicleName', 'address', 'supplier', 'driver', 'bank', 'bids'));
 
 
             
@@ -195,7 +195,7 @@ class VehicleController extends Controller
     {
         // $this->authorize('view', $vehicle);
         
-        return VehicleResource::make($vehicle->load('media', 'vehicleName', 'address', 'supplier', 'driver', 'bank'));
+        return VehicleResource::make($vehicle->load('media', 'vehicleName', 'address', 'supplier', 'driver', 'bank', 'bids'));
     }
 
     /**
@@ -282,7 +282,7 @@ class VehicleController extends Controller
 
             $updatedVehicle = Vehicle::find($vehicle->id);
 
-            return VehicleResource::make($updatedVehicle->load('media', 'vehicleName', 'address', 'supplier', 'driver', 'bank'));
+            return VehicleResource::make($updatedVehicle->load('media', 'vehicleName', 'address', 'supplier', 'driver', 'bank', 'bids'));
 
             
         });

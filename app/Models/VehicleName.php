@@ -40,6 +40,12 @@ class VehicleName extends Model
     }
 
     
+    public function orderUsers()
+    {
+        return $this->hasMany(OrderUser::class);
+    }
+
+    
 
     // May be do the boot function here when VehicleName is deleted
 

@@ -47,7 +47,9 @@ class OrderResource extends JsonResource
             'end_longitude' => $this->end_longitude,
 
             'status' => $this->status,
+
             'is_terminated' => $this->is_terminated,
+            'original_end_date' => $this->original_end_date,
 
             'pr_status' => $this->pr_status,
 
