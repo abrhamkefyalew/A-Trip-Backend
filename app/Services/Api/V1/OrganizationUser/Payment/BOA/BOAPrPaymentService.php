@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Services\Api\V1\OrganizationUser;
+namespace App\Services\Api\V1\OrganizationUser\Payment\BOA;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Database\Eloquent\Builder;
 
-class PrPaymentService
+class BOAPrPaymentService
 {
 
     private $priceAmountTotalVal;
@@ -21,7 +21,7 @@ class PrPaymentService
 
     public function payPrs() 
     {
-        // to use ($this->var or $this->function()) te function must be NON-Static,  if it is static i should use (self::var or self::function)
+        
 
         echo "Price Amount Total Value: " . $this->priceAmountTotalVal . "<br>";
         echo "Invoice Code Value: " . $this->invoiceCodeVal . "<br>";
@@ -30,7 +30,7 @@ class PrPaymentService
 
         $verify = false;
         try {
-            $header = PrPaymentService::populateRequestHeader(); 
+            $header = $this->populateRequestHeader(); 
             $body = $this->populateRequestData();
 
             $response = Http::withHeaders($header)

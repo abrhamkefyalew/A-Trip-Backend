@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Services\Api\V1\Customer;
+namespace App\Services\Api\V1\Customer\Payment\BOA;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 
-class PrPaymentService
+class BOAPaymentService
 {
     public static function payPrs($priceAmountValue, $invoiceIdValue)
     {

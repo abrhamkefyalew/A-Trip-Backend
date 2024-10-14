@@ -4,7 +4,7 @@ namespace App\Http\Requests\Api\V1\CustomerRequests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class PayInvoiceCallBackTelebirrRequest extends FormRequest
+class PayInvoiceCallbackTelebirrRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

@@ -23,9 +23,12 @@ use App\Http\Controllers\Api\V1\Admin\OrganizationController;
 use App\Http\Controllers\Api\V1\Admin\ContractDetailController;
 use App\Http\Controllers\Api\V1\Admin\OrganizationUserController;
 use App\Http\Controllers\Api\V1\Auth\AdminAuth\AdminAuthController;
+use App\Http\Controllers\Api\V1\Callback\BOA\BOACallbackController;
+use App\Http\Controllers\Api\V1\Callback\CBE\CBECallbackController;
 use App\Http\Controllers\Api\V1\Auth\DriverAuth\DriverAuthController;
 use App\Http\Controllers\Api\V1\Auth\CustomerAuth\CustomerAuthController;
 use App\Http\Controllers\Api\V1\Auth\SupplierAuth\SupplierAuthController;
+use App\Http\Controllers\Api\V1\Callback\TeleBirr\TeleBirrCallbackController;
 use App\Http\Controllers\Api\V1\Driver\BidController as BidForDriverController;
 use App\Http\Controllers\Api\V1\Driver\TripController as TripForDriverController;
 use App\Http\Controllers\Api\V1\Customer\BidController as BidForCustomerController;
@@ -355,15 +358,6 @@ Route::prefix('v1')->group(function () {
         });
 
 
-        Route::prefix('call_backs')->group(function () {
-            
-            Route::prefix('invoices')->group(function () {
-                Route::prefix('tele_birr')->group(function () {
-                    Route::post('/pay_invoices_call_back_tele_birr', [InvoiceForOrganizationController::class, 'payInvoicesCallBackTelebirr']);
-                });
-            }); 
-
-        });
 
 
         Route::middleware(['auth:sanctum', 'abilities:access-organizationUser'])->group(function () {
@@ -712,16 +706,6 @@ Route::prefix('v1')->group(function () {
         });
 
 
-        Route::prefix('call_backs')->group(function () {
-            
-            Route::prefix('invoice_users')->group(function () {
-                Route::prefix('tele_birr')->group(function () {
-                    Route::post('/pay_invoice_users_call_back_tele_birr', [InvoiceUserForCustomerController::class, 'payInvoiceCallBackTelebirr']);
-                    
-                });
-            }); 
-
-        });
 
 
         Route::middleware(['auth:sanctum', 'abilities:access-customer'])->group(function () {
@@ -814,6 +798,27 @@ Route::prefix('v1')->group(function () {
     });
 
 
+
+
+
+
+
+    // Callback Routes from banks and financial institutions
+    Route::prefix('call_backs')->group(function () {
+
+        Route::prefix('boa')->group(function () {
+            Route::post('/pay_invoices_call_back', [BOACallbackController::class, 'payInvoicesCallback']);
+        });
+
+        Route::prefix('cbe')->group(function () {
+            Route::post('/pay_invoices_call_back', [CBECallbackController::class, 'payInvoicesCallback']);
+        });
+            
+        Route::prefix('tele_birr')->group(function () {
+            Route::post('/pay_invoices_call_back', [TeleBirrCallbackController::class, 'payInvoicesCallback']);
+        });
+
+    });
 
         
 

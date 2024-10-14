@@ -11,8 +11,8 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use App\Services\Api\V1\Customer\PrPaymentService;
 use App\Http\Requests\Api\V1\CustomerRequests\AcceptBidRequest;
+use App\Services\Api\V1\Customer\Payment\BOA\BOAPaymentService;
 use App\Http\Resources\Api\V1\OrderUserResources\OrderUserForCustomerResource;
 
 class BidController extends Controller
@@ -192,7 +192,7 @@ class BidController extends Controller
             // do the actual payment 
             $priceInitialOfAcceptedBid = $bid->price_initial;
             // pass the $priceInitialOfAcceptedBid to be paid   and   pass the $invoiceCreatedId so that it could be used in the callback endpoint to change the status of the paid invoices
-            $valuePayment = PrPaymentService::payPrs($priceInitialOfAcceptedBid, $invoiceCreatedId);
+            $valuePayment = BOAPaymentService::payPrs($priceInitialOfAcceptedBid, $invoiceCreatedId);
 
             if ($valuePayment === false) {
                 return response()->json(['message' => 'payment operation failed from the banks side'], 500);

@@ -1,0 +1,75 @@
+<?php
+
+namespace App\Http\Controllers\Api\V1\Callback\TeleBirr;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+
+class TeleBirrCallbackController extends Controller
+{
+    /**
+     * payment callback for invoice (comes from banks)
+     */
+    public function payInvoicesCallback(Request $request)
+    {
+        //
+        // $var = DB::transaction(function () {
+            
+        // });
+
+        // return $var;
+    }
+
+
+
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        //
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        //
+        // $var = DB::transaction(function () {
+            
+        // });
+
+        // return $var;
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
+    {
+        //
+        // $var = DB::transaction(function () {
+            
+        // });
+
+        // return $var;
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        //
+    }
+}

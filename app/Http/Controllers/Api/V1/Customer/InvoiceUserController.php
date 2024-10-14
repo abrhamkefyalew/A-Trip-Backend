@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\V1\CustomerRequests\PayInvoiceCallBackTelebirrRequest;
+use App\Http\Requests\Api\V1\CustomerRequests\PayInvoiceCallbackTelebirrRequest;
 
 class InvoiceUserController extends Controller
 {
@@ -45,9 +45,17 @@ class InvoiceUserController extends Controller
 
 
     /**
+     * NOT FUNCTIONAL CURRENTLY. 
+     * 
+     * this function is made UN-functional currently
+     * 
+     * the functionality under it is moved to another class
+     * 
+     * 
+     * 
      * telebirr call back , to confirm payment // for organization
      */
-    public function payInvoiceCallBackTelebirr(PayInvoiceCallBackTelebirrRequest $request)
+    public function payInvoiceCallbackTelebirr(PayInvoiceCallbackTelebirrRequest $request)
     {
         //
         DB::transaction(function () use ($request) {

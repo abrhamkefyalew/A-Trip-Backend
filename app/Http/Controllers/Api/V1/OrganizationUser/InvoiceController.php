@@ -12,12 +12,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Services\Api\V1\FilteringService;
-use App\Services\Api\V1\OrganizationUser\PrPaymentService;
 use App\Http\Requests\Api\V1\OrganizationUserRequests\PayInvoiceRequest;
+use App\Services\Api\V1\OrganizationUser\Payment\BOA\BOAPrPaymentService;
 use App\Http\Requests\Api\V1\OrganizationUserRequests\StoreInvoiceRequest;
 use App\Http\Requests\Api\V1\OrganizationUserRequests\UpdateInvoiceRequest;
 use App\Http\Resources\Api\V1\InvoiceResources\InvoiceForOrganizationResource;
-use App\Http\Requests\Api\V1\OrganizationUserRequests\PayInvoicesCallBackTelebirrRequest;
+use App\Http\Requests\Api\V1\OrganizationUserRequests\PayInvoicesCallbackTelebirrRequest;
 
 class InvoiceController extends Controller
 {
@@ -411,7 +411,7 @@ class InvoiceController extends Controller
 
                 // do the actual payment 
                 // pass the $totalPriceAmount to be paid   and   pass the $invoiceCode so that it could be used in the callback endpoint to change the status of the paid invoices
-                $prPaymentService = new PrPaymentService($totalPriceAmount, $invoiceCode);
+                $prPaymentService = new BOAPrPaymentService($totalPriceAmount, $invoiceCode);
                 $valuePayment = $prPaymentService->payPrs();
 
 
@@ -514,9 +514,17 @@ class InvoiceController extends Controller
 
 
     /**
+     * NOT FUNCTIONAL CURRENTLY. 
+     * 
+     * this function is made UN-functional currently
+     * 
+     * the functionality under it is moved to another class
+     * 
+     * 
+     * 
      * telebirr call back , to confirm payment // for organization
      */
-    public function payInvoicesCallBackTelebirr(PayInvoicesCallBackTelebirrRequest $request)
+    public function payInvoicesCallbackTelebirr(PayInvoicesCallbackTelebirrRequest $request)
     {
         //
         DB::transaction(function () use ($request) {
