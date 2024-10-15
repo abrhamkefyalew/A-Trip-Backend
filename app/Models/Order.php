@@ -40,7 +40,7 @@ class Order extends Model implements HasMedia
         'is_terminated',
         'original_end_date',
         'pr_status',
-        'vehicle_paid_status',
+        'vehicle_pr_status',
         'order_description',
     ];
     
@@ -116,7 +116,8 @@ class Order extends Model implements HasMedia
     public const ORDER_STATUS_COMPLETE = 'COMPLETE'; // when the driver takes the order maker to the destination and the order is completed                         or  when the vehicle is returned back to the supplier
 
 
-    // PR status constants
+    // Organization to System payment, PR status constants
+    // column = pr_status
     // IF pr_status is null (in the database order table)           // it means PR asking of that Order is not started yet
     public const ORDER_PR_STARTED = 'PR_STARTED';                   // it means PR asking of that order has been started  &  there are extra days left in that order that PR can be asked upon them
     public const ORDER_PR_LAST = 'PR_LAST';                         // IF pr asking for an Order is completed // but not paid yet
@@ -124,11 +125,17 @@ class Order extends Model implements HasMedia
     public const ORDER_PR_TERMINATED = 'PR_TERMINATED';             // in any case if the pr payment is terminated
 
 
-    // vehicle payment status constants
+    // System to vehicle(i.e. suppliers) payment, PR status constants
     // this status checks if the payment share of the order is paid for the vehicles (i.e. the suppliers) 
-    //                                                                            //BUT NOT the drivers, the drivers can deal with the supplier with the supplier himself
-    public const ORDER_STATUS_VEHICLE_PAYMENT_PAID = 'PAID'; 
-    public const ORDER_STATUS_VEHICLE_PAYMENT_NOT_PAID = 'NOT_PAID';
+    // column = vehicle_pr_status
+    // IF vehicle_pr_status is null (in the database orders table)           // it means PR asking of that Order is not started yet
+    public const VEHICLE_PR_STARTED = 'VEHICLE_PR_STARTED';                 //
+    public const VEHICLE_PR_LAST = 'VEHICLE_PR_LAST';                       //
+    public const VEHICLE_PR_COMPLETED = 'VEHICLE_PR_COMPLETED';             //
+    public const VEHICLE_PR_TERMINATED = 'VEHICLE_PR_TERMINATED';           //
+
+
+
     
 
 }

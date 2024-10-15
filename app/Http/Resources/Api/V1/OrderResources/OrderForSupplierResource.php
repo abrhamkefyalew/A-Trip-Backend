@@ -44,7 +44,7 @@ class OrderForSupplierResource extends JsonResource
             'status' => $this->status,
             'is_terminated' => $this->is_terminated,
 
-            'vehicle_paid_status' => $this->vehicle_paid_status,
+            'vehicle_pr_status' => $this->vehicle_pr_status,
             
             'order_description' => $this->order_description,
             

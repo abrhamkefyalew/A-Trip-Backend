@@ -375,6 +375,21 @@ class InvoiceController extends Controller
                 }
 
 
+                // we are just updating te payment method sent in the request for all invoices sent in the request
+                foreach ($request->safe()->invoices as $requestData) {
+
+                    $invoice = Invoice::find($requestData['invoice_id']);
+
+                    $success = $invoice->update([
+                        'payment_method' => $request['payment_method'],
+                    ]);
+                    //
+                    if (!$success) {
+                        return response()->json(['message' => 'Invoice Update Failed'], 422);
+                    }
+
+                }
+
                 // check abrham samson
                 // do something here to handle = if the actual associated ORDER of EACH requested INVOICE does NOT exit     
                 // should be checked separately using foreach or another method to handle those separately
@@ -412,7 +427,7 @@ class InvoiceController extends Controller
                 // do the actual payment 
                 // pass the $totalPriceAmount to be paid   and   pass the $invoiceCode so that it could be used in the callback endpoint to change the status of the paid invoices
                 $prPaymentService = new BOAPrPaymentService($totalPriceAmount, $invoiceCode);
-                $valuePayment = $prPaymentService->payPrs();
+                $valuePayment = $prPaymentService->initiatePayment();
 
 
                 if ($valuePayment === false) {
@@ -628,6 +643,15 @@ class InvoiceController extends Controller
         // return $var;
     }
 
+
+
+    public function testboa() {
+
+        $prPaymentService = new BOAPrPaymentService(23, "9387kh4ohf734");
+        $valuePayment = $prPaymentService->initiatePayment();
+
+        return 'payment_link'. $valuePayment; 
+    }
 
 
     /**

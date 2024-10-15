@@ -417,6 +417,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/', [InvoiceForOrganizationController::class, 'index']);
                 Route::get('/index_by_invoice_code', [InvoiceForOrganizationController::class, 'indexByInvoiceCode']);
                 Route::post('/pay_invoices', [InvoiceForOrganizationController::class, 'payInvoices']);
+                Route::post('/pay_invoices_test', [InvoiceForOrganizationController::class, 'testboa']);
                 Route::prefix('/{invoice}')->group(function () {
                     Route::get('/', [InvoiceForOrganizationController::class, 'show']);
                     Route::put('/', [InvoiceForOrganizationController::class, 'update']);

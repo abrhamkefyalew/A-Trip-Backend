@@ -60,7 +60,7 @@ return new class extends Migration
             $table->string('pr_status')->nullable(); // this is NULL when the order is made initially // this column is enum //
 
             // this status checks if the payment share of the order is paid for the vehicles (i.e. the suppliers) 
-            $table->string('vehicle_paid_status')->default(Order::ORDER_STATUS_VEHICLE_PAYMENT_NOT_PAID); // this column is enum //
+            $table->string('vehicle_pr_status')->nullable(); // this is NULL when the order is made initially // this column is enum //
 
             $table->longText('order_description')->nullable();
 

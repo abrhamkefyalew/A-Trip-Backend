@@ -299,7 +299,7 @@ class OrderController extends Controller
         
                         'pr_status' => null,    // is NULL when the order is created initially
                         
-                        'vehicle_paid_status' => Order::ORDER_STATUS_VEHICLE_PAYMENT_NOT_PAID,
+                        'vehicle_pr_status' => null,
 
                         'order_description' => $requestData['order_description'],                                                                                   
                     ]);

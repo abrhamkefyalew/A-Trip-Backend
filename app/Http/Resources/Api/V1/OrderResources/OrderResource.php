@@ -53,7 +53,7 @@ class OrderResource extends JsonResource
 
             'pr_status' => $this->pr_status,
 
-            'vehicle_paid_status' => $this->vehicle_paid_status,
+            'vehicle_pr_status' => $this->vehicle_pr_status,
             
             'order_description' => $this->order_description,
             

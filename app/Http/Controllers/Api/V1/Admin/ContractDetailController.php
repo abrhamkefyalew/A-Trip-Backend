@@ -171,6 +171,14 @@ class ContractDetailController extends Controller
             
            // NOTE : - // the "is_available" column in CONTRACT_DETAILs table should NOT be update separately,  // we ONLY update "is_available" when Terminating or UnTerminating the PARENT CONTRACT
 
+
+           if (Order::where('contract_detail_id', $contractDetail->id)->exists()) {
+                return response()->json(['message' => 'Cannot Update the Contract Detail because it is in use by organization Orders.'], 409);
+            }
+
+        
+
+
            $success = $contractDetail->update($request->validated());
             //
             if (!$success) {
