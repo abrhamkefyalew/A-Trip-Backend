@@ -25,6 +25,9 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password'); // do we need this // check first // check login type
 
+            $table->foreignId('bank_id')->nullable()->constrained('banks'); // this should be nullable // for trip payment
+            $table->string('bank_account')->nullable(); // this should be nullable // for trip payment
+
             // IF NEEDED drivers license, identification card, passport, Profile Picture will be contained in media table
             
             $table->timestamps();

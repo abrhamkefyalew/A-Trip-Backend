@@ -33,6 +33,8 @@ class Driver extends Authenticatable implements HasMedia
         'is_active',
         'is_approved',
         'password',
+        'bank_id',
+        'bank_account',
     ];
 
 

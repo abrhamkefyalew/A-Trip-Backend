@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\Callback\BOA;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\CallbackRequests\BOA\BOACallbackRequest;
 
 class BOACallbackController extends Controller
 {
@@ -28,7 +29,7 @@ class BOACallbackController extends Controller
      * 
      * 
      */
-    public function payInvoicesCallback(Request $request)
+    public function payInvoicesCallback(BOACallbackRequest $request)
     {
         //
         //
@@ -37,6 +38,7 @@ class BOACallbackController extends Controller
                 // go to the organization payment callback handler
             }
         });
+        
 
         return $var;
     }

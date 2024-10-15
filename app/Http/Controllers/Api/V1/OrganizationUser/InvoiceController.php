@@ -426,8 +426,8 @@ class InvoiceController extends Controller
 
                 // do the actual payment 
                 // pass the $totalPriceAmount to be paid   and   pass the $invoiceCode so that it could be used in the callback endpoint to change the status of the paid invoices
-                $prPaymentService = new BOAPrPaymentService($totalPriceAmount, $invoiceCode);
-                $valuePayment = $prPaymentService->initiatePayment();
+                $boaPrPaymentService = new BOAPrPaymentService($totalPriceAmount, $invoiceCode);
+                $valuePayment = $boaPrPaymentService->initiatePayment();
 
 
                 if ($valuePayment === false) {

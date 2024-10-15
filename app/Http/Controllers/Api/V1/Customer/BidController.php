@@ -192,9 +192,9 @@ class BidController extends Controller
             // do the actual payment 
             $priceInitialOfAcceptedBid = $bid->price_initial;
             // pass the $priceInitialOfAcceptedBid to be paid   and   pass the $invoiceCreatedId so that it could be used in the callback endpoint to change the status of the paid invoices
-            $valuePayment = BOAPaymentService::payPrs($priceInitialOfAcceptedBid, $invoiceCreatedId);
+            $boaPaymentService = BOAPaymentService::payPrs($priceInitialOfAcceptedBid, $invoiceCreatedId);
 
-            if ($valuePayment === false) {
+            if ($boaPaymentService === false) {
                 return response()->json(['message' => 'payment operation failed from the banks side'], 500);
             }
 
@@ -211,7 +211,7 @@ class BidController extends Controller
             // return the data values needed
             return response()->json(
                 [
-                    'payment_link' => $valuePayment,
+                    'payment_link' => $boaPaymentService,
                     'data' => OrderUserForCustomerResource::make($updatedOrderUser->load('vehicleName', 'vehicle', 'driver', 'bids', 'invoiceUsers')),
                 ],
                 200
