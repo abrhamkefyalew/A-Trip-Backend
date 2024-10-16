@@ -154,10 +154,13 @@ class BidController extends Controller
             // get the order id of the selected bid
             $bidOrderId = $bid->orderUser->id;
             
-            // remove all the previous upaid invoices for that order
+            // remove all the previous unpaid invoices for that order
             InvoiceUser::where('order_user_id', $bid->orderUser->id)->where('status', InvoiceUser::INVOICE_STATUS_NOT_PAID)->where('paid_date', null)->forceDelete();
 
-            $uuidTransactionIdSystem = Str::uuid();
+            
+
+            // generate Unique UUID for each individual Customer invoices
+            $uuidTransactionIdSystem = Str::uuid(); // this uuid should be generated INSIDE the FOREACH to Generate a NEW and UNIQUE uuid (i.e. transaction_id_system) for Each invoice
 
             // create invoice for this order
             $invoice = InvoiceUser::create([

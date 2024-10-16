@@ -28,6 +28,10 @@ class DriverResource extends JsonResource
             'phone_number' => $this->phone_number,
             'is_active' => $this->is_active,
             'is_approved' => $this->is_approved,
+
+            'bank_id' => $this->bank_id,
+            'bank_account' => $this->bank_account,
+
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'driver_license_front_image_path' => $this->getOptimizedImagePath(Driver::DRIVER_LICENSE_FRONT_PICTURE),

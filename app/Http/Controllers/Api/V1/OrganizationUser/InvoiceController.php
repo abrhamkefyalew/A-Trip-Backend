@@ -426,16 +426,21 @@ class InvoiceController extends Controller
 
                 // do the actual payment 
                 // pass the $totalPriceAmount to be paid   and   pass the $invoiceCode so that it could be used in the callback endpoint to change the status of the paid invoices
-                $boaPrPaymentService = new BOAPrPaymentService($totalPriceAmount, $invoiceCode);
-                $valuePayment = $boaPrPaymentService->initiatePayment();
+                
+                if ($requestData['invoice_id'] = Invoice::INVOICE_BOA) {
 
+                            // $boaPrPaymentService = new BOAPrPaymentService($totalPriceAmount, $invoiceCode);
+                            // $valuePayment = $boaPrPaymentService->initiateBoaPayment();
 
-                if ($valuePayment === false) {
-                    return response()->json(['message' => 'payment operation failed from the banks side'], 500);
+                    // Setting values
+                    BOAPrPaymentService::setValues($totalPriceAmount, $invoiceCode);
+
+                    // Calling a static initiateBoaPayment method
+                    $valuePaymentRenderedView = BOAPrPaymentService::initiateBoaPayment();
+
+                    return $valuePaymentRenderedView;
                 }
-
-
-                return 'payment_link'. $valuePayment;
+                 
 
                  /* END Payment Service Call */
 
@@ -645,12 +650,33 @@ class InvoiceController extends Controller
 
 
 
-    public function testboa() {
+    public function testboa() 
+    {
 
-        $prPaymentService = new BOAPrPaymentService(23, "9387kh4ohf734");
-        $valuePayment = $prPaymentService->initiatePayment();
+        // $prPaymentService = new BOAPrPaymentService(23, "9387kh4ohf734");
+        // $valuePayment = $prPaymentService->initiateBoaPayment();
 
-        return 'payment_link'. $valuePayment; 
+        // Setting values
+        BOAPrPaymentService::setValues(23, "9387kh4ohf734");
+
+        // Calling a static initiateBoaPayment method
+        $valuePayment = BOAPrPaymentService::initiateBoaPayment();
+
+        return $valuePayment;
+
+        // return response()->json(['toPayUrl' => route('pay.with.boa', $valuePayment)]);
+
+        // return response()->json(['toPayUrl' => route('pay.with.boa', ['valuePayment' => $valuePayment])]);
+
+
+        // // Generate the URL for the route 'pay.with.boa' with the query string as a parameter
+        // $queryString = http_build_query(['valuePayment' => $valuePayment]);
+        // $url = route('pay.with.boa') . '?' . $queryString;
+
+        // // Return the URL in the response
+        // return response()->json(['toPayUrl' => $url]);
+        
+
     }
 
 

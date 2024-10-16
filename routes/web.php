@@ -16,3 +16,19 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+
+
+
+
+Route::get('organization_user/invoices/pay_invoices/{valuePayment}', function ($valuePayment) {
+    return view('boa_pay', ['valuePayment' => $valuePayment]);
+})->name('pay.with.boa');
+
+
+// Route::get('organization_user/invoices/pay_invoices/{valuePayment}', fn ($valuePayment) => view(
+//     'boa_pay',
+//     [
+//         'valuePayment' => $valuePayment,
+//     ]
+// ))->name('pay.with.boa');

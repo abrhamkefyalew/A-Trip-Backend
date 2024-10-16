@@ -417,7 +417,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/', [InvoiceForOrganizationController::class, 'index']);
                 Route::get('/index_by_invoice_code', [InvoiceForOrganizationController::class, 'indexByInvoiceCode']);
                 Route::post('/pay_invoices', [InvoiceForOrganizationController::class, 'payInvoices']);
-                Route::post('/pay_invoices_test', [InvoiceForOrganizationController::class, 'testboa']);
+                Route::get('/pay_invoices_test', [InvoiceForOrganizationController::class, 'testboa']);
                 Route::prefix('/{invoice}')->group(function () {
                     Route::get('/', [InvoiceForOrganizationController::class, 'show']);
                     Route::put('/', [InvoiceForOrganizationController::class, 'update']);
@@ -444,6 +444,7 @@ Route::prefix('v1')->group(function () {
     });
 
 
+    
 
 
 
@@ -823,6 +824,12 @@ Route::prefix('v1')->group(function () {
 
         
 
+
+
+
+    // TEST OPEN ROUTES
+        // boa initiate payment test
+        Route::get('/pay_invoices_test_two', [InvoiceForOrganizationController::class, 'testboa']);
 
 
 
