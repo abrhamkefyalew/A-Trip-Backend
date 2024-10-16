@@ -6,6 +6,7 @@ use App\Models\Invoice;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Http;
 
 class BOAPrPaymentService
 {
@@ -21,17 +22,18 @@ class BOAPrPaymentService
 
     public static function initiateBoaPayment()
     {
+        
+        
         /*
-        $invoice = Invoice::where('invoice_code', self::$invoiceCodeVal)->get();
-
+        $invoices = Invoice::where('invoice_code', self::$invoiceCodeVal)->get(); // multiple invoices will be fetched
         // Check if all invoices have the same transaction_id_system            // all invoices should have the same transaction_id_system (i.e. uuid), since we are going to send that transaction_id_system (i.e. uuid) to BOA
                 
-        $transactionSystemUUIDs = $invoice->pluck('transaction_id_system')->unique();
+        $transactionSystemUUIDs = $invoices->pluck('transaction_id_system')->unique();
         if ($transactionSystemUUIDs->count() > 1) {
             return response()->json(['message' => 'All invoices must have the same transaction_id_system.'], 422);
         }
         if ($transactionSystemUUIDs->count() < 1) {
-            return response()->json(['message' => 'no valid transaction_id_system for the invoice.'], 422);
+            return response()->json(['message' => 'no valid transaction_id_system for the invoices.'], 422);
         }
         // Now we are sure all the invoices have the same transaction_id_system
         // So let's get that one transaction_id_system      // it is worth to mention that the following collection only have one transaction_id_system
@@ -39,8 +41,8 @@ class BOAPrPaymentService
         $uuidTransactionIdSystem = $transactionSystemUUIDs->first(); // Retrieves the first transaction_id_system FROM our collection which in fact at this stage have ONLY one transaction_id_system  
         */
 
-        /* FOR TEST */
-        $uuidTransactionIdSystem = Str::uuid();
+
+        $uuidTransactionIdSystem = Str::uuid(); //for production , take this value from the $invoices table
 
 
         $boaData = [
@@ -63,14 +65,31 @@ class BOAPrPaymentService
 
 
         $boaData = $boaData + ['signature' => self::sign($boaData)];
+        // return $boaData; // IF YOU WANT TO return the payload it self
+        
 
 
-        // $renderedView = View::make('boa_pay', ['boaData' => $boaData])->render(); 
-        // $renderedView = View::make('boa_pay_javascript', ['boaData' => $boaData])->render(); 
-        $renderedView = View::make('boa_pay_js', ['boaData' => $boaData])->render(); 
-         return $renderedView;
+        /*
+        // return the invoice MODEL 
+        //
+        Invoice::where('invoice_code', self::$invoiceCodeVal)->update([
+            'request_payload' => $boaData,
+        ]);
+        //  
+        // $invoices->refresh(); // refresh() is not working // fetch it again as below
+        //
+        $invoice = Invoice::where('invoice_code', self::$invoiceCodeVal)->first();
+        return $invoice; // if you want to return the invoice MODEL 
+        */
 
-        // return $boaData;
+        
+        // DIRECTLY CALL THE VIEW (i.e.boa_pay.blade.php) and return the RENDERED VIEW
+        //
+        // $renderedView = View::make('boa_pay_organization_using_payload_directly_javascript', ['boaData' => $boaData])->render(); // passing payload directly
+        $renderedView = View::make('boa_pay_organization_using_payload_directly', ['boaData' => $boaData])->render(); // passing payload directly
+        return $renderedView;
+        
+
     }
 
     public static function sign($params)

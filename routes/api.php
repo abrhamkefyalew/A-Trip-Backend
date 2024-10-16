@@ -827,9 +827,9 @@ Route::prefix('v1')->group(function () {
 
 
 
-    // TEST OPEN ROUTES
+    // TEST OPEN ROUTES (normal_endpoint + _open_route)
         // boa initiate payment test
-        Route::get('/pay_invoices_test_two', [InvoiceForOrganizationController::class, 'testboa']);
+        Route::get('/pay_invoices_test_open_route', [InvoiceForOrganizationController::class, 'testboa']);
 
 
 

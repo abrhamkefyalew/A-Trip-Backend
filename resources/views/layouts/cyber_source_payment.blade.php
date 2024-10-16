@@ -1,6 +1,6 @@
 <html>
 <head>
-    <title>Secure Acceptance - Payment Form Example</title>
+    <title>Secure Acceptance - Payment Form - Cyber Source - BOA</title>
     <script type="text/javascript" src="{{ asset('files/jquery-1.7.min.js') }}"></script>
 </head>
 <body>

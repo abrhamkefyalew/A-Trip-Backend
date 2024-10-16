@@ -32,6 +32,13 @@ return new class extends Migration
 
             $table->string('payment_method')->nullable(); // should be NULL initially
 
+            //
+            $table->json('request_payload')->nullable(); // if there is any request payload i need to store in the database // i will put it in this column
+            
+
+            // the columns that will be added below in the future here, are intended for the return data from the banks
+
+            
             $table->timestamps();
             $table->softDeletes();
         });

@@ -652,31 +652,18 @@ class InvoiceController extends Controller
 
     public function testboa() 
     {
-
-        // $prPaymentService = new BOAPrPaymentService(23, "9387kh4ohf734");
-        // $valuePayment = $prPaymentService->initiateBoaPayment();
-
         // Setting values
         BOAPrPaymentService::setValues(23, "9387kh4ohf734");
 
         // Calling a static initiateBoaPayment method
         $valuePayment = BOAPrPaymentService::initiateBoaPayment();
 
-        return $valuePayment;
+        return $valuePayment; // to return any value , including a RENDERED VIEW value from BOAPrPaymentService
 
-        // return response()->json(['toPayUrl' => route('pay.with.boa', $valuePayment)]);
-
-        // return response()->json(['toPayUrl' => route('pay.with.boa', ['valuePayment' => $valuePayment])]);
-
-
-        // // Generate the URL for the route 'pay.with.boa' with the query string as a parameter
-        // $queryString = http_build_query(['valuePayment' => $valuePayment]);
-        // $url = route('pay.with.boa') . '?' . $queryString;
-
-        // // Return the URL in the response
-        // return response()->json(['toPayUrl' => $url]);
-        
-
+        /*
+        // to call a ROUTE from web.php
+        // return response()->json(['toPayUrl' => route('pay.with.boa', $valuePayment)]); // better suited for returning model object (i.e. $invoice object) 
+        */
     }
 
 

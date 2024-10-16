@@ -29,6 +29,7 @@ class Invoice extends Model
         'status',
         'paid_date',
         'payment_method',
+        'request_payload',
     ];
 
 
