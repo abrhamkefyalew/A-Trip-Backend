@@ -8,19 +8,28 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Http;
 
-class BOAPrPaymentService
+/**
+ * handle different kinds of PAYMENTs for organization with different methods within this same class
+ * i.e. PR Payment for organization  - or -  any other Payment for organization
+ * 
+ */
+class BOAOrganizationPaymentService
 {
-
     private static $priceAmountTotalVal;
     private static $invoiceCodeVal;
+    private static $invoiceCodeValWithPrefix;
 
     public static function setValues($priceAmountTotalValue, $invoiceCodeValue)
     {
         self::$priceAmountTotalVal = $priceAmountTotalValue;
         self::$invoiceCodeVal = $invoiceCodeValue;
+
+        // at last 
+        // add prefix = "OPR-" : - prefix on the invoice code variable so that during call back later we could know that it is for ORGANIZATION PR payment
+        self::$invoiceCodeValWithPrefix = "OPR-" . $invoiceCodeValue; // add the OPR- prefix to indicate the invoice code is for organization payment // we will use it later when the callback comes from the banks
     }
 
-    public static function initiateBoaPayment()
+    public static function initiatePaymentByBoaForPR()
     {
         
         
@@ -42,22 +51,22 @@ class BOAPrPaymentService
         
 
 
-
+        
 
         $boaData = [
-            'access_key' => 'b13653780c403ab28836f1fd7547d093',
+            'access_key' => config('boa.testing') ? config('boa.testing_access_key') : config('boa.access_key'),
             'amount' => (string) self::$priceAmountTotalVal,
-            'currency' => 'ETB',
+            'currency' => config('boa.testing') ? config('boa.testing_currency') : config('boa.currency'),
 
-            'locale' => 'en',
+            'locale' => config('boa.testing') ? config('boa.testing_locale') : config('boa.locale'),
             // 'payment_method' => 'card',
-            'profile_id' => '6B8919B9-5598-4C07-950C-AAEE72F165AC',
+            'profile_id' => config('boa.testing') ? config('boa.testing_profile_id') : config('boa.profile_id'),
 
-            'reference_number' => (string) self::$invoiceCodeVal, // invoice id
+            'reference_number' => (string) self::$invoiceCodeValWithPrefix,
             'signed_date_time' => gmdate("Y-m-d\TH:i:s\Z"), // str(signed_date_time)
             'signed_field_names' => 'access_key,amount,currency,locale,profile_id,reference_number,signed_date_time,signed_field_names,transaction_type,transaction_uuid,unsigned_field_names', // the order of the field name matters significantly when signing and unsigning
 
-            'transaction_type' => 'sale',
+            'transaction_type' => config('boa.testing') ? config('boa.testing_transaction_type') : config('boa.transaction_type'),
             'transaction_uuid' => (string) $uuidTransactionIdSystem, // universal_id (i.e. UUID)
             'unsigned_field_names' => '',
         ];
@@ -137,7 +146,7 @@ class BOAPrPaymentService
 
 
 
-    public static function initiateBoaPaymentTest()
+    public static function initiateBoaPaymentTest() // hardcoded json request // we use it for testing
     {
         
         
@@ -162,6 +171,7 @@ class BOAPrPaymentService
         $uuidTransactionIdSystem = Str::uuid(); //for production , take this value from the $invoices table
 
 
+        
         $boaData = [
             'access_key' => 'b13653780c403ab28836f1fd7547d093',
             'amount' => (string) self::$priceAmountTotalVal,
@@ -171,7 +181,7 @@ class BOAPrPaymentService
             // 'payment_method' => 'card',
             'profile_id' => '6B8919B9-5598-4C07-950C-AAEE72F165AC',
 
-            'reference_number' => (string) self::$invoiceCodeVal, // invoice id
+            'reference_number' => (string) self::$invoiceCodeValWithPrefix,
             'signed_date_time' => gmdate("Y-m-d\TH:i:s\Z"), // str(signed_date_time)
             'signed_field_names' => 'access_key,amount,currency,locale,profile_id,reference_number,signed_date_time,signed_field_names,transaction_type,transaction_uuid,unsigned_field_names', // the order of the field name matters significantly when signing and unsigning
 
@@ -196,7 +206,7 @@ class BOAPrPaymentService
         // $invoices->refresh(); // refresh() is not working // fetch it again as below
         //
         $invoice = Invoice::where('invoice_code', self::$invoiceCodeVal)->first();
-        return $invoice; // if you want to return the invoice MODEL 
+        return $invoice; // if you want to return the invoice MODEL (i.e used return the $invoice instance to the CONTROLLER so the Controller could call the web.php route so that the web.php could call the blade VIEW (boa_pay.blade.php))
         */
 
         

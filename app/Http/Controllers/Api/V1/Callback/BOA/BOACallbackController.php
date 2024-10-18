@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api\V1\Callback\BOA;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\CallbackRequests\BOA\BOACallbackRequest;
+use App\Services\Api\V1\Callback\OrganizationUser\BOA\BOAOrganizationCallbackService;
 
 class BOACallbackController extends Controller
 {
@@ -14,17 +14,17 @@ class BOACallbackController extends Controller
      * 
      * from customer or organization to adiamat
      *      //
-     *      OPR = (organization PR) payment
+     *      "OPR-" = (organization PR) payment
      *      //
-     *      ICI = (individual customer initial) payment
-     *      ICF = (individual customer final) payment
+     *      "ICI-" = (individual customer initial) payment
+     *      "ICF-" = (individual customer final) payment
      * 
      * from adiamat to others payment
      *      // NOTE : - 
      *      //
-     *      VOO = (vehicle of Order) payment
+     *      "VOO-" = (vehicle of Order) payment
      *      //
-     *      DTF = (Driver Trip Fuel) payment
+     *      "DTF-" = (Driver Trip Fuel) payment
      * 
      * 
      * 
@@ -33,14 +33,48 @@ class BOACallbackController extends Controller
     {
         //
         //
-        $var = DB::transaction(function () use ($request) {
-            if (substr($request['invoice_reference'], 0, 3) === 'OPR') {
-                // go to the organization payment callback handler
-            }
-        });
-        
+        if (substr($request['invoice_reference'], 0, 4) === 'OPR-') {
+            // go to the organization payment callback SERVICE and its method
+            
+            // pass the whole invoice reference for the callback
+            BOAOrganizationCallbackService::setValues($request['invoice_reference']);
 
-        return $var;
+            // Calling a static BOA callback method
+            $handlePaymentByBoaForPRCallbackValue = BOAOrganizationCallbackService::handlePaymentByBoaForPRCallback();
+
+            // since it is call back we will not return value to the banks
+            // or may be 200 OK response // check abrham samson
+
+        }
+        /*
+        else if (substr($request['invoice_reference'], 0, 4) === 'ICI-') {
+            // go to the organization payment callback SERVICE and its method
+            
+            // pass the whole invoice reference for the callback
+            BOACustomerCallbackService::setValues($request['invoice_reference']);
+
+            // Calling a static BOA callback method
+            $value = BOACustomerCallbackService::handlePaymentByBoaForVehicleCallback();
+
+            // since it is call back we will not return value to the banks
+            // or may be 200 OK response // check abrham samson
+
+        }
+        else if (substr($request['invoice_reference'], 0, 4) === 'ICF-') {
+            // go to the organization payment callback SERVICE and its method
+            
+            // pass the whole invoice reference for the callback
+            BOACustomerCallbackService::setValues($request['invoice_reference']);
+
+            // Calling a static BOA callback method
+            $value = BOACustomerCallbackService::handlePaymentByBoaForVehicleCallback();
+
+            // since it is call back we will not return value to the banks
+            // or may be 200 OK response // check abrham samson
+
+        }
+        */
+
     }
 
 

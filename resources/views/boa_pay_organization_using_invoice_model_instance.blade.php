@@ -35,7 +35,7 @@
 {{-- @extends('layouts.cyber_source_payment')
 
 @section('content')
-<form id="payment_confirmation" action="{{ config('boa.testing_form_post_url') }}" method="post">
+<form id="payment_confirmation" action="{{ config('boa.testing') ? config('boa.testing_form_post_url') : config('boa.form_post_url') }}" method="post">
     @php
         // Decode the JSON string into an associative array
         $params = json_decode($invoice->boa_request_payload, true);

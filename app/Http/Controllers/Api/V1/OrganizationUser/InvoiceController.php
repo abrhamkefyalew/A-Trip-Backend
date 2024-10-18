@@ -13,10 +13,10 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Services\Api\V1\FilteringService;
 use App\Http\Requests\Api\V1\OrganizationUserRequests\PayInvoiceRequest;
-use App\Services\Api\V1\OrganizationUser\Payment\BOA\BOAPrPaymentService;
 use App\Http\Requests\Api\V1\OrganizationUserRequests\StoreInvoiceRequest;
 use App\Http\Requests\Api\V1\OrganizationUserRequests\UpdateInvoiceRequest;
 use App\Http\Resources\Api\V1\InvoiceResources\InvoiceForOrganizationResource;
+use App\Services\Api\V1\OrganizationUser\Payment\BOA\BOAOrganizationPaymentService;
 use App\Http\Requests\Api\V1\OrganizationUserRequests\PayInvoicesCallbackTelebirrRequest;
 
 class InvoiceController extends Controller
@@ -425,18 +425,20 @@ class InvoiceController extends Controller
                  /* START Payment Service Call */
 
                 // do the actual payment 
-                // pass the $totalPriceAmount to be paid   and   pass the $invoiceCode so that it could be used in the callback endpoint to change the status of the paid invoices
+                // pass the $totalPriceAmount so that the customer could pay it
+                // pass the $invoiceCode so that it could be used in the callback endpoint
                 
-                if ($requestData['invoice_id'] = Invoice::INVOICE_BOA) {
+                if ($requestData['payment_method'] = Invoice::INVOICE_BOA) {
 
                             // $boaPrPaymentService = new BOAPrPaymentService($totalPriceAmount, $invoiceCode);
                             // $valuePayment = $boaPrPaymentService->initiateBoaPayment();
 
+                    
                     // Setting values
-                    BOAPrPaymentService::setValues($totalPriceAmount, $invoiceCode);
+                    BOAOrganizationPaymentService::setValues($totalPriceAmount, $invoiceCode);
 
-                    // Calling a static initiateBoaPayment method
-                    $valuePaymentRenderedView = BOAPrPaymentService::initiateBoaPayment();
+                    // Calling a static BOA initiateBoaPayment method
+                    $valuePaymentRenderedView = BOAOrganizationPaymentService::initiatePaymentByBoaForPR();
 
                     return $valuePaymentRenderedView;
                 }
@@ -549,8 +551,8 @@ class InvoiceController extends Controller
         //
         DB::transaction(function () use ($request) {
 
-            // if paid status code from the bank is NOT 200 -> i will log and abort
-            // if paid status code from the bank is 200,  ->  I wil do the following
+            // if paid status code from the bank is NOT 200 -> i will log and abort // abrham samson check
+            // if paid status code from the bank is 200,  ->  I wil do the following // abrham samson check
 
 
 
@@ -653,10 +655,10 @@ class InvoiceController extends Controller
     public function testboa() 
     {
         // Setting values
-        BOAPrPaymentService::setValues(48, "9387kh4ohf734dddd");
+        BOAOrganizationPaymentService::setValues(48, "9387kh4ohf734dddd");
 
         // Calling a static initiateBoaPayment method
-        $valuePayment = BOAPrPaymentService::initiateBoaPaymentTest();
+        $valuePayment = BOAOrganizationPaymentService::initiateBoaPaymentTest();
 
         return $valuePayment; // to return any value , including a RENDERED VIEW value from BOAPrPaymentService
 
