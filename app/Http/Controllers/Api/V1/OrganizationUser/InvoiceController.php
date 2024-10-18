@@ -653,10 +653,10 @@ class InvoiceController extends Controller
     public function testboa() 
     {
         // Setting values
-        BOAPrPaymentService::setValues(23, "9387kh4ohf734");
+        BOAPrPaymentService::setValues(48, "9387kh4ohf734dddd");
 
         // Calling a static initiateBoaPayment method
-        $valuePayment = BOAPrPaymentService::initiateBoaPayment();
+        $valuePayment = BOAPrPaymentService::initiateBoaPaymentTest();
 
         return $valuePayment; // to return any value , including a RENDERED VIEW value from BOAPrPaymentService
 
