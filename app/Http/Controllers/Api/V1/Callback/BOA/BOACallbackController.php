@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\Callback\BOA;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\CallbackRequests\BOA\BOACallbackRequest;
+use App\Services\Api\V1\Callback\Customer\BOA\BOACustomerCallbackService;
 use App\Services\Api\V1\Callback\OrganizationUser\BOA\BOAOrganizationCallbackService;
 
 class BOACallbackController extends Controller
@@ -34,46 +35,43 @@ class BOACallbackController extends Controller
         //
         //
         if (substr($request['invoice_reference'], 0, 4) === 'OPR-') {
-            // go to the organization payment callback SERVICE and its method
             
             // pass the whole invoice reference for the callback
             BOAOrganizationCallbackService::setValues($request['invoice_reference']);
 
-            // Calling a static BOA callback method
-            $handlePaymentByBoaForPRCallbackValue = BOAOrganizationCallbackService::handlePaymentByBoaForPRCallback();
+            // Calling a callback static method
+            $handlePaymentByBoaForPRCallbackValue = BOAOrganizationCallbackService::handlePaymentForPRCallback();
 
             // since it is call back we will not return value to the banks
             // or may be 200 OK response // check abrham samson
 
         }
-        /*
+        
         else if (substr($request['invoice_reference'], 0, 4) === 'ICI-') {
-            // go to the organization payment callback SERVICE and its method
             
             // pass the whole invoice reference for the callback
-            BOACustomerCallbackService::setValues($request['invoice_reference']);
+            $boaCustomerPaymentService = new BOACustomerCallbackService($request['invoice_reference']);
 
-            // Calling a static BOA callback method
-            $value = BOACustomerCallbackService::handlePaymentByBoaForVehicleCallback();
+            // Calling a callback non static method
+            $value = $boaCustomerPaymentService->handleInitialPaymentForVehicleCallback();
 
             // since it is call back we will not return value to the banks
             // or may be 200 OK response // check abrham samson
 
         }
         else if (substr($request['invoice_reference'], 0, 4) === 'ICF-') {
-            // go to the organization payment callback SERVICE and its method
             
             // pass the whole invoice reference for the callback
-            BOACustomerCallbackService::setValues($request['invoice_reference']);
+            $boaCustomerPaymentService = new BOACustomerCallbackService($request['invoice_reference']);
 
-            // Calling a static BOA callback method
-            $value = BOACustomerCallbackService::handlePaymentByBoaForVehicleCallback();
+            // Calling a callback non static method
+            $value = $boaCustomerPaymentService->handleFinalPaymentForVehicleCallback();
 
             // since it is call back we will not return value to the banks
             // or may be 200 OK response // check abrham samson
 
         }
-        */
+        
 
     }
 

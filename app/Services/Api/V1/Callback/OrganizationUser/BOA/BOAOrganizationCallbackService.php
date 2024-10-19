@@ -23,14 +23,18 @@ class BOAOrganizationCallbackService
         // self::$invoiceCodeVal = str_replace("OPR-", "", $invoiceReferenceWithPrefixFromBoa);                        // This Works ALSO
     }
 
-    // good names // processBankCallback // handleBankCallback // executeAfterBankCallback // performOperationOnBankCallback // onBankCallbackDoOperation // processPaymentByBoaForPRCallback // handlePaymentByBoaForPRCallback
+    // good names 
+    // processBankCallback // handleBankCallback // executeAfterBankCallback // performOperationOnBankCallback // onBankCallbackDoOperation // processPaymentByBoaForPRCallback // handlePaymentByBoaForPRCallback
     //
 
+
+
+
     /**
-     * Handles PR payment
-     *  initiatePaymentByBoaForPR
+     * Handles PR payment callback
+     * 
      */
-    public static function handlePaymentByBoaForPRCallback()
+    public static function handlePaymentForPRCallback()
     {
 
         // Get the invoice_code from the global variable
@@ -129,6 +133,8 @@ class BOAOrganizationCallbackService
             // return InvoiceForOrganizationResource::collection($invoicesData);
             
         });
+
+        // return $var;
         
     }
 

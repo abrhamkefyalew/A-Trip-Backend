@@ -29,11 +29,15 @@ class BOAOrganizationPaymentService
         self::$invoiceCodeValWithPrefix = "OPR-" . $invoiceCodeValue; // add the OPR- prefix to indicate the invoice code is for organization payment // we will use it later when the callback comes from the banks
     }
 
-    public static function initiatePaymentByBoaForPR()
+
+
+    
+    /**
+     * Handles PR payment callback
+     * 
+     */
+    public static function initiatePaymentForPR()
     {
-        
-        
-        
         $invoices = Invoice::where('invoice_code', self::$invoiceCodeVal)->get(); // multiple invoices will be fetched
         // Check if all invoices have the same transaction_id_system            // all invoices should have the same transaction_id_system (i.e. uuid), since we are going to send that transaction_id_system (i.e. uuid) to BOA
                 

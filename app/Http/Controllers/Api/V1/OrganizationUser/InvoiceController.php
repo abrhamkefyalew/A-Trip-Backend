@@ -428,7 +428,7 @@ class InvoiceController extends Controller
                 // pass the $totalPriceAmount so that the customer could pay it
                 // pass the $invoiceCode so that it could be used in the callback endpoint
                 
-                if ($requestData['payment_method'] = Invoice::INVOICE_BOA) {
+                if ($request['payment_method'] = Invoice::INVOICE_BOA) {
 
                             // $boaPrPaymentService = new BOAPrPaymentService($totalPriceAmount, $invoiceCode);
                             // $valuePayment = $boaPrPaymentService->initiateBoaPayment();
@@ -437,12 +437,12 @@ class InvoiceController extends Controller
                     // Setting values
                     BOAOrganizationPaymentService::setValues($totalPriceAmount, $invoiceCode);
 
-                    // Calling a static BOA initiateBoaPayment method
-                    $valuePaymentRenderedView = BOAOrganizationPaymentService::initiatePaymentByBoaForPR();
+                    // Calling a static method
+                    $valuePaymentRenderedView = BOAOrganizationPaymentService::initiatePaymentForPR();
 
                     return $valuePaymentRenderedView;
                 }
-                 
+                
 
                  /* END Payment Service Call */
 

@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\CustomerRequests\AcceptBidRequest;
-use App\Services\Api\V1\Customer\Payment\BOA\BOAPaymentService;
+use App\Services\Api\V1\Customer\Payment\BOA\BOACustomerPaymentService;
 use App\Http\Resources\Api\V1\OrderUserResources\OrderUserForCustomerResource;
 
 class BidController extends Controller
@@ -163,7 +163,7 @@ class BidController extends Controller
             $uuidTransactionIdSystem = Str::uuid(); // this uuid should be generated INSIDE the FOREACH to Generate a NEW and UNIQUE uuid (i.e. transaction_id_system) for Each invoice
 
             // create invoice for this order
-            $invoice = InvoiceUser::create([
+            $invoiceUser = InvoiceUser::create([
                 'order_user_id' => $bidOrderId,
                 'transaction_id_system' => $uuidTransactionIdSystem,
 
@@ -173,19 +173,19 @@ class BidController extends Controller
                 'payment_method' => $request['payment_method'],
             ]);
             //
-            if (!$invoice) {
+            if (!$invoiceUser) {
                 return response()->json(['message' => 'Invoice Create Failed'], 422);
             }
 
             
 
             // get the updated order
-            $updatedOrderUser = OrderUser::find($bidOrderId);
+            // $updatedOrderUser = OrderUser::find($bidOrderId);
 
             // get the newly created invoice
-            $invoiceCreated = InvoiceUser::find($invoice->id);
+            $invoiceUserCreated = InvoiceUser::find($invoiceUser->id);
             // get the new invoice id
-            $invoiceCreatedId = $invoiceCreated->id;
+            $invoiceUserCreatedId = $invoiceUserCreated->id;
 
 
 
@@ -193,12 +193,16 @@ class BidController extends Controller
             /* START Payment Service Call */
             
             // do the actual payment 
-            $priceInitialOfAcceptedBid = $bid->price_initial;
-            // pass the $priceInitialOfAcceptedBid to be paid   and   pass the $invoiceCreatedId so that it could be used in the callback endpoint to change the status of the paid invoices
-            $boaPaymentService = BOAPaymentService::payPrs($priceInitialOfAcceptedBid, $invoiceCreatedId);
 
-            if ($boaPaymentService === false) {
-                return response()->json(['message' => 'payment operation failed from the banks side'], 500);
+            if ($request['payment_method'] = InvoiceUser::INVOICE_BOA) {
+
+                // Setting values
+                $boaCustomerPaymentService = new BOACustomerPaymentService($invoiceUserCreatedId);
+
+                // Calling a non static method
+                $valuePaymentRenderedView = $boaCustomerPaymentService->initiateInitialPaymentForVehicle();
+
+                return $valuePaymentRenderedView;
             }
 
 
@@ -211,14 +215,14 @@ class BidController extends Controller
             
 
             
-            // return the data values needed
-            return response()->json(
-                [
-                    'payment_link' => $boaPaymentService,
-                    'data' => OrderUserForCustomerResource::make($updatedOrderUser->load('vehicleName', 'vehicle', 'driver', 'bids', 'invoiceUsers')),
-                ],
-                200
-            );
+            // WRONG RETURN FOR BOA payment
+            // return response()->json(
+            //     [
+            //         'payment_link' => $boaPaymentService,
+            //         'data' => OrderUserForCustomerResource::make($updatedOrderUser->load('vehicleName', 'vehicle', 'driver', 'bids', 'invoiceUsers')),
+            //     ],
+            //     200
+            // );
 
                  
         });
