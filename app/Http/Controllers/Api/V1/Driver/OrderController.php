@@ -49,13 +49,13 @@ class OrderController extends Controller
                 if (!in_array($orderStatus, [Order::ORDER_STATUS_PENDING, Order::ORDER_STATUS_SET, Order::ORDER_STATUS_START, Order::ORDER_STATUS_COMPLETE])) {
                     return response()->json([
                         'message' => 'order_status_search should only be ' . Order::ORDER_STATUS_PENDING . ', ' . Order::ORDER_STATUS_SET . ', ' . Order::ORDER_STATUS_START . ', or ' . Order::ORDER_STATUS_COMPLETE
-                    ], 422);
+                    ], 400);
                 }
 
                 $orders = $orders->where('status', $orderStatus);
             } 
             else {
-                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
             }
 
         }
@@ -151,7 +151,7 @@ class OrderController extends Controller
 
         if ($driver->id != $order->driver_id) {
             // this vehicle is NOT be owned by the logged in driver
-            return response()->json(['message' => 'invalid Order is selected or Requested. or the requested Order is not found. Deceptive request Aborted.'], 401);
+            return response()->json(['message' => 'invalid Order is selected or Requested. or the requested Order is not found. Deceptive request Aborted.'], 403);
         }
 
         return OrderForDriverResource::make($order->load('vehicleName', 'vehicle', 'supplier', 'contractDetail', 'organization'));
@@ -183,23 +183,23 @@ class OrderController extends Controller
             }
 
             if ($vehicle->is_available !== Vehicle::VEHICLE_AVAILABLE) {
-                return response()->json(['message' => 'the selected vehicle is not currently available'], 403); 
+                return response()->json(['message' => 'the selected vehicle is not currently available'], 409); 
             }
 
 
             // i could use relation, instead of fetching all ,  =     $vehicle->driver->is_active     and     $vehicle->supplier->is_approved         // check abrham samson
             if ($driver->is_active != 1) {
-                return response()->json(['message' => 'Forbidden: Deactivated Driver'], 403); 
+                return response()->json(['message' => 'Forbidden: Deactivated Driver'], 428); 
             }
             if ($driver->is_approved != 1) {
-                return response()->json(['message' => 'Forbidden: NOT Approved Driver'], 403); 
+                return response()->json(['message' => 'Forbidden: NOT Approved Driver'], 401); 
             }
 
             $supplier = Supplier::find($vehicle->supplier_id);
             // i could use relation, instead of fetching all ,  =     $vehicle->supplier->is_active   and     $vehicle->supplier->is_approved         // check abrham samson
             if ($supplier) {
                 if ($supplier->is_active != 1) {
-                    return response()->json(['message' => 'Forbidden: Deactivated Supplier'], 403); 
+                    return response()->json(['message' => 'Forbidden: Deactivated Supplier'], 428); 
                 }
                 if ($supplier->is_approved != 1) {
                     return response()->json(['message' => 'Forbidden: NOT Approved Supplier'], 403); 
@@ -217,19 +217,19 @@ class OrderController extends Controller
 
 
             if ($order->status !== Order::ORDER_STATUS_PENDING) {
-                return response()->json(['message' => 'this order is not pending. it is already accepted , started or completed'], 403); 
+                return response()->json(['message' => 'this order is not pending. it is already accepted , started or completed'], 409); 
             }
 
             if ($order->end_date < today()->toDateString()) {
-                return response()->json(['message' => 'this order is Expired already.'], 403); 
+                return response()->json(['message' => 'this order is Expired already.'], 410); 
             }
 
             if ($order->is_terminated !== 0) {
-                return response()->json(['message' => 'this order is Terminated'], 403); 
+                return response()->json(['message' => 'this order is Terminated'], 410); 
             }
             
             if (($order->vehicle_id !== null) || ($order->driver_id !== null) || ($order->supplier_id !== null)) {
-                return response()->json(['message' => 'this order is already being accepted and it already have a value on the columns (driver_id or supplier_id or vehicle_id) , for some reason'], 403); 
+                return response()->json(['message' => 'this order is already being accepted and it already have a value on the columns (driver_id or supplier_id or vehicle_id) , for some reason'], 409); 
             }
 
 
@@ -239,27 +239,27 @@ class OrderController extends Controller
             if ($vehicle->with_driver !== $order->contractDetail->with_driver) {        // TEST IF THIS DOES WORK = $order->contractDetail->with_driver         // check abrham samson
 
                 if (($vehicle->with_driver === 1) && ($order->contractDetail->with_driver === 0)) {
-                    return response()->json(['message' => 'the order does not need a driver'], 403); 
+                    return response()->json(['message' => 'the order does not need a driver'], 422); 
                 }
                 else if (($vehicle->with_driver === 0) && ($order->contractDetail->with_driver === 1)) {
-                    return response()->json(['message' => 'the order needs vehicle with a driver'], 403); 
+                    return response()->json(['message' => 'the order needs vehicle with a driver'], 422); 
                 }
                 
 
-                return response()->json(['message' => 'the vehicle with_driver value is not equal with that of the order requirement.'], 403); 
+                return response()->json(['message' => 'the vehicle with_driver value is not equal with that of the order requirement.'], 422); 
                 
             }
 
             // this if is important and should be right here 
             // this if should NOT be nested in any other if condition // this if should be independent and done just like this  // this if should be checked independently just like i did it right here
             if (($vehicle->driver_id === null) && ($order->contractDetail->with_driver === 1)) {
-                return response()->json(['message' => 'the vehicle you selected for the order does not have actual driver currently. This Order Needs Vehicle that have Driver'], 403); 
+                return response()->json(['message' => 'the vehicle you selected for the order does not have actual driver currently. This Order Needs Vehicle that have Driver'], 422); 
             }
 
 
             // CHECK IF THE CONTRACT DETAIL IS NOT AVAILABLE
             if ($order->contractDetail->is_available !== 1) { // TEST IF THIS DOES WORK = $order->contractDetail->with_driver       // also test if this condition is needed   // check abrham samson
-                return response()->json(['message' => 'this order contract_detail have is_available 0 currently for some reason, the contract_detail of this order should have is_available 1'], 403); 
+                return response()->json(['message' => 'this order contract_detail have is_available 0 currently for some reason, the contract_detail of this order should have is_available 1'], 410); 
             }
 
             // TODO check if the contract itself is expired or Terminated
@@ -275,7 +275,7 @@ class OrderController extends Controller
 
             
             if (!$success) {
-                return response()->json(['message' => 'Update Failed'], 422);
+                return response()->json(['message' => 'Update Failed'], 500);
             }
 
             $updatedOrder = Order::find($order->id);
@@ -312,25 +312,25 @@ class OrderController extends Controller
             //
             // redundant
             if (!$order->driver) { 
-                return response()->json(['message' => 'this order needs a driver to be started'], 403); 
+                return response()->json(['message' => 'this order needs a driver to be started'], 422); 
             }
 
             // if ADIAMT wants to rent their own vehicles, They Can Register as SUPPLIERs Themselves // but i commented the below // so check abrham samson
             // if (!$order->supplier) { 
-            //     return response()->json(['message' => 'this order needs a supplier to be started'], 403); 
+            //     return response()->json(['message' => 'this order needs a supplier to be started'], 422); 
             // }
 
             if ($order->driver) {
                 if ($order->driver->is_active != 1) {
-                    return response()->json(['message' => 'Forbidden: Deactivated Driver'], 403); 
+                    return response()->json(['message' => 'Forbidden: Deactivated Driver'], 428); 
                 }
                 if ($order->driver->is_approved != 1) {
-                    return response()->json(['message' => 'Forbidden: NOT Approved Driver'], 403); 
+                    return response()->json(['message' => 'Forbidden: NOT Approved Driver'], 401); 
                 }
             }
             if ($order->supplier) {
                 if ($order->supplier->is_active != 1) {
-                    return response()->json(['message' => 'Forbidden: Deactivated Supplier'], 403); 
+                    return response()->json(['message' => 'Forbidden: Deactivated Supplier'], 428); 
                 }
                 if ($order->supplier->is_approved != 1) {
                     return response()->json(['message' => 'Forbidden: NOT Approved Supplier'], 403); 
@@ -339,21 +339,21 @@ class OrderController extends Controller
 
 
             if ($order->status !== Order::ORDER_STATUS_SET) {
-                return response()->json(['message' => 'this order is not SET (ACCEPTED). order should be SET (ACCEPTED) before it can be STARTED.'], 403); 
+                return response()->json(['message' => 'this order is not SET (ACCEPTED). order should be SET (ACCEPTED) before it can be STARTED.'], 428); 
             }
 
             if ($order->end_date < today()->toDateString()) {
-                return response()->json(['message' => 'this order is Expired already.'], 403); 
+                return response()->json(['message' => 'this order is Expired already.'], 410); 
             }
 
             if ($order->is_terminated !== 0) {
-                return response()->json(['message' => 'this order is Terminated'], 403); 
+                return response()->json(['message' => 'this order is Terminated'], 410); 
             }
 
 
             // CHECK IF THE CONTRACT DETAIL IS NOT AVAILABLE
             if ($order->contractDetail->is_available !== 1) { // TEST IF THIS DOES WORK   // check abrham samson
-                return response()->json(['message' => 'this order contract_detail have is_available 0 currently for some reason, the contract_detail of this order should have is_available 1'], 403); 
+                return response()->json(['message' => 'this order contract_detail have is_available 0 currently for some reason, the contract_detail of this order should have is_available 1'], 410); 
             }
 
             
@@ -361,7 +361,7 @@ class OrderController extends Controller
             // check abrham samson
             // is the following condition required 
             // if ($order->contractDetail->periodic === 1) { 
-            //     return response()->json(['message' => 'this order is periodic. so the order needs a driver account to be started'], 403); 
+            //     return response()->json(['message' => 'this order is periodic. so the order needs a driver to be started'], 422); 
             // }
 
 
@@ -386,7 +386,7 @@ class OrderController extends Controller
             ]);
             //
             if (!$success) {
-                return response()->json(['message' => 'Order Update Failed'], 422);
+                return response()->json(['message' => 'Order Update Failed'], 500);
             }
 
             $vehicle = Vehicle::find($order->vehicle_id);
@@ -400,7 +400,7 @@ class OrderController extends Controller
             ]);
             //
             if (!$successTwo) {
-                return response()->json(['message' => 'Vehicle Update Failed'], 422);
+                return response()->json(['message' => 'Vehicle Update Failed'], 500);
             }
 
             $updatedOrder = Order::find($order->id);
@@ -437,7 +437,7 @@ class OrderController extends Controller
             
 
             if ($order->status !== Order::ORDER_STATUS_START) {
-                return response()->json(['message' => 'this order is not STARTED. order should be STARTED before it can be COMPLETED.'], 403); 
+                return response()->json(['message' => 'this order is not STARTED. order should be STARTED before it can be COMPLETED.'], 428); 
             }
 
             // todays date
@@ -454,7 +454,7 @@ class OrderController extends Controller
             ]);
             //
             if (!$success) {
-                return response()->json(['message' => 'Order Update Failed'], 422);
+                return response()->json(['message' => 'Order Update Failed'], 500);
             }
 
             $vehicle = Vehicle::find($order->vehicle_id);
@@ -468,7 +468,7 @@ class OrderController extends Controller
             ]);
             //
             if (!$successTwo) {
-                return response()->json(['message' => 'Vehicle Update Failed'], 422);
+                return response()->json(['message' => 'Vehicle Update Failed'], 500);
             }
 
             $updatedOrder = Order::find($order->id);

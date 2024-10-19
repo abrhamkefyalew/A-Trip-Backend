@@ -33,7 +33,7 @@ class OrganizationUserController extends Controller
                 $organizationUsers = $organizationUsers->where('phone_number', $phoneNumber);
             } 
             else {
-                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
             }
         }
         if ($request->has('organization_id_search')) {
@@ -43,7 +43,7 @@ class OrganizationUserController extends Controller
                 $organizationUsers = $organizationUsers->where('organization_id', $organizationId);
             } 
             else {
-                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
             }
         }
         if ($request->has('is_admin_search')) {
@@ -53,7 +53,7 @@ class OrganizationUserController extends Controller
                 $organizationUsers = $organizationUsers->where('is_admin', $isAdmin);
             } 
             else {
-                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
             }
         }
 
@@ -130,7 +130,7 @@ class OrganizationUserController extends Controller
             $success = $organizationUser->update($request->validated());
             //
             if (!$success) {
-                return response()->json(['message' => 'Update Failed'], 422);
+                return response()->json(['message' => 'Update Failed'], 500);
             }
             
 

@@ -54,14 +54,14 @@ class DriverController extends Controller
             
             if ($driverLoggedIn->id != $driver->id) {
                 
-                return response()->json(['message' => 'invalid Driver is selected or Requested. Deceptive request Aborted.'], 401);
+                return response()->json(['message' => 'invalid Driver is selected or Requested. Deceptive request Aborted.'], 403);
             }
             
             
             $success = $driver->update($request->validated());
             //
             if (!$success) {
-                return response()->json(['message' => 'Update Failed'], 422);
+                return response()->json(['message' => 'Update Failed'], 500);
             }
             
 

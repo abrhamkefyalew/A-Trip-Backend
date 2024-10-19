@@ -30,7 +30,7 @@ class CustomerController extends Controller
                 $customers = $customers->where('phone_number', $phoneNumber);
             } 
             else {
-                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
             }
         }
 

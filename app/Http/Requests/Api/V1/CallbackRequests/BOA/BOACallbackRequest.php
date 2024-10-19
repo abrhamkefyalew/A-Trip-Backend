@@ -49,7 +49,7 @@ class BOACallbackRequest extends FormRequest
         // Simple Way
         // Log and alert
         Log::alert('BOA: invoice_reference must be included in the request!');
-        abort(403, 'the invoice_code does not exist!');
+        abort(404, 'the invoice_code does not exist!');
 
 
 
@@ -75,7 +75,7 @@ class BOACallbackRequest extends FormRequest
         //
         // Optionally, I can customize the response for each type of error
         if ($errors->has('invoice_reference')) {
-            abort(422, 'Validation failed for invoice_reference is required and must be string.');
+            abort(400, 'Validation failed for invoice_reference is required and must be string.');
         }
 
         */

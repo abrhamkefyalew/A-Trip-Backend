@@ -54,7 +54,7 @@ class BidController extends Controller
     {
         //
         $var = DB::transaction(function () use ($request, $bid) {
-            // get the supplier identity
+            // get the customer identity
             $user = auth()->user();
             $customer = Customer::find($user->id);
 
@@ -64,24 +64,24 @@ class BidController extends Controller
             }
 
             if ($customer->id != $bid->orderUser->customer_id) {
-                return response()->json(['message' => 'invalid Bid is selected or Requested. or the requested Bid is not found. Deceptive request Aborted.'], 401);
+                return response()->json(['message' => 'invalid Bid is selected or Requested. or the requested Bid is not found. Deceptive request Aborted.'], 403);
             }
 
             if ($bid->vehicle->vehicle_name_id !== $bid->orderUser->vehicle_name_id) {
-                return response()->json(['message' => 'invalid Bid is selected. or The Selected Bid does not match the orders requirement (this bid vehicle vehicle_name_id is NOT equal to the order vehicle_name_id). Deceptive request Aborted.'], 403); 
+                return response()->json(['message' => 'invalid Bid is selected. or The Selected Bid does not match the orders requirement (this bid vehicle vehicle_name_id is NOT equal to the order vehicle_name_id). Deceptive request Aborted.'], 422); 
             }
 
             if ($bid->vehicle->is_available !== Vehicle::VEHICLE_AVAILABLE) {
-                return response()->json(['message' => 'the selected vehicle is not currently available'], 403); 
+                return response()->json(['message' => 'the selected vehicle is not currently available'], 409); 
             }
 
 
 
             if ($customer->is_active != 1) {
-                return response()->json(['message' => 'Forbidden: Deactivated Customer'], 403); 
+                return response()->json(['message' => 'Forbidden: Deactivated Customer'], 428); 
             }
             if ($customer->is_approved != 1) {
-                return response()->json(['message' => 'Forbidden: NOT Approved Customer'], 403); 
+                return response()->json(['message' => 'Forbidden: NOT Approved Customer'], 401); 
             }
 
 
@@ -94,44 +94,63 @@ class BidController extends Controller
 
 
 
-            if ($bid->orderUser->status !== OrderUser::ORDER_STATUS_PENDING) {
-                return response()->json(['message' => 'this Bid Can Not be Selected. Because its order is not pending. it is already accepted , started or completed'], 403); 
-            }
+            
 
             if ($bid->orderUser->end_date < today()->toDateString()) {
-                return response()->json(['message' => 'this bid parent order is Expired already.'], 403); 
+                return response()->json(['message' => 'this bid parent order is Expired already.'], 410); 
             }
 
             if ($bid->orderUser->is_terminated !== 0) {
-                return response()->json(['message' => 'this bid parent order is Terminated'], 403); 
+                return response()->json(['message' => 'this bid parent order is Terminated'], 410); 
             }
             
-            // this is commented because of samson // check abrham samson
+
+
+            // this MUST BE COMMENTED
+            //
+            // if ($bid->orderUser->status !== OrderUser::ORDER_STATUS_PENDING) {
+            //     return response()->json(['message' => 'this Bid Can Not be Selected. Because its order is not pending. it is already accepted , started or completed'], 409); 
+            // }
+            //
             // if (($bid->orderUser->vehicle_id !== null) || ($bid->orderUser->driver_id !== null) || ($bid->orderUser->supplier_id !== null)) {
-            //     return response()->json(['message' => 'this bid can not be selected. Because its order is already being accepted and it already have a value on the columns (driver_id or supplier_id or vehicle_id) , for some reason'], 403); 
+            //     return response()->json(['message' => 'this bid can not be selected. Because its order is already being accepted and it already have a value on the columns (driver_id or supplier_id or vehicle_id) , for some reason'], 409); 
             // }
 
+
+            // INSTEAD CHECK THIS
+            $invoiceUserCheck = InvoiceUser::where('order_user_id', $bid->orderUser->id)->where('status', InvoiceUser::INVOICE_STATUS_PAID)->whereNotNull('paid_date')->exists();
+            if ($invoiceUserCheck) {
+                return response()->json(['message' => 'this Bid Can Not be Selected. the bidding step for this order is over. no more bidding is allowed. Because its parent order is already Accepted and PAID for.'], 409); 
+            }
+            
 
             if ($bid->vehicle->with_driver !== $bid->orderUser->with_driver) {
 
                 if (($bid->vehicle->with_driver === 1) && ($bid->orderUser->with_driver === 0)) {
-                    return response()->json(['message' => 'the bid can not be selected. Because the parent order does not need a driver and the vehicle in the bid sends the vehicle with driver'], 403); 
+                    return response()->json(['message' => 'the bid can not be selected. Because the parent order does not need a driver and the vehicle in the bid sends the vehicle with driver'], 422); 
                 }
                 else if (($bid->vehicle->with_driver === 0) && ($bid->orderUser->with_driver === 1)) {
-                    return response()->json(['message' => 'the bid can not be selected. Because the order needs vehicle with a driver and the vehicle in the bid does not provide a driver'], 403); 
+                    return response()->json(['message' => 'the bid can not be selected. Because the order needs vehicle with a driver and the vehicle in the bid does not provide a driver'], 422); 
                 }
                 
 
-                return response()->json(['message' => 'the vehicle with_driver value is not equal with that of the order requirement.'], 403); 
+                return response()->json(['message' => 'the vehicle with_driver value is not equal with that of the order requirement.'], 422); 
                 
             }
 
             // this if is important and should be right here 
             // this if should NOT be nested in any other if condition // this if should be independent and done just like this  // this if should be checked independently just like i did it right here
             if (($bid->vehicle->driver_id === null) && ($bid->orderUser->with_driver === 1)) {
-                return response()->json(['message' => 'The bid can not be selected. Because the vehicle in the bid does not have actual driver currently. This Order Needs Vehicle that have Driver'], 403); 
+                return response()->json(['message' => 'The bid can not be selected. Because the vehicle in the bid does not have actual driver currently. This Order Needs Vehicle that have Driver'], 422); 
             }
             
+
+            // get the order id of the selected bid
+            $bidOrderId = $bid->orderUser->id;
+            
+            // remove all the previous unpaid invoices for that order
+            InvoiceUser::where('order_user_id', $bid->orderUser->id)->where('status', InvoiceUser::INVOICE_STATUS_NOT_PAID)->where('paid_date', null)->forceDelete();
+
 
             
             $withDriver = $bid->orderUser->with_driver;
@@ -148,16 +167,11 @@ class BidController extends Controller
             ]);
             //
             if (!$success) {
-                return response()->json(['message' => 'Update Failed'], 422);
+                return response()->json(['message' => 'Update Failed'], 500);
             }
 
-            // get the order id of the selected bid
-            $bidOrderId = $bid->orderUser->id;
             
-            // remove all the previous unpaid invoices for that order
-            InvoiceUser::where('order_user_id', $bid->orderUser->id)->where('status', InvoiceUser::INVOICE_STATUS_NOT_PAID)->where('paid_date', null)->forceDelete();
-
-            
+    
 
             // generate Unique UUID for each individual Customer invoices
             $uuidTransactionIdSystem = Str::uuid(); // this uuid should be generated INSIDE the FOREACH to Generate a NEW and UNIQUE uuid (i.e. transaction_id_system) for Each invoice
@@ -174,7 +188,7 @@ class BidController extends Controller
             ]);
             //
             if (!$invoiceUser) {
-                return response()->json(['message' => 'Invoice Create Failed'], 422);
+                return response()->json(['message' => 'Invoice Create Failed'], 500);
             }
 
             
@@ -203,6 +217,9 @@ class BidController extends Controller
                 $valuePaymentRenderedView = $boaCustomerPaymentService->initiateInitialPaymentForVehicle();
 
                 return $valuePaymentRenderedView;
+            }
+            else {
+                return response()->json(['error' => 'Invalid payment method selected.'], 422);
             }
 
 

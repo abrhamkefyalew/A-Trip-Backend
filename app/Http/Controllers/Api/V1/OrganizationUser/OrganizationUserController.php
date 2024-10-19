@@ -112,18 +112,18 @@ class OrganizationUserController extends Controller
 
                 if ($organizationUserLoggedIn->id != $organizationUser->id) {
                 
-                    return response()->json(['message' => 'invalid Organization User is selected or Requested. Deceptive request Aborted.'], 401);
+                    return response()->json(['message' => 'invalid Organization User is selected or Requested. Deceptive request Aborted.'], 403);
                 }
 
             } else if ($organizationUserLoggedIn->is_admin == 1) {
 
                 if ($organizationUserLoggedIn->organization_id != $organizationUser->organization_id) {
                 
-                    return response()->json(['message' => 'invalid Organization User is selected or Requested by Organization Admin. Deceptive request Aborted.'], 401);
+                    return response()->json(['message' => 'invalid Organization User is selected or Requested by Organization Admin. Deceptive request Aborted.'], 403);
                 }
 
             } else {
-                return response()->json(['message' => 'Invalid Organization Role.'], 401); 
+                return response()->json(['message' => 'Invalid Organization Role.'], 404); 
             }
             
             
@@ -132,7 +132,7 @@ class OrganizationUserController extends Controller
             $success = $organizationUser->update($request->validated());
             //
             if (!$success) {
-                return response()->json(['message' => 'Update Failed'], 422);
+                return response()->json(['message' => 'Update Failed'], 500);
             }
             
 

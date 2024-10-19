@@ -59,9 +59,9 @@ class BOACustomerCallbackService
                                                                                                           // the prefix will not let us check the existence of the id in the database, 
                                                                                                           // so we have to do existence check manually in the controller // using this if condition
                 
-                // LOG it here                                            return response()->json(['message' => 'the invoice_user_id does not exist'], 403); // change this to log
+                // LOG it here                                            return response()->json(['message' => 'the invoice_user_id does not exist'], 404); // change this to log
                 Log::alert('BOA: the invoice_user_id does not exist!');
-                abort(403, 'the invoice_user_id does not exist!');
+                abort(404, 'the invoice_user_id does not exist!');
             }
 
             // Update the invoice status and paid date
@@ -73,7 +73,7 @@ class BOACustomerCallbackService
             // Handle invoice update failure
             if (!$success) {
                 Log::alert('BOA: Invoice Update Failed!');
-                abort(422, 'Invoice Update Failed!');
+                abort(500, 'Invoice Update Failed!');
             }
 
 
@@ -104,7 +104,7 @@ class BOACustomerCallbackService
             //
             // Handle order update failure
             if (!$successTwo) {
-                return response()->json(['message' => 'Order Update Failed'], 422);
+                return response()->json(['message' => 'Order Update Failed'], 500);
             }
 
 

@@ -56,7 +56,7 @@ class OrderUserController extends Controller
                 $customer = Customer::find($user->id);
 
                 if ($customer->is_active !== 1) {
-                    return response()->json(['message' => 'Not Active. your account is not Active, so you can not make order'], 401); 
+                    return response()->json(['message' => 'Not Active. your account is not Active, so you can not make order. please activate your account'], 428); 
                 }
 
                 if ($customer->is_approved !== 1) {
@@ -177,7 +177,7 @@ class OrderUserController extends Controller
 
         
         if ($customer->id != $orderUser->customer_id) {
-            return response()->json(['message' => 'invalid Order is selected or Requested. or the requested Order is not found. Deceptive request Aborted.'], 401);
+            return response()->json(['message' => 'invalid Order is selected or Requested. or the requested Order is not found. Deceptive request Aborted.'], 403);
         }
 
 

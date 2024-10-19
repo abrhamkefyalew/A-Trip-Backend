@@ -31,7 +31,7 @@ class DriverController extends Controller
                 $drivers = $drivers->where('phone_number', $phoneNumber);
             } 
             else {
-                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
             }
         }
 
@@ -139,7 +139,7 @@ class DriverController extends Controller
             $success = $driver->update($request->validated());
             //
             if (!$success) {
-                return response()->json(['message' => 'Update Failed'], 422);
+                return response()->json(['message' => 'Update Failed'], 500);
             }
             
 

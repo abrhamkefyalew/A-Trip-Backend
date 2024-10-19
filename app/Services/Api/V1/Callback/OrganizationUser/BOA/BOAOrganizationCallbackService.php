@@ -61,7 +61,7 @@ class BOAOrganizationCallbackService
             if (!$invoices) {
                 // I must CHECK this condition 
                 Log::alert('BOA: the invoice_code does not exist!');
-                abort(403, 'the invoice_code does not exist!');
+                abort(404, 'the invoice_code does not exist!');
             }
 
 
@@ -73,7 +73,7 @@ class BOAOrganizationCallbackService
             ]);
             // Handle invoice update failure
             if (!$success) {
-                return response()->json(['message' => 'Invoice Update Failed'], 422);
+                return response()->json(['message' => 'Invoice Update Failed'], 500);
             }
 
 
@@ -118,7 +118,7 @@ class BOAOrganizationCallbackService
                 ]);
                 // Handle order update failure
                 if (!$successTwo) {
-                    return response()->json(['message' => 'Order Update Failed'], 422);
+                    return response()->json(['message' => 'Order Update Failed'], 500);
                 }
 
                 /* $invoiceIdList[] = $invoice->id; */

@@ -60,7 +60,7 @@ class OrganizationController extends Controller
             }
 
             if ($organizationUserLoggedIn->organization_id != $organization->id) {
-                return response()->json(['message' => 'invalid Organization is selected or Requested. Deceptive request Aborted.'], 401);
+                return response()->json(['message' => 'invalid Organization is selected or Requested. Deceptive request Aborted.'], 403);
             }
 
 
@@ -68,7 +68,7 @@ class OrganizationController extends Controller
             $success = $organization->update($request->validated());
             //
             if (!$success) {
-                return response()->json(['message' => 'Update Failed'], 422);
+                return response()->json(['message' => 'Update Failed'], 500);
             }
             
 

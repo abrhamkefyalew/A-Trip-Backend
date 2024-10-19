@@ -46,7 +46,7 @@ class InvoiceController extends Controller
                 $invoices = $invoices->where('order_id', $orderId);
             } 
             else {
-                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
             } 
         }
         if ($request->has('invoice_code_search')) {
@@ -56,7 +56,7 @@ class InvoiceController extends Controller
                 $invoices = $invoices->where('invoice_code', $invoiceCode);
             } 
             else {
-                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
             } 
         }
         if ($request->has('invoice_status_search')) {
@@ -66,7 +66,7 @@ class InvoiceController extends Controller
                 $invoices = $invoices->where('status', $invoiceStatus);
             } 
             else {
-                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
             }
 
         }
@@ -130,11 +130,11 @@ class InvoiceController extends Controller
                 );
             } 
             else {
-                return response()->json(['message' => 'Required parameter "invoice_code_search" is empty or Value Not Set'], 422);
+                return response()->json(['message' => 'Required parameter "invoice_code_search" is empty or Value Not Set'], 400);
             } 
         }
         else {
-            return response()->json(['message' => 'Required parameter "invoice_code_search" is missing'], 422);
+            return response()->json(['message' => 'Required parameter "invoice_code_search" is missing'], 400);
         } 
         
     }
@@ -203,7 +203,7 @@ class InvoiceController extends Controller
                 // check if the organization_id of the orders is similar with the logged in organizationUser Organization_id
                 if ($organizationUser->organization_id != $organizationId) {
                     // this order is NOT be owned by the organization that the order requester belongs in // so i return error and abort
-                    return response()->json(['message' => 'invalid Order is selected or Requested. or the requested Order is not found. Deceptive request Aborted.'], 401);
+                    return response()->json(['message' => 'invalid Order is selected or Requested. or the requested Order is not found. Deceptive request Aborted.'], 403);
                 }
 
 
@@ -353,21 +353,21 @@ class InvoiceController extends Controller
 
                     // lets check the order pr_status
                     if ($invoice->order->pr_status === null) {
-                        return response()->json(['message' => 'PR have not been started for this order yet. order: ' . $invoice->order->id . ' , The order have pr_status NULL.'], 404);
+                        return response()->json(['message' => 'we check the parent Order of this invoice: ' . $invoice->id . ' , and PR have not been started for this order yet. order: ' . $invoice->order->id . ' , The order have pr_status NULL.'], 500); // this scenario will NOT happen
                     }
                     if ($invoice->order->pr_status === Order::ORDER_PR_COMPLETED) {
-                        return response()->json(['message' => 'all PR is paid for this order: ' . $invoice->order->id . ' , The order have PR_COMPLETED status.'], 404);
+                        return response()->json(['message' => 'we check the parent Order of this invoice: ' . $invoice->id . ' , and all PR is paid for this order: ' . $invoice->order->id . ' , The order have PR_COMPLETED status.'], 409);
                     }
                     if ($invoice->order->pr_status === Order::ORDER_PR_TERMINATED) {
-                        return response()->json(['message' => 'this order PR is terminated for some reason. please check with the organization and Super Admin why PR is terminated. order: ' . $invoice->order->id . ' , The order have PR_TERMINATED status.'], 404);
+                        return response()->json(['message' => 'we check the parent Order of this invoice: ' . $invoice->id . ' , and this order PR is terminated for some reason. please check with the organization and Super Admin why PR is terminated. order: ' . $invoice->order->id . ' , The order have PR_TERMINATED status.'], 410);
                     }
 
                     // check if the actual invoice is Paid // if the this invoice have status = PAID
                     if ($invoice->status === Invoice::INVOICE_STATUS_PAID) {
-                        return response()->json(['message' => 'This Invoice is Already Paid.  Invoice: ' . $$invoice->id . ' , The Invoice have PAID status.'], 404);
+                        return response()->json(['message' => 'This Invoice is Already Paid.  Invoice: ' . $$invoice->id . ' , The Invoice have PAID status.'], 409);
                     }
                     if ($invoice->paid_date !== null) {
-                        return response()->json(['message' => 'This Invoice is Already Paid.  Invoice: ' . $$invoice->id . ' , The Invoice have value in its paid date.'], 404);
+                        return response()->json(['message' => 'This Invoice is Already Paid.  Invoice: ' . $$invoice->id . ' , The Invoice have value in its paid date.'], 409);
                     }
 
 
@@ -385,7 +385,7 @@ class InvoiceController extends Controller
                     ]);
                     //
                     if (!$success) {
-                        return response()->json(['message' => 'Invoice Update Failed'], 422);
+                        return response()->json(['message' => 'Invoice Update Failed'], 500);
                     }
 
                 }
@@ -415,7 +415,7 @@ class InvoiceController extends Controller
                 if ($totalPriceAmount !== $totalPriceAmountFromRequest || 
                     $totalPriceAmount !== $totalPriceAmountByInvoiceCode || 
                     $totalPriceAmountFromRequest !== $totalPriceAmountByInvoiceCode) {
-                    return response()->json(['message' => 'The total prices do not match between the request and actual database calculations.'], 404);
+                    return response()->json(['message' => 'The total prices do not match between the request and actual database calculations.'], 422);
                 }
 
 
@@ -441,6 +441,9 @@ class InvoiceController extends Controller
                     $valuePaymentRenderedView = BOAOrganizationPaymentService::initiatePaymentForPR();
 
                     return $valuePaymentRenderedView;
+                }
+                else {
+                    return response()->json(['error' => 'Invalid payment method selected.'], 422);
                 }
                 
 
@@ -496,7 +499,7 @@ class InvoiceController extends Controller
                     ]);
                     //
                     if (!$success) {
-                        return response()->json(['message' => 'Invoice Update Failed'], 422);
+                        return response()->json(['message' => 'Invoice Update Failed'], 500);
                     }
 
 
@@ -506,7 +509,7 @@ class InvoiceController extends Controller
                     ]);
                     //
                     if (!$successTwo) {
-                        return response()->json(['message' => 'Order Update Failed'], 422);
+                        return response()->json(['message' => 'Order Update Failed'], 500);
                     }
 
 
@@ -574,7 +577,7 @@ class InvoiceController extends Controller
             if (!$invoices) {
                 // I must CHECK this condition 
                 Log::alert('BOA: the invoice_code does not exist!');
-                abort(403, 'the invoice_code does not exist!');
+                abort(404, 'the invoice_code does not exist!');
             }
 
 
@@ -586,7 +589,7 @@ class InvoiceController extends Controller
             ]);
             // Handle invoice update failure
             if (!$success) {
-                return response()->json(['message' => 'Invoice Update Failed'], 422);
+                return response()->json(['message' => 'Invoice Update Failed'], 500);
             }
 
 
@@ -631,7 +634,7 @@ class InvoiceController extends Controller
                 ]);
                 // Handle order update failure
                 if (!$successTwo) {
-                    return response()->json(['message' => 'Order Update Failed'], 422);
+                    return response()->json(['message' => 'Order Update Failed'], 500);
                 }
 
                 /* $invoiceIdList[] = $invoice->id; */

@@ -39,7 +39,7 @@ class ContractDetailController extends Controller
 
                 $contractDetails = ContractDetail::where('contract_id', $contractId);
             } else {
-                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
             }
             
         }
@@ -67,10 +67,10 @@ class ContractDetailController extends Controller
              * 
              */
             if (! $request->has('organization_id')) {
-                return response()->json(['message' => 'must send organization id.'], 404); 
+                return response()->json(['message' => 'must send organization id.'], 400); 
             }
             if (! isset($request['organization_id'])) { 
-                return response()->json(['message' => 'must set organization id.'], 404); 
+                return response()->json(['message' => 'must set organization id.'], 400); 
             }
 
             $contracts = Contract::where('organization_id', $request['organization_id'])
@@ -123,7 +123,7 @@ class ContractDetailController extends Controller
 
 
             if ($request['with_fuel'] == 1 && $request['with_driver'] == 0) {
-                return response()->json(['message' => 'since you set with_fuel = 1, with_driver must also be 1. a Contract Detail that require fuel must also require driver'], 400);
+                return response()->json(['message' => 'since you set with_fuel = 1, with_driver must also be 1. a Contract Detail that require fuel must also require driver'], 422);
             }
 
             
@@ -182,7 +182,7 @@ class ContractDetailController extends Controller
            $success = $contractDetail->update($request->validated());
             //
             if (!$success) {
-                return response()->json(['message' => 'Update Failed'], 422);
+                return response()->json(['message' => 'Update Failed'], 500);
             }
 
 

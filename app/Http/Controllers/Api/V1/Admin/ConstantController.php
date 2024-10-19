@@ -68,10 +68,10 @@ class ConstantController extends Controller
 
             // this is not needed, if the percent_value is not sent in the request, then $request->validated() will be empty array, Laravel will not do update on any field, the table and the data in the table will remain as it was
             // if (! $request->has('percent_value')) {
-            //     return response()->json(['message' => 'must send percent value.'], 404); 
+            //     return response()->json(['message' => 'must send percent value.'], 400); 
             // }
             // if (! isset($request['percent_value'])) { 
-            //     return response()->json(['message' => 'must set percent value.'], 404); 
+            //     return response()->json(['message' => 'must set percent value.'], 400); 
             // }
 
             $constant->update($request->validated());

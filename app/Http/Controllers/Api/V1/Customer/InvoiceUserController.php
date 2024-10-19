@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Api\V1\Customer;
 
 use App\Models\Bid;
+use App\Models\Customer;
 use App\Models\OrderUser;
 use App\Models\InvoiceUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\CustomerRequests\PayInvoiceFinalRequest;
 use App\Http\Requests\Api\V1\CustomerRequests\PayInvoiceCallbackTelebirrRequest;
 
 class InvoiceUserController extends Controller
@@ -33,6 +35,75 @@ class InvoiceUserController extends Controller
 
         // return $var;
     }
+
+
+
+    /**
+     * Pay the FINAL invoice payment for an order.
+     */
+    public function payInvoiceFinal(PayInvoiceFinalRequest $request)
+    {
+        //
+        $var = DB::transaction(function () use ($request) {
+            // get the customer identity
+            $user = auth()->user();
+            $customer = Customer::find($user->id);
+
+
+            if ($customer->is_active != 1) {
+                return response()->json(['message' => 'Forbidden: Deactivated Customer'], 401); 
+            }
+            if ($customer->is_approved != 1) {
+                return response()->json(['message' => 'Forbidden: NOT Approved Customer'], 401); 
+            }
+
+
+            $orderUser = OrderUser::find($request['order_user_id']);
+
+
+            if ($customer->id != $orderUser->customer_id) {
+                return response()->json(['message' => 'invalid Order is selected or Requested. or the requested Order is not found. Deceptive request Aborted.'], 403);
+            }
+
+
+            if ($orderUser->paid_complete_status == 1) {
+                return response()->json(['message' => 'this Order is already PAID in full. Payment has been already completed for this order'], 409); 
+            }
+
+            if ($orderUser->status == OrderUser::ORDER_STATUS_PENDING) {
+                return response()->json(['message' => 'this Order is NOT eligible for final payment. Because the order have PENDING status. order should be accepted , started or completed to be eligible for final payment'], 428); 
+            }
+
+
+            $invoiceUserCheck = InvoiceUser::where('order_user_id', $orderUser->id)->where('status', InvoiceUser::INVOICE_STATUS_PAID)->whereNotNull('paid_date')->exists();
+            if ($invoiceUserCheck == false) {
+                return response()->json(['message' => 'this Order is NOT eligible for final payment. because its initial payment is not payed yet'], 428); 
+            }
+
+
+            $previouslyPaidAmount = InvoiceUser::where('order_user_id', $orderUser->id)
+                ->where('status', InvoiceUser::INVOICE_STATUS_PAID)
+                ->whereNotNull('paid_date')
+                ->sum('price');
+
+            $requiredPaymentAmount = $orderUser->price_total - $previouslyPaidAmount;
+            $paymentAmountFromRequest = (int) $request['price_amount_total'];
+
+            if ($paymentAmountFromRequest < $requiredPaymentAmount) {
+                return response()->json(['error' => 'Insufficient amount. Please pay the required amount.'], 422);
+            }
+
+            
+
+
+
+        });
+
+        return $var;
+    }
+
+
+
 
     /**
      * Display the specified resource.
@@ -78,9 +149,9 @@ class InvoiceUserController extends Controller
                                                                                                           // the prefix will not let us check the existence of the id in the database, 
                                                                                                           // so we have to do existence check manually in the controller // using this if condition
                 
-                // LOG it here                                            return response()->json(['message' => 'the invoice_user_id does not exist'], 403); // change this to log
+                // LOG it here                                            return response()->json(['message' => 'the invoice_user_id does not exist'], 404); // change this to log
                 Log::alert('BOA: the invoice_user_id does not exist!');
-                abort(403, 'the invoice_user_id does not exist!');
+                abort(404, 'the invoice_user_id does not exist!');
             }
 
             // Update the invoice status and paid date
@@ -92,7 +163,7 @@ class InvoiceUserController extends Controller
             // Handle invoice update failure
             if (!$success) {
                 Log::alert('BOA: Invoice Update Failed!');
-                abort(422, 'Invoice Update Failed!');
+                abort(500, 'Invoice Update Failed!');
             }
 
 
@@ -123,7 +194,7 @@ class InvoiceUserController extends Controller
             //
             // Handle order update failure
             if (!$successTwo) {
-                return response()->json(['message' => 'Order Update Failed'], 422);
+                return response()->json(['message' => 'Order Update Failed'], 500);
             }
 
 
