@@ -6,11 +6,13 @@ use App\Models\Bid;
 use App\Models\Customer;
 use App\Models\OrderUser;
 use App\Models\InvoiceUser;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\CustomerRequests\PayInvoiceFinalRequest;
+use App\Services\Api\V1\Customer\Payment\BOA\BOACustomerPaymentService;
 use App\Http\Requests\Api\V1\CustomerRequests\PayInvoiceCallbackTelebirrRequest;
 
 class InvoiceUserController extends Controller
@@ -93,7 +95,47 @@ class InvoiceUserController extends Controller
                 return response()->json(['error' => 'Insufficient amount. Please pay the required amount.'], 422);
             }
 
+
+            // generate Unique UUID for each individual Customer invoices
+            $uuidTransactionIdSystem = Str::uuid(); // this uuid should be generated to be NEW and UNIQUE uuid (i.e. transaction_id_system) for Each invoice
+
+            // create invoice for this order
+            $invoiceUser = InvoiceUser::create([
+                'order_user_id' => $orderUser->id,
+                'transaction_id_system' => $uuidTransactionIdSystem,
+
+                'price' => $requiredPaymentAmount,
+                'status' => InvoiceUser::INVOICE_STATUS_NOT_PAID,
+                'paid_date' => null,                           // is NULL when the invoice is created initially, // and set when the invoice is paid by the organization
+                'payment_method' => $request['payment_method'],
+            ]);
+            //
+            if (!$invoiceUser) {
+                return response()->json(['message' => 'Invoice Create Failed'], 500);
+            }
+
+
             
+            /* START Payment Service Call */
+            
+            // do the actual payment 
+
+            if ($request['payment_method'] = InvoiceUser::INVOICE_BOA) {
+
+                // Setting values
+                $boaCustomerPaymentService = new BOACustomerPaymentService($invoiceUser->id);
+
+                // Calling a non static method
+                $valuePaymentRenderedView = $boaCustomerPaymentService->initiateFinalPaymentForVehicle();
+
+                return $valuePaymentRenderedView;
+            }
+            else {
+                return response()->json(['error' => 'Invalid payment method selected.'], 422);
+            }
+
+
+            /* END Payment Service Call */
 
 
 

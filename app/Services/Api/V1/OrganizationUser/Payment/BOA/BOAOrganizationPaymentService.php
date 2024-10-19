@@ -17,16 +17,13 @@ class BOAOrganizationPaymentService
 {
     private static $priceAmountTotalVal;
     private static $invoiceCodeVal;
-    private static $invoiceCodeValWithPrefix;
+    private static $invoiceCodeValWithPrefixPr;
 
     public static function setValues($priceAmountTotalValue, $invoiceCodeValue)
     {
         self::$priceAmountTotalVal = $priceAmountTotalValue;
         self::$invoiceCodeVal = $invoiceCodeValue;
 
-        // at last 
-        // add prefix = "OPR-" : - prefix on the invoice code variable so that during call back later we could know that it is for ORGANIZATION PR payment
-        self::$invoiceCodeValWithPrefix = "OPR-" . $invoiceCodeValue; // add the OPR- prefix to indicate the invoice code is for organization payment // we will use it later when the callback comes from the banks
     }
 
 
@@ -54,8 +51,12 @@ class BOAOrganizationPaymentService
         $uuidTransactionIdSystem = $transactionSystemUUIDs->first(); // Retrieves the first transaction_id_system FROM our collection which in fact at this stage have ONLY one transaction_id_system  
         
 
-
         
+
+        // at last 
+        // add prefix = "OPR-" : - prefix on the invoice code variable so that during call back later we could know that it is for ORGANIZATION PR payment
+        self::$invoiceCodeValWithPrefixPr = "OPR-" . self::$invoiceCodeVal; // add the OPR- prefix to indicate the invoice code is for organization payment // we will use it later when the callback comes from the banks
+
 
         $boaData = [
             'access_key' => config('boa.testing') ? config('boa.testing_access_key') : config('boa.access_key'),
@@ -66,7 +67,7 @@ class BOAOrganizationPaymentService
             // 'payment_method' => 'card',
             'profile_id' => config('boa.testing') ? config('boa.testing_profile_id') : config('boa.profile_id'),
 
-            'reference_number' => (string) self::$invoiceCodeValWithPrefix,
+            'reference_number' => (string) self::$invoiceCodeValWithPrefixPr,
             'signed_date_time' => gmdate("Y-m-d\TH:i:s\Z"), // str(signed_date_time)
             'signed_field_names' => 'access_key,amount,currency,locale,profile_id,reference_number,signed_date_time,signed_field_names,transaction_type,transaction_uuid,unsigned_field_names', // the order of the field name matters significantly when signing and unsigning
 
@@ -152,6 +153,10 @@ class BOAOrganizationPaymentService
 
     public static function initiateBoaPaymentTest() // hardcoded json request // we use it for testing
     {
+        // at last 
+        // add prefix = "OPR-" : - prefix on the invoice code variable so that during call back later we could know that it is for ORGANIZATION PR payment
+        self::$invoiceCodeValWithPrefixPr = "OPR-" . self::$invoiceCodeVal; // add the OPR- prefix to indicate the invoice code is for organization payment // we will use it later when the callback comes from the banks
+
         
         
         /*
@@ -185,7 +190,7 @@ class BOAOrganizationPaymentService
             // 'payment_method' => 'card',
             'profile_id' => '6B8919B9-5598-4C07-950C-AAEE72F165AC',
 
-            'reference_number' => (string) self::$invoiceCodeValWithPrefix,
+            'reference_number' => (string) self::$invoiceCodeValWithPrefixPr,
             'signed_date_time' => gmdate("Y-m-d\TH:i:s\Z"), // str(signed_date_time)
             'signed_field_names' => 'access_key,amount,currency,locale,profile_id,reference_number,signed_date_time,signed_field_names,transaction_type,transaction_uuid,unsigned_field_names', // the order of the field name matters significantly when signing and unsigning
 

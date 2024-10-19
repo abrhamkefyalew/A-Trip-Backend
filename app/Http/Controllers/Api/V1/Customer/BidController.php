@@ -174,7 +174,7 @@ class BidController extends Controller
     
 
             // generate Unique UUID for each individual Customer invoices
-            $uuidTransactionIdSystem = Str::uuid(); // this uuid should be generated INSIDE the FOREACH to Generate a NEW and UNIQUE uuid (i.e. transaction_id_system) for Each invoice
+            $uuidTransactionIdSystem = Str::uuid(); // this uuid should be generated to be NEW and UNIQUE uuid (i.e. transaction_id_system) for Each invoice
 
             // create invoice for this order
             $invoiceUser = InvoiceUser::create([
