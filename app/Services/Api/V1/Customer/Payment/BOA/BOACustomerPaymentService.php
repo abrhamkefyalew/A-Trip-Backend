@@ -89,8 +89,8 @@ class BOACustomerPaymentService
         
 
         // at last 
-        // add prefix = "ICI-" : - prefix on the invoice id variable so that during call back later we could know that it is for INDIVIDUAL CUSTOMER INITIAL payment
-        $this->invoiceUserIdValWithPrefixFinal = "ICI-" . (string) $this->invoiceUserIdVal; // add the ICI- prefix to indicate the invoice code is for INDIVIDUAL CUSTOMER INITIAL payment // we will use it later when the callback comes from the banks
+        // add prefix = "ICF-" : - prefix on the invoice id variable so that during call back later we could know that it is for INDIVIDUAL CUSTOMER Final payment
+        $this->invoiceUserIdValWithPrefixFinal = "ICF-" . (string) $this->invoiceUserIdVal; // add the ICF- prefix to indicate the invoice code is for INDIVIDUAL CUSTOMER Final payment // we will use it later when the callback comes from the banks
 
         
         $boaData = [
