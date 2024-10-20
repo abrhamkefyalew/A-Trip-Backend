@@ -15,208 +15,149 @@ use Illuminate\Support\Facades\Log;
  */
 class BOACustomerCallbackService
 {
-    private $invoiceUserIdVal;
+    private $invoiceUserId;
 
     public function __construct($invoiceReferenceWithPrefixFromBoa)
     {
         // first lets strip out "ICI-" prefix from the invoice we got
-        $this->invoiceUserIdVal = substr($invoiceReferenceWithPrefixFromBoa, 4); // Start from the 5th character onwards // THIS WORKS
-        // $this->$invoiceUserIdInitialPaymentVal = str_replace("ICI-", "", $invoiceReferenceWithPrefixFromBoa);         // This Works ALSO
-        // $this->$invoiceUserIdFinalPaymentVal = str_replace("ICF-", "", $invoiceReferenceWithPrefixFromBoa);           // This Works ALSO
+        $this->invoiceUserId = substr($invoiceReferenceWithPrefixFromBoa, 4); // Start from the 5th character onwards // THIS WORKS
+        // $this->$invoiceUserIdInitialPayment = str_replace("ICI-", "", $invoiceReferenceWithPrefixFromBoa);         // This Works ALSO
+        // $this->$invoiceUserIdFinalPayment = str_replace("ICF-", "", $invoiceReferenceWithPrefixFromBoa);           // This Works ALSO
     }
 
 
-
-
-
-    /**
-     * Handles initial vehicle payment Callback
-     * 
-     */
     public function handleInitialPaymentForVehicleCallback()
     {
+        // if paid status code from the bank is NOT 200 -> i will log and abort
+        // if paid status code from the bank is 200,  ->  I wil do the following
 
-        // Get the invoice id from the global variable
-        $invoiceUserId = $this->invoiceUserIdVal;
+        $invoiceUser = $this->findInvoiceUser();
 
-        DB::transaction(function () use ($invoiceUserId) {
-            
-            // if paid status code from the bank is NOT 200 -> i will log and abort
-            // if paid status code from the bank is 200,  ->  I wil do the following
-            
-
-
-            // todays date
-            $today = now()->format('Y-m-d');
-
-
-            $invoiceUser = InvoiceUser::find($invoiceUserId);
-
-            if (!$invoiceUser) {
-                // I CHECK condition because:- 
-                            // because : - i Commented ('exists:invoice_users,id') in the request 
-                                   // ('exists:invoice_users,id') is COMMENTED in the request Because: -  we have prefix on the invoice_user_id, (lke    "o1"-for organization  or   "i1"-for individual customer )
-                                                                                                          // the prefix will not let us check the existence of the id in the database, 
-                                                                                                          // so we have to do existence check manually in the controller // using this if condition
-                
-                // LOG it here                                            return response()->json(['message' => 'the invoice_user_id does not exist'], 404); // change this to log
-                Log::alert('BOA: the invoice_user_id does not exist!');
-                abort(404, 'the invoice_user_id does not exist!');
-            }
-
-            // Update the invoice status and paid date
-            $success = $invoiceUser->update([
-                'status' => InvoiceUser::INVOICE_STATUS_PAID,
-                'paid_date' => $today,
-            ]);
-            //
-            // Handle invoice update failure
-            if (!$success) {
-                Log::alert('BOA: Invoice Update Failed!');
-                abort(500, 'Invoice Update Failed!');
-            }
-
-
-            $totalPaidAmountCheck = InvoiceUser::where('order_user_id', $invoiceUser->order_user_id)
-                ->where('status', InvoiceUser::INVOICE_STATUS_PAID)
-                ->whereNotNull('paid_date')
-                ->sum('price');
-
-
-            $orderPaidCompleteStatus = 0; // default value // initializing
-
-            if ($totalPaidAmountCheck >= $invoiceUser->orderUser->price_total)
-            {
-                $orderPaidCompleteStatus = 1;
-            }
-            else if ($totalPaidAmountCheck < $invoiceUser->orderUser->price_total)
-            {
-                $orderPaidCompleteStatus = 0;
-            }
-
-
-
-            // Update the order paid_complete_status
-            $successTwo = $invoiceUser->orderUser()->update([
-                'paid_complete_status' => $orderPaidCompleteStatus,
-                'status' => OrderUser::ORDER_STATUS_SET,
-            ]);
-            //
-            // Handle order update failure
-            if (!$successTwo) {
-                return response()->json(['message' => 'Order Update Failed'], 500);
-            }
-
-
-            // DELETE All the BIDS of this ORDER
-            // // Soft delete all Bid records with order_user_id equal to $bid->order->id
-            // Bid::where('order_user_id', $bid->order->id)->delete();
-            //
-            // // Force delete all Bid records with order_user_id equal to $bid->order->id
-            Bid::where('order_user_id', $invoiceUser->orderUser->id)->forceDelete();
-
-            
-
-            // since it is call back we will not return value to the banks
-            // or may be 200 OK response // check abrham samson
-
-
+        DB::transaction(function () use ($invoiceUser) {
+            $this->updateInvoiceUser($invoiceUser);
+            $this->updateOrderUser($invoiceUser, true); // TRUE param is to indicate: - update 'status' column of Orders table
+            $this->deleteAssociatedBids($invoiceUser);
         });
+    }
 
-        // return $var;
+    public function handleFinalPaymentForVehicleCallback()
+    {
+        // if paid status code from the bank is NOT 200 -> i will log and abort
+        // if paid status code from the bank is 200,  ->  I wil do the following
         
+        $invoiceUser = $this->findInvoiceUser();
+        
+        DB::transaction(function () use ($invoiceUser) {
+            $this->updateInvoiceUser($invoiceUser);
+            $this->updateOrderUser($invoiceUser, false); // FALSE param is to indicate: - do NOT update 'status' column of Orders table
+        });
     }
 
 
 
 
-    /**
-     * Handles Final vehicle payment Callback
-     * 
-     */
-    public function handleFinalPaymentForVehicleCallback()
+
+
+
+
+
+
+
+    private function findInvoiceUser()
     {
-        // Get the invoice id from the global variable
-        $invoiceUserId = $this->invoiceUserIdVal;
+        $invoiceUser = InvoiceUser::find($this->invoiceUserId);
+        //
+        if (!$invoiceUser) {
+            $this->logAndAbort('the invoice with invoice_user_id does not exist! invoice_user_id: ' . $this->invoiceUserId, 404);
+        }
 
-        DB::transaction(function () use ($invoiceUserId) {
+        return $invoiceUser;
+    }
+
+    private function updateInvoiceUser($invoiceUser)
+    {
+        $today = now()->format('Y-m-d');
+
+        $success = $invoiceUser->update([
+            'status' => InvoiceUser::INVOICE_STATUS_PAID,
+            'paid_date' => $today,
+        ]);
+        //
+        if (!$success) {
+            $this->logAndAbort('Invoice Update Failed! invoice_user_id: ' . $invoiceUser->id, 500);
+        }
+    }
+
+    private function updateOrderUser($invoiceUser, $updateStatusColumn)
+    {
+        $totalPaidAmountCheck = InvoiceUser::where('order_user_id', $invoiceUser->order_user_id)
+            ->where('status', InvoiceUser::INVOICE_STATUS_PAID)
+            ->whereNotNull('paid_date')
+            ->sum('price');
             
-            // if paid status code from the bank is NOT 200 -> i will log and abort
-            // if paid status code from the bank is 200,  ->  I wil do the following
-            
+        //
+        if (!$invoiceUser->orderUser) {
+            $this->logAndAbort('the parent order of the Invoice is not Found! invoice_user_id: ' . $invoiceUser->id, 404);
+        }
+
+        $orderPaidCompleteStatus = 0; // default value // initializing
+
+        if ($totalPaidAmountCheck >= $invoiceUser->orderUser->price_total)
+        {
+            $orderPaidCompleteStatus = 1;
+        }
+        else if ($totalPaidAmountCheck < $invoiceUser->orderUser->price_total)
+        {
+            $orderPaidCompleteStatus = 0;
+        }
+
+        // UPDATE ORDER
+        
+        // METHOD 1 // this WORKS
+        $updateFields = [
+            'paid_complete_status' => $orderPaidCompleteStatus,
+        ];
+
+        // for initial payment callback we ALSO Update 'STATUS' column
+        if ($updateStatusColumn == true) {
+            $updateFields['status'] = OrderUser::ORDER_STATUS_SET; // append new key => value ('status' key with OrderUser::ORDER_STATUS_SET value) to the array updateFields
+        }
+
+        $success = $invoiceUser->orderUser()->update($updateFields);
+        //
+        if (!$success) {
+            $this->logAndAbort('Order Update Failed! invoice_user_id: ' . $invoiceUser->id, 500);
+        }
 
 
-            // todays date
-            $today = now()->format('Y-m-d');
+        // // METHOD 2 // this WORKS also // NOT tested though
+        // $invoiceUser->orderUser->paid_complete_status = $orderPaidCompleteStatus;
 
+        // // for initial payment callback we ALSO Update 'STATUS' column
+        // if ($updateStatusColumn) {
+        //     $invoiceUser->orderUser->status = OrderUser::ORDER_STATUS_SET;
+        // }
 
-            $invoiceUser = InvoiceUser::find($invoiceUserId);
+        // $success = $invoiceUser->orderUser->save();
+        // //
+        // if (!$success) {
+        //     $this->logAndAbort('Order Update Failed!');
+        // }
+    }
 
-            if (!$invoiceUser) {
-                // I CHECK condition because:- 
-                            // because : - i Commented ('exists:invoice_users,id') in the request 
-                                   // ('exists:invoice_users,id') is COMMENTED in the request Because: -  we have prefix on the invoice_user_id, (lke    "o1"-for organization  or   "i1"-for individual customer )
-                                                                                                          // the prefix will not let us check the existence of the id in the database, 
-                                                                                                          // so we have to do existence check manually in the controller // using this if condition
-                
-                // LOG it here                                            return response()->json(['message' => 'the invoice_user_id does not exist'], 404); // change this to log
-                Log::alert('BOA: the invoice_user_id does not exist!');
-                abort(404, 'the invoice_user_id does not exist!');
-            }
+    private function deleteAssociatedBids($invoiceUser)
+    {
+        $success = Bid::where('order_user_id', $invoiceUser->orderUser->id)->forceDelete();
+        //
+        if (!$success) {
+            $this->logAndAbort('Bid Delete Failed! invoice_user_id: ' . $invoiceUser->id, 500);
+        }
+    }
 
-            // Update the invoice status and paid date
-            $success = $invoiceUser->update([
-                'status' => InvoiceUser::INVOICE_STATUS_PAID,
-                'paid_date' => $today,
-            ]);
-            //
-            // Handle invoice update failure
-            if (!$success) {
-                Log::alert('BOA: Invoice Update Failed!');
-                abort(500, 'Invoice Update Failed!');
-            }
-
-
-            $totalPaidAmountCheck = InvoiceUser::where('order_user_id', $invoiceUser->order_user_id)
-                ->where('status', InvoiceUser::INVOICE_STATUS_PAID)
-                ->whereNotNull('paid_date')
-                ->sum('price');
-
-
-            $orderPaidCompleteStatus = 0; // default value // initializing
-
-            if ($totalPaidAmountCheck >= $invoiceUser->orderUser->price_total)
-            {
-                $orderPaidCompleteStatus = 1;
-            }
-            else if ($totalPaidAmountCheck < $invoiceUser->orderUser->price_total)
-            {
-                $orderPaidCompleteStatus = 0;
-            }
-
-
-
-            // Update the order paid_complete_status
-            $successTwo = $invoiceUser->orderUser()->update([
-                'paid_complete_status' => $orderPaidCompleteStatus,
-            ]);
-            //
-            // Handle order update failure
-            if (!$successTwo) {
-                return response()->json(['message' => 'Order Update Failed'], 500);
-            }
-
-
-            
-
-            // since it is call back we will not return value to the banks
-            // or may be 200 OK response // check abrham samson
-
-
-        });
-
-        // return $var;
-
+    private function logAndAbort($message, $statusCode)
+    {
+        Log::alert('BOA callback: ' . $message);
+        abort($statusCode, 'BOA callback: ' . $message);
     }
 
 

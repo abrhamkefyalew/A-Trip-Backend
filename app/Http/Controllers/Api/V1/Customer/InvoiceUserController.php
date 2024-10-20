@@ -96,6 +96,10 @@ class InvoiceUserController extends Controller
             }
 
 
+            // remove all the previous unpaid invoices for that order
+            InvoiceUser::where('order_user_id', $orderUser->id)->where('status', InvoiceUser::INVOICE_STATUS_NOT_PAID)->where('paid_date', null)->forceDelete();
+            
+
             // generate Unique UUID for each individual Customer invoices
             $uuidTransactionIdSystem = Str::uuid(); // this uuid should be generated to be NEW and UNIQUE uuid (i.e. transaction_id_system) for Each invoice
 
