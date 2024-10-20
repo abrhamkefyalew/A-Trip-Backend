@@ -36,11 +36,9 @@ class BOACallbackController extends Controller
         //
         if (substr($request['invoice_reference'], 0, 4) === 'OPR-') {
             
-            // pass the whole invoice reference for the callback
-            BOAOrganizationCallbackService::setValues($request['invoice_reference']);
+            $boaOrganizationCallbackService = new BOAOrganizationCallbackService();
+            $handlePaymentByBoaForPRCallbackValue = $boaOrganizationCallbackService->handlePaymentForPRCallback($request['invoice_reference']);
 
-            // Calling a callback static method
-            $handlePaymentByBoaForPRCallbackValue = BOAOrganizationCallbackService::handlePaymentForPRCallback();
 
             // since it is call back we will not return value to the banks
             // or may be 200 OK response // check abrham samson

@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Log;
  */
 class BOACustomerCallbackService
 {
-    private static $invoiceUserIdVal;
+    private $invoiceUserIdVal;
 
     public function __construct($invoiceReferenceWithPrefixFromBoa)
     {

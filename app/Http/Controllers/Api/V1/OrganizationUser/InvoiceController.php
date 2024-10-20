@@ -430,15 +430,8 @@ class InvoiceController extends Controller
                 
                 if ($request['payment_method'] = Invoice::INVOICE_BOA) {
 
-                            // $boaPrPaymentService = new BOAPrPaymentService($totalPriceAmount, $invoiceCode);
-                            // $valuePayment = $boaPrPaymentService->initiateBoaPayment();
-
-                    
-                    // Setting values
-                    BOAOrganizationPaymentService::setValues($totalPriceAmount, $invoiceCode);
-
-                    // Calling a static method
-                    $valuePaymentRenderedView = BOAOrganizationPaymentService::initiatePaymentForPR();
+                    $boaOrganizationPaymentService = new BOAOrganizationPaymentService();
+                    $valuePaymentRenderedView = $boaOrganizationPaymentService->initiatePaymentForPR($totalPriceAmount, $invoiceCode);
 
                     return $valuePaymentRenderedView;
                 }
@@ -657,11 +650,8 @@ class InvoiceController extends Controller
 
     public function testboa() 
     {
-        // Setting values
-        BOAOrganizationPaymentService::setValues(48, "9387kh4ohf734dddd");
-
-        // Calling a static initiateBoaPayment method
-        $valuePayment = BOAOrganizationPaymentService::initiateBoaPaymentTest();
+        $boaOrganizationPaymentService = new BOAOrganizationPaymentService();
+        $valuePayment = $boaOrganizationPaymentService->initiatePaymentForPR(48, "9387kh4ohf734dddd");
 
         return $valuePayment; // to return any value , including a RENDERED VIEW value from BOAPrPaymentService
 
