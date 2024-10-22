@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Api\V1\AdminRequests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateOtpRequest extends FormRequest
+class StoreOtpRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -12,6 +12,8 @@ class UpdateOtpRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
+
+        // return $this->user()->can('create', Otp::class);
     }
 
     /**

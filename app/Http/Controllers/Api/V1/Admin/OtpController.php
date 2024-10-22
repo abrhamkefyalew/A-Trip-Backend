@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Models\Otp;
-use App\Http\Requests\StoreOtpRequest;
-use App\Http\Requests\UpdateOtpRequest;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\AdminRequests\StoreOtpRequest;
+use App\Http\Requests\Api\V1\AdminRequests\UpdateOtpRequest;
 
 class OtpController extends Controller
 {
