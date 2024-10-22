@@ -13,6 +13,18 @@ return new class extends Migration
     {
         Schema::create('otps', function (Blueprint $table) {
             $table->id();
+
+            $table->foreignId('organization_user_id')->nullable()->constrained('organization_users');
+            $table->foreignId('customer_id')->nullable()->constrained('customers');
+            $table->foreignId('driver_id')->nullable()->constrained('drivers'); 
+            $table->foreignId('supplier_id')->nullable()->constrained('suppliers');
+
+            $table->string('code');
+
+            $table->timestamp('expiry_time');
+
+            // $table->boolean('is_verified')->default(false); currently we do NOT need this column for OTP
+
             $table->timestamps();
         });
     }

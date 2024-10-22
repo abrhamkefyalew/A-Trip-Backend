@@ -47,7 +47,7 @@ class BOAOrganizationCallbackServiceMock
             // Fetch all invoices where invoice_code matches the one from the request
             $invoices = Invoice::where('invoice_code', $invoiceCode)->get(); // this should NOT be exists().  this should be get(), because i am going to use actual data (records) of $invoices in the below foreach
             //
-            if (!$invoices) {
+            if ($invoices->isEmpty()) {
                 // I must CHECK this condition 
                 Log::alert('BOA callback: invoice (invoices) does not exist with the provided invoice_code!. invoice_code!: '. $invoiceCode);
                 abort(404, 'BOA callback: invoice (invoices) does not exist with the provided invoice_code!. invoice_code!: '. $invoiceCode);

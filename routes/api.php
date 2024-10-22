@@ -584,6 +584,8 @@ Route::prefix('v1')->group(function () {
             // Drivers should be stored by super admin of the system -
             // there should be a route for Drivers storing by super admin
             Route::post('/login', [DriverAuthController::class, 'login']);
+            Route::post('/login_otp', [DriverAuthController::class, 'loginOtp']);
+            Route::post('/verify_otp', [DriverAuthController::class, 'verifyOtp']);
 
         });
 

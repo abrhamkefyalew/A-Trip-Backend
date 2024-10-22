@@ -116,6 +116,17 @@ class Supplier extends Authenticatable implements HasMedia
     }
 
 
+
+    // since we delete every otps of the user from otps table when login_otp and verify_otp, we shall only have one OTP code in otps table at a time
+    // but after all - the nature of the relationship is hasMany()  (i.e. user has many otp)
+    public function otps()
+    {
+        return $this->hasMany(Otp::class);
+    }
+    
+    
+
+
     public function registerMediaConversions(Media $media = null): void
     {
         $this->addMediaConversion('optimized')

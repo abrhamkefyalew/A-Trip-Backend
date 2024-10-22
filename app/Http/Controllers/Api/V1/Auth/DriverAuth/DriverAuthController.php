@@ -2,16 +2,19 @@
 
 namespace App\Http\Controllers\Api\V1\Auth\DriverAuth;
 
+use Carbon\Carbon;
 use App\Models\Driver;
+use Kreait\Firebase\Auth;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Hash;
-use App\Http\Requests\Api\V1\AuthRequests\LoginDriverRequest;
-use App\Http\Resources\Api\V1\DriverResources\DriverResource;
-
 use Kreait\Firebase\Factory;
 use Kreait\Firebase\ServiceAccount;
-use Kreait\Firebase\Auth;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Hash;
+
+use App\Util\Api\V1\OtpCodeGenerator;
+use App\Http\Requests\Api\V1\AuthRequests\LoginDriverRequest;
+use App\Http\Resources\Api\V1\DriverResources\DriverResource;
+use App\Http\Requests\Api\V1\AuthRequests\Otp\LoginOtpDriverRequest;
 
 
 class DriverAuthController extends Controller
@@ -48,6 +51,110 @@ class DriverAuthController extends Controller
 
         return response()->json(['message' => 'Login failed. Incorrect email or password.'], 400);
     }
+
+
+
+
+
+
+
+    public function loginOtp(LoginOtpDriverRequest $request)
+    {
+        
+        $driver = Driver::where('phone_number', $request['phone_number'])->first();
+
+        if ($driver->isEmpty()) {
+            return response()->json(['message' => 'Login failed. Account does NOT exist.'], 404);
+        }
+
+        if ($driver->is_approved != 1) {
+            return response()->json(['message' => 'Login failed. Account NOT approved.'], 401);
+        }
+
+
+        $otpCode = OtpCodeGenerator::generate(6);
+
+
+        // Generate current datetime
+        $currentDateTime = Carbon::now();
+
+        // Add 5 minutes to the current datetime
+        $expiryTime = $currentDateTime->addMinutes(5);
+
+        // DELETE the rest of the otps of that driver from the otps table
+        // $success = Otp::where('driver_id', $driver->id)->forceDelete();  // this works also
+        $success = $driver->otps()->forceDelete();                          // this works
+        //
+        if (!$success) {
+            return response()->json(['message' => 'otp Deletion Failed']);
+        }
+
+
+        $otp = $driver->otps()->create([
+            'code' => $otpCode,
+            'expiry_time' => $expiryTime,
+        ]);
+        //
+        if (!$otp) {
+            return response()->json(['message' => 'OTP creation Failed'], 500);
+        }
+    }
+
+
+    public function verifyOtp(LoginDriverRequest $request)
+    {
+       
+        $driver = Driver::where('phone_number', $request['phone_number'])->first();
+
+        if ($driver->isEmpty()) {
+            return response()->json(['message' => 'Login failed. Account does NOT exist.'], 404);
+        }
+
+        if ($driver->is_approved != 1) {
+            return response()->json(['message' => 'Login failed. Account NOT approved.'], 401);
+        }
+
+
+        $isValidOtpExists = $driver->otps()->where('code', $request['code'])->exists();
+
+        if ($isValidOtpExists == false) {
+            return response()->json(['message' => 'Invalid OTP'], 422);
+        }
+
+        // DELETE the rest of the otps of that driver from the otps table
+        // $success = Otp::where('driver_id', $driver->id)->forceDelete();  // this works also
+        $success = $driver->otps()->forceDelete();                          // this works
+        //
+        if (!$success) {
+            return response()->json(['message' => 'otp Deletion Failed']);
+        }
+
+
+        // generate TOKEN
+        $tokenResult = $driver->createToken('Personal Access Token', ['access-driver']);
+        $expiresAt = now()->addMinutes(9950); // Set the expiration time to 50 minutes from now - -   -   -   -   now() = is helper function of laravel, - - - (it is NOT Carbon's)
+        $token = $tokenResult->accessToken;
+        $token->expires_at = $expiresAt;
+        $token->save();
+        
+        //$driver->sendEmailVerificationNotification();
+
+        return response()->json(
+            [
+                'access_token' => $tokenResult->plainTextToken,
+                'token_abilities' => $tokenResult->accessToken->abilities,
+                'token_type' => 'Bearer',
+                'expires_at' => $tokenResult->accessToken->expires_at,
+                'data' => new DriverResource($driver),
+            ],
+            200
+        );
+
+
+    }
+    
+
+
 
 
    
