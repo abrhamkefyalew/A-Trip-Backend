@@ -130,6 +130,13 @@ class DriverAuthController extends Controller
         }
 
 
+        // Check if the OTP from the user input exists and is NOT Expired
+        $isValidOtpExists = $driver->otps()
+            ->where('code', $request['code'])
+            ->where('expiry_time', '>', now()) // Check if the EXPIRY time is in the future
+            ->exists();
+
+
         $isValidOtpExists = $driver->otps()->where('code', $request['code'])->exists();
         //
         if ($isValidOtpExists == false) {
