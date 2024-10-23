@@ -62,7 +62,7 @@ class DriverAuthController extends Controller
     public function loginOtp(LoginOtpDriverRequest $request)
     {
         
-        $driver = Driver::where('phone_number', $request['phone_number'])->first();
+        $driver = Driver::where('phone_number', $request['phone_number'])->get();
 
         if ($driver->isEmpty()) {
             return response()->json(['message' => 'Login failed. Account does NOT exist.'], 404);
