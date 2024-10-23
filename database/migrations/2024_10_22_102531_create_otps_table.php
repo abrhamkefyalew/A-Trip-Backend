@@ -26,6 +26,7 @@ return new class extends Migration
             // $table->boolean('is_verified')->default(false); currently we do NOT need this column for OTP
 
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
