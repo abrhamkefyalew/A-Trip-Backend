@@ -63,13 +63,25 @@ class DriverAuthController extends Controller
     {
         
         $driver = Driver::where('phone_number', $request['phone_number'])->first();
-
+        //
         if (!$driver) {
             return response()->json(['message' => 'Login failed. Account does NOT exist.'], 404);
         }
 
         if ($driver->is_approved != 1) {
             return response()->json(['message' => 'Login failed. Account NOT approved.'], 401);
+        }
+
+
+        // IF there are any generated OTPs for this driver , then DELETE them
+        if ($driver->otps()->exists()) {
+            // DELETE the rest of the otps of that driver from the otps table
+            // $success = Otp::where('driver_id', $driver->id)->forceDelete();  // this works also
+            $success = $driver->otps()->forceDelete();                          // this works
+            //
+            if (!$success) {
+                return response()->json(['message' => 'otp Deletion Failed']);
+            }
         }
 
 
@@ -82,14 +94,6 @@ class DriverAuthController extends Controller
         // Add 5 minutes to the current datetime
         $expiryTime = $currentDateTime->addMinutes(5);
 
-        // DELETE the rest of the otps of that driver from the otps table
-        // $success = Otp::where('driver_id', $driver->id)->forceDelete();  // this works also
-        $success = $driver->otps()->forceDelete();                          // this works
-        //
-        if (!$success) {
-            return response()->json(['message' => 'otp Deletion Failed']);
-        }
-
 
         $otp = $driver->otps()->create([
             'code' => $otpCode,
@@ -101,10 +105,11 @@ class DriverAuthController extends Controller
         }
 
         $sendSms = SMSService::sendSms($driver->phone_number, 'Adiamat Vehicle Rental: OTP (Verification code): ' . $otpCode);
-
+        //
         if (!$sendSms) {
             return response()->json(['message' => 'Failed to send SMS'], 500);
         }
+
 
         return response()->json(['message' => 'SMS sent successfully'], 202);
         
@@ -115,7 +120,7 @@ class DriverAuthController extends Controller
     {
        
         $driver = Driver::where('phone_number', $request['phone_number'])->first();
-
+        //
         if (!$driver) {
             return response()->json(['message' => 'Login failed. Account does NOT exist.'], 404);
         }
@@ -126,17 +131,21 @@ class DriverAuthController extends Controller
 
 
         $isValidOtpExists = $driver->otps()->where('code', $request['code'])->exists();
-
+        //
         if ($isValidOtpExists == false) {
             return response()->json(['message' => 'Invalid OTP'], 422);
         }
 
-        // DELETE the rest of the otps of that driver from the otps table
-        // $success = Otp::where('driver_id', $driver->id)->forceDelete();  // this works also
-        $success = $driver->otps()->forceDelete();                          // this works
-        //
-        if (!$success) {
-            return response()->json(['message' => 'otp Deletion Failed']);
+        
+        // IF there are any generated OTPs for this driver , then DELETE them
+        if ($driver->otps()->exists()) {
+            // DELETE the rest of the otps of that driver from the otps table
+            // $success = Otp::where('driver_id', $driver->id)->forceDelete();  // this works also
+            $success = $driver->otps()->forceDelete();                          // this works
+            //
+            if (!$success) {
+                return response()->json(['message' => 'otp Deletion Failed']);
+            }
         }
  
 
@@ -163,7 +172,6 @@ class DriverAuthController extends Controller
             ],
             200
         );
-
 
     }
     
