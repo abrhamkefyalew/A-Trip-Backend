@@ -34,7 +34,7 @@ return [
     'successful_decision' => env('BOA_SUCCESSFUL_DECISION', 'ACCEPT'),
     'flagged_by_dm_reason_code' => env('BOA_FLAGGED_BY_DM_REASON_CODE', 481),
 
-    'return_url' => env('BOA_RETURN_URL', 'https://adiamat.com/receipt'),
+    'return_url' => env('BOA_RETURN_URL', 'https://adiamat.com/receipt'), // is this the callback - check abrham samson
     'form_post_url' => env('BOA_FORM_POST_URL', 'https://secureacceptance.cybersource.com/pay'),
     'testing_form_post_url' => env('BOA_TESTING_FORM_POST_URL', 'https://testsecureacceptance.cybersource.com/pay'),
 

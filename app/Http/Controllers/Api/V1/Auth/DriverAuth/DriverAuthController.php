@@ -4,18 +4,18 @@ namespace App\Http\Controllers\Api\V1\Auth\DriverAuth;
 
 use Carbon\Carbon;
 use App\Models\Driver;
-use Kreait\Firebase\Auth;
 use Illuminate\Http\Request;
-use Kreait\Firebase\Factory;
-use Kreait\Firebase\ServiceAccount;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
-
 use App\Util\Api\V1\OtpCodeGenerator;
+use App\Services\Api\V1\General\SMS\SMSService;
 use App\Http\Requests\Api\V1\AuthRequests\LoginDriverRequest;
 use App\Http\Resources\Api\V1\DriverResources\DriverResource;
 use App\Http\Requests\Api\V1\AuthRequests\Otp\LoginOtpDriverRequest;
 
+// use Kreait\Firebase\Auth;
+// use Kreait\Firebase\Factory;
+// use Kreait\Firebase\ServiceAccount;
 
 class DriverAuthController extends Controller
 {
@@ -98,6 +98,15 @@ class DriverAuthController extends Controller
         if (!$otp) {
             return response()->json(['message' => 'OTP creation Failed'], 500);
         }
+
+        $sendSms = SMSService::sendSms($driver->phone_number, 'Adiamat Vehicle Rental: OTP (Verification code): ' . $otpCode);
+
+        if (!$sendSms) {
+            return response()->json(['message' => 'Failed to send SMS'], 500);
+        }
+
+        return response()->json(['message' => 'SMS sent successfully'], 202);
+        
     }
 
 
@@ -163,34 +172,34 @@ class DriverAuthController extends Controller
 
    
 
-    public function loginWithFirebase(LoginDriverRequest $request)
-    {
-       // Launch Firebase Auth
-       $auth = app('firebase.auth');
-       // Retrieve the Firebase credential's token
-       $idTokenString = $request->input('firebase_token');
+    // public function loginWithFirebase(LoginDriverRequest $request)
+    // {
+    //    // Launch Firebase Auth
+    //    $auth = app('firebase.auth');
+    //    // Retrieve the Firebase credential's token
+    //    $idTokenString = $request->input('firebase_token');
 
-       $newlyRegistered = false;
+    //    $newlyRegistered = false;
 
-       try { // Try to verify the Firebase credential token with Google
+    //    try { // Try to verify the Firebase credential token with Google
 
-           $verifiedIdToken = $auth->verifyIdToken($idTokenString);
-       } catch (\InvalidArgumentException $e) { // If the token has the wrong format
+    //        $verifiedIdToken = $auth->verifyIdToken($idTokenString);
+    //    } catch (\InvalidArgumentException $e) { // If the token has the wrong format
 
-           return response()->json([
-               'message' => 'Unauthorized - Can\'t parse the token: '.$e->getMessage(),
-           ], 401);
-       } catch (\Lcobucci\JWT\Token\InvalidTokenStructure $e) { // If the token is invalid (expired ...)
+    //        return response()->json([
+    //            'message' => 'Unauthorized - Can\'t parse the token: '.$e->getMessage(),
+    //        ], 401);
+    //    } catch (\Lcobucci\JWT\Token\InvalidTokenStructure $e) { // If the token is invalid (expired ...)
 
-           return response()->json([
-               'message' => 'Unauthorized - Token is invalid: '.$e->getMessage(),
-           ], 401);
-       }
+    //        return response()->json([
+    //            'message' => 'Unauthorized - Token is invalid: '.$e->getMessage(),
+    //        ], 401);
+    //    }
 
-       // Retrieve the UID (User ID) from the verified Firebase credential's token
-       $uid = $verifiedIdToken->claims()->get('sub');
+    //    // Retrieve the UID (User ID) from the verified Firebase credential's token
+    //    $uid = $verifiedIdToken->claims()->get('sub');
 
-    }
+    // }
 
 
 

@@ -9,9 +9,9 @@ use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\Api\V1\AuthRequests\LoginOrganizationUserRequest;
 use App\Http\Resources\Api\V1\OrganizationUserResources\OrganizationUserResource;
 
-use Kreait\Firebase\Factory;
-use Kreait\Firebase\ServiceAccount;
-use Kreait\Firebase\Auth;
+// use Kreait\Firebase\Factory;
+// use Kreait\Firebase\ServiceAccount;
+// use Kreait\Firebase\Auth;
 
 
 class OrganizationUserAuthController extends Controller
@@ -52,34 +52,34 @@ class OrganizationUserAuthController extends Controller
 
    
 
-    public function loginWithFirebase(LoginOrganizationUserRequest $request)
-    {
-       // Launch Firebase Auth
-       $auth = app('firebase.auth');
-       // Retrieve the Firebase credential's token
-       $idTokenString = $request->input('firebase_token');
+    // public function loginWithFirebase(LoginOrganizationUserRequest $request)
+    // {
+    //    // Launch Firebase Auth
+    //    $auth = app('firebase.auth');
+    //    // Retrieve the Firebase credential's token
+    //    $idTokenString = $request->input('firebase_token');
 
-       $newlyRegistered = false;
+    //    $newlyRegistered = false;
 
-       try { // Try to verify the Firebase credential token with Google
+    //    try { // Try to verify the Firebase credential token with Google
 
-           $verifiedIdToken = $auth->verifyIdToken($idTokenString);
-       } catch (\InvalidArgumentException $e) { // If the token has the wrong format
+    //        $verifiedIdToken = $auth->verifyIdToken($idTokenString);
+    //    } catch (\InvalidArgumentException $e) { // If the token has the wrong format
 
-           return response()->json([
-               'message' => 'Unauthorized - Can\'t parse the token: '.$e->getMessage(),
-           ], 401);
-       } catch (\Lcobucci\JWT\Token\InvalidTokenStructure $e) { // If the token is invalid (expired ...)
+    //        return response()->json([
+    //            'message' => 'Unauthorized - Can\'t parse the token: '.$e->getMessage(),
+    //        ], 401);
+    //    } catch (\Lcobucci\JWT\Token\InvalidTokenStructure $e) { // If the token is invalid (expired ...)
 
-           return response()->json([
-               'message' => 'Unauthorized - Token is invalid: '.$e->getMessage(),
-           ], 401);
-       }
+    //        return response()->json([
+    //            'message' => 'Unauthorized - Token is invalid: '.$e->getMessage(),
+    //        ], 401);
+    //    }
 
-       // Retrieve the UID (User ID) from the verified Firebase credential's token
-       $uid = $verifiedIdToken->claims()->get('sub');
+    //    // Retrieve the UID (User ID) from the verified Firebase credential's token
+    //    $uid = $verifiedIdToken->claims()->get('sub');
 
-    }
+    // }
 
 
 
