@@ -108,15 +108,19 @@ class BOACustomerCallbackServiceMock
             }
 
 
-            // DELETE All the BIDS of this ORDER
-            // // Soft delete all Bid records with order_user_id equal to $bid->order->id
-            // Bid::where('order_user_id', $bid->order->id)->delete();
-            //
-            // // Force delete all Bid records with order_user_id equal to $bid->order->id
-            $successThree = Bid::where('order_user_id', $invoiceUser->orderUser->id)->forceDelete();
-            //
-            if (!$successThree) {
-                return response()->json(['message' => 'Bid Delete Failed'], 500);
+
+            if (Bid::where('order_user_id', $invoiceUser->orderUser->id)->exists()) {
+                // DELETE All the BIDS of this ORDER
+                // // Soft delete all Bid records with order_user_id equal to $bid->order->id
+                // Bid::where('order_user_id', $bid->order->id)->delete();
+                //
+                // // Force delete all Bid records with order_user_id equal to $bid->order->id
+                $successForceDelete = Bid::where('order_user_id', $invoiceUser->orderUser->id)->forceDelete();
+                //
+                if (!$successForceDelete) {
+                    Log::alert('BOA callback: Bid Delete Failed! invoice_user_id: ' . $invoiceUser->id, 500);
+                }
+
             }
             
 

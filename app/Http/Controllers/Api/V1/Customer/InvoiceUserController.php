@@ -96,8 +96,15 @@ class InvoiceUserController extends Controller
             }
 
 
-            // remove all the previous unpaid invoices for that order
-            InvoiceUser::where('order_user_id', $orderUser->id)->where('status', InvoiceUser::INVOICE_STATUS_NOT_PAID)->where('paid_date', null)->forceDelete();
+            if (InvoiceUser::where('order_user_id', $orderUser->id)->where('status', InvoiceUser::INVOICE_STATUS_NOT_PAID)->where('paid_date', null)->exists()) {
+                // remove all the previous unpaid invoices for that order
+                $successForceDelete = InvoiceUser::where('order_user_id', $orderUser->id)->where('status', InvoiceUser::INVOICE_STATUS_NOT_PAID)->where('paid_date', null)->forceDelete();
+                //
+                if (!$successForceDelete) {
+                    return response()->json(['message' => 'Failed to DELETE Useless invoices'], 500);
+                }
+            }
+            
             
 
             // generate Unique UUID for each individual Customer invoices
@@ -244,12 +251,20 @@ class InvoiceUserController extends Controller
             }
 
 
-            // DELETE All the BIDS of this ORDER
-            // // Soft delete all Bid records with order_user_id equal to $bid->order->id
-            // Bid::where('order_user_id', $bid->order->id)->delete();
-            //
-            // // Force delete all Bid records with order_user_id equal to $bid->order->id
-            Bid::where('order_user_id', $invoiceUser->orderUser->id)->forceDelete();
+           
+            if (Bid::where('order_user_id', $invoiceUser->orderUser->id)->exists()) {
+                // DELETE All the BIDS of this ORDER
+                // // Soft delete all Bid records with order_user_id equal to $bid->order->id
+                // Bid::where('order_user_id', $bid->order->id)->delete();
+                //
+                // // Force delete all Bid records with order_user_id equal to $bid->order->id
+                $successForceDelete = Bid::where('order_user_id', $invoiceUser->orderUser->id)->forceDelete();
+                //
+                if (!$successForceDelete) {
+                    Log::alert('TeleBirr callback: Bid Delete Failed! invoice_user_id: ' . $invoiceUser->id, 500);
+                }
+
+            }
 
             
 

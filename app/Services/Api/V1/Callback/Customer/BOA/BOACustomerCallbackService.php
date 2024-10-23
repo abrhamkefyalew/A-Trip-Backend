@@ -120,7 +120,7 @@ class BOACustomerCallbackService
 
         // for initial payment callback we ALSO Update 'STATUS' column
         if ($updateStatusColumn == true) {
-            $updateFields['status'] = OrderUser::ORDER_STATUS_SET; // append new key => value ('status' key with OrderUser::ORDER_STATUS_SET value) to the array updateFields
+            $updateFields['status'] = OrderUser::ORDER_STATUS_SET; // append new key-value PAIR (key => value) , (i.e. 'status' key with OrderUser::ORDER_STATUS_SET value) to the array updateFields
         }
 
         $success = $invoiceUser->orderUser()->update($updateFields);
@@ -130,7 +130,7 @@ class BOACustomerCallbackService
         }
 
 
-        // // METHOD 2 // this WORKS also // NOT tested though
+        // METHOD 2 // this WORKS also // NOT tested though
         // $invoiceUser->orderUser->paid_complete_status = $orderPaidCompleteStatus;
 
         // // for initial payment callback we ALSO Update 'STATUS' column
@@ -147,11 +147,19 @@ class BOACustomerCallbackService
 
     private function deleteAssociatedBids($invoiceUser)
     {
-        $success = Bid::where('order_user_id', $invoiceUser->orderUser->id)->forceDelete();
-        //
-        if (!$success) {
-            $this->logAndAbort('Bid Delete Failed! invoice_user_id: ' . $invoiceUser->id, 500);
+        if (Bid::where('order_user_id', $invoiceUser->orderUser->id)->exists()) {
+            // DELETE All the BIDS of this ORDER
+                // // Soft delete all Bid records with order_user_id equal to $bid->order->id
+                // Bid::where('order_user_id', $bid->order->id)->delete();
+                //
+                // // Force delete all Bid records with order_user_id equal to $bid->order->id
+            $successForceDelete = Bid::where('order_user_id', $invoiceUser->orderUser->id)->forceDelete();
+            //
+            if (!$successForceDelete) {
+                Log::alert('BOA callback: Bid Delete Failed! invoice_user_id: ' . $invoiceUser->id, 500);
+            }
         }
+        
     }
 
     private function logAndAbort($message, $statusCode)

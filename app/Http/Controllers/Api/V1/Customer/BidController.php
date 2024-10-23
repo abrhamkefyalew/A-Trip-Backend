@@ -148,8 +148,16 @@ class BidController extends Controller
             // get the order id of the selected bid
             $bidOrderId = $bid->orderUser->id;
             
-            // remove all the previous unpaid invoices for that order
-            InvoiceUser::where('order_user_id', $bid->orderUser->id)->where('status', InvoiceUser::INVOICE_STATUS_NOT_PAID)->where('paid_date', null)->forceDelete();
+            if (InvoiceUser::where('order_user_id', $bid->orderUser->id)->where('status', InvoiceUser::INVOICE_STATUS_NOT_PAID)->where('paid_date', null)->exists()) {
+                // remove all the previous unpaid invoices for that order
+                $successForceDelete = InvoiceUser::where('order_user_id', $bid->orderUser->id)->where('status', InvoiceUser::INVOICE_STATUS_NOT_PAID)->where('paid_date', null)->forceDelete();
+                //
+                if (!$successForceDelete) {
+                    return response()->json(['message' => 'Failed to DELETE Useless invoices'], 500);
+                }
+            }
+            
+            
 
 
             
