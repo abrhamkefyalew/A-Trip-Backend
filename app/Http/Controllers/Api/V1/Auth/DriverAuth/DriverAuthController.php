@@ -128,7 +128,7 @@ class DriverAuthController extends Controller
         if (!$success) {
             return response()->json(['message' => 'otp Deletion Failed']);
         }
-
+ 
 
         // then if all the above conditions are met ,  I will load relationships.  // like the following
         $driver->load(['address', 'media', 'vehicle']);
