@@ -12,6 +12,7 @@ use App\Services\Api\V1\General\SMS\SMSService;
 use App\Http\Requests\Api\V1\AuthRequests\LoginDriverRequest;
 use App\Http\Resources\Api\V1\DriverResources\DriverResource;
 use App\Http\Requests\Api\V1\AuthRequests\Otp\LoginOtpDriverRequest;
+use App\Http\Requests\Api\V1\AuthRequests\Otp\VerifyOtpDriverRequest;
 
 // use Kreait\Firebase\Auth;
 // use Kreait\Firebase\Factory;
@@ -110,7 +111,7 @@ class DriverAuthController extends Controller
     }
 
 
-    public function verifyOtp(LoginDriverRequest $request)
+    public function verifyOtp(VerifyOtpDriverRequest $request)
     {
        
         $driver = Driver::where('phone_number', $request['phone_number'])->first();
