@@ -2,13 +2,18 @@
 
 namespace App\Http\Controllers\Api\V1\Auth\CustomerAuth;
 
+use Carbon\Carbon;
+use App\Jobs\SendSmsJob;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use App\Services\Api\V1\MediaService;
+use App\Util\Api\V1\OtpCodeGenerator;
 use App\Http\Requests\Api\V1\AuthRequests\LoginCustomerRequest;
 use App\Http\Requests\Api\V1\AuthRequests\RegisterCustomerRequest;
+use App\Http\Requests\Api\V1\AuthRequests\Otp\LoginOtpCustomerRequest;
+use App\Http\Requests\Api\V1\AuthRequests\Otp\VerifyOtpCustomerRequest;
 use App\Http\Resources\Api\V1\CustomerResources\CustomerForCustomerResource;
 
 class CustomerAuthController extends Controller
@@ -29,7 +34,7 @@ class CustomerAuthController extends Controller
 
         if ($request->has('customer_profile_image')) {
             $file = $request->file('customer_profile_image');
-            $clearMedia = false; // or true // // NO Customer image remove, since it is the first time the driver is being Registered
+            $clearMedia = false; // or true // // NO Customer image remove, since it is the first time the customer is being Registered
             $collectionName = Customer::CUSTOMER_PROFILE_PICTURE;
             MediaService::storeImage($customer, $file, $clearMedia, $collectionName);
         }
@@ -87,6 +92,141 @@ class CustomerAuthController extends Controller
 
         return response()->json(['message' => 'Login failed. Incorrect email or password.'], 400);
     }
+
+
+
+
+
+
+    public function loginOtp(LoginOtpCustomerRequest $request)
+    {
+        
+        $customer = Customer::where('phone_number', $request['phone_number'])->first();
+        //
+        if (!$customer) {
+            return response()->json(['message' => 'Login failed. Account does NOT exist.'], 404);
+        }
+
+        if ($customer->is_approved != 1) {
+            return response()->json(['message' => 'Login failed. Account NOT approved.'], 401);
+        }
+
+
+        // IF there are any generated OTPs for this customer , then DELETE them
+        if ($customer->otps()->exists()) {
+            // DELETE the rest of the otps of that customer from the otps table
+            // $success = Otp::where('customer_id', $customer->id)->forceDelete();  // this works also
+            $success = $customer->otps()->forceDelete();                          // this works
+            //
+            if (!$success) {
+                return response()->json(['message' => 'otp Deletion Failed']);
+            }
+        }
+
+
+        $otpCode = OtpCodeGenerator::generate(6);
+
+
+        // Generate current datetime
+        $currentDateTime = Carbon::now();
+
+        // Add 5 minutes to the current datetime
+        $expiryTime = $currentDateTime->addMinutes(5);
+
+
+        $otp = $customer->otps()->create([
+            'code' => $otpCode,
+            'expiry_time' => $expiryTime,
+        ]);
+        //
+        if (!$otp) {
+            return response()->json(['message' => 'OTP creation Failed'], 500);
+        }
+
+        // $sendSms = SMSService::sendSms($customer->phone_number, 'Adiamat Vehicle Rental: OTP (Verification code): ' . $otpCode);
+        // //
+        // if (!$sendSms) {
+        //     return response()->json(['message' => 'Failed to send SMS'], 500);
+        // }
+
+        try {
+            SendSmsJob::dispatch($customer->phone_number, 'Adiamat Vehicle Rental: OTP (Verification code): ' . $otpCode)->onQueue('sms');
+        } catch (\Throwable $e) {
+            // Log the exception or handle it as needed
+            return response()->json(['message' => 'Failed to dispatch SMS job'], 500);
+        }
+
+
+        return response()->json(['message' => 'SMS job dispatched successfully'], 202);
+        
+    }
+
+
+    public function verifyOtp(VerifyOtpCustomerRequest $request)
+    {
+       
+        $customer = Customer::where('phone_number', $request['phone_number'])->first();
+        //
+        if (!$customer) {
+            return response()->json(['message' => 'Login failed. Account does NOT exist.'], 404);
+        }
+
+        if ($customer->is_approved != 1) {
+            return response()->json(['message' => 'Login failed. Account NOT approved.'], 401);
+        }
+
+
+        // Check if the OTP from the user input exists and is NOT Expired
+        $isValidOtpExists = $customer->otps()
+            ->where('code', $request['code'])
+            ->where('expiry_time', '>', now()) // Check if the EXPIRY time is in the future
+            ->exists();
+        //
+        if ($isValidOtpExists == false) {
+            return response()->json(['message' => 'Invalid OTP'], 422);
+        }
+
+        
+        // IF there are any generated OTPs for this customer , then DELETE them
+        if ($customer->otps()->exists()) {
+            // DELETE the rest of the otps of that customer from the otps table
+            // $success = Otp::where('customer_id', $customer->id)->forceDelete();  // this works also
+            $success = $customer->otps()->forceDelete();                          // this works
+            //
+            if (!$success) {
+                return response()->json(['message' => 'otp Deletion Failed']);
+            }
+        }
+ 
+
+        // then if all the above conditions are met ,  I will load relationships.  // like the following
+        $customer->load(['address', 'media']);
+
+
+        // generate TOKEN
+        $tokenResult = $customer->createToken('Personal Access Token', ['access-customer']);
+        $expiresAt = now()->addMinutes(9950); // Set the expiration time to 50 minutes from now - -   -   -   -   now() = is helper function of laravel, - - - (it is NOT Carbon's)
+        $token = $tokenResult->accessToken;
+        $token->expires_at = $expiresAt;
+        $token->save();
+        
+        //$customer->sendEmailVerificationNotification();
+
+        return response()->json(
+            [
+                'access_token' => $tokenResult->plainTextToken,
+                'token_abilities' => $tokenResult->accessToken->abilities,
+                'token_type' => 'Bearer',
+                'expires_at' => $tokenResult->accessToken->expires_at,
+                'data' => new CustomerForCustomerResource($customer),
+            ],
+            200
+        );
+
+    }
+
+
+
 
 
     /**

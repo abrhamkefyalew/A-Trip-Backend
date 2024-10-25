@@ -353,7 +353,11 @@ Route::prefix('v1')->group(function () {
             // there should NOT be OrganizationUser registration, -  
             // OrganizationUser should be stored by an already existing OrganizationUser admin or super admin of the system -
             // there should be a route for OrganizationUser storing by both OrganizationUser admin and super admin
-            Route::post('/login', [OrganizationUserAuthController::class, 'login']);
+            //
+            //
+            // Route::post('/login', [OrganizationUserAuthController::class, 'login']);
+            Route::post('/login_otp', [OrganizationUserAuthController::class, 'loginOtp']);
+            Route::post('/verify_otp', [OrganizationUserAuthController::class, 'verifyOtp']);
 
         });
 
@@ -458,7 +462,11 @@ Route::prefix('v1')->group(function () {
             // there should NOT be Supplier registration, -  
             // Supplier should be stored by super admin of the system -
             // there should be a route for Supplier storing by super admin
-            Route::post('/login', [SupplierAuthController::class, 'login']);
+            //
+            //
+            // Route::post('/login', [SupplierAuthController::class, 'login']);
+            Route::post('/login_otp', [SupplierAuthController::class, 'loginOtp']);
+            Route::post('/verify_otp', [SupplierAuthController::class, 'verifyOtp']);
 
         });
 
@@ -706,7 +714,11 @@ Route::prefix('v1')->group(function () {
             // there should be a route for Customer storing by super admin
 
             Route::post('/register', [CustomerAuthController::class, 'register']);
-            Route::post('/login', [CustomerAuthController::class, 'login']);
+            //
+            //
+            // Route::post('/login', [CustomerAuthController::class, 'login']);
+            Route::post('/login_otp', [CustomerAuthController::class, 'loginOtp']);
+            Route::post('/verify_otp', [CustomerAuthController::class, 'verifyOtp']);
 
         });
 
