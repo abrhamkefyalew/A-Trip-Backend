@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\Auth\DriverAuth;
 
 use Carbon\Carbon;
 use App\Models\Driver;
+use App\Jobs\SendSmsJob;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
@@ -104,14 +105,21 @@ class DriverAuthController extends Controller
             return response()->json(['message' => 'OTP creation Failed'], 500);
         }
 
-        $sendSms = SMSService::sendSms($driver->phone_number, 'Adiamat Vehicle Rental: OTP (Verification code): ' . $otpCode);
-        //
-        if (!$sendSms) {
-            return response()->json(['message' => 'Failed to send SMS'], 500);
+        // $sendSms = SMSService::sendSms($driver->phone_number, 'Adiamat Vehicle Rental: OTP (Verification code): ' . $otpCode);
+        // //
+        // if (!$sendSms) {
+        //     return response()->json(['message' => 'Failed to send SMS'], 500);
+        // }
+
+        try {
+            SendSmsJob::dispatch($driver->phone_number, 'Adiamat Vehicle Rental: OTP (Verification code): ' . $otpCode)->onQueue('sms');
+        } catch (\Throwable $e) {
+            // Log the exception or handle it as needed
+            return response()->json(['message' => 'Failed to dispatch SMS job'], 500);
         }
 
 
-        return response()->json(['message' => 'SMS sent successfully'], 202);
+        return response()->json(['message' => 'SMS job dispatched successfully'], 202);
         
     }
 

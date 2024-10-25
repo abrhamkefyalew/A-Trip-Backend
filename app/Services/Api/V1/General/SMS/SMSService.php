@@ -2,15 +2,13 @@
 
 namespace App\Services\Api\V1\General\SMS;
 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 
 class SMSService
 {
     public static function sendSms($phoneNo, $message)
     {
-        // hardcoded sms url 
-        $url = "http://melekt.com/sms/web/api";
-
         // Sample phone number
         // "912345678"; // Example where the string starts with 9 and has a length of 9
         // "701234567"; // Example where the string starts with 7 and has a length of 9
@@ -30,6 +28,7 @@ class SMSService
         }
 
 
+        $header = ['Content-Type' => 'application/json'];
 
         $url = config('smsgeez.url');
 
@@ -40,10 +39,23 @@ class SMSService
         ];
 
 
-        // $response = Http::post($url, $body);
-        $response = Http::timeout(60)
-            // ->withOptions(['verify' => false]) // false - is for NON secure environments
-            ->post($url, $body);
+        try {
+            // simple request // Works also
+            // $response = Http::post($url, $body); 
+
+            //
+            // detailed request // WORKS
+            $response = Http::withHeaders($header)
+                ->timeout(60)
+                // ->withOptions(['verify' => false]) // false - is for NON secure environments
+                ->post($url, $body);
+            
+        } catch (\Exception $e) {
+            Log::error('Send SMS Error , Phone Number: '.$phoneNo.'. '.$e->getMessage());
+
+            return false;
+        }
+
 
         if ($response->successful()) {
             return true;
