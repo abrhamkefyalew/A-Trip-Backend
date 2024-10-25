@@ -22,7 +22,8 @@ class CustomerAuthController extends Controller
     public function register(RegisterCustomerRequest $request)
     {
         $customer = Customer::create($request->validated());
-        // is_active and is_approved values will be the default values = "1"    -   -   -   - (as it was SET in the customers table migration)
+        // is_active values will be the default values = "1"    -   -   -   - (as it was SET in the customers table migration)
+        // is_approved values will be the default values = "0"    -   -   -   - (as it was SET in the customers table migration) // this means he can not make order unless he is Approved by the SUPER_ADMIN (i.e. is_approved = 1)
 
 
         if ($request->has('country') || $request->has('city')) {
@@ -62,7 +63,7 @@ class CustomerAuthController extends Controller
         // better use load than with, since here after all we get the data , we are checking if the password does match, 
         // if password does not match all the data and relation and Eager Load is wasted and the data will NOT be returned
         // do first get only the customer and if the password matches then get the other relations using load()
-        $customer = Customer::with(['address', 'media'])->where('email', $request->email)->where('is_approved', 1)->first();  // only if is_active = 1 he can login
+        $customer = Customer::with(['address', 'media'])->where('email', $request->email)->first();  // only if is_active = 1 he can login
 
         // request()->request->add(['customer-permission-groups' => true]);
 
@@ -107,9 +108,11 @@ class CustomerAuthController extends Controller
             return response()->json(['message' => 'Login failed. Account does NOT exist.'], 404);
         }
 
-        if ($customer->is_approved != 1) {
-            return response()->json(['message' => 'Login failed. Account NOT approved.'], 401);
-        }
+        // customer can still login without being approved, BUT He can not make order unless he is Approved by the SUPER_ADMIN
+        // 
+        // if ($customer->is_approved != 1) {
+        //     return response()->json(['message' => 'Login failed. Account NOT approved.'], 401);
+        // }
 
 
         // IF there are any generated OTPs for this customer , then DELETE them
@@ -171,9 +174,10 @@ class CustomerAuthController extends Controller
             return response()->json(['message' => 'Login failed. Account does NOT exist.'], 404);
         }
 
-        if ($customer->is_approved != 1) {
-            return response()->json(['message' => 'Login failed. Account NOT approved.'], 401);
-        }
+        // customer can still login without being approved, BUT He can not make order unless he is Approved by the SUPER_ADMIN
+        // if ($customer->is_approved != 1) {
+        //     return response()->json(['message' => 'Login failed. Account NOT approved.'], 401);
+        // }
 
 
         // Check if the OTP from the user input exists and is NOT Expired

@@ -26,7 +26,13 @@ class OrganizationUserAuthController extends Controller
         // better use load than with, since here after all we get the data , we are checking if the password does match, 
         // if password does not match all the data and relation and Eager Load is wasted and the data will NOT be returned
         // do first get only the organizationUser and if the password matches then get the other relations using load()
-        $organizationUser = OrganizationUser::with(['address', 'organization', 'media'])->where('email', $request->email)->where('is_active', 1)->first(); 
+        $organizationUser = OrganizationUser::with(['address', 'organization', 'media'])->where('email', $request->email)->where('is_active', 1)->first();
+
+
+        if ($organizationUser->organization->is_approved != 1) {
+            return response()->json(['message' => 'Can NOT Login: Because this organization has been Unapproved, please check with the system super admin'], 401); 
+        }
+        
 
         if ($organizationUser) {
             if (Hash::check($request->password, $organizationUser->password)) {
@@ -67,9 +73,15 @@ class OrganizationUserAuthController extends Controller
             return response()->json(['message' => 'Login failed. Account does NOT exist.'], 404);
         }
 
-        if ($organizationUser->is_approved != 1) {
-            return response()->json(['message' => 'Login failed. Account NOT approved.'], 401);
+        if ($organizationUser->is_active != 1) {
+            return response()->json(['message' => 'Login failed. Account NOT activated (De-Activated).'], 401);
         }
+
+
+        if ($organizationUser->organization->is_approved != 1) {
+            return response()->json(['message' => 'Can NOT Login: Because this organization has been Unapproved, please check with the system super admin'], 401); 
+        }
+
 
 
         // IF there are any generated OTPs for this organizationUser , then DELETE them
@@ -131,9 +143,15 @@ class OrganizationUserAuthController extends Controller
             return response()->json(['message' => 'Login failed. Account does NOT exist.'], 404);
         }
 
-        if ($organizationUser->is_approved != 1) {
-            return response()->json(['message' => 'Login failed. Account NOT approved.'], 401);
+        if ($organizationUser->is_active != 1) {
+            return response()->json(['message' => 'Login failed. Account NOT activated (De-Activated).'], 401);
         }
+
+
+        if ($organizationUser->organization->is_approved != 1) {
+            return response()->json(['message' => 'Can NOT Login: Because this organization has been Unapproved, please check with the system super admin'], 401); 
+        }
+
 
 
         // Check if the OTP from the user input exists and is NOT Expired
