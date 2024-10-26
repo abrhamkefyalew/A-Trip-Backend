@@ -78,7 +78,7 @@ class Organization extends Model implements HasMedia
             // If the number does not fall into the above scenarios (9, 10, or 12 digits), 
             // it validates the number's length against 9, 10, 12, or 13 digits using Laravel's validation mechanism.
             $validator = Validator::make(['phone_number' => $value], [
-                'phone_number' => 'size:9|size:10|size:12|size:13',
+                'phone_number' => 'size:13',
             ]);
     
             if ($validator->fails()) {
