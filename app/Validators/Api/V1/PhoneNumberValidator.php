@@ -38,13 +38,28 @@ class PhoneNumberValidator
         else {
             // Use Laravel's validation mechanism to return an error
             // If the number does not fall into the above scenarios (9, 10, or 12 digits), 
-            // it validates the number's length against 9, 10, 12, or 13 digits using Laravel's validation mechanism.
+            // it validates the number's length against 13 digits using Laravel's validation mechanism.
             $validator = Validator::make(['phone_number' => $value], [
                 'phone_number' => 'size:13',
             ]);
     
             if ($validator->fails()) {
                 throw new \Illuminate\Validation\ValidationException($validator);
+            }
+
+
+            // 
+            if (strlen($value) == 13) {
+                // Use Laravel's validation mechanism to return an error
+                // If the number is 13 digits long but does not start with '+', 
+                // it validates that it should start with '+' using Laravel's validation mechanism
+                $validator = Validator::make(['phone_number' => $value], [
+                    'phone_number' => 'starts_with:+', 
+                ]);
+    
+                if ($validator->fails()) {
+                    throw new \Illuminate\Validation\ValidationException($validator);
+                }
             }
         }
 
