@@ -10,6 +10,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Validator;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Validators\Api\V1\PhoneNumberValidator;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use App\Notifications\Api\V1\ResetPasswordNotification;
@@ -94,52 +95,16 @@ class Supplier extends Authenticatable implements HasMedia
     // Define a mutator for the phone_number attribute
     public function setPhoneNumberAttribute($value)
     {
-        if (strlen($value) == 10) {
-            if ($value[0] == '0') {
-                // If the number is 10 digits long and starts with '0', it replaces the leading '0' with '+251
-                $ptn = "/^0/";
-                $rpltxt = "+251";
-                $value = preg_replace($ptn, $rpltxt, $value);
-            }
-            else {
-                // Use Laravel's validation mechanism to return an error
-                // If the number is 10 digits long but does not start with '0', 
-                // it validates that it should start with '0' using Laravel's validation mechanism
-                $validator = Validator::make(['phone_number' => $value], [
-                    'phone_number' => 'starts_with:0', 
-                ]);
+        $phoneNumberValidator = new PhoneNumberValidator();
     
-                if ($validator->fails()) {
-                    throw new \Illuminate\Validation\ValidationException($validator);
-                }
-            }
-        } 
-        elseif (strlen($value) == 9) {
-            $value = "+251" . $value;
-            
-        }
-        elseif (strlen($value) == 12) {
-            $value = "+" . $value;
-        }
-        else {
-            // Use Laravel's validation mechanism to return an error
-            // If the number does not fall into the above scenarios (9, 10, or 12 digits), 
-            // it validates the number's length against 9, 10, 12, or 13 digits using Laravel's validation mechanism.
-            $validator = Validator::make(['phone_number' => $value], [
-                'phone_number' => 'size:13',
-            ]);
-    
-            if ($validator->fails()) {
-                throw new \Illuminate\Validation\ValidationException($validator);
-            }
-        }
+        $formattedPhoneNumber = $phoneNumberValidator->formatAndValidatePhoneNumber($value);
 
 
-        // check for uniqueness on the modified phone_number value after it has been processed through the formatting and validation steps
+        // check for uniqueness on the modified phone_number (i.e. $formattedPhoneNumber) after it has been processed through the formatting and validation steps
         // this condition is last to ensure that the uniqueness check is performed on the transformed and modified phone number (i.e. using the above if conditions) that will be stored in the database
-        if ($this->where('phone_number', $value)->exists()) {
+        if ($this->where('phone_number', $formattedPhoneNumber)->exists()) {
             // Use Laravel's validation mechanism to return an error
-            $validator = Validator::make(['phone_number' => $value], [
+            $validator = Validator::make(['phone_number' => $formattedPhoneNumber], [
                 'phone_number' => 'unique:suppliers',
             ]);
 
@@ -150,7 +115,7 @@ class Supplier extends Authenticatable implements HasMedia
     
 
         // Finally, the formatted or validated phone number is set back to the model's phone_number attribute
-        $this->attributes['phone_number'] = $value;
+        $this->attributes['phone_number'] = $formattedPhoneNumber;
     }
 
 
