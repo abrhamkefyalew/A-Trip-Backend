@@ -4,7 +4,7 @@ namespace App\Services\Api\V1\OrganizationUser\Payment\TeleBirr;
 
 use Exception;
 // use phpseclib\Crypt\RSA; OLD Package
-// use phpseclib3\Crypt\RSA; // Still NOT working
+use phpseclib3\Crypt\RSA;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 
@@ -251,8 +251,9 @@ class TeleBirrOrganizationPaymentServiceMock
     // commented because it is not working
     public static function SignWithRSAOLD($data)
     {
-        // requires package installation
-        //        - composer require phpseclib/phpseclib
+        // requires package installation 
+        //        - composer require phpseclib/phpseclib            --- installs the latest 3.0   (import = use phpseclib3\Crypt\RSA)
+        //        
         //
         $rsa = new RSA();
 
@@ -282,7 +283,7 @@ public static function signWithRSA($data)
     $rsaPrivateKeyConfig = config('telebirr-super-app.rsa_private_key');
 
     // Trim the RSA private key using a custom method
-    $rsaPrivateKey = self::trimPrivateKey($rsaPrivateKeyConfig );
+    $rsaPrivateKey = self::trimPrivateKey($rsaPrivateKeyConfig);
 
     // Create a private key resource for RSA operation
     $rsaPrivateKeyResource = openssl_pkey_get_private($rsaPrivateKey);
