@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Http;
 class BOAOrganizationPaymentService
 {    
     /**
-     * Handles PR payment callback
+     * Handles PR payment
      * 
      */
     public function initiatePaymentForPR($priceAmountTotalVal, $invoiceCodeVal)
@@ -41,7 +41,7 @@ class BOAOrganizationPaymentService
 
         // at last 
         // add prefix = "OPR-" : - prefix on the invoice code variable so that during call back later we could know that it is for ORGANIZATION PR payment
-        $invoiceCodeValWithPrefixPr = "OPR-" . $invoiceCodeVal; // add the OPR- prefix to indicate the invoice code is for organization payment // we will use it later when the callback comes from the banks
+        $invoiceCodeValWithPrefixPr = config('constants.payment.customer_to_business.organization_pr') . $invoiceCodeVal; // add the OPR- prefix to indicate the invoice code is for organization payment // we will use it later when the callback comes from the banks
 
 
         $boaData = [
@@ -85,19 +85,19 @@ class BOAOrganizationPaymentService
 
 
 
-    public static function sign($params)
+    protected static function sign($params)
     {
         $secretKey = config('boa.testing') ? config('boa.testing_secret_key') : config('boa.secret_key');
 
         return self::signData(self::buildDataToSign($params), $secretKey);
     }
 
-    public static function signData($data, $secretKey)
+    protected static function signData($data, $secretKey)
     {
         return base64_encode(hash_hmac('sha256', $data, $secretKey, true));
     }
 
-    public static function buildDataToSign($params)
+    protected static function buildDataToSign($params)
     {
         $signedFieldNames = explode(',', $params['signed_field_names']);
 
@@ -111,7 +111,7 @@ class BOAOrganizationPaymentService
         return $x;
     }
 
-    public static function commaSeparate($dataToSign)
+    protected static function commaSeparate($dataToSign)
     {
         return implode(',', $dataToSign);
     }

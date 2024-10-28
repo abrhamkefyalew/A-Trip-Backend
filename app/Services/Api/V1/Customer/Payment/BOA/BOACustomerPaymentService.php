@@ -41,7 +41,7 @@ class BOACustomerPaymentService
 
         // at last 
         // add prefix = "ICI-" : - prefix on the invoice id variable so that during call back later we could know that it is for INDIVIDUAL CUSTOMER INITIAL payment
-        $this->invoiceUserIdValWithPrefixInitial = "ICI-" . (string) $this->invoiceUserIdVal; // add the ICI- prefix to indicate the invoice code is for INDIVIDUAL CUSTOMER INITIAL payment // we will use it later when the callback comes from the banks
+        $this->invoiceUserIdValWithPrefixInitial = config('constants.payment.customer_to_business.individual_customer_initial') . (string) $this->invoiceUserIdVal; // add the ICI- prefix to indicate the invoice code is for INDIVIDUAL CUSTOMER INITIAL payment // we will use it later when the callback comes from the banks
 
         $boaData = [
             'access_key' => config('boa.testing') ? config('boa.testing_access_key') : config('boa.access_key'),
@@ -90,7 +90,7 @@ class BOACustomerPaymentService
 
         // at last 
         // add prefix = "ICF-" : - prefix on the invoice id variable so that during call back later we could know that it is for INDIVIDUAL CUSTOMER Final payment
-        $this->invoiceUserIdValWithPrefixFinal = "ICF-" . (string) $this->invoiceUserIdVal; // add the ICF- prefix to indicate the invoice code is for INDIVIDUAL CUSTOMER Final payment // we will use it later when the callback comes from the banks
+        $this->invoiceUserIdValWithPrefixFinal = config('constants.payment.customer_to_business.individual_customer_final') . (string) $this->invoiceUserIdVal; // add the ICF- prefix to indicate the invoice code is for INDIVIDUAL CUSTOMER Final payment // we will use it later when the callback comes from the banks
 
         
         $boaData = [
@@ -129,19 +129,19 @@ class BOACustomerPaymentService
 
 
 
-    public function sign($params)
+    private function sign($params)
     {
         $secretKey = config('boa.testing') ? config('boa.testing_secret_key') : config('boa.secret_key');
 
         return $this->signData($this->buildDataToSign($params), $secretKey);
     }
 
-    public function signData($data, $secretKey)
+    private function signData($data, $secretKey)
     {
         return base64_encode(hash_hmac('sha256', $data, $secretKey, true));
     }
 
-    public function buildDataToSign($params)
+    private function buildDataToSign($params)
     {
         $signedFieldNames = explode(',', $params['signed_field_names']);
 
@@ -155,7 +155,7 @@ class BOACustomerPaymentService
         return $x;
     }
 
-    public function commaSeparate($dataToSign)
+    private function commaSeparate($dataToSign)
     {
         return implode(',', $dataToSign);
     }

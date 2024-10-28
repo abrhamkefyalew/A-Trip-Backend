@@ -18,6 +18,7 @@ use App\Http\Requests\Api\V1\OrganizationUserRequests\UpdateInvoiceRequest;
 use App\Http\Resources\Api\V1\InvoiceResources\InvoiceForOrganizationResource;
 use App\Services\Api\V1\OrganizationUser\Payment\BOA\BOAOrganizationPaymentService;
 use App\Http\Requests\Api\V1\OrganizationUserRequests\PayInvoicesCallbackTelebirrRequest;
+use App\Services\Api\V1\OrganizationUser\Payment\TeleBirr\TeleBirrOrganizationPaymentService;
 
 class InvoiceController extends Controller
 {
@@ -435,6 +436,13 @@ class InvoiceController extends Controller
 
                     return $valuePaymentRenderedView;
                 }
+                else if ($request['payment_method'] = Invoice::INVOICE_TELE_BIRR) {
+
+                    $boaOrganizationPaymentService = new BOAOrganizationPaymentService();
+                    $valuePaymentRenderedView = $boaOrganizationPaymentService->initiatePaymentForPR($totalPriceAmount, $invoiceCode);
+
+                    return $valuePaymentRenderedView;
+                }
                 else {
                     return response()->json(['error' => 'Invalid payment method selected.'], 422);
                 }
@@ -659,6 +667,26 @@ class InvoiceController extends Controller
         // to call a ROUTE from web.php
         // return response()->json(['toPayUrl' => route('pay.with.boa', $valuePayment)]); // better suited for returning model object (i.e. $invoice object) 
         */
+    }
+
+
+    public function testTelebirrApplyFabricToken() 
+    {
+        $teleBirrOrganizationPaymentService = new TeleBirrOrganizationPaymentService();
+        $valuePayment = $teleBirrOrganizationPaymentService->applyFabricToken();
+
+        return $valuePayment; 
+
+    }
+
+
+    public function testTelebirr() 
+    {
+        $teleBirrOrganizationPaymentService = new TeleBirrOrganizationPaymentService();
+        $valuePayment = $teleBirrOrganizationPaymentService->createOrder("SampleTitle", "44");
+
+        return $valuePayment; 
+
     }
 
 
