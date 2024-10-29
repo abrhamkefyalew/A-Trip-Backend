@@ -13,7 +13,17 @@ return [
     |
     */
 
-    'default' => env('QUEUE_CONNECTION', 'sync'),
+
+
+    //
+    // UPDATED
+    // Old
+    //'default' => env('QUEUE_CONNECTION', 'sync'),
+    // New
+    'default' => env('QUEUE_CONNECTION', 'database'),
+    //
+
+
 
     /*
     |--------------------------------------------------------------------------

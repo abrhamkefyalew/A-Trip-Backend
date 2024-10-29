@@ -46,7 +46,7 @@ class TripController extends Controller
                 $trips = $trips->where('driver_id', $driverId);
             } 
             else {
-                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
             } 
         }
         if ($request->has('order_id_search')) {
@@ -56,7 +56,7 @@ class TripController extends Controller
                 $trips = $trips->where('order_id', $orderId);
             } 
             else {
-                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
             } 
         }
         if ($request->has('organization_user_id_search')) {
@@ -66,7 +66,7 @@ class TripController extends Controller
                 $trips = $trips->where('organization_user_id', $organizationUserId);
             } 
             else {
-                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
             } 
         }
         if ($request->has('trip_status_search')) {
@@ -76,7 +76,7 @@ class TripController extends Controller
                 $trips = $trips->where('status', $tripStatus);
             } 
             else {
-                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
             } 
         }
         if ($request->has('trip_status_payment_search')) {
@@ -86,7 +86,7 @@ class TripController extends Controller
                 $trips = $trips->where('status_payment', $tripStatusPayment);
             } 
             else {
-                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
             } 
         }
 
@@ -129,7 +129,7 @@ class TripController extends Controller
         $var = DB::transaction(function () use ($request, $trip) {
             
             if ($trip->status === Trip::TRIP_STATUS_APPROVED) {
-                return response()->json(['message' => 'this Trip is already APPROVED.'], 403); 
+                return response()->json(['message' => 'this Trip is already APPROVED.'], 409); 
             }
 
             if ($trip->order_id === null ||
@@ -143,7 +143,7 @@ class TripController extends Controller
                 $trip->status === null ||
                 $trip->status_payment === null) {
                 
-                return response()->json(['error' => 'Trip Can Not be Approved, Because some important values of the Trip are Not filled yet. Thr Driver should complete filling all the required Trip Values Before it can be approved.'], 400);
+                return response()->json(['error' => 'Trip Can Not be Approved, Because some important values of the Trip are Not filled yet. Thr Driver should complete filling all the required Trip Values Before it can be approved.'], 428);
             }
             
 
@@ -152,7 +152,7 @@ class TripController extends Controller
             ]);
             //
             if (!$success) {
-                return response()->json(['message' => 'Trip Update Failed'], 422);
+                return response()->json(['message' => 'Trip Update Failed'], 500);
             }
 
             
@@ -176,11 +176,11 @@ class TripController extends Controller
         $var = DB::transaction(function () use ($request, $trip) {
             
             if ($trip->status !== Trip::TRIP_STATUS_APPROVED) {
-                return response()->json(['message' => 'this Trip is should be APPROVED first.'], 403); 
+                return response()->json(['message' => 'this Trip is should be APPROVED first.'], 428); 
             }
 
             if ($trip->status_payment === Trip::TRIP_PAID) {
-                return response()->json(['message' => 'this Trip is already PAID.'], 403); 
+                return response()->json(['message' => 'this Trip is already PAID.'], 409); 
             }
 
             if ($trip->order_id === null ||
@@ -194,7 +194,7 @@ class TripController extends Controller
                 $trip->status === null ||
                 $trip->status_payment === null) {
                 
-                return response()->json(['error' => 'Trip Can Not be Approved, Because some important values of the Trip are Not filled yet. Thr Driver should complete filling all the required Trip Values Before it can be approved.'], 400);
+                return response()->json(['error' => 'Trip Can Not be Approved, Because some important values of the Trip are Not filled yet. Thr Driver should complete filling all the required Trip Values Before it can be approved.'], 428);
             }
             
             
@@ -204,7 +204,7 @@ class TripController extends Controller
             ]);
             //
             if (!$success) {
-                return response()->json(['message' => 'Trip Update Failed'], 422);
+                return response()->json(['message' => 'Trip Update Failed'], 500);
             }
 
             
@@ -234,7 +234,7 @@ class TripController extends Controller
                 $organizationUser = OrganizationUser::find($request['organization_user_id']);
                 
                 if ($organizationUser->organization_id != $trip->order->organization_id) {
-                    return response()->json(['message' => 'invalid Organization User is selected or Requested. or the Organization User provided is not found. Deceptive request Aborted.'], 401);
+                    return response()->json(['message' => 'invalid Organization User is selected or Requested. or the Organization User provided is not found. Deceptive request Aborted.'], 422);
                 }
             }
 
@@ -243,7 +243,7 @@ class TripController extends Controller
 
 
             if ($endDashboard < $startDashboard) {
-                return response()->json(['message' => 'the end dashboard reading should not be less than the start dashboard reading.'], 403); 
+                return response()->json(['message' => 'the end dashboard reading should not be less than the start dashboard reading.'], 400); 
             }
             
 
@@ -251,7 +251,7 @@ class TripController extends Controller
             $success = $trip->update($request->validated());
             //
             if (!$success) {
-                return response()->json(['message' => 'Trip Update Failed'], 422);
+                return response()->json(['message' => 'Trip Update Failed'], 500);
             }
 
             $updatedTrip = Trip::find($trip->id);

@@ -33,7 +33,7 @@ class ContractController extends Controller
                 $contracts = Contract::where('organization_id', $organizationId);
             } 
             else {
-                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
             }
         }
         else {
@@ -159,7 +159,7 @@ class ContractController extends Controller
             $success = $contract->update($request->validated());
             //
             if (!$success) {
-                return response()->json(['message' => 'Update Failed'], 422);
+                return response()->json(['message' => 'Update Failed'], 500);
             }
 
 

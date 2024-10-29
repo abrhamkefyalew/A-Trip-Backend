@@ -14,6 +14,7 @@ class AcceptOrderRequest extends FormRequest
         return true;
 
         // do AUTH here or in the controller
+        // return $this->user()->can('accept', Order::class); // Beware before uncomment // this one is different method // do NOT forget to implement it in Policy
     }
 
     /**

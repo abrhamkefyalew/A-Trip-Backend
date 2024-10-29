@@ -4,8 +4,10 @@ namespace App\Models;
 
 use Spatie\MediaLibrary\HasMedia;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Validator;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Validators\Api\V1\PhoneNumberValidator;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
@@ -29,6 +31,52 @@ class Organization extends Model implements HasMedia
         'is_active',
         'is_approved',
     ];
+
+
+
+
+
+
+
+
+
+    
+
+    // mutator function 
+    // mutator functions are called automatically by laravel,
+    // Define a mutator for the phone_number attribute
+    public function setPhoneNumberAttribute($value)
+    {
+        $phoneNumberValidator = new PhoneNumberValidator();
+    
+        $formattedPhoneNumber = $phoneNumberValidator->formatAndValidatePhoneNumber($value);
+
+
+        // check for uniqueness on the modified phone_number (i.e. $formattedPhoneNumber) after it has been processed through the formatting and validation steps
+        // this condition is last to ensure that the uniqueness check is performed on the transformed and modified phone number (i.e. using the above if conditions) that will be stored in the database
+        if ($this->where('phone_number', $formattedPhoneNumber)->exists()) {
+            // Use Laravel's validation mechanism to return an error
+            $validator = Validator::make(['phone_number' => $formattedPhoneNumber], [
+                'phone_number' => 'unique:organizations',
+            ]);
+
+            if ($validator->fails()) {
+                throw new \Illuminate\Validation\ValidationException($validator);
+            }
+        }
+    
+
+        // Finally, the formatted or validated phone number is set back to the model's phone_number attribute
+        $this->attributes['phone_number'] = $formattedPhoneNumber;
+    }
+
+
+
+
+
+
+
+
 
 
 

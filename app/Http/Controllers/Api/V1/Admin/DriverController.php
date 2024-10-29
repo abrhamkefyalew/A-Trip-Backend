@@ -31,7 +31,7 @@ class DriverController extends Controller
                 $drivers = $drivers->where('phone_number', $phoneNumber);
             } 
             else {
-                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
             }
         }
 
@@ -57,6 +57,9 @@ class DriverController extends Controller
                 'is_active' => (int) (isset($request['is_active']) ? $request['is_active'] : 1), // this works
                 'is_approved' => (int) $request->input('is_approved', 1), // this works also    // // this column can ONLY be Set by the SUPER_ADMIN,  // if Driver is registering himself , he can NOT send the is_approved field
                                                                                                    // so this //is_approved// code part will be removed when the Driver makes the request
+                
+                'bank_id' => $request['bank_id'],
+                'bank_account' => $request['bank_account'],
             ]);
 
 
@@ -136,7 +139,7 @@ class DriverController extends Controller
             $success = $driver->update($request->validated());
             //
             if (!$success) {
-                return response()->json(['message' => 'Update Failed'], 422);
+                return response()->json(['message' => 'Update Failed'], 500);
             }
             
 

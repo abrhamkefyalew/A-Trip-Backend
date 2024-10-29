@@ -79,7 +79,7 @@ class OrderController extends Controller
                 }
 
                 if ($organizationUser->organization->is_active !== 1) {
-                    return response()->json(['message' => 'this organization is NOT Active, please activate your organization first to make an order. you can activate your organization yourself'], 401); 
+                    return response()->json(['message' => 'this organization is NOT Active, please activate your organization first to make an order. you can activate your organization yourself'], 428); 
                 }
 
 
@@ -96,15 +96,15 @@ class OrderController extends Controller
                     }
 
                     if ($organizationUser->organization_id != $contract->organization_id) {
-                        return response()->json(['message' => 'invalid Vehicle Name is selected for the Order. or invalid Contract-Contact_Detail Selected. Deceptive request Aborted.'], 401); 
+                        return response()->json(['message' => 'invalid Vehicle Name is selected for the Order. or invalid Contract-Contact_Detail Selected. Deceptive request Aborted.'], 422); 
                     }
                     if ($contractDetail->is_available != 1) {
                         // the parent contract of this contract_detail is Terminated
-                        return response()->json(['message' => 'Not Found - the server cannot find the requested resource. The Contract Detail for this Vehicle Name is NOT Available, because the Contract for the requested Vehicle Name is Terminated.'], 404);
+                        return response()->json(['message' => 'Not Found - the server cannot find the requested resource. The Contract Detail for this Vehicle Name is NOT Available, because the Contract for the requested Vehicle Name is Terminated.'], 410);
                     }
                     if ($contract->terminated_date !== null) {
                         // Contract is terminated
-                        return response()->json(['message' => 'Not Found - the server cannot find the requested resource. the Contract for the requested Vehicle Name is Terminated.'], 404); 
+                        return response()->json(['message' => 'Not Found - the server cannot find the requested resource. the Contract for the requested Vehicle Name is Terminated.'], 410); 
                     }
 
                     
@@ -213,7 +213,7 @@ class OrderController extends Controller
         
                         'pr_status' => null,    // is NULL when the order is created initially
 
-                        'vehicle_paid_status' => Order::ORDER_STATUS_VEHICLE_PAYMENT_NOT_PAID,
+                        'vehicle_pr_status' => null,
 
                         'order_description' => $requestData['order_description'],                                                                                   
                     ]);
@@ -252,7 +252,7 @@ class OrderController extends Controller
         
         if ($organizationUser->organization_id != $order->organization_id) {
             // this order is NOT be owned by the organization that the order requester belongs in // so i return error and abort
-            return response()->json(['message' => 'invalid Order is selected or Requested. or the requested Order is not found. Deceptive request Aborted.'], 401);
+            return response()->json(['message' => 'invalid Order is selected or Requested. or the requested Order is not found. Deceptive request Aborted.'], 403);
         }
 
 

@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Invoice;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,3 +17,18 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+
+
+
+
+// Route::get('web/v1/organization_user/invoices/pay_invoices/{valuePayment}', function (Invoice $invoice) {
+//     return view('boa_pay_organization_using_invoice_model_instance', ['invoice' => $invoice]);
+// })->name('pay.with.boa');
+//
+Route::get('web/v1/organization_user/invoices/pay_invoices/{invoice}', fn (Invoice $invoice) => view(
+    'boa_pay_organization_using_invoice_model_instance',
+    [
+        'invoice' => $invoice,
+    ]
+))->name('pay.with.boa');

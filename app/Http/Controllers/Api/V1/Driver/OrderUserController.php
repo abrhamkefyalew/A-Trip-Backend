@@ -57,7 +57,7 @@ class OrderUserController extends Controller
                 $ordersUsers = $ordersUsers->where('status', $orderStatus);
             } 
             else {
-                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
             }
 
         }
@@ -169,25 +169,25 @@ class OrderUserController extends Controller
             //
             // redundant
             if (!$orderUser->driver) { 
-                return response()->json(['message' => 'this order needs a driver to be started'], 403); 
+                return response()->json(['message' => 'this order needs a driver to be started'], 422); 
             }
 
             // if ADIAMT wants to rent their own vehicles, They Can Register as SUPPLIERs Themselves // but i commented the below // so check abrham samson
             // if (!$order->supplier) { 
-            //     return response()->json(['message' => 'this order needs a supplier to be started'], 403); 
+            //     return response()->json(['message' => 'this order needs a supplier to be started'], 422); 
             // }
 
             if ($orderUser->driver) {
                 if ($orderUser->driver->is_active != 1) {
-                    return response()->json(['message' => 'Forbidden: Deactivated Driver'], 403); 
+                    return response()->json(['message' => 'Forbidden: Deactivated Driver'], 428); 
                 }
                 if ($orderUser->driver->is_approved != 1) {
-                    return response()->json(['message' => 'Forbidden: NOT Approved Driver'], 403); 
+                    return response()->json(['message' => 'Forbidden: NOT Approved Driver'], 401); 
                 }
             }
             if ($orderUser->supplier) {
                 if ($orderUser->supplier->is_active != 1) {
-                    return response()->json(['message' => 'Forbidden: Deactivated Supplier'], 403); 
+                    return response()->json(['message' => 'Forbidden: Deactivated Supplier'], 428); 
                 }
                 if ($orderUser->supplier->is_approved != 1) {
                     return response()->json(['message' => 'Forbidden: NOT Approved Supplier'], 403); 
@@ -196,15 +196,15 @@ class OrderUserController extends Controller
 
 
             if ($orderUser->status !== OrderUser::ORDER_STATUS_SET) {
-                return response()->json(['message' => 'this order is not SET (ACCEPTED). order should be SET (ACCEPTED) before it can be STARTED.'], 403); 
+                return response()->json(['message' => 'this order is not SET (ACCEPTED). order should be SET (ACCEPTED) before it can be STARTED.'], 428); 
             }
 
             if ($orderUser->end_date < today()->toDateString()) {
-                return response()->json(['message' => 'this order is Expired already.'], 403); 
+                return response()->json(['message' => 'this order is Expired already.'], 410); 
             }
 
             if ($orderUser->is_terminated !== 0) {
-                return response()->json(['message' => 'this order is Terminated'], 403); 
+                return response()->json(['message' => 'this order is Terminated'], 410); 
             }
 
 
@@ -213,7 +213,7 @@ class OrderUserController extends Controller
             // check abrham samson
             // is the following condition required 
             // if ($orderUser->periodic === 1) { 
-            //     return response()->json(['message' => 'this order is periodic. so the order needs a driver account to be started'], 403); 
+            //     return response()->json(['message' => 'this order is periodic. so the order needs a driver to be started'], 422); 
             // }
 
 
@@ -237,7 +237,7 @@ class OrderUserController extends Controller
             ]);
             //
             if (!$success) {
-                return response()->json(['message' => 'Order Update Failed'], 422);
+                return response()->json(['message' => 'Order Update Failed'], 500);
             }
 
             $vehicle = Vehicle::find($orderUser->vehicle_id);
@@ -251,7 +251,7 @@ class OrderUserController extends Controller
             ]);
             //
             if (!$successTwo) {
-                return response()->json(['message' => 'Vehicle Update Failed'], 422);
+                return response()->json(['message' => 'Vehicle Update Failed'], 500);
             }
 
             $updatedOrderUser = OrderUser::find($orderUser->id);
@@ -288,7 +288,7 @@ class OrderUserController extends Controller
             
 
             if ($orderUser->status !== OrderUser::ORDER_STATUS_START) {
-                return response()->json(['message' => 'this order is not STARTED. order should be STARTED before it can be COMPLETED.'], 403); 
+                return response()->json(['message' => 'this order is not STARTED. order should be STARTED before it can be COMPLETED.'], 428); 
             }
 
             // todays date
@@ -305,7 +305,7 @@ class OrderUserController extends Controller
             ]);
             //
             if (!$success) {
-                return response()->json(['message' => 'Order Update Failed'], 422);
+                return response()->json(['message' => 'Order Update Failed'], 500);
             }
 
             $vehicle = Vehicle::find($orderUser->vehicle_id);
@@ -319,7 +319,7 @@ class OrderUserController extends Controller
             ]);
             //
             if (!$successTwo) {
-                return response()->json(['message' => 'Vehicle Update Failed'], 422);
+                return response()->json(['message' => 'Vehicle Update Failed'], 500);
             }
 
             $updatedOrderUser = OrderUser::find($orderUser->id);

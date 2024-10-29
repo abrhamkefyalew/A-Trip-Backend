@@ -26,7 +26,7 @@ class VehicleController extends Controller
         $vehicles = Vehicle::where('driver_id', $driver->id);
 
 
-        // this filter is NOT necessary since Driver can only see one order
+        // this filter is NOT necessary since Driver can only see one vehicle
         if ($request->has('vehicle_name_id_search')) {
             if (isset($request['vehicle_name_id_search'])) {
                 $vehicleNameId = $request['vehicle_name_id_search'];
@@ -34,7 +34,7 @@ class VehicleController extends Controller
                 $vehicles = $vehicles->where('vehicle_name_id', $vehicleNameId);
             } 
             else {
-                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
             }
         }
 
@@ -73,10 +73,10 @@ class VehicleController extends Controller
         
         if ($driver->id != $vehicle->driver_id) {
             // this vehicle is NOT be owned by the logged in driver
-            return response()->json(['message' => 'invalid Vehicle is selected or Requested. or the requested Vehicle is not found. Deceptive request Aborted.'], 401);
+            return response()->json(['message' => 'invalid Vehicle is selected or Requested. or the requested Vehicle is not found. Deceptive request Aborted.'], 403);
         }
 
-        return VehicleResource::make($vehicle->load('media', 'vehicleName', 'address', 'supplier', 'bank'));
+        return VehicleResource::make($vehicle->load('media', 'vehicleName', 'address', 'supplier', 'bank', 'bids'));
     }
 
     /**
@@ -100,14 +100,14 @@ class VehicleController extends Controller
             
             if ($driver->id != $vehicle->driver_id) {
                 // this vehicle is NOT be owned by the logged in driver
-                return response()->json(['message' => 'invalid Vehicle is selected or Requested. or the requested Vehicle is not found. Deceptive request Aborted.'], 401);
+                return response()->json(['message' => 'invalid Vehicle is selected or Requested. or the requested Vehicle is not found. Deceptive request Aborted.'], 403);
             }
             
 
             $success = $vehicle->update($request->validated());
             //
             if (!$success) {
-                return response()->json(['message' => 'Update Failed'], 422);
+                return response()->json(['message' => 'Update Failed'], 500);
             }
             
 
@@ -135,7 +135,7 @@ class VehicleController extends Controller
             $updatedVehicle = Vehicle::find($vehicle->id);
 
 
-            return VehicleResource::make($updatedVehicle->load('media', 'vehicleName', 'address', 'supplier', 'bank'));
+            return VehicleResource::make($updatedVehicle->load('media', 'vehicleName', 'address', 'supplier', 'bank', 'bids'));
 
             
         });

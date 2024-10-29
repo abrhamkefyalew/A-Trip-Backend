@@ -80,7 +80,7 @@ class TripController extends Controller
         $var = DB::transaction(function () use ($request, $trip) {
             
             if ($trip->status === Trip::TRIP_STATUS_APPROVED) {
-                return response()->json(['message' => 'this Trip is already APPROVED.'], 403); 
+                return response()->json(['message' => 'this Trip is already APPROVED.'], 409); 
             }
 
             if ($trip->order_id === null ||
@@ -94,7 +94,7 @@ class TripController extends Controller
                 $trip->status === null ||
                 $trip->status_payment === null) {
                 
-                return response()->json(['error' => 'Trip Can Not be Approved, Because some important values of the Trip are Not filled yet. Thr Driver should complete filling all the required Trip Values Before it can be approved.'], 400);
+                return response()->json(['error' => 'Trip Can Not be Approved, Because some important values of the Trip are Not filled yet. Thr Driver should complete filling all the required Trip Values Before it can be approved.'], 428);
             }
             
             
@@ -113,7 +113,7 @@ class TripController extends Controller
                 ]);
                 //
                 if (!$success) {
-                    return response()->json(['message' => 'Trip Update Failed'], 422);
+                    return response()->json(['message' => 'Trip Update Failed'], 500);
                 }
 
                 
@@ -134,7 +134,7 @@ class TripController extends Controller
                 ]);
                 //
                 if (!$success) {
-                    return response()->json(['message' => 'Trip Update Failed'], 422);
+                    return response()->json(['message' => 'Trip Update Failed'], 500);
                 }
 
                 

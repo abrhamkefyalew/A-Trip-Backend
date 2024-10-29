@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\Api\V1\VehicleResources\VehicleResource;
 use App\Http\Resources\Api\V1\SupplierResources\SupplierResource;
+use App\Http\Resources\Api\V1\TripResources\TripForDriverResource;
 use App\Http\Resources\Api\V1\VehicleNameResources\VehicleNameResource;
 use App\Http\Resources\Api\V1\OrganizationResources\OrganizationResource;
 use App\Http\Resources\Api\V1\ContractDetailResources\ContractDetailDriverResource;
@@ -22,6 +23,7 @@ class OrderForDriverResource extends JsonResource
         return [
             'id' => $this->id,
             'order_code' => $this->order_code,
+            'organization_id' => $this->organization_id,
             'contract_detail_id' => $this->contract_detail_id,
 
             'vehicle_name_id' => $this->vehicle_name_id,
@@ -45,7 +47,7 @@ class OrderForDriverResource extends JsonResource
             'status' => $this->status,
             'is_terminated' => $this->is_terminated,
 
-            'vehicle_paid_status' => $this->vehicle_paid_status,
+            'vehicle_pr_status' => $this->vehicle_pr_status,
             
             'order_description' => $this->order_description,
             
@@ -70,6 +72,8 @@ class OrderForDriverResource extends JsonResource
             })),
 
             'contract_detail' => ContractDetailDriverResource::make($this->whenLoaded('contractDetail')),
+
+            'order_trips' => TripForDriverResource::collection($this->whenLoaded('trips')),
             
         ];
     }

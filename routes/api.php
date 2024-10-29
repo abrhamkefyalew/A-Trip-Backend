@@ -23,9 +23,12 @@ use App\Http\Controllers\Api\V1\Admin\OrganizationController;
 use App\Http\Controllers\Api\V1\Admin\ContractDetailController;
 use App\Http\Controllers\Api\V1\Admin\OrganizationUserController;
 use App\Http\Controllers\Api\V1\Auth\AdminAuth\AdminAuthController;
+use App\Http\Controllers\Api\V1\Callback\BOA\BOACallbackController;
+use App\Http\Controllers\Api\V1\Callback\CBE\CBECallbackController;
 use App\Http\Controllers\Api\V1\Auth\DriverAuth\DriverAuthController;
 use App\Http\Controllers\Api\V1\Auth\CustomerAuth\CustomerAuthController;
 use App\Http\Controllers\Api\V1\Auth\SupplierAuth\SupplierAuthController;
+use App\Http\Controllers\Api\V1\Callback\TeleBirr\TeleBirrCallbackController;
 use App\Http\Controllers\Api\V1\Driver\BidController as BidForDriverController;
 use App\Http\Controllers\Api\V1\Driver\TripController as TripForDriverController;
 use App\Http\Controllers\Api\V1\Customer\BidController as BidForCustomerController;
@@ -350,20 +353,15 @@ Route::prefix('v1')->group(function () {
             // there should NOT be OrganizationUser registration, -  
             // OrganizationUser should be stored by an already existing OrganizationUser admin or super admin of the system -
             // there should be a route for OrganizationUser storing by both OrganizationUser admin and super admin
-            Route::post('/login', [OrganizationUserAuthController::class, 'login']);
+            //
+            //
+            // Route::post('/login', [OrganizationUserAuthController::class, 'login']);
+            Route::post('/login_otp', [OrganizationUserAuthController::class, 'loginOtp']);
+            Route::post('/verify_otp', [OrganizationUserAuthController::class, 'verifyOtp']);
 
         });
 
 
-        Route::prefix('call_backs')->group(function () {
-            
-            Route::prefix('invoices')->group(function () {
-                Route::prefix('tele_birr')->group(function () {
-                    Route::post('/pay_invoices_call_back_tele_birr', [InvoiceForOrganizationController::class, 'payInvoicesCallBackTelebirr']);
-                });
-            }); 
-
-        });
 
 
         Route::middleware(['auth:sanctum', 'abilities:access-organizationUser'])->group(function () {
@@ -449,6 +447,7 @@ Route::prefix('v1')->group(function () {
     });
 
 
+    
 
 
 
@@ -463,7 +462,11 @@ Route::prefix('v1')->group(function () {
             // there should NOT be Supplier registration, -  
             // Supplier should be stored by super admin of the system -
             // there should be a route for Supplier storing by super admin
-            Route::post('/login', [SupplierAuthController::class, 'login']);
+            //
+            //
+            // Route::post('/login', [SupplierAuthController::class, 'login']);
+            Route::post('/login_otp', [SupplierAuthController::class, 'loginOtp']);
+            Route::post('/verify_otp', [SupplierAuthController::class, 'verifyOtp']);
 
         });
 
@@ -588,7 +591,11 @@ Route::prefix('v1')->group(function () {
             // there should NOT be Drivers registration, -  
             // Drivers should be stored by super admin of the system -
             // there should be a route for Drivers storing by super admin
-            Route::post('/login', [DriverAuthController::class, 'login']);
+            //
+            //
+            // Route::post('/login', [DriverAuthController::class, 'login']);
+            Route::post('/login_otp', [DriverAuthController::class, 'loginOtp']);
+            Route::post('/verify_otp', [DriverAuthController::class, 'verifyOtp']);
 
         });
 
@@ -707,21 +714,15 @@ Route::prefix('v1')->group(function () {
             // there should be a route for Customer storing by super admin
 
             Route::post('/register', [CustomerAuthController::class, 'register']);
-            Route::post('/login', [CustomerAuthController::class, 'login']);
+            //
+            //
+            // Route::post('/login', [CustomerAuthController::class, 'login']);
+            Route::post('/login_otp', [CustomerAuthController::class, 'loginOtp']);
+            Route::post('/verify_otp', [CustomerAuthController::class, 'verifyOtp']);
 
         });
 
 
-        Route::prefix('call_backs')->group(function () {
-            
-            Route::prefix('invoice_users')->group(function () {
-                Route::prefix('tele_birr')->group(function () {
-                    Route::post('/pay_invoice_users_call_back_tele_birr', [InvoiceUserForCustomerController::class, 'payInvoiceCallBackTelebirr']);
-                    
-                });
-            }); 
-
-        });
 
 
         Route::middleware(['auth:sanctum', 'abilities:access-customer'])->group(function () {
@@ -796,6 +797,7 @@ Route::prefix('v1')->group(function () {
             Route::prefix('invoice_users')->group(function () {
                 Route::post('/', [InvoiceUserForCustomerController::class, 'store']);
                 Route::get('/', [InvoiceUserForCustomerController::class, 'index']);
+                Route::post('/pay_invoice_final', [InvoiceUserForCustomerController::class, 'payInvoiceFinal']);
                 Route::prefix('/{invoiceUser}')->group(function () {
                     Route::get('/', [InvoiceUserForCustomerController::class, 'show']);
                     Route::put('/', [InvoiceUserForCustomerController::class, 'update']);
@@ -815,9 +817,37 @@ Route::prefix('v1')->group(function () {
 
 
 
+
+
+
+
+    // Callback Routes from banks and financial institutions
+    Route::prefix('call_backs')->group(function () {
+
+        Route::prefix('boa')->group(function () {
+            Route::post('/pay_invoices_call_back', [BOACallbackController::class, 'payInvoicesCallback']);
+        });
+
+        Route::prefix('cbe')->group(function () {
+            Route::post('/pay_invoices_call_back', [CBECallbackController::class, 'payInvoicesCallback']);
+        });
+            
+        Route::prefix('tele_birr')->group(function () {
+            Route::post('/pay_invoices_call_back', [TeleBirrCallbackController::class, 'payInvoicesCallback']);
+        });
+
+    });
+
         
 
 
+
+
+    // TEST OPEN ROUTES (normal_endpoint + _open_route)
+        // boa initiate payment test
+        Route::get('/pay_invoices_test_open_route_boa', [InvoiceForOrganizationController::class, 'testboa']);
+        Route::get('/pay_invoices_test_open_route_telebirr_apply_fabric_token', [InvoiceForOrganizationController::class, 'testTelebirrApplyFabricToken']);
+        Route::get('/pay_invoices_test_open_route_telebirr', [InvoiceForOrganizationController::class, 'testTelebirr']);
 
 
 });

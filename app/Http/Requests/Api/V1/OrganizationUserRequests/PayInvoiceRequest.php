@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Api\V1\OrganizationUserRequests;
 
+use App\Models\Invoice;
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class PayInvoiceRequest extends FormRequest
@@ -24,6 +26,10 @@ class PayInvoiceRequest extends FormRequest
         return [
             //
             'price_amount_total' => 'required|integer|between:0,9999999',
+
+            'payment_method' => [
+                'required', 'string', Rule::in([Invoice::INVOICE_TELE_BIRR, Invoice::INVOICE_CBE_MOBILE_BANKING, Invoice::INVOICE_CBE_BIRR, Invoice::INVOICE_BOA]),
+            ],
 
 
 

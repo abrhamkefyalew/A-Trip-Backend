@@ -31,7 +31,7 @@ class SupplierController extends Controller
                 $suppliers = $suppliers->where('phone_number', $phoneNumber);
             } 
             else {
-                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
             }
         }
 
@@ -126,7 +126,7 @@ class SupplierController extends Controller
             $success = $supplier->update($request->validated());
             //
             if (!$success) {
-                return response()->json(['message' => 'Update Failed'], 422);
+                return response()->json(['message' => 'Update Failed'], 500);
             }
             
 

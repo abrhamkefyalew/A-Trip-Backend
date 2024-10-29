@@ -56,7 +56,7 @@ return new class extends Migration
             $table->boolean('paid_complete_status')->default(0); // this will be 1 when both invoices of the order are paid  // it is 0 even if the initial amount is paid
 
             // this status checks if the payment share of the order is paid for the vehicles (i.e. the suppliers) 
-            $table->string('vehicle_paid_status')->default(OrderUser::ORDER_STATUS_VEHICLE_PAYMENT_NOT_PAID); // this column is enum //
+            $table->string('vehicle_pr_status')->nullable(); // this is NULL when the order is made initially // this column is enum //
 
             $table->longText('order_description')->nullable();
 

@@ -41,7 +41,7 @@ class InvoiceController extends Controller
                 $invoices = $invoices->where('organization_id', $organizationId);
             } 
             else {
-                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
             } 
         }
         if ($request->has('order_id_search')) {
@@ -51,7 +51,7 @@ class InvoiceController extends Controller
                 $invoices = $invoices->where('order_id', $orderId);
             } 
             else {
-                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
             } 
         }
         if ($request->has('invoice_code_search')) {
@@ -61,7 +61,7 @@ class InvoiceController extends Controller
                 $invoices = $invoices->where('invoice_code', $invoiceCode);
             } 
             else {
-                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
             } 
         }
         if ($request->has('invoice_status_search')) {
@@ -71,7 +71,7 @@ class InvoiceController extends Controller
                 $invoices = $invoices->where('status', $invoiceStatus);
             } 
             else {
-                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
             }
 
         }
@@ -127,11 +127,11 @@ class InvoiceController extends Controller
                 );
             } 
             else {
-                return response()->json(['message' => 'Required parameter "invoice_code_search" is empty or Value Not Set'], 422);
+                return response()->json(['message' => 'Required parameter "invoice_code_search" is empty or Value Not Set'], 400);
             } 
         }
         else {
-            return response()->json(['message' => 'Required parameter "invoice_code_search" is missing'], 422);
+            return response()->json(['message' => 'Required parameter "invoice_code_search" is missing'], 400);
         } 
         
     }
@@ -187,6 +187,10 @@ class InvoiceController extends Controller
                 }
 
 
+                
+                // generate Common UUID for all Organization invoices that will be create below
+                $uuidTransactionIdSystem = Str::uuid(); // this uuid should be generated OUTSIDE the FOREACH to Generate COMMON and SAME uuid (i.e. transaction_id_system) for ALL invoices that have similar invoice_code (or for all invoices created in one PR request)
+
                 // todays date
                 $today = now()->format('Y-m-d');
 
@@ -209,9 +213,9 @@ class InvoiceController extends Controller
 
 
                     if ($order->begin_date === null) {
-                        return response()->json(['message' => 'you can not ask PR for this Order. because this Order Begin Date is null, this order is not STARTED. order: ' . $order->id . ' , the order Begin Date must be set before asking PR for it.'], 404);
+                        return response()->json(['message' => 'you can not ask PR for this Order. because this Order Begin Date is null, this order is not STARTED. order: ' . $order->id . ' , the order Begin Date must be set before asking PR for it.'], 428);
                     }
-
+                    //
                     // Check if the begin_date is a valid date
                     if (strtotime($order->begin_date) === false) {
                         return response()->json(['message' => 'The Order Begin Date is not a valid date.'], 400);
@@ -219,22 +223,22 @@ class InvoiceController extends Controller
 
                     // lets check the order actual status
                     if ($order->status === Order::ORDER_STATUS_PENDING) {
-                        return response()->json(['message' => 'you can not ask PR for an order with a status PENDING. order: ' . $order->id . ' , an order must have status START or COMPLETE to be eligible for PR asking.'], 404);
+                        return response()->json(['message' => 'you can not ask PR for an order with a status PENDING. order: ' . $order->id . ' , an order must have status START or COMPLETE to be eligible for PR asking.'], 422);
                     }
                     if ($order->status === Order::ORDER_STATUS_SET) {
-                        return response()->json(['message' => 'you can not ask PR for an order with a status SET. the order is only accepted and not started. order: ' . $order->id . ' , an order must have status START or COMPLETE to be eligible for PR asking.'], 404);
+                        return response()->json(['message' => 'you can not ask PR for an order with a status SET. the order is only accepted and not started. order: ' . $order->id . ' , an order must have status START or COMPLETE to be eligible for PR asking.'], 422);
                     }
                     
 
                     // lets check the order pr_status
                     if ($order->pr_status === Order::ORDER_PR_LAST) {
-                        return response()->json(['message' => 'every Available PR request have been already asked for this order: ' . $order->id . ' , The order have PR_LAST status.'], 404);
+                        return response()->json(['message' => 'every Available PR request have been already asked for this order: ' . $order->id . ' , The order have PR_LAST status.'], 409);
                     }
                     if ($order->pr_status === Order::ORDER_PR_COMPLETED) {
-                        return response()->json(['message' => 'all PR is paid for this order: ' . $order->id . ' , The order have PR_COMPLETED status.'], 404);
+                        return response()->json(['message' => 'all PR is paid for this order: ' . $order->id . ' , The order have PR_COMPLETED status.'], 409);
                     }
                     if ($order->pr_status === Order::ORDER_PR_TERMINATED) {
-                        return response()->json(['message' => 'this order PR is terminated for some reason. please check with the organization why it is terminated. order: ' . $order->id . ' , The order have PR_TERMINATED status.'], 404);
+                        return response()->json(['message' => 'this order PR is terminated for some reason. please check with the organization why it is terminated. order: ' . $order->id . ' , The order have PR_TERMINATED status.'], 410);
                     }
 
 
@@ -276,16 +280,16 @@ class InvoiceController extends Controller
                         // this means only = (DATE DIFFERENCE) // only the actual subtraction will be used
 
 
-                        $orderInvoicesPaymentCheck = Invoice::where('order_id', $order->id)
+                        $unPaidOrderInvoiceExist = Invoice::where('order_id', $order->id)
                                         ->where('status', Invoice::INVOICE_STATUS_NOT_PAID)
-                                        ->get();
-
-                        if (!$orderInvoicesPaymentCheck->isEmpty()) {
+                                        ->exists();
+                        
+                        if ($unPaidOrderInvoiceExist) {
                             return response()->json([
-                                'message' => 'there is NOT_PAID invoice in invoices table with this order: ' . $order->id,
+                                'message' => 'there is NOT_PAID invoice in invoices table with this order, you need to ask the organization to pay the previous PR for this particular order before asking another PR for this particular Order: ' . $order->id,
                                 'order_id' => $order->id,
                                 'order_vehicle_plate_number' => $order->vehicle->plate_number
-                            ], 400);
+                            ], 428);
                         }
 
 
@@ -293,7 +297,7 @@ class InvoiceController extends Controller
                         $lastInvoice = $order->invoices()->latest()->first();
 
                         if (!$lastInvoice) {
-                            return response()->json(['message' => 'The last invoice asked for this order can not be found. This Invoice Can NOT be Processed'], 422);
+                            return response()->json(['message' => 'The last invoice asked for this order can not be found. This Invoice Can NOT be Processed'], 500);
                         }
 
 
@@ -302,7 +306,7 @@ class InvoiceController extends Controller
 
                         // invoice end_date from the request can NOT be Less than or Equals to the last invoice end_date. // invoice end_date from the request should always be greater than the last invoice end_date
                         if ($invoiceRequestEndDateValue <= $lastInvoiceEndDate) {
-                            return response()->json(['message' => 'invoice end_date in the request can NOT be Less than or Equal to the last asked invoice (end_date) of this order.    invoice end_date from the request should always be greater than the last asked invoice (end_date) of this order'], 400);
+                            return response()->json(['message' => 'invoice end_date in the request can NOT be Less than or Equal to the last asked invoice (end_date) of this order.    invoice end_date from the request should always be greater than the last asked invoice (end_date) of this order'], 422);
                         }
                         
 
@@ -379,7 +383,7 @@ class InvoiceController extends Controller
                         $lastInvoice = $order->invoices()->latest()->first();
 
                         if (!$lastInvoice) {
-                            return response()->json(['message' => 'The last invoice asked for this order can not be found. This Invoice Can NOT be Processed'], 422);
+                            return response()->json(['message' => 'The last invoice asked for this order can not be found. This Invoice Can NOT be Processed'], 500);
                         }
 
 
@@ -398,12 +402,15 @@ class InvoiceController extends Controller
                         return response()->json(['message' => 'This Invoice Can NOT be Processed'], 422);
                     }
 
+                    
 
                     $invoice = Invoice::create([
                         'invoice_code' => $uniqueCode,
 
                         'order_id' => $requestData['order_id'],
                         'organization_id' => $organizationId,
+
+                        'transaction_id_system' => $uuidTransactionIdSystem,
 
                         'start_date' => $invoiceStartDate,
                         'end_date' => $requestData['end_date'],
@@ -414,7 +421,7 @@ class InvoiceController extends Controller
                     ]);
                     //
                     if (!$invoice) {
-                        return response()->json(['message' => 'Invoice Create Failed'], 422);
+                        return response()->json(['message' => 'Invoice Create Failed'], 500);
                     }
 
 
@@ -423,7 +430,7 @@ class InvoiceController extends Controller
                     ]);
                     //
                     if (!$success) {
-                        return response()->json(['message' => 'Order Update Failed'], 422);
+                        return response()->json(['message' => 'Order Update Failed'], 500);
                     }
 
                     $invoiceIds[] = $invoice->id;

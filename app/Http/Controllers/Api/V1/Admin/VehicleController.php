@@ -35,7 +35,7 @@ class VehicleController extends Controller
                 $vehicles = $vehicles->where('supplier_id', $supplierId);
             } 
             else {
-                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
             }
         }
         if ($request->has('driver_id_search')) {
@@ -45,7 +45,7 @@ class VehicleController extends Controller
                 $vehicles = $vehicles->where('driver_id', $driverId);
             } 
             else {
-                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
             }
         }
         if ($request->has('vehicle_name_id_search')) {
@@ -55,7 +55,7 @@ class VehicleController extends Controller
                 $vehicles = $vehicles->where('vehicle_name_id', $vehicleNameId);
             } 
             else {
-                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
             }
         }
         if ($request->has('with_driver_search')) {
@@ -65,7 +65,7 @@ class VehicleController extends Controller
                 $vehicles = $vehicles->where('with_driver', $withDriverBool);
             } 
             else {
-                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
             }
         }
         if ($request->has('plate_number_search')) {
@@ -75,7 +75,7 @@ class VehicleController extends Controller
                 $vehicles = $vehicles->where('plate_number', $plateNumber);
             } 
             else {
-                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 422);
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
             }
         }
     
@@ -102,18 +102,18 @@ class VehicleController extends Controller
             // should we return error for such requests.
             if ($request['with_driver'] == 0) {
                 if ($request->has('driver_id')) {
-                    return response()->json(['message' => 'request can NOT contain a driver_id. You have set with_driver = 0, so driver_id should NOT be included your request.'], 400);
+                    return response()->json(['message' => 'request can NOT contain a driver_id. You have set with_driver = 0, so driver_id should NOT be included your request.'], 422);
                 }
                 // if ($request['driver_id'] !== null) {
-                //     return response()->json(['message' => 'you can NOT set a driver_id in the request. You have set with_driver = 0, so driver_id must be null in your request.'], 400);
+                //     return response()->json(['message' => 'you can NOT set a driver_id in the request. You have set with_driver = 0, so driver_id must be null in your request.'], 422);
                 // }
             }
             if ($request['with_driver'] == 1) {
                 if (!$request->has('driver_id')) {
-                    return response()->json(['message' => 'request missing driver_id. You have set with_driver = 1, so you must Provide driver_id for your vehicle with your request.'], 400);
+                    return response()->json(['message' => 'request missing driver_id. You have set with_driver = 1, so you must Provide driver_id for your vehicle with your request.'], 422);
                 }
                 if ($request['driver_id'] === null) {
-                    return response()->json(['message' => 'driver_id value is NOT set in the request. You have set with_driver = 1, so you must Provide driver_id for your vehicle with your request.'], 400);
+                    return response()->json(['message' => 'driver_id value is NOT set in the request. You have set with_driver = 1, so you must Provide driver_id for your vehicle with your request.'], 422);
                 }
             }
 
@@ -179,7 +179,7 @@ class VehicleController extends Controller
                 MediaService::storeImage($vehicle, $file, $clearMedia, $collectionName);
             }
 
-            return VehicleResource::make($vehicle->load('media', 'vehicleName', 'address', 'supplier', 'driver', 'bank'));
+            return VehicleResource::make($vehicle->load('media', 'vehicleName', 'address', 'supplier', 'driver', 'bank', 'bids'));
 
 
             
@@ -195,7 +195,7 @@ class VehicleController extends Controller
     {
         // $this->authorize('view', $vehicle);
         
-        return VehicleResource::make($vehicle->load('media', 'vehicleName', 'address', 'supplier', 'driver', 'bank'));
+        return VehicleResource::make($vehicle->load('media', 'vehicleName', 'address', 'supplier', 'driver', 'bank', 'bids'));
     }
 
     /**
@@ -228,7 +228,7 @@ class VehicleController extends Controller
             $success = $vehicle->update($request->validated());
             //
             if (!$success) {
-                return response()->json(['message' => 'Update Failed'], 422);
+                return response()->json(['message' => 'Update Failed'], 500);
             }
 
 
@@ -282,7 +282,7 @@ class VehicleController extends Controller
 
             $updatedVehicle = Vehicle::find($vehicle->id);
 
-            return VehicleResource::make($updatedVehicle->load('media', 'vehicleName', 'address', 'supplier', 'driver', 'bank'));
+            return VehicleResource::make($updatedVehicle->load('media', 'vehicleName', 'address', 'supplier', 'driver', 'bank', 'bids'));
 
             
         });

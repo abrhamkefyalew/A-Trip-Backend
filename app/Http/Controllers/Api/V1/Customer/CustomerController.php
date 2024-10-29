@@ -55,13 +55,13 @@ class CustomerController extends Controller
             
             if ($customerLoggedIn->id != $customer->id) {
                 
-                return response()->json(['message' => 'invalid Customer is selected or Requested. Deceptive request Aborted.'], 401);
+                return response()->json(['message' => 'invalid Customer is selected or Requested. Deceptive request Aborted.'], 403);
             }
             
             $success = $customer->update($request->validated());
             //
             if (!$success) {
-                return response()->json(['message' => 'Update Failed'], 422);
+                return response()->json(['message' => 'Update Failed'], 500);
             }
             
 

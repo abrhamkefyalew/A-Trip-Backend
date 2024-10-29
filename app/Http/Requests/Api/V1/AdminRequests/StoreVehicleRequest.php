@@ -62,6 +62,7 @@ class StoreVehicleRequest extends FormRequest
 
             // the following vehicle bank information are nullable and sometimes BECAUSE of the following reason
                      // REASON 1- since ADIAMAT might have their own vehicles (that means adiamat will not pay adiamat themselves for their own vehicles), this should be nullable
+            // TODO // please check this = both of them must be sent    - or -     or none of them should be sent,     // so please check this while Store Driver and Update Driver
             'bank_id' =>  'sometimes|nullable|integer|exists:banks,id',
             'bank_account' => [
                 'sometimes', 'nullable', 'string',

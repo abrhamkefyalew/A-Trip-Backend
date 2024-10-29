@@ -11,6 +11,7 @@
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
+        "phpseclib/phpseclib": "~2.0",
         "spatie/laravel-medialibrary": "^10.15",
         "staudenmeir/eloquent-has-many-deep": "^1.7"
     },
