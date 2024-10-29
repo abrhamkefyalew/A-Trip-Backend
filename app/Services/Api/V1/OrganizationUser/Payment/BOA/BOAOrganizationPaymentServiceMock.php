@@ -149,7 +149,7 @@ class BOAOrganizationPaymentServiceMock
 
 
     public function sign($fields) {
-        $secretKey = "8f707468b3ee47678f8d96ee425c1e63a32898506ac14217bd198c47cbe89809c810244decd04306aae257cd43647cffcb97f66c2b414455b4745b7a96ef13014e86de215fbb4d4f9531c16d082482ba4972524e0810496aa61511e919c2d45221851e63832340089bf3486d5025456de9cb7c01dd0841f6a27817a061f26b77"; // Replace with your actual secret key
+        $secretKey = "secret-key-here"; // Replace with your actual secret key
     
         // Sort fields alphabetically
         ksort($fields);

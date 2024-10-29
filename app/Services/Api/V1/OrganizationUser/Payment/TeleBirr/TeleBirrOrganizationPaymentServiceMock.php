@@ -252,15 +252,18 @@ class TeleBirrOrganizationPaymentServiceMock
     public static function SignWithRSAOLD($data)
     {
         // requires package installation 
-        //        - composer require phpseclib/phpseclib            --- installs the latest 3.0   (import = use phpseclib3\Crypt\RSA)
-        //        
+        //          - v2.0   (import = use phpseclib3\Crypt\RSA)
+        //              or 
+        //          PUT this in COMPOSER    then do = composer update
+        //              phpseclib/phpseclib": "~2.0",
+        //
         //
         $rsa = new RSA();
 
         $private_key_load = config('telebirr-super-app.private_key');
         $private_key = self::trimPrivateKey($private_key_load)[2];
 
-        if ($rsa->loadPrivateKey($private_key) != true) {
+        if ($rsa->loadKey($private_key) != true) {
             echo 'Error loading PrivateKey';
 
             return;

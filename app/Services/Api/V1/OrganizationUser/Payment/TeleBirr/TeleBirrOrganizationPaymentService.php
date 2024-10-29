@@ -3,7 +3,8 @@
 namespace App\Services\Api\V1\OrganizationUser\Payment\TeleBirr;
 
 use App\Models\Invoice;
-use phpseclib3\Crypt\RSA;
+// use phpseclib3\Crypt\RSA;
+use phpseclib\Crypt\RSA;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
@@ -69,21 +70,23 @@ class TeleBirrOrganizationPaymentService
     {
         $reqObject = $this->createRequestObject($title, $amount);
 
-        // dd(json_encode($reqObject));
         // return $reqObject;
 
-
-        $response = Http::withHeaders([
+        $header = [
             'Content-Type' => 'application/json',
             'X-APP-Key' => config('telebirr-super-app.fabricAppId'),
             'Authorization' => $fabricToken,
+        ];
+
+        $response = Http::withHeaders([
+            $header,
         ])
         ->withOptions([
             'verify' => false, // To bypass SSL verification
         ])
-        ->post(config('telebirr-super-app.baseUrl') . '/payment/v1/merchant/preOrder', [
-            'body' => $reqObject,
-        ])
+        ->post(config('telebirr-super-app.baseUrl') . '/payment/v1/merchant/preOrder', 
+            $reqObject,
+        )
         // ->throw()
         ->json();
 
@@ -96,36 +99,63 @@ class TeleBirrOrganizationPaymentService
         // $timestamp = strval(now()->timestamp);
         // $dateTime = date('Y-m-d H:i:s', $timestamp);
 
+        // $req = [
+        //     'method' => 'payment.preorder',
+        //     'nonce_str' => $this->createNonceStr(),
+        //     'timestamp' => $this->createTimeStamp(),
+        //     'version' => '1.0',
+        // ];
+
+
+        // $biz = [
+        //     'appid' => config('telebirr-super-app.merchantAppId'),
+        //     'business_type' => 'BuyGoods',
+        //     'callback_info' => 'From web',
+        //     'merch_code' => config('telebirr-super-app.merchantCode'),
+        //     'merch_order_id' => $this->createMerchantOrderId(),
+        //     'notify_url' => 'https://www.google.com',
+        //     'redirect_url' => 'https://www.bing.com/',
+        //     'timeout_express' => '120m',
+        //     'title' => $title,
+        //     'total_amount' => $amount,
+        //     'trade_type' => 'Checkout',
+        //     'trans_currency' => 'ETB',
+        // ];
+
+
         $req = [
-            'method' => 'payment.preorder',
-            'nonce_str' => $this->createNonceStr(),
             'timestamp' => $this->createTimeStamp(),
+            'nonce_str' => $this->createNonceStr(),
+            'method' => 'payment.preorder',
             'version' => '1.0',
         ];
 
 
         $biz = [
-            'appid' => config('telebirr-super-app.merchantAppId'),
-            'business_type' => 'BuyGoods',
-            'callback_info' => 'From web',
-            'merch_code' => config('telebirr-super-app.merchantCode'),
-            'merch_order_id' => '1.0',
             'notify_url' => 'https://www.google.com',
-            'redirect_url' => 'https://www.bing.com/',
-            'timeout_express' => '120m',
+            'appid' => config('telebirr-super-app.merchantAppId'),
+            'merch_code' => config('telebirr-super-app.merchantCode'),
+            'merch_order_id' => $this->createMerchantOrderId(),
+            'trade_type' => 'Checkout',
             'title' => $title,
             'total_amount' => $amount,
-            'trade_type' => 'Checkout',
             'trans_currency' => 'ETB',
+            'timeout_express' => '120m',
+            'business_type' => 'BuyGoods',
+            'redirect_url' => 'https://www.bing.com/',
+            'callback_info' => 'From web',
         ];
+
 
 
 
         // $req = array_merge($req, ['biz_content' => $biz]);
         // $req['biz_content'] = array_merge([], $biz); 
         $req['biz_content'] = $biz;
-        $req['sign_type'] = 'SHA256WithRSA';
+        
         $req['sign'] = $this->sign($req);
+        $req['sign_type'] = 'SHA256WithRSA';
+        
         
 
         // return json_encode($req);
@@ -241,28 +271,63 @@ class TeleBirrOrganizationPaymentService
     }
 
 
-
-    public function signWithRSA($data)
+    public function SignWithRSA($data)
     {
         // requires package installation 
-        //        - composer require phpseclib/phpseclib            --- installs the latest 3.0   (import = use phpseclib3\Crypt\RSA)
-        //        
+        //          - v2.0   (import = use phpseclib3\Crypt\RSA)
+        //          // 
+        //          PUT this in COMPOSER    then do = composer update
+        //              phpseclib/phpseclib": "~2.0",
         //
+        //
+        $rsa = new RSA();
 
-        // Create a new RSA key pair
-        $rsa = RSA::createKey();
+        $private_key_load = config('telebirr-super-app.privateKey');
+        $private_key = $this->trimPrivateKey($private_key_load)[2];
 
-        // Load the private key
-        RSA::load(config('telebirr-super-app.privateKey'));
+        if ($rsa->loadKey($private_key) != true) {
+            echo 'Error loading PrivateKey';
 
-        $rsa->withHash('sha256');
-        $rsa->withMGFHash('sha256');
+            return;
+        }
 
-        $signature = $rsa->sign($data);
+        $rsa->setHash('sha256');
 
-        return base64_encode($signature);
+        $rsa->setMGFHash('sha256');
 
+        $signtureByte = $rsa->sign($data);
+
+        return base64_encode($signtureByte);
     }
+
+
+    // public function signWithRSA($data)
+    // {
+    //     // requires package installation 
+    //     //        - composer require phpseclib/phpseclib            --- installs the latest 3.0   (import = use phpseclib3\Crypt\RSA)
+    //     //               or
+    //     //        PUT this in COMPOSER    then do = composer update
+    //     //               "phpseclib/phpseclib": "^3.0",
+    //     //
+
+    //     // Create a new RSA key pair
+    //     $rsa = RSA::createKey();
+
+    //     $privateKeyFromConfig = config('telebirr-super-app.privateKey');
+
+    //     $private_key = $this->trimPrivateKey($privateKeyFromConfig)[2];
+
+    //     // Load the private key
+    //     RSA::load($private_key);
+
+    //     $rsa->withHash('sha256');
+    //     $rsa->withMGFHash('sha256');
+
+    //     $signature = $rsa->sign($data);
+
+    //     return base64_encode($signature);
+
+    // }
 
 
     // private function signWithRSA($data)
@@ -270,12 +335,8 @@ class TeleBirrOrganizationPaymentService
     //     // Load the RSA private key from configuration
     //     $rsaPrivateKeyConfig = config('telebirr-super-app.privateKey');
 
-    //     // Convert the private key string into a format that openssl_pkey_get_private expects
-    //     $rsaPrivateKey = "-----BEGIN PRIVATE KEY-----\n" . $rsaPrivateKeyConfig . "\n-----END PRIVATE KEY-----";
-
-
     //     // Create a private key resource for RSA operation
-    //     $rsaPrivateKeyResource = openssl_pkey_get_private($rsaPrivateKey);
+    //     $rsaPrivateKeyResource = openssl_pkey_get_private($rsaPrivateKeyConfig);
 
     //     if ($rsaPrivateKeyResource === false) {
     //         return  'Error loading PrivateKey';
@@ -306,6 +367,13 @@ class TeleBirrOrganizationPaymentService
      */
     // private function SignWithRSA($data)
     // {
+    //      // requires package installation 
+    //      //      - v1.0   (import = use phpseclib3\Crypt\RSA)
+    //      //      //
+    //      //      PUT this in COMPOSER    then do = composer update
+    //      //              "phpseclib/phpseclib": "1.0.*",
+    //      //
+    //      //
     //     $rsa = new Crypt_RSA();
 
     //     $private_key_load = file_get_contents('./config/private_key.pem');
@@ -335,7 +403,7 @@ class TeleBirrOrganizationPaymentService
      * @Param: $stringData -> the private key to be trimmed
      * @Return: array of the return of explode function
      */
-    public static function trimPrivateKey($stringData)
+    public function trimPrivateKey($stringData)
     {
         return explode('-----', (string) $stringData);
     }
@@ -416,8 +484,8 @@ class TeleBirrOrganizationPaymentService
             $index = intval(rand() * 35);
             $str .= $chars[$i];
         }
-        // return uniqid();
-        return "fcab0d2949e64a69a212aa83eab6ee1d";
+        return uniqid();
+        // return "fcab0d2949e64a69a212aa83eab6ee1d";
     }
 
 
