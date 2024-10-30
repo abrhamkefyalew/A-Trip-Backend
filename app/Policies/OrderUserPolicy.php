@@ -3,7 +3,8 @@
 namespace App\Policies;
 
 use App\Models\OrderUser;
-use App\Models\User;
+use App\Models\Admin as User;
+use App\Models\Permission;
 use Illuminate\Auth\Access\Response;
 
 class OrderUserPolicy
@@ -13,7 +14,7 @@ class OrderUserPolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_ORDER)->exists();
     }
 
     /**
@@ -21,7 +22,7 @@ class OrderUserPolicy
      */
     public function view(User $user, OrderUser $orderUser): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_ORDER)->exists();
     }
 
     /**
@@ -29,7 +30,7 @@ class OrderUserPolicy
      */
     public function create(User $user): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_ORDER)->exists();
     }
 
     /**
@@ -37,7 +38,7 @@ class OrderUserPolicy
      */
     public function update(User $user, OrderUser $orderUser): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_ORDER)->exists();
     }
 
     /**
@@ -45,7 +46,7 @@ class OrderUserPolicy
      */
     public function delete(User $user, OrderUser $orderUser): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_ORDER)->exists();
     }
 
     /**
@@ -53,7 +54,7 @@ class OrderUserPolicy
      */
     public function restore(User $user, OrderUser $orderUser): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_ORDER)->exists();
     }
 
     /**
@@ -61,6 +62,6 @@ class OrderUserPolicy
      */
     public function forceDelete(User $user, OrderUser $orderUser): bool
     {
-        //
+        return false;
     }
 }

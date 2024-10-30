@@ -3,7 +3,8 @@
 namespace App\Policies;
 
 use App\Models\OrganizationUser;
-use App\Models\User;
+use App\Models\Admin as User;
+use App\Models\Permission;
 use Illuminate\Auth\Access\Response;
 
 class OrganizationUserPolicy
@@ -13,7 +14,7 @@ class OrganizationUserPolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_ORGANIZATION_STAFF)->exists();
     }
 
     /**
@@ -21,7 +22,7 @@ class OrganizationUserPolicy
      */
     public function view(User $user, OrganizationUser $organizationUser): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_ORGANIZATION_STAFF)->exists();
     }
 
     /**
@@ -29,7 +30,7 @@ class OrganizationUserPolicy
      */
     public function create(User $user): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_ORGANIZATION_STAFF)->exists();
     }
 
     /**
@@ -37,7 +38,7 @@ class OrganizationUserPolicy
      */
     public function update(User $user, OrganizationUser $organizationUser): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_ORGANIZATION_STAFF)->exists();
     }
 
     /**
@@ -45,7 +46,7 @@ class OrganizationUserPolicy
      */
     public function delete(User $user, OrganizationUser $organizationUser): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_ORGANIZATION_STAFF)->exists();
     }
 
     /**
@@ -53,7 +54,7 @@ class OrganizationUserPolicy
      */
     public function restore(User $user, OrganizationUser $organizationUser): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_ORGANIZATION_STAFF)->exists();
     }
 
     /**
@@ -61,6 +62,6 @@ class OrganizationUserPolicy
      */
     public function forceDelete(User $user, OrganizationUser $organizationUser): bool
     {
-        //
+        return false;
     }
 }

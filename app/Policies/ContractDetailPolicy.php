@@ -3,7 +3,8 @@
 namespace App\Policies;
 
 use App\Models\ContractDetail;
-use App\Models\User;
+use App\Models\Admin as User;
+use App\Models\Permission;
 use Illuminate\Auth\Access\Response;
 
 class ContractDetailPolicy
@@ -13,7 +14,7 @@ class ContractDetailPolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_CONTRACT)->exists();
     }
 
     /**
@@ -21,7 +22,7 @@ class ContractDetailPolicy
      */
     public function view(User $user, ContractDetail $contractDetail): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_CONTRACT)->exists();
     }
 
     /**
@@ -29,7 +30,7 @@ class ContractDetailPolicy
      */
     public function create(User $user): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_CONTRACT)->exists();
     }
 
     /**
@@ -37,7 +38,7 @@ class ContractDetailPolicy
      */
     public function update(User $user, ContractDetail $contractDetail): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_CONTRACT)->exists();
     }
 
     /**
@@ -45,7 +46,7 @@ class ContractDetailPolicy
      */
     public function delete(User $user, ContractDetail $contractDetail): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_CONTRACT)->exists();
     }
 
     /**
@@ -53,7 +54,7 @@ class ContractDetailPolicy
      */
     public function restore(User $user, ContractDetail $contractDetail): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_CONTRACT)->exists();
     }
 
     /**
@@ -61,6 +62,6 @@ class ContractDetailPolicy
      */
     public function forceDelete(User $user, ContractDetail $contractDetail): bool
     {
-        //
+        return false;
     }
 }

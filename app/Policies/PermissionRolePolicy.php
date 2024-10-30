@@ -3,17 +3,24 @@
 namespace App\Policies;
 
 use App\Models\PermissionRole;
-use App\Models\User;
+use App\Models\Admin as User;
+use App\Models\Permission;
 use Illuminate\Auth\Access\Response;
 
 class PermissionRolePolicy
 {
+
+    public function sync(User $user): bool
+    {
+        return $user->permissions()->where('permissions.title', Permission::SYNC_PERMISSION_ROLE)->exists();
+    }
+
     /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        //
+        
     }
 
     /**

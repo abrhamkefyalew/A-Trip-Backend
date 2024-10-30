@@ -3,7 +3,8 @@
 namespace App\Policies;
 
 use App\Models\Trip;
-use App\Models\User;
+use App\Models\Admin as User;
+use App\Models\Permission;
 use Illuminate\Auth\Access\Response;
 
 class TripPolicy
@@ -13,7 +14,7 @@ class TripPolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_TRIP)->exists();
     }
 
     /**
@@ -21,7 +22,7 @@ class TripPolicy
      */
     public function view(User $user, Trip $trip): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_TRIP)->exists();
     }
 
     /**
@@ -29,7 +30,7 @@ class TripPolicy
      */
     public function create(User $user): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_TRIP)->exists();
     }
 
     /**
@@ -37,7 +38,7 @@ class TripPolicy
      */
     public function update(User $user, Trip $trip): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_TRIP)->exists();
     }
 
     /**
@@ -45,7 +46,7 @@ class TripPolicy
      */
     public function delete(User $user, Trip $trip): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_TRIP)->exists();
     }
 
     /**
@@ -53,7 +54,7 @@ class TripPolicy
      */
     public function restore(User $user, Trip $trip): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_TRIP)->exists();
     }
 
     /**
@@ -61,6 +62,6 @@ class TripPolicy
      */
     public function forceDelete(User $user, Trip $trip): bool
     {
-        //
+        return false;
     }
 }

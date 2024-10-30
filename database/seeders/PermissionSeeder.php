@@ -32,6 +32,29 @@ class PermissionSeeder extends Seeder
             [
                 'title' => Permission::RESTORE_ADMIN,
             ],
+
+
+
+
+
+            [
+                'title' => Permission::INDEX_BANK,
+            ],
+            [
+                'title' => Permission::SHOW_BANK,
+            ],
+            [
+                'title' => Permission::CREATE_BANK,
+            ],
+            [
+                'title' => Permission::EDIT_BANK,
+            ],
+            [
+                'title' => Permission::DELETE_BANK,
+            ],
+            [
+                'title' => Permission::RESTORE_BANK,
+            ],
             
 
 
@@ -356,6 +379,82 @@ class PermissionSeeder extends Seeder
             [
                 'title' => Permission::RESTORE_INVOICE,
             ],
+
+
+
+
+
+
+            [
+                'title' => Permission::INDEX_BID,
+            ],
+            [
+                'title' => Permission::SHOW_BID,
+            ],
+            [
+                'title' => Permission::CREATE_BID,
+            ],
+            [
+                'title' => Permission::EDIT_BID,
+            ],
+            [
+                'title' => Permission::DELETE_BID,
+            ],
+            [
+                'title' => Permission::RESTORE_BID,
+            ],
+
+
+
+
+
+
+
+            [
+                'title' => Permission::INDEX_CONSTANT,
+            ],
+            [
+                'title' => Permission::SHOW_CONSTANT,
+            ],
+            [
+                'title' => Permission::CREATE_CONSTANT,
+            ],
+            [
+                'title' => Permission::EDIT_CONSTANT,
+            ],
+            [
+                'title' => Permission::DELETE_CONSTANT,
+            ],
+            [
+                'title' => Permission::RESTORE_CONSTANT,
+            ],
+
+
+
+
+
+            
+            [
+                'title' => Permission::INDEX_TRIP,
+            ],
+            [
+                'title' => Permission::SHOW_TRIP,
+            ],
+            [
+                'title' => Permission::CREATE_TRIP,
+            ],
+            [
+                'title' => Permission::EDIT_TRIP,
+            ],
+            [
+                'title' => Permission::DELETE_TRIP,
+            ],
+            [
+                'title' => Permission::RESTORE_TRIP,
+            ],
+
+
+
 
 
         ];

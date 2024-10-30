@@ -2,8 +2,9 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\VehicleName;
+use App\Models\Admin as User;
+use App\Models\Permission;
 use Illuminate\Auth\Access\Response;
 
 class VehicleNamePolicy
@@ -13,7 +14,7 @@ class VehicleNamePolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_VEHICLE_NAME)->exists();
     }
 
     /**
@@ -21,7 +22,7 @@ class VehicleNamePolicy
      */
     public function view(User $user, VehicleName $vehicleName): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_VEHICLE_NAME)->exists();
     }
 
     /**
@@ -29,7 +30,7 @@ class VehicleNamePolicy
      */
     public function create(User $user): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_VEHICLE_NAME)->exists();
     }
 
     /**
@@ -37,7 +38,7 @@ class VehicleNamePolicy
      */
     public function update(User $user, VehicleName $vehicleName): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_VEHICLE_NAME)->exists();
     }
 
     /**
@@ -45,7 +46,7 @@ class VehicleNamePolicy
      */
     public function delete(User $user, VehicleName $vehicleName): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_VEHICLE_NAME)->exists();
     }
 
     /**
@@ -53,7 +54,7 @@ class VehicleNamePolicy
      */
     public function restore(User $user, VehicleName $vehicleName): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_VEHICLE_NAME)->exists();
     }
 
     /**
@@ -61,6 +62,6 @@ class VehicleNamePolicy
      */
     public function forceDelete(User $user, VehicleName $vehicleName): bool
     {
-        //
+        return false;
     }
 }

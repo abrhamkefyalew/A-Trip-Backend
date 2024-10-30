@@ -3,7 +3,8 @@
 namespace App\Policies;
 
 use App\Models\Otp;
-use App\Models\User;
+use App\Models\Admin as User;
+use App\Models\Permission;
 use Illuminate\Auth\Access\Response;
 
 class OtpPolicy

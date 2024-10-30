@@ -3,7 +3,8 @@
 namespace App\Policies;
 
 use App\Models\Bid;
-use App\Models\User;
+use App\Models\Admin as User;
+use App\Models\Permission;
 use Illuminate\Auth\Access\Response;
 
 class BidPolicy
@@ -13,7 +14,7 @@ class BidPolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_BID)->exists();
     }
 
     /**
@@ -21,7 +22,7 @@ class BidPolicy
      */
     public function view(User $user, Bid $bid): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_BID)->exists();
     }
 
     /**
@@ -29,7 +30,7 @@ class BidPolicy
      */
     public function create(User $user): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_BID)->exists();
     }
 
     /**
@@ -37,7 +38,7 @@ class BidPolicy
      */
     public function update(User $user, Bid $bid): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_BID)->exists();
     }
 
     /**
@@ -45,7 +46,7 @@ class BidPolicy
      */
     public function delete(User $user, Bid $bid): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_BID)->exists();
     }
 
     /**
@@ -53,7 +54,7 @@ class BidPolicy
      */
     public function restore(User $user, Bid $bid): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_BID)->exists();
     }
 
     /**
@@ -61,6 +62,6 @@ class BidPolicy
      */
     public function forceDelete(User $user, Bid $bid): bool
     {
-        //
+        return false;
     }
 }
