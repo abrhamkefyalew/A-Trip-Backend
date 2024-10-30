@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api\V1\AdminRequests;
 
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateAdminRequest extends FormRequest
@@ -11,9 +12,7 @@ class UpdateAdminRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
-
-        // return $this->user()->can('update', $this->admin);
+        return $this->user()->can('update', $this->admin);
     }
 
     /**
@@ -25,6 +24,32 @@ class UpdateAdminRequest extends FormRequest
     {
         return [
             //
+
+            'first_name' => [
+                'sometimes', 'string', 'regex:/^\S*$/u', 'alpha',
+            ],
+            'last_name' => [
+                'sometimes', 'string', 'regex:/^\S*$/u', 'alpha',
+            ],
+            'email' => [
+                'sometimes', 'email', Rule::unique('admins'),
+            ],
+            'password' => [
+                'sometimes', 'min:8', 'confirmed',
+            ],
+            'phone_number' => [
+                'nullable', 'numeric',  Rule::unique('admins'),
+            ],
+            'profile_image' => [
+                'image',
+                'max:3072',
+            ],
+            'remove_image' => [
+                'boolean',
+            ],
+            'role_ids' => 'sometimes|array',
+            'role_ids.*' => 'exists:roles,id',
+
         ];
     }
 }

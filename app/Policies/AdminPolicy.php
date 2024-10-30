@@ -3,7 +3,8 @@
 namespace App\Policies;
 
 use App\Models\Admin;
-use App\Models\User;
+use App\Models\Admin as User;
+use App\Models\Permission;
 use Illuminate\Auth\Access\Response;
 
 class AdminPolicy
@@ -13,7 +14,7 @@ class AdminPolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_ADMIN)->exists();
     }
 
     /**
@@ -21,7 +22,7 @@ class AdminPolicy
      */
     public function view(User $user, Admin $admin): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::SHOW_ADMIN)->exists();
     }
 
     /**
@@ -29,7 +30,7 @@ class AdminPolicy
      */
     public function create(User $user): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::CREATE_ADMIN)->exists();
     }
 
     /**
@@ -37,7 +38,7 @@ class AdminPolicy
      */
     public function update(User $user, Admin $admin): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::EDIT_ADMIN)->exists();
     }
 
     /**
@@ -45,7 +46,7 @@ class AdminPolicy
      */
     public function delete(User $user, Admin $admin): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::DELETE_ADMIN)->exists();
     }
 
     /**
@@ -53,7 +54,7 @@ class AdminPolicy
      */
     public function restore(User $user, Admin $admin): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::RESTORE_ADMIN)->exists();
     }
 
     /**
@@ -61,6 +62,6 @@ class AdminPolicy
      */
     public function forceDelete(User $user, Admin $admin): bool
     {
-        //
+        return false;
     }
 }
