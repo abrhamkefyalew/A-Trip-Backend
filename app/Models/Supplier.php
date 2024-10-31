@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\MediaLibrary\HasMedia;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
@@ -180,6 +181,8 @@ class Supplier extends Authenticatable implements HasMedia
 
     public function registerMediaConversions(Media $media = null): void
     {
+        Log::info('Registering media conversions...');
+        
         $this->addMediaConversion('optimized')
             ->width(1000)
             ->height(1000);
@@ -187,6 +190,8 @@ class Supplier extends Authenticatable implements HasMedia
         $this->addMediaConversion('thumb')
             ->width(150)
             ->height(150);
+
+        Log::info('Media conversions registered successfully.');
     }
 
     // constants
