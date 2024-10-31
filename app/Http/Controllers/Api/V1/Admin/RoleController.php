@@ -54,7 +54,7 @@ class RoleController extends Controller
 
             // return RoleResource::make($role->load(['permissions']))->response()->setStatusCode(201);
 
-            return RoleResource::make($role->load(['permissions']))
+            return RoleResource::make($role->load(['admins', 'permissions']))
                         ->response()->setStatusCode(Response::HTTP_CREATED);
 
         });
@@ -120,7 +120,7 @@ class RoleController extends Controller
 
 
 
-            return RoleResource::make($role->load(['permissions']))
+            return RoleResource::make($role->load(['admins', 'permissions']))
                         ->response()->setStatusCode(200);
 
         });
