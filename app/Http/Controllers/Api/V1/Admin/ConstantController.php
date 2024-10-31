@@ -19,7 +19,7 @@ class ConstantController extends Controller
     public function index(Request $request)
     {
         //
-        // $this->authorize('viewAny', Constant::class);
+        $this->authorize('viewAny', Constant::class);
 
         // use Filtering service OR Scope to do this
         if (isset($request['paginate'])) {

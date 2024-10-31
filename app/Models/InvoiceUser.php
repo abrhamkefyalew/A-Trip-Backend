@@ -26,6 +26,7 @@ class InvoiceUser extends Model
         'paid_date',
         'payment_method',
         'request_payload',
+        'response_payload',
     ];
 
 

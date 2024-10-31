@@ -414,20 +414,9 @@ class PermissionSeeder extends Seeder
                 'title' => Permission::INDEX_CONSTANT,
             ],
             [
-                'title' => Permission::SHOW_CONSTANT,
-            ],
-            [
-                'title' => Permission::CREATE_CONSTANT,
-            ],
-            [
                 'title' => Permission::EDIT_CONSTANT,
             ],
-            [
-                'title' => Permission::DELETE_CONSTANT,
-            ],
-            [
-                'title' => Permission::RESTORE_CONSTANT,
-            ],
+            
 
 
 

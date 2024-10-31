@@ -22,6 +22,16 @@ class PermissionRoleSeeder extends Seeder
                    strpos($permission->title, 'RESTORE') === false &&
                    strpos($permission->title, 'ROLE') === false &&
                    strpos($permission->title, 'PERMISSION') === false &&
+                   strpos($permission->title, 'CREATE_ADMIN') === false &&
+                   strpos($permission->title, 'EDIT_ADMIN') === false &&
+                //    strpos($permission->title, 'DELETE_ADMIN') === false &&       // because we already flagged deletion above
+                //    strpos($permission->title, 'RESTORE_ADMIN') === false &&      // because we already flagged deletion above
+                   strpos($permission->title, 'CREATE_BANK') === false &&
+                   strpos($permission->title, 'EDIT_BANK') === false &&
+                //    strpos($permission->title, 'DELETE_BANK') === false &&        // because we already flagged deletion above
+                //    strpos($permission->title, 'RESTORE_BANK') === false &&       // because we already flagged deletion above
+                   strpos($permission->title, 'EDIT_INVOICE') === false &&
+                   strpos($permission->title, 'EDIT_CONSTANT') === false &&
                    strpos($permission->title, 'SEND') === false;
         });
 
@@ -30,17 +40,43 @@ class PermissionRoleSeeder extends Seeder
                    strpos($permission->title, 'RESTORE') === false &&
                    strpos($permission->title, 'ROLE') === false &&
                    strpos($permission->title, 'PERMISSION') === false &&
+                   strpos($permission->title, 'CREATE_ADMIN') === false &&
+                   strpos($permission->title, 'EDIT_ADMIN') === false &&
+                //    strpos($permission->title, 'DELETE_ADMIN') === false &&       // because we already flagged deletion above
+                //    strpos($permission->title, 'RESTORE_ADMIN') === false &&      // because we already flagged deletion above
+                   strpos($permission->title, 'CREATE_BANK') === false &&
+                   strpos($permission->title, 'EDIT_BANK') === false &&
+                //    strpos($permission->title, 'DELETE_BANK') === false &&        // because we already flagged deletion above
+                //    strpos($permission->title, 'RESTORE_BANK') === false &&       // because we already flagged deletion above
+                   strpos($permission->title, 'CREATE_VEHICLE_TYPE') === false &&
+                   strpos($permission->title, 'EDIT_VEHICLE_TYPE') === false &&
+                   strpos($permission->title, 'CREATE_VEHICLE_NAME') === false &&
+                   strpos($permission->title, 'EDIT_VEHICLE_NAME') === false &&
+                   strpos($permission->title, 'EDIT_INVOICE') === false &&
+                   strpos($permission->title, 'EDIT_CONSTANT') === false &&
                    strpos($permission->title, 'SEND') === false;
         });
 
         $systemUserPermissions = $adminPermissions->filter(function ($permission) {
-            return strpos($permission->title, 'DELETE') === false &&
-                strpos($permission->title, 'RESTORE') === false &&
-                strpos($permission->title, 'EDIT') === false &&
-                strpos($permission->title, 'CREATE') === false &&
-                strpos($permission->title, 'ROLE') === false &&
-                strpos($permission->title, 'PERMISSION') === false &&
-                strpos($permission->title, 'SEND') === false;
+            return substr($permission->title, 0, 6) != 'DELETE' &&
+            strpos($permission->title, 'RESTORE') === false &&
+            strpos($permission->title, 'ROLE') === false &&
+            strpos($permission->title, 'PERMISSION') === false &&
+            strpos($permission->title, 'CREATE_ADMIN') === false &&
+            strpos($permission->title, 'EDIT_ADMIN') === false &&
+         //    strpos($permission->title, 'DELETE_ADMIN') === false &&       // because we already flagged deletion above
+         //    strpos($permission->title, 'RESTORE_ADMIN') === false &&      // because we already flagged deletion above
+            strpos($permission->title, 'CREATE_BANK') === false &&
+            strpos($permission->title, 'EDIT_BANK') === false &&
+         //    strpos($permission->title, 'DELETE_BANK') === false &&        // because we already flagged deletion above
+         //    strpos($permission->title, 'RESTORE_BANK') === false &&       // because we already flagged deletion above
+            strpos($permission->title, 'CREATE_VEHICLE_TYPE') === false &&
+            strpos($permission->title, 'EDIT_VEHICLE_TYPE') === false &&
+            strpos($permission->title, 'CREATE_VEHICLE_NAME') === false &&
+            strpos($permission->title, 'EDIT_VEHICLE_NAME') === false &&
+            strpos($permission->title, 'INVOICE') === false &&
+            strpos($permission->title, 'EDIT_CONSTANT') === false &&
+            strpos($permission->title, 'SEND') === false;
         });
 
         // this will insert (sync) in $role->permission() relation (permission_role table)

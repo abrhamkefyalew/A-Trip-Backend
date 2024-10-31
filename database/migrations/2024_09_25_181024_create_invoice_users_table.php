@@ -35,6 +35,7 @@ return new class extends Migration
 
             
             // the columns that will be added below in the future here, are intended for the return data from the banks
+            $table->json('response_payload')->nullable();
 
 
             $table->timestamps();

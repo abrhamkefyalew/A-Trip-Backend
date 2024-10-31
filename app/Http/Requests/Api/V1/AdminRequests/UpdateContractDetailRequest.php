@@ -11,9 +11,7 @@ class UpdateContractDetailRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
-
-        // return $this->user()->can('update', $this->contractDetail);
+        return $this->user()->can('update', $this->contractDetail);
     }
 
     /**

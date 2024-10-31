@@ -174,6 +174,22 @@ class Permission extends Model
     public const RESTORE_SUPPLIER = 'RESTORE_SUPPLIER';
 
 
+
+
+
+    public const INDEX_DRIVER = 'INDEX_DRIVER';
+
+    public const SHOW_DRIVER = 'SHOW_DRIVER';
+
+    public const CREATE_DRIVER = 'CREATE_DRIVER';
+
+    public const EDIT_DRIVER = 'EDIT_DRIVER';
+
+    public const DELETE_DRIVER = 'DELETE_DRIVER';
+
+    public const RESTORE_DRIVER = 'RESTORE_DRIVER';
+
+
     
 
 
@@ -235,21 +251,6 @@ class Permission extends Model
 
     public const RESTORE_CONTRACT = 'RESTORE_CONTRACT';
 
-
-
-
-
-    public const INDEX_DRIVER = 'INDEX_DRIVER';
-
-    public const SHOW_DRIVER = 'SHOW_DRIVER';
-
-    public const CREATE_DRIVER = 'CREATE_DRIVER';
-
-    public const EDIT_DRIVER = 'EDIT_DRIVER';
-
-    public const DELETE_DRIVER = 'DELETE_DRIVER';
-
-    public const RESTORE_DRIVER = 'RESTORE_DRIVER';
 
 
 
@@ -328,15 +329,8 @@ class Permission extends Model
 
     public const INDEX_CONSTANT = 'INDEX_CONSTANT';
 
-    public const SHOW_CONSTANT = 'SHOW_CONSTANT';
-
-    public const CREATE_CONSTANT = 'CREATE_CONSTANT';
-
     public const EDIT_CONSTANT = 'EDIT_CONSTANT';
 
-    public const DELETE_CONSTANT = 'DELETE_CONSTANT';
-
-    public const RESTORE_CONSTANT = 'RESTORE_CONSTANT';
 
 
 

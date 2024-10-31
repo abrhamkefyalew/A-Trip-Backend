@@ -6,6 +6,7 @@ use App\Models\Role;
 use App\Models\AdminRole;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use App\Models\PermissionRole;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Services\Api\V1\Admin\RoleService;
@@ -150,6 +151,12 @@ class RoleController extends Controller
             //         'message' => 'Cannot delete the Role because it is in use by Admins.'
             //     ], Response::HTTP_CONFLICT);
             // }
+            // // will NOT work as expected, but you can check
+            // if ($role->permissions->where('role_id', $role->id)->exists()) {
+            //     return response()->json([
+            //         'message' => 'Cannot delete the Role because it is in use by Admins.'
+            //     ], Response::HTTP_CONFLICT);
+            // }
 
 
 
@@ -164,6 +171,20 @@ class RoleController extends Controller
                 // this also works
                 return response()->json([
                     'message' => 'Cannot delete the Role because it is in use by Admins.'
+                ], Response::HTTP_CONFLICT);
+            }
+
+            // will WORK // definitely works
+            if (PermissionRole::where('role_id', $role->id)->exists()) {
+                
+                // this works
+                // return response()->json([
+                //     'message' => 'Cannot delete the Role because it is in use by Permissions.',
+                // ], 409);
+
+                // this also works
+                return response()->json([
+                    'message' => 'Cannot delete the Role because it is in use by Permissions.'
                 ], Response::HTTP_CONFLICT);
             }
     

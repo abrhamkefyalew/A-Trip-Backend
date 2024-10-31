@@ -13,13 +13,19 @@ class PermissionRole extends Pivot
 
     protected $table = 'permission_role';
 
-    // is not used yet
+
+    protected $fillable = [
+        'role_id',
+        'permission_id',
+    ];
+
+    
     public function permission()
     {
         return $this->belongsTo(Permission::class);
     }
 
-    // is not used yet
+    
     public function role()
     {
         return $this->belongsTo(Role::class);

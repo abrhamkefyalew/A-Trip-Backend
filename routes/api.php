@@ -135,7 +135,6 @@ Route::prefix('v1')->group(function () {
                     Route::get('/', [PermissionController::class, 'show']);
                     Route::put('/', [PermissionController::class, 'update']);
                     Route::delete('/', [PermissionController::class, 'destroy']);
-                    
                 });
                 Route::prefix('/{id}')->group(function () {
                     Route::post('/restore', [PermissionController::class, 'restore']);
