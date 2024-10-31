@@ -14,6 +14,8 @@ class StoreAdminRequest extends FormRequest
     public function authorize(): bool
     {
         // return $this->user()->can('create', Admin::class);
+
+        return true;
     }
 
     /**
