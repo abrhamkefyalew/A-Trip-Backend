@@ -46,9 +46,11 @@ class RoleController extends Controller
             if ($request->has('permission_ids')) {
                 $successTwo = $role->permissions()->attach($request->input('permission_ids'));
                 //
-                if (!$successTwo) {
-                    return response()->json(['message' => 'Permission Attach Failed'], 500);
-                }
+                // this will not work B/C if the above operation is SUCCESSFUL it returns NULL to the $success variable, which is falsy in PHP
+                // The attach method in Laravel returns null if the operation is successful. Therefore, checking if (!$success) might not work as expected since null is considered falsy in PHP.
+                // if (!$successTwo) {
+                //     return response()->json(['message' => 'Permission Attach Failed'], 500);
+                // }
             } 
 
 
@@ -114,9 +116,11 @@ class RoleController extends Controller
             if ($request->has('permission_ids')) {
                 $successTwo = $role->permissions()->sync($request->input('permission_ids'));
                 //
-                if (!$successTwo) {
-                    return response()->json(['message' => 'Permission Sync Failed'], 500);
-                }
+                // this will not work B/C if the above operation is SUCCESSFUL it returns NULL to the $success variable, which is falsy in PHP
+                // The attach method in Laravel returns null if the operation is successful. Therefore, checking if (!$success) might not work as expected since null is considered falsy in PHP.
+                // if (!$successTwo) {
+                //     return response()->json(['message' => 'Permission Sync Failed'], 500);
+                // }
             } 
 
 

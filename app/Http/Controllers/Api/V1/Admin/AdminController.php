@@ -49,9 +49,11 @@ class AdminController extends Controller
 
             $success = $admin->roles()->attach($request->input('role_ids'));
             //
-            if (!$success) {
-                return response()->json(['message' => 'Role Attach Failed'], 500);
-            }
+            // this will not work B/C if the above operation is SUCCESSFUL it returns NULL to the $success variable, which is falsy in PHP
+            // The attach method in Laravel returns null if the operation is successful. Therefore, checking if (!$success) might not work as expected since null is considered falsy in PHP.
+            // if (!$success) {
+            //     return response()->json(['message' => 'Role Attach Failed'], 500);
+            // }
 
             
 
@@ -98,9 +100,11 @@ class AdminController extends Controller
             if ($request->has('role_ids')){
                 $successTwo = $admin->roles()->sync($request->input('role_ids'));
                 //
-                if (!$successTwo) {
-                    return response()->json(['message' => 'Role Sync Failed'], 500);
-                }
+                // this will not work B/C if the above operation is SUCCESSFUL it returns NULL to the $success variable, which is falsy in PHP
+                // The attach method in Laravel returns null if the operation is successful. Therefore, checking if (!$success) might not work as expected since null is considered falsy in PHP.
+                // if (!$successTwo) {
+                //     return response()->json(['message' => 'Role Sync Failed'], 500);
+                // }
             }
 
 
