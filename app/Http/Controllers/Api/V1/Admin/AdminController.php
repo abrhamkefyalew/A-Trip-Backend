@@ -58,7 +58,7 @@ class AdminController extends Controller
             
 
             if ($request->has('admin_profile_image')) {
-                $file = $request->file('admin_profile_image_remove');
+                $file = $request->file('admin_profile_image');
                 $clearMedia = false; // or true // // NO admin image remove, since it is the first time the admin is being stored
                 $collectionName = Admin::ADMIN_PROFILE_PICTURE;
                 MediaService::storeImage($admin, $file, $clearMedia, $collectionName);
