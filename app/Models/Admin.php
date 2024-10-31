@@ -91,33 +91,33 @@ class Admin extends Authenticatable implements HasMedia
 
     
 
-    // mutator function 
-    // mutator functions are called automatically by laravel,
-    // Define a mutator for the phone_number attribute
-    public function setPhoneNumberAttribute($value)
-    {
-        $phoneNumberValidator = new PhoneNumberValidator();
+    // // mutator function 
+    // // mutator functions are called automatically by laravel,
+    // // Define a mutator for the phone_number attribute
+    // public function setPhoneNumberAttribute($value)
+    // {
+    //     $phoneNumberValidator = new PhoneNumberValidator();
     
-        $formattedPhoneNumber = $phoneNumberValidator->formatAndValidatePhoneNumber($value);
+    //     $formattedPhoneNumber = $phoneNumberValidator->formatAndValidatePhoneNumber($value);
 
 
-        // check for uniqueness on the modified phone_number (i.e. $formattedPhoneNumber) after it has been processed through the formatting and validation steps
-        // this condition is last to ensure that the uniqueness check is performed on the transformed and modified phone number (i.e. using the above if conditions) that will be stored in the database
-        if ($this->where('phone_number', $formattedPhoneNumber)->exists()) {
-            // Use Laravel's validation mechanism to return an error
-            $validator = Validator::make(['phone_number' => $formattedPhoneNumber], [
-                'phone_number' => 'unique:admins',
-            ]);
+    //     // check for uniqueness on the modified phone_number (i.e. $formattedPhoneNumber) after it has been processed through the formatting and validation steps
+    //     // this condition is last to ensure that the uniqueness check is performed on the transformed and modified phone number (i.e. using the above if conditions) that will be stored in the database
+    //     if ($this->where('phone_number', $formattedPhoneNumber)->exists()) {
+    //         // Use Laravel's validation mechanism to return an error
+    //         $validator = Validator::make(['phone_number' => $formattedPhoneNumber], [
+    //             'phone_number' => 'unique:admins',
+    //         ]);
 
-            if ($validator->fails()) {
-                throw new \Illuminate\Validation\ValidationException($validator);
-            }
-        }
+    //         if ($validator->fails()) {
+    //             throw new \Illuminate\Validation\ValidationException($validator);
+    //         }
+    //     }
     
 
-        // Finally, the formatted or validated phone number is set back to the model's phone_number attribute
-        $this->attributes['phone_number'] = $formattedPhoneNumber;
-    }
+    //     // Finally, the formatted or validated phone number is set back to the model's phone_number attribute
+    //     $this->attributes['phone_number'] = $formattedPhoneNumber;
+    // }
 
 
 
