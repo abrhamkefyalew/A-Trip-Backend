@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\Admin\BidController;
 use App\Http\Controllers\Api\V1\Admin\BankController;
+use App\Http\Controllers\Api\V1\Admin\RoleController;
 use App\Http\Controllers\Api\V1\Admin\TripController;
 use App\Http\Controllers\Api\V1\Admin\AdminController;
 use App\Http\Controllers\Api\V1\Admin\OrderController;
@@ -110,6 +111,18 @@ Route::prefix('v1')->group(function () {
                 }); 
             });
 
+            
+
+            Route::prefix('roles')->group(function () {
+                Route::get('/', [RoleController::class, 'index']);
+                Route::post('/', [RoleController::class, 'store']);
+                Route::prefix('/{role}')->group(function () {
+                    Route::get('/', [RoleController::class, 'show']);
+                    Route::put('/', [RoleController::class, 'update']);
+                    Route::delete('/', [RoleController::class, 'destroy']);
+                    Route::post('/restore', [RoleController::class, 'restore']);
+                });
+            });
 
 
             

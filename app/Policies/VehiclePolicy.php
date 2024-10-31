@@ -22,7 +22,7 @@ class VehiclePolicy
      */
     public function view(User $user, Vehicle $vehicle): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_VEHICLE)->exists();
+        return $user->permissions()->where('permissions.title', Permission::SHOW_VEHICLE)->exists();
     }
 
     /**
@@ -30,7 +30,7 @@ class VehiclePolicy
      */
     public function create(User $user): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_VEHICLE)->exists();
+        return $user->permissions()->where('permissions.title', Permission::CREATE_VEHICLE)->exists();
     }
 
     /**
@@ -38,7 +38,7 @@ class VehiclePolicy
      */
     public function update(User $user, Vehicle $vehicle): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_VEHICLE)->exists();
+        return $user->permissions()->where('permissions.title', Permission::EDIT_VEHICLE)->exists();
     }
 
     /**
@@ -46,7 +46,7 @@ class VehiclePolicy
      */
     public function delete(User $user, Vehicle $vehicle): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_VEHICLE)->exists();
+        return $user->permissions()->where('permissions.title', Permission::DELETE_VEHICLE)->exists();
     }
 
     /**
@@ -54,7 +54,7 @@ class VehiclePolicy
      */
     public function restore(User $user, Vehicle $vehicle): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_VEHICLE)->exists();
+        return $user->permissions()->where('permissions.title', Permission::RESTORE_VEHICLE)->exists();
     }
 
     /**

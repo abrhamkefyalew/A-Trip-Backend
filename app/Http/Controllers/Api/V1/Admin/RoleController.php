@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Models\Role;
+use App\Models\AdminRole;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Services\Api\V1\Admin\RoleService;
+use App\Http\Resources\Api\V1\RoleResources\RoleResource;
 use App\Http\Requests\Api\V1\AdminRequests\StoreRoleRequest;
 use App\Http\Requests\Api\V1\AdminRequests\UpdateRoleRequest;
 
@@ -18,7 +20,7 @@ class RoleController extends Controller
      */
     public function index(Request $request)
     {
-        // $this->authorize('viewAny', Role::class);
+        $this->authorize('viewAny', Role::class);
 
         return RoleService::index($request);
     }
@@ -29,11 +31,35 @@ class RoleController extends Controller
     public function store(StoreRoleRequest $request)
     {
         //
-        // $var = DB::transaction(function () {
-            
-        // });
+        $var = DB::transaction(function () use ($request) {
 
-        // return $var;
+            // $role = Role::create($request->all()); // WRONG , // should NOT use request All
+
+            $role = Role::create($request->validated());
+            //
+            if (!$role) {
+                return response()->json(['message' => 'Role Create Failed'], 500);
+            }
+
+
+            if ($request->has('permission_ids')) {
+                $successTwo = $role->permissions()->attach($request->input('permission_ids'));
+                //
+                if (!$successTwo) {
+                    return response()->json(['message' => 'Permission Attach Failed'], 500);
+                }
+            } 
+
+
+
+            // return RoleResource::make($role->load(['permissions']))->response()->setStatusCode(201);
+
+            return RoleResource::make($role->load(['permissions']))
+                        ->response()->setStatusCode(Response::HTTP_CREATED);
+
+        });
+
+        return $var;
     }
 
     /**
@@ -41,7 +67,26 @@ class RoleController extends Controller
      */
     public function show(Role $role)
     {
-        //
+        $this->authorize('view', $role);
+
+        // return new RoleResource($role->load('admins', 'permissions')->loadCount('admins'), true); // NOT sure if it works Check abrham
+
+
+
+        // return RoleResource::make($role->load(['admins', 'permissions'])->loadCount('admins'), true); // with the boolean // check
+
+        return RoleResource::make($role->load(['admins', 'permissions'])->loadCount('admins')); // without the boolean // check
+
+
+
+        /*
+            // The "true" Parameter: 
+                // NOT SURE if the following explanation is correct but CHECK the booleans Exact meaning
+                    //
+                    // In Laravel, the true parameter passed at the end of new RoleResource(...) or RoleResource::make(...) corresponds to the $preserveKeys parameter. 
+                    // If true, the keys of the collection or array will be preserved. If false or omitted, they will be re-indexed numerically.
+     
+        */    
     }
 
     /**
@@ -50,11 +95,37 @@ class RoleController extends Controller
     public function update(UpdateRoleRequest $request, Role $role)
     {
         //
-        // $var = DB::transaction(function () {
+        $var = DB::transaction(function () use ($request, $role) {
             
-        // });
+            // commented because we are ALSO Updating PERMISSIONs of the ROLE here
+            // if ($role->system_created) {
+            //     return response()->json(['message' => 'System-created roles can\'t be updated.'], 400);
+            // }
 
-        // return $var;
+            $success = $role->update($request->validated());
+            //
+            if (!$success) {
+                return response()->json(['message' => 'Role Update Failed'], 500);
+            }
+
+
+
+            if ($request->has('permission_ids')) {
+                $successTwo = $role->permissions()->sync($request->input('permission_ids'));
+                //
+                if (!$successTwo) {
+                    return response()->json(['message' => 'Permission Sync Failed'], 500);
+                }
+            } 
+
+
+
+            return RoleResource::make($role->load(['permissions']))
+                        ->response()->setStatusCode(200);
+
+        });
+
+        return $var;
     }
 
     /**
@@ -65,8 +136,35 @@ class RoleController extends Controller
         // $this->authorize('delete', $role);
 
         $var = DB::transaction(function () use ($role) {
+
             if ($role->is_system_created == 1) {
                 return response()->json(['message' => 'System-created roles can\'t be deleted.'], 400);
+            }
+
+
+
+
+            // // will NOT work as expected, but you can check
+            // if ($role->admins->where('role_id', $role->id)->exists()) {
+            //     return response()->json([
+            //         'message' => 'Cannot delete the Role because it is in use by Admins.'
+            //     ], Response::HTTP_CONFLICT);
+            // }
+
+
+
+            // will WORK // definitely works
+            if (AdminRole::where('role_id', $role->id)->exists()) {
+                
+                // this works
+                // return response()->json([
+                //     'message' => 'Cannot delete the Role because it is in use by Admins.',
+                // ], 409);
+
+                // this also works
+                return response()->json([
+                    'message' => 'Cannot delete the Role because it is in use by Admins.'
+                ], Response::HTTP_CONFLICT);
             }
     
             $role->delete();
@@ -81,11 +179,11 @@ class RoleController extends Controller
 
     public function restore(string $id)
     {
-        // $this->authorize('restore', $bank);
+        $role = Role::withTrashed()->find($id);
 
-        $var = DB::transaction(function () use ($id) {
+        $this->authorize('restore', $role);
 
-            $role = Role::withTrashed()->find($id);
+        $var = DB::transaction(function () use ($role) {
             
             if (!$role) {
                 abort(404);    

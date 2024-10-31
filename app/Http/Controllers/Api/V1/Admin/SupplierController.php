@@ -61,9 +61,7 @@ class SupplierController extends Controller
 
 
 
-            $hasLocationData = ($request->has('country') ||
-                $request->has('city')
-            );
+            $hasLocationData = ($request->has('country') || $request->has('city'));
 
             if ($hasLocationData) {
                 $supplier->address()->create([

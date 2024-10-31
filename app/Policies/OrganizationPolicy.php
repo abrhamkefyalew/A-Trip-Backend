@@ -22,7 +22,7 @@ class OrganizationPolicy
      */
     public function view(User $user, Organization $organization): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_ORGANIZATION)->exists();
+        return $user->permissions()->where('permissions.title', Permission::SHOW_ORGANIZATION)->exists();
     }
 
     /**
@@ -30,7 +30,7 @@ class OrganizationPolicy
      */
     public function create(User $user): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_ORGANIZATION)->exists();
+        return $user->permissions()->where('permissions.title', Permission::CREATE_ORGANIZATION)->exists();
     }
 
     /**
@@ -38,7 +38,7 @@ class OrganizationPolicy
      */
     public function update(User $user, Organization $organization): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_ORGANIZATION)->exists();
+        return $user->permissions()->where('permissions.title', Permission::EDIT_ORGANIZATION)->exists();
     }
 
     /**
@@ -46,7 +46,7 @@ class OrganizationPolicy
      */
     public function delete(User $user, Organization $organization): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_ORGANIZATION)->exists();
+        return $user->permissions()->where('permissions.title', Permission::DELETE_ORGANIZATION)->exists();
     }
 
     /**
@@ -54,7 +54,7 @@ class OrganizationPolicy
      */
     public function restore(User $user, Organization $organization): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_ORGANIZATION)->exists();
+        return $user->permissions()->where('permissions.title', Permission::RESTORE_ORGANIZATION)->exists();
     }
 
     /**

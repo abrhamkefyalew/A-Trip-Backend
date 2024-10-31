@@ -22,7 +22,7 @@ class InvoicePolicy
      */
     public function view(User $user, Invoice $invoice): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_INVOICE)->exists();
+        return $user->permissions()->where('permissions.title', Permission::SHOW_INVOICE)->exists();
     }
 
     /**
@@ -30,7 +30,7 @@ class InvoicePolicy
      */
     public function create(User $user): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_INVOICE)->exists();
+        return $user->permissions()->where('permissions.title', Permission::CREATE_INVOICE)->exists();
     }
 
     /**
@@ -38,7 +38,7 @@ class InvoicePolicy
      */
     public function update(User $user, Invoice $invoice): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_INVOICE)->exists();
+        return $user->permissions()->where('permissions.title', Permission::EDIT_INVOICE)->exists();
     }
 
     /**
@@ -46,7 +46,7 @@ class InvoicePolicy
      */
     public function delete(User $user, Invoice $invoice): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_INVOICE)->exists();
+        return $user->permissions()->where('permissions.title', Permission::DELETE_INVOICE)->exists();
     }
 
     /**
@@ -54,7 +54,7 @@ class InvoicePolicy
      */
     public function restore(User $user, Invoice $invoice): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_INVOICE)->exists();
+        return $user->permissions()->where('permissions.title', Permission::RESTORE_INVOICE)->exists();
     }
 
     /**

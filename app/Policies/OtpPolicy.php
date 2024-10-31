@@ -14,7 +14,7 @@ class OtpPolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return false;
     }
 
     /**
@@ -22,7 +22,7 @@ class OtpPolicy
      */
     public function view(User $user, Otp $otp): bool
     {
-        //
+        return false;
     }
 
     /**
@@ -30,7 +30,7 @@ class OtpPolicy
      */
     public function create(User $user): bool
     {
-        //
+        return false;
     }
 
     /**
@@ -38,7 +38,7 @@ class OtpPolicy
      */
     public function update(User $user, Otp $otp): bool
     {
-        //
+        return false;
     }
 
     /**
@@ -46,7 +46,7 @@ class OtpPolicy
      */
     public function delete(User $user, Otp $otp): bool
     {
-        //
+        return false;
     }
 
     /**
@@ -54,7 +54,7 @@ class OtpPolicy
      */
     public function restore(User $user, Otp $otp): bool
     {
-        //
+        return false;
     }
 
     /**
@@ -62,6 +62,6 @@ class OtpPolicy
      */
     public function forceDelete(User $user, Otp $otp): bool
     {
-        //
+        return false;
     }
 }

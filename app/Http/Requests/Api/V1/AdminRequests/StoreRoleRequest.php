@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api\V1\AdminRequests;
 
+use App\Models\Role;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreRoleRequest extends FormRequest
@@ -11,9 +12,7 @@ class StoreRoleRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
-
-        // return $this->user()->can('create', Role::class);
+        return $this->user()->can('create', Role::class);
     }
 
     /**
@@ -25,6 +24,22 @@ class StoreRoleRequest extends FormRequest
     {
         return [
             //
+
+            'title' => [
+                'required', 
+                'unique:roles,title',
+            ],
+
+
+            'permission_ids' => [
+                'sometimes',
+                'array',
+            ],
+            'permission_ids.*' => [
+                'exists:permissions,id',
+            ],
+            
+
         ];
     }
 }

@@ -22,7 +22,7 @@ class DriverPolicy
      */
     public function view(User $user, Driver $driver): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_DRIVER)->exists();
+        return $user->permissions()->where('permissions.title', Permission::SHOW_DRIVER)->exists();
     }
 
     /**
@@ -30,7 +30,7 @@ class DriverPolicy
      */
     public function create(User $user): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_DRIVER)->exists();
+        return $user->permissions()->where('permissions.title', Permission::CREATE_DRIVER)->exists();
     }
 
     /**
@@ -38,7 +38,7 @@ class DriverPolicy
      */
     public function update(User $user, Driver $driver): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_DRIVER)->exists();
+        return $user->permissions()->where('permissions.title', Permission::EDIT_DRIVER)->exists();
     }
 
     /**
@@ -46,7 +46,7 @@ class DriverPolicy
      */
     public function delete(User $user, Driver $driver): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_DRIVER)->exists();
+        return $user->permissions()->where('permissions.title', Permission::DELETE_DRIVER)->exists();
     }
 
     /**
@@ -54,7 +54,7 @@ class DriverPolicy
      */
     public function restore(User $user, Driver $driver): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_DRIVER)->exists();
+        return $user->permissions()->where('permissions.title', Permission::RESTORE_DRIVER)->exists();
     }
 
     /**

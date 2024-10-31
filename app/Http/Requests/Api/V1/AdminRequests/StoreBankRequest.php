@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api\V1\AdminRequests;
 
+use App\Models\Bank;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreBankRequest extends FormRequest
@@ -11,9 +12,7 @@ class StoreBankRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
-
-        // return $this->user()->can('create', Bank::class);
+        return $this->user()->can('create', Bank::class);
     }
 
     /**

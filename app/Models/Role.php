@@ -17,7 +17,7 @@ class Role extends Model
         'title',
     ];
 
-    // abrham comment // ask wossen about meaning of this
+    // abrham comment // check this more
     public function admins()
     {
         return $this->belongsToMany(Admin::class)
@@ -29,6 +29,7 @@ class Role extends Model
     public function adminsWithTrashed()
     {
         return $this->belongsToMany(Admin::class)
+        ->whereNotNull('admin_role.deleted_at')
         ->withTimeStamps()
         ->withPivot(['expire_at', 'deleted_at']);
     }
@@ -66,8 +67,10 @@ class Role extends Model
 
     public const MANAGER_ROLE = 'MANAGER'; // can do everything except deleting
 
-    public const VIEWER_ROLE = 'VIEWER'; // can list and show
+    public const FINANCE_ROLE = 'FINANCE'; // can do everything except deleting
 
-    public const SYSTEM_ROLES = [self::SUPER_ADMIN_ROLE, self::MANAGER_ROLE, self::VIEWER_ROLE];
+    public const SYSTEM_USER_ROLE = 'SYSTEM_USER'; // can day to day activities of the company // the lowest of the roles
+
+    public const SYSTEM_ROLES = [self::SUPER_ADMIN_ROLE, self::MANAGER_ROLE, self::FINANCE_ROLE, self::SYSTEM_USER_ROLE];
 
 }

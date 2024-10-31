@@ -22,7 +22,7 @@ class OrderUserPolicy
      */
     public function view(User $user, OrderUser $orderUser): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_ORDER)->exists();
+        return $user->permissions()->where('permissions.title', Permission::SHOW_ORDER)->exists();
     }
 
     /**
@@ -30,7 +30,7 @@ class OrderUserPolicy
      */
     public function create(User $user): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_ORDER)->exists();
+        return $user->permissions()->where('permissions.title', Permission::CREATE_ORDER)->exists();
     }
 
     /**
@@ -38,7 +38,7 @@ class OrderUserPolicy
      */
     public function update(User $user, OrderUser $orderUser): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_ORDER)->exists();
+        return $user->permissions()->where('permissions.title', Permission::EDIT_ORDER)->exists();
     }
 
     /**
@@ -46,7 +46,7 @@ class OrderUserPolicy
      */
     public function delete(User $user, OrderUser $orderUser): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_ORDER)->exists();
+        return $user->permissions()->where('permissions.title', Permission::DELETE_ORDER)->exists();
     }
 
     /**
@@ -54,7 +54,7 @@ class OrderUserPolicy
      */
     public function restore(User $user, OrderUser $orderUser): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_ORDER)->exists();
+        return $user->permissions()->where('permissions.title', Permission::RESTORE_ORDER)->exists();
     }
 
     /**

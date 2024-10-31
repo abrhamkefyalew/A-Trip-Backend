@@ -165,4 +165,10 @@ class Admin extends Authenticatable implements HasMedia
         //     // if admin is deleted (soft deleted) , then, the corresponding data in the (Pivot table) AdminRole Should be deleted (soft deleted) also
         //     // if admin is restored, then, the deleted (soft deleted) corresponding data in the (Pivot table) AdminRole Should be restored (restored from bring soft deleted) also
 
+
+    
+
+    // constants
+    public const ADMIN_PROFILE_PICTURE = 'ADMIN_PROFILE_PICTURE';
+
 }

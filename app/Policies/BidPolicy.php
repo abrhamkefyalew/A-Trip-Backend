@@ -22,7 +22,7 @@ class BidPolicy
      */
     public function view(User $user, Bid $bid): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_BID)->exists();
+        return $user->permissions()->where('permissions.title', Permission::SHOW_BID)->exists();
     }
 
     /**
@@ -30,7 +30,7 @@ class BidPolicy
      */
     public function create(User $user): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_BID)->exists();
+        return $user->permissions()->where('permissions.title', Permission::CREATE_BID)->exists();
     }
 
     /**
@@ -38,7 +38,7 @@ class BidPolicy
      */
     public function update(User $user, Bid $bid): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_BID)->exists();
+        return $user->permissions()->where('permissions.title', Permission::EDIT_BID)->exists();
     }
 
     /**
@@ -46,7 +46,7 @@ class BidPolicy
      */
     public function delete(User $user, Bid $bid): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_BID)->exists();
+        return $user->permissions()->where('permissions.title', Permission::DELETE_BID)->exists();
     }
 
     /**
@@ -54,7 +54,7 @@ class BidPolicy
      */
     public function restore(User $user, Bid $bid): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_BID)->exists();
+        return $user->permissions()->where('permissions.title', Permission::RESTORE_BID)->exists();
     }
 
     /**

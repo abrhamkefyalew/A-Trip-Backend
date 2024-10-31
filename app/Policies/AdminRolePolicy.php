@@ -20,7 +20,7 @@ class AdminRolePolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return false;
     }
 
     /**
@@ -28,7 +28,7 @@ class AdminRolePolicy
      */
     public function view(User $user, AdminRole $adminRole): bool
     {
-        //
+        return false;
     }
 
     /**
@@ -36,7 +36,7 @@ class AdminRolePolicy
      */
     public function create(User $user): bool
     {
-        //
+        return false;
     }
 
     /**
@@ -44,7 +44,7 @@ class AdminRolePolicy
      */
     public function update(User $user, AdminRole $adminRole): bool
     {
-        //
+        return false;
     }
 
     /**
@@ -52,7 +52,7 @@ class AdminRolePolicy
      */
     public function delete(User $user, AdminRole $adminRole): bool
     {
-        //
+        return false;
     }
 
     /**
@@ -60,7 +60,7 @@ class AdminRolePolicy
      */
     public function restore(User $user, AdminRole $adminRole): bool
     {
-        //
+        return false;
     }
 
     /**
@@ -68,6 +68,6 @@ class AdminRolePolicy
      */
     public function forceDelete(User $user, AdminRole $adminRole): bool
     {
-        //
+        return false;
     }
 }

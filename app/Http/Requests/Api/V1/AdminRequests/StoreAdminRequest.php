@@ -41,15 +41,24 @@ class StoreAdminRequest extends FormRequest
             'phone_number' => [
                 'nullable', 'numeric',  Rule::unique('admins'),
             ],
-            'profile_image' => [
+            
+
+
+            'role_ids' => 'required|array',
+            'role_ids.*' => 'exists:roles,id',
+
+
+
+            'admin_profile_image' => [
+                'required',
                 'image',
                 'max:3072',
             ],
-            'remove_image' => [
-                'boolean',
-            ],
-            'role_ids' => 'required|array',
-            'role_ids.*' => 'exists:roles,id',
+
+            // since it is first admin is being stored time we do NOT need this
+            // 'admin_profile_image_remove' => [
+            //     'sometimes', 'boolean',
+            // ],
 
         ];
     }

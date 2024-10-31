@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api\V1\AdminRequests;
 
+use App\Models\Order;
 use Illuminate\Foundation\Http\FormRequest;
 
 class AcceptOrderRequest extends FormRequest
@@ -11,10 +12,8 @@ class AcceptOrderRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
-
         // do AUTH here or in the controller
-        // return $this->user()->can('accept', Order::class); // Beware before uncomment // this one is different method // do NOT forget to implement it in Policy
+        return $this->user()->can('update', Order::class);
     }
 
     /**

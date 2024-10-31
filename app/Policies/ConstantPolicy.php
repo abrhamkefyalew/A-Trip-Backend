@@ -22,7 +22,7 @@ class ConstantPolicy
      */
     public function view(User $user, Constant $constant): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_CONSTANT)->exists();
+        return $user->permissions()->where('permissions.title', Permission::SHOW_CONSTANT)->exists();
     }
 
     /**
@@ -30,7 +30,7 @@ class ConstantPolicy
      */
     public function create(User $user): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_CONSTANT)->exists();
+        return $user->permissions()->where('permissions.title', Permission::CREATE_CONSTANT)->exists();
     }
 
     /**
@@ -38,7 +38,7 @@ class ConstantPolicy
      */
     public function update(User $user, Constant $constant): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_CONSTANT)->exists();
+        return $user->permissions()->where('permissions.title', Permission::EDIT_CONSTANT)->exists();
     }
 
     /**
@@ -46,7 +46,7 @@ class ConstantPolicy
      */
     public function delete(User $user, Constant $constant): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_CONSTANT)->exists();
+        return $user->permissions()->where('permissions.title', Permission::DELETE_CONSTANT)->exists();
     }
 
     /**
@@ -54,7 +54,7 @@ class ConstantPolicy
      */
     public function restore(User $user, Constant $constant): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_CONSTANT)->exists();
+        return $user->permissions()->where('permissions.title', Permission::RESTORE_CONSTANT)->exists();
     }
 
     /**

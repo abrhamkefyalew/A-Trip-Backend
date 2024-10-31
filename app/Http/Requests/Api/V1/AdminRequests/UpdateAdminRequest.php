@@ -40,15 +40,23 @@ class UpdateAdminRequest extends FormRequest
             'phone_number' => [
                 'nullable', 'numeric',  Rule::unique('admins'),
             ],
-            'profile_image' => [
+            
+            
+            'role_ids' => 'sometimes|array',
+            'role_ids.*' => 'exists:roles,id',
+
+
+
+            'admin_profile_image' => [
+                'sometimes',       // this should be sometimes abrham check
+                'nullable',     // this should be sometimes abrham check
                 'image',
                 'max:3072',
             ],
-            'remove_image' => [
-                'boolean',
+
+            'admin_profile_image_remove' => [
+                'sometimes', 'boolean',
             ],
-            'role_ids' => 'sometimes|array',
-            'role_ids.*' => 'exists:roles,id',
 
         ];
     }

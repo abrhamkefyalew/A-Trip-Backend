@@ -20,7 +20,7 @@ class PermissionRolePolicy
      */
     public function viewAny(User $user): bool
     {
-        
+        return $user->permissions()->where('permissions.title', Permission::INDEX_PERMISSION_ROLE)->exists();
     }
 
     /**
@@ -28,7 +28,7 @@ class PermissionRolePolicy
      */
     public function view(User $user, PermissionRole $permissionRole): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::SHOW_PERMISSION_ROLE)->exists();
     }
 
     /**
@@ -36,7 +36,7 @@ class PermissionRolePolicy
      */
     public function create(User $user): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::CREATE_PERMISSION_ROLE)->exists();
     }
 
     /**
@@ -44,7 +44,7 @@ class PermissionRolePolicy
      */
     public function update(User $user, PermissionRole $permissionRole): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::EDIT_PERMISSION_ROLE)->exists();
     }
 
     /**
@@ -52,7 +52,7 @@ class PermissionRolePolicy
      */
     public function delete(User $user, PermissionRole $permissionRole): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::DELETE_PERMISSION_ROLE)->exists();
     }
 
     /**
@@ -60,7 +60,7 @@ class PermissionRolePolicy
      */
     public function restore(User $user, PermissionRole $permissionRole): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::RESTORE_PERMISSION_ROLE)->exists();
     }
 
     /**
@@ -68,6 +68,6 @@ class PermissionRolePolicy
      */
     public function forceDelete(User $user, PermissionRole $permissionRole): bool
     {
-        //
+        return false;
     }
 }

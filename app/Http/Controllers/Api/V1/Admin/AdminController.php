@@ -39,19 +39,31 @@ class AdminController extends Controller
     {
         //
         $var = DB::transaction(function () use ($request) {
+
             $admin = Admin::create($request->validated());
-
-            $admin->roles()->attach($request->input('role_ids'));
-
-            if ($request->has('remove_image') && $request->input('remove_image', false)) {
-                $admin->clearMediaCollection('images');
+            //
+            if (!$admin) {
+                return response()->json(['message' => 'Admin Create Failed'], 500);
             }
 
-            if ($request->has('profile_image')) {
-                MediaService::storeImage($admin, $request->file('profile_image'));
+
+            $success = $admin->roles()->attach($request->input('role_ids'));
+            //
+            if (!$success) {
+                return response()->json(['message' => 'Role Attach Failed'], 500);
             }
 
-            return AdminResource::make($admin->load('roles'));
+            
+
+            if ($request->has('admin_profile_image')) {
+                $file = $request->file('admin_profile_image_remove');
+                $clearMedia = false; // or true // // NO admin image remove, since it is the first time the admin is being stored
+                $collectionName = Admin::ADMIN_PROFILE_PICTURE;
+                MediaService::storeImage($admin, $file, $clearMedia, $collectionName);
+            }
+
+            return AdminResource::make($admin->load(['permissions', 'address', 'roles', 'media']));
+
         });
 
         return $var;
@@ -76,22 +88,42 @@ class AdminController extends Controller
         //
         $var = DB::transaction(function () use ($request, $admin) {
             
-            $admin->update($request->validated());
+            $success = $admin->update($request->validated());
+            //
+            if (!$success) {
+                return response()->json(['message' => 'Admin Update Failed'], 500);
+            }
+            
 
             if ($request->has('role_ids')){
-                $admin->roles()->sync($request->input('role_ids'));
+                $successTwo = $admin->roles()->sync($request->input('role_ids'));
+                //
+                if (!$successTwo) {
+                    return response()->json(['message' => 'Role Sync Failed'], 500);
+                }
             }
 
 
-            if ($request->has('remove_image') && $request->input('remove_image', false)) {
-                $admin->clearMediaCollection('images');
+            // if ($request->has('remove_image') && $request->input('remove_image', false)) {
+            //     $admin->clearMediaCollection('images');
+            // }
+
+            // if ($request->has('profile_image')) {
+            //     MediaService::storeImage($admin, $request->file('profile_image'));
+            // }
+
+
+
+            if ($request->has('admin_profile_image')) {
+                $file = $request->file('admin_profile_image');
+                $clearMedia = (isset($request['admin_profile_image_remove']) ? $request['admin_profile_image_remove'] : false);
+                $collectionName = Admin::ADMIN_PROFILE_PICTURE;
+                MediaService::storeImage($admin, $file, $clearMedia, $collectionName);
             }
 
-            if ($request->has('profile_image')) {
-                MediaService::storeImage($admin, $request->file('profile_image'));
-            }
+            $updatedAdmin = Admin::find($admin->id);
 
-            return AdminResource::make($admin->load('roles'));
+            return AdminResource::make($updatedAdmin->load(['permissions', 'address', 'roles', 'media']));
 
         });
 

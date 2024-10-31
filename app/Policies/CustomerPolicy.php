@@ -22,7 +22,7 @@ class CustomerPolicy
      */
     public function view(User $user, Customer $customer): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_CUSTOMER)->exists();
+        return $user->permissions()->where('permissions.title', Permission::SHOW_CUSTOMER)->exists();
     }
 
     /**
@@ -30,7 +30,7 @@ class CustomerPolicy
      */
     public function create(User $user): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_CUSTOMER)->exists();
+        return $user->permissions()->where('permissions.title', Permission::CREATE_CUSTOMER)->exists();
     }
 
     /**
@@ -38,7 +38,7 @@ class CustomerPolicy
      */
     public function update(User $user, Customer $customer): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_CUSTOMER)->exists();
+        return $user->permissions()->where('permissions.title', Permission::EDIT_CUSTOMER)->exists();
     }
 
     /**
@@ -46,7 +46,7 @@ class CustomerPolicy
      */
     public function delete(User $user, Customer $customer): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_CUSTOMER)->exists();
+        return $user->permissions()->where('permissions.title', Permission::DELETE_CUSTOMER)->exists();
     }
 
     /**
@@ -54,7 +54,7 @@ class CustomerPolicy
      */
     public function restore(User $user, Customer $customer): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_CUSTOMER)->exists();
+        return $user->permissions()->where('permissions.title', Permission::RESTORE_CUSTOMER)->exists();
     }
 
     /**

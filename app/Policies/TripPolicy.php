@@ -22,7 +22,7 @@ class TripPolicy
      */
     public function view(User $user, Trip $trip): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_TRIP)->exists();
+        return $user->permissions()->where('permissions.title', Permission::SHOW_TRIP)->exists();
     }
 
     /**
@@ -30,7 +30,7 @@ class TripPolicy
      */
     public function create(User $user): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_TRIP)->exists();
+        return $user->permissions()->where('permissions.title', Permission::CREATE_TRIP)->exists();
     }
 
     /**
@@ -38,7 +38,7 @@ class TripPolicy
      */
     public function update(User $user, Trip $trip): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_TRIP)->exists();
+        return $user->permissions()->where('permissions.title', Permission::EDIT_TRIP)->exists();
     }
 
     /**
@@ -46,7 +46,7 @@ class TripPolicy
      */
     public function delete(User $user, Trip $trip): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_TRIP)->exists();
+        return $user->permissions()->where('permissions.title', Permission::DELETE_TRIP)->exists();
     }
 
     /**
@@ -54,7 +54,7 @@ class TripPolicy
      */
     public function restore(User $user, Trip $trip): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_TRIP)->exists();
+        return $user->permissions()->where('permissions.title', Permission::RESTORE_TRIP)->exists();
     }
 
     /**

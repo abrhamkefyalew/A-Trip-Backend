@@ -12,9 +12,7 @@ class UpdateVehicleTypeRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
-
-        // return $this->user()->can('update', $this->vehicleType);
+        return $this->user()->can('update', $this->vehicleType);
     }
 
     /**

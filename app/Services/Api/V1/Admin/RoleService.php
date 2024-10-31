@@ -27,7 +27,9 @@ class RoleService
 
         FilteringService::addTrashed($request, $roles);
 
-        return RoleResource::collection($roles->paginate(FilteringService::getPaginate($request)));
+        $roleData = $roles->paginate(FilteringService::getPaginate($request));
+        
+        return RoleResource::collection($roleData);
     }
 
     public static function store($validatedData)
@@ -40,35 +42,5 @@ class RoleService
         //
     }
 
-    // public static function getPermissionGroupsByAdmin(Admin $admin)
-    // {
-    //     $permissionGroups = collect();
 
-    //     foreach ($admin->roles as $role) {
-    //         $permissionGroups = $permissionGroups->merge(self::getPermissionGroups($role));
-    //     }
-
-    //     return $permissionGroups;
-    // }
-
-    // public static function getPermissionGroups(Role $role)
-    // {
-    //     $permissionGroups = [];
-
-    //     foreach (PermissionGroup::all(['id', 'title']) as $permissionGroup) {
-    //         $pass = true;
-    //         foreach ($permissionGroup->permissions as $permission) {
-    //             if (! $role->permissions->find($permission)) {
-    //                 $pass = false;
-    //                 break;
-    //             }
-    //         }
-
-    //         if ($pass) {
-    //             $permissionGroups[] = $permissionGroup->unsetRelation('permissions');
-    //         }
-    //     }
-
-    //     return collect($permissionGroups);
-    // }
 }

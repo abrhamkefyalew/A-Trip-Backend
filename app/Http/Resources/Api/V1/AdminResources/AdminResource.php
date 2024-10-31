@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Api\V1\AdminResources;
 
+use App\Models\Admin;
 use Illuminate\Http\Request;
 use App\Traits\Api\V1\GetMedia;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -27,7 +28,7 @@ class AdminResource extends JsonResource
             'email' => $this->email,
             'phone_number' => $this->phone_number,
             'is_active' => $this->is_active,
-            'profile_image_path' => $this->getOptimizedImagePath(),
+            'admin_profile_image_path' => $this->getOptimizedImagePath(Admin::ADMIN_PROFILE_PICTURE),
             'address' => AddressResource::make($this->whenLoaded('address')),
             'roles' => RoleResource::collection($this->whenLoaded('roles')),
             'permissions' => PermissionResource::collection($this->whenLoaded('permissions')),

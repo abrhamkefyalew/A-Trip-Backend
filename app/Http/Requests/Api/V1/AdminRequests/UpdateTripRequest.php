@@ -11,9 +11,7 @@ class UpdateTripRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
-
-        // return $this->user()->can('update', $this->trip);
+        return $this->user()->can('update', $this->trip);
     }
 
     /**

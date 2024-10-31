@@ -22,7 +22,7 @@ class ContractDetailPolicy
      */
     public function view(User $user, ContractDetail $contractDetail): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_CONTRACT)->exists();
+        return $user->permissions()->where('permissions.title', Permission::SHOW_CONTRACT)->exists();
     }
 
     /**
@@ -30,7 +30,7 @@ class ContractDetailPolicy
      */
     public function create(User $user): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_CONTRACT)->exists();
+        return $user->permissions()->where('permissions.title', Permission::CREATE_CONTRACT)->exists();
     }
 
     /**
@@ -38,7 +38,7 @@ class ContractDetailPolicy
      */
     public function update(User $user, ContractDetail $contractDetail): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_CONTRACT)->exists();
+        return $user->permissions()->where('permissions.title', Permission::EDIT_CONTRACT)->exists();
     }
 
     /**
@@ -46,7 +46,7 @@ class ContractDetailPolicy
      */
     public function delete(User $user, ContractDetail $contractDetail): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_CONTRACT)->exists();
+        return $user->permissions()->where('permissions.title', Permission::DELETE_CONTRACT)->exists();
     }
 
     /**
@@ -54,7 +54,7 @@ class ContractDetailPolicy
      */
     public function restore(User $user, ContractDetail $contractDetail): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_CONTRACT)->exists();
+        return $user->permissions()->where('permissions.title', Permission::RESTORE_CONTRACT)->exists();
     }
 
     /**

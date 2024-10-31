@@ -22,7 +22,7 @@ class SupplierPolicy
      */
     public function view(User $user, Supplier $supplier): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_SUPPLIER)->exists();
+        return $user->permissions()->where('permissions.title', Permission::SHOW_SUPPLIER)->exists();
     }
 
     /**
@@ -30,7 +30,7 @@ class SupplierPolicy
      */
     public function create(User $user): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_SUPPLIER)->exists();
+        return $user->permissions()->where('permissions.title', Permission::CREATE_SUPPLIER)->exists();
     }
 
     /**
@@ -38,7 +38,7 @@ class SupplierPolicy
      */
     public function update(User $user, Supplier $supplier): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_SUPPLIER)->exists();
+        return $user->permissions()->where('permissions.title', Permission::EDIT_SUPPLIER)->exists();
     }
 
     /**
@@ -46,7 +46,7 @@ class SupplierPolicy
      */
     public function delete(User $user, Supplier $supplier): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_SUPPLIER)->exists();
+        return $user->permissions()->where('permissions.title', Permission::DELETE_SUPPLIER)->exists();
     }
 
     /**
@@ -54,7 +54,7 @@ class SupplierPolicy
      */
     public function restore(User $user, Supplier $supplier): bool
     {
-        return $user->permissions()->where('permissions.title', Permission::INDEX_SUPPLIER)->exists();
+        return $user->permissions()->where('permissions.title', Permission::RESTORE_SUPPLIER)->exists();
     }
 
     /**
