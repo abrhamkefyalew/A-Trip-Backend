@@ -23,7 +23,11 @@ class RoleSeeder extends Seeder
                 'is_system_created' => true,
             ],
             [
-                'title' => Role::VIEWER_ROLE,
+                'title' => Role::FINANCE_ROLE,
+                'is_system_created' => true,
+            ],
+            [
+                'title' => Role::SYSTEM_USER_ROLE,
                 'is_system_created' => true,
             ],
         ];
