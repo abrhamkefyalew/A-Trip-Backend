@@ -39,6 +39,15 @@ class CustomerController extends Controller
     public function show(Customer $customer)
     {
         //
+        $user = auth()->user();
+            
+        if ($user->id != $customer->id) {
+                
+            return response()->json(['message' => 'invalid Customer is selected or Requested. Deceptive request Aborted.'], 403);
+        }
+
+        return CustomerForCustomerResource::make($customer->load('media', 'address'));
+
     }
 
     /**

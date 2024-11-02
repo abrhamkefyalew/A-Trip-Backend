@@ -45,7 +45,6 @@ class UpdateCustomerRequest extends FormRequest
 
             // this column can ONLY be Set by the SUPER_ADMIN, 
             // if Driver is registering himself , he can NOT send the is_approved field
-            // there should be separate endpoint to update this
             // 'is_approved' => [
             //     'sometimes', 'boolean',
             // ],

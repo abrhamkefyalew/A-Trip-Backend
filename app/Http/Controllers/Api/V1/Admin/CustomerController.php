@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Models\Customer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Services\Api\V1\MediaService;
 use App\Services\Api\V1\FilteringService;
 use App\Http\Requests\Api\V1\AdminRequests\StoreCustomerRequest;
 use App\Http\Requests\Api\V1\AdminRequests\UpdateCustomerRequest;
@@ -34,7 +36,7 @@ class CustomerController extends Controller
             }
         }
 
-        $customerData = $customers->with('media')->latest()->paginate(FilteringService::getPaginate($request));
+        $customerData = $customers->with('media', 'address')->latest()->paginate(FilteringService::getPaginate($request));
 
         return CustomerResource::collection($customerData);
     }
@@ -57,7 +59,9 @@ class CustomerController extends Controller
      */
     public function show(Customer $customer)
     {
-        // $this->authorize('view', $customer);
+        $this->authorize('view', $customer);
+
+        return CustomerResource::make($customer->load('media', 'address'));
     }
 
     /**
@@ -66,11 +70,54 @@ class CustomerController extends Controller
     public function update(UpdateCustomerRequest $request, Customer $customer)
     {
         //
-        // $var = DB::transaction(function () {
-            
-        // });
+        $var = DB::transaction(function () use ($request, $customer) {
 
-        // return $var;
+            $user = auth()->user();
+            $customerLoggedIn = Customer::find($user->id);
+
+            
+            if ($customerLoggedIn->id != $customer->id) {
+                
+                return response()->json(['message' => 'invalid Customer is selected or Requested. Deceptive request Aborted.'], 403);
+            }
+            
+            $success = $customer->update($request->validated());
+            //
+            if (!$success) {
+                return response()->json(['message' => 'Update Failed'], 500);
+            }
+            
+
+            if ($request->has('country') || $request->has('city')) {
+                if ($customer->address) {
+                    $customer->address()->update([
+                        'country' => $request->input('country'),
+                        'city' => $request->input('city'),
+                    ]);
+                } else {
+                    $customer->address()->create([
+                        'country' => $request->input('country'),
+                        'city' => $request->input('city'),
+                    ]);
+                }
+            }
+
+
+            if ($request->has('customer_profile_image')) {
+                $file = $request->file('customer_profile_image');
+                $clearMedia = $request->input('customer_profile_image_remove', false);
+                $collectionName = Customer::CUSTOMER_PROFILE_PICTURE;
+                MediaService::storeImage($customer, $file, $clearMedia, $collectionName);
+            }
+
+
+            $updatedCustomer = Customer::find($customer->id);
+            
+            return CustomerResource::make($updatedCustomer->load('media', 'address'));
+            
+        });
+
+        return $var;
     }
 
     /**

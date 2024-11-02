@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Validator;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Validators\Api\V1\PhoneNumberValidator;
+use App\Traits\Api\V1\NonQueuedMediaConversions;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -20,7 +21,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class Admin extends Authenticatable implements HasMedia
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, InteractsWithMedia, HasRelationships;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, InteractsWithMedia, HasRelationships, NonQueuedMediaConversions;
 
     protected $table = 'admins';
 
@@ -149,20 +150,17 @@ class Admin extends Authenticatable implements HasMedia
     }
 
 
+    
+    
+
+
     public function registerMediaConversions(Media $media = null): void
     {
-        Log::info('Registering media conversions...');
-        
-        $this->addMediaConversion('optimized')
-            ->width(1000)
-            ->height(1000);
-
-        $this->addMediaConversion('thumb')
-            ->width(150)
-            ->height(150);
-        
-        Log::info('Media conversions registered successfully.');
+        $this->customizeMediaConversions();
     }
+
+
+    
 
 
 

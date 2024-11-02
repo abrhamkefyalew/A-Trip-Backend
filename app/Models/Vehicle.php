@@ -6,12 +6,13 @@ use Spatie\MediaLibrary\HasMedia;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\Api\V1\NonQueuedMediaConversions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class Vehicle extends Model implements HasMedia
 {
-    use HasFactory, SoftDeletes, InteractsWithMedia;
+    use HasFactory, SoftDeletes, InteractsWithMedia, NonQueuedMediaConversions;
 
     protected $table = 'vehicles';
 
@@ -91,13 +92,7 @@ class Vehicle extends Model implements HasMedia
 
     public function registerMediaConversions(Media $media = null): void
     {
-        $this->addMediaConversion('optimized')
-            ->width(1000)
-            ->height(1000);
-
-        $this->addMediaConversion('thumb')
-            ->width(150)
-            ->height(150);
+        $this->customizeMediaConversions();
     }
     
 

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Validator;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Validators\Api\V1\PhoneNumberValidator;
+use App\Traits\Api\V1\NonQueuedMediaConversions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use App\Notifications\Api\V1\ResetPasswordNotification;
@@ -18,7 +19,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class Driver extends Authenticatable implements HasMedia
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, InteractsWithMedia;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, InteractsWithMedia, NonQueuedMediaConversions;
 
     protected $table = 'drivers';
 
@@ -186,13 +187,7 @@ class Driver extends Authenticatable implements HasMedia
 
     public function registerMediaConversions(Media $media = null): void
     {
-        $this->addMediaConversion('optimized')
-            ->width(1000)
-            ->height(1000);
-
-        $this->addMediaConversion('thumb')
-            ->width(150)
-            ->height(150);
+        $this->customizeMediaConversions();
     }
 
     // constants
