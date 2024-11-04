@@ -11,9 +11,7 @@ class UpdateOtpRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
-
-        // return $this->user()->can('update', $this->otp);
+        return $this->user()->can('update', $this->otp);
     }
 
     /**

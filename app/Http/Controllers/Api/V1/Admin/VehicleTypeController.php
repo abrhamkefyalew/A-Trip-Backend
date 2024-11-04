@@ -21,7 +21,7 @@ class VehicleTypeController extends Controller
     public function index(Request $request)
     {
         // do auth here
-        // $this->authorize('viewAny', VehicleType::class);
+        $this->authorize('viewAny', VehicleType::class);
 
         // scope should be used here
         if (isset($request['paginate'])) {
@@ -59,7 +59,7 @@ class VehicleTypeController extends Controller
      */
     public function show(VehicleType $vehicleType)
     {
-        // $this->authorize('view', $vehicleType);
+        $this->authorize('view', $vehicleType);
         
         return VehicleTypeResource::make($vehicleType->load('vehicleNames'));
     }
@@ -84,7 +84,7 @@ class VehicleTypeController extends Controller
      */
     public function destroy(VehicleType $vehicleType)
     {
-        // $this->authorize('delete', $vehicleType);
+        $this->authorize('delete', $vehicleType);
 
         $var = DB::transaction(function () use ($vehicleType) {
 
@@ -115,7 +115,7 @@ class VehicleTypeController extends Controller
     {
         $vehicleType = VehicleType::withTrashed()->find($id);
         
-        // $this->authorize('restore', $vehicleType);
+        $this->authorize('restore', $vehicleType);
 
         $var = DB::transaction(function () use ($vehicleType) {
             

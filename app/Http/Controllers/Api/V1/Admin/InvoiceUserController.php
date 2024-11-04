@@ -16,7 +16,7 @@ class InvoiceUserController extends Controller
      */
     public function index(Request $request)
     {
-        // $this->authorize('viewAny', InvoiceUser::class);
+        $this->authorize('viewAny', InvoiceUser::class);
     }
 
     /**
@@ -37,7 +37,7 @@ class InvoiceUserController extends Controller
      */
     public function show(InvoiceUser $invoiceUser)
     {
-        // $this->authorize('view', $invoiceUser);
+        $this->authorize('view', $invoiceUser);
     }
 
     /**

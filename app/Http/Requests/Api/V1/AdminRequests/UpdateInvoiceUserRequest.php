@@ -11,9 +11,7 @@ class UpdateInvoiceUserRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
-
-        // return $this->user()->can('update', $this->invoiceUser);
+        return $this->user()->can('update', $this->invoiceUser);
     }
 
     /**

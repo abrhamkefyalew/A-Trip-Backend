@@ -30,7 +30,7 @@ class OrderUserController extends Controller
      */
     public function index(Request $request)
     {
-        // $this->authorize('viewAny', OrderUser::class);
+        $this->authorize('viewAny', OrderUser::class);
 
         /* $validatedData = */ $request->validate([
             'order_status_search' => [
@@ -264,7 +264,7 @@ class OrderUserController extends Controller
      */
     public function show(OrderUser $orderUser)
     {
-        // $this->authorize('view', $orderUser);
+        $this->authorize('view', $orderUser);
 
         return OrderUserResource::make($orderUser->load('customer', 'vehicleName', 'vehicle', 'supplier', 'driver', 'bids', 'invoiceUsers'));
     }

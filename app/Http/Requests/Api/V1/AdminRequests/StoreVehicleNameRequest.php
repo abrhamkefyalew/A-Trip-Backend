@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api\V1\AdminRequests;
 
+use App\Models\VehicleName;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreVehicleNameRequest extends FormRequest
@@ -11,9 +12,7 @@ class StoreVehicleNameRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
-
-        // return $this->user()->can('create', VehicleName::class);
+        return $this->user()->can('create', VehicleName::class);
     }
 
     /**

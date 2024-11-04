@@ -29,7 +29,7 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
-        // $this->authorize('viewAny', Order::class);
+        $this->authorize('viewAny', Order::class);
 
         $orders = Order::whereNotNull('id');
 
@@ -326,7 +326,7 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        // $this->authorize('view', $order);
+        $this->authorize('view', $order);
         
         return OrderResource::make($order->load('organization', 'vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail', 'invoices', 'trips'));
     }

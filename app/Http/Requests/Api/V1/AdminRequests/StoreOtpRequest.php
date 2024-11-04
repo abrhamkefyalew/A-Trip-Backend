@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api\V1\AdminRequests;
 
+use App\Models\Otp;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreOtpRequest extends FormRequest
@@ -11,9 +12,7 @@ class StoreOtpRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
-
-        // return $this->user()->can('create', Otp::class);
+        return $this->user()->can('create', Otp::class);
     }
 
     /**

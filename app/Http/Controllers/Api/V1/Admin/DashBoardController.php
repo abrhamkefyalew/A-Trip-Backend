@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Api\V1\Admin;
 use App\Models\Order;
 use App\Models\Driver;
 use App\Models\Vehicle;
+use App\Models\Customer;
 use App\Models\Supplier;
 use App\Models\Organization;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\V1\DashBoardAdminResources\DashBoardAdminResource;
+use App\Models\OrderUser;
 
 class DashBoardController extends Controller
 {
@@ -36,6 +38,11 @@ class DashBoardController extends Controller
                 'active' => Organization::where('is_active', 1)->count(),
                 'inactive' => Organization::where('is_active', 0)->count(),
             ],
+            'customers' => [
+                'total' => Customer::count(),
+                'active' => Customer::where('is_active', 1)->count(),
+                'inactive' => Customer::where('is_active', 0)->count(),
+            ],
             'vehicles' => [
                 'total' => Vehicle::count(),
                 'available' => Vehicle::where('is_available', Vehicle::VEHICLE_AVAILABLE)->count(),
@@ -49,6 +56,17 @@ class DashBoardController extends Controller
                 'started' => Order::where('status', Order::ORDER_STATUS_START)->count(),
                 'complete' => Order::where('status', Order::ORDER_STATUS_COMPLETE)->count(),
             ],
+            'order_users' => [
+                'total' => OrderUser::count(),
+                'pending' => OrderUser::where('status', OrderUser::ORDER_STATUS_PENDING)->count(),
+                'set' => OrderUser::where('status', OrderUser::ORDER_STATUS_SET)->count(),
+                'started' => OrderUser::where('status', OrderUser::ORDER_STATUS_START)->count(),
+                'complete' => OrderUser::where('status', OrderUser::ORDER_STATUS_COMPLETE)->count(),
+            ],
+
+
+            // add order_organization_prs
+            // add order_vehicle_prs
             
         ];
 

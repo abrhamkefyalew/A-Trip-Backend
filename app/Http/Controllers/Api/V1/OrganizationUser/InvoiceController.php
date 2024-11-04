@@ -96,8 +96,6 @@ class InvoiceController extends Controller
      */
     public function indexByInvoiceCode(Request $request)
     {
-        // $this->authorize('viewAny', Invoice::class);
-
         $user = auth()->user();
         $organizationUser = OrganizationUser::find($user->id);
 

@@ -22,7 +22,7 @@ class VehicleNameController extends Controller
      */
     public function index(Request $request)
     {
-        // $this->authorize('viewAny', VehicleName::class);
+        $this->authorize('viewAny', VehicleName::class);
 
         // use Filtering service OR Scope to do this
         if (isset($request['paginate'])) {
@@ -43,7 +43,7 @@ class VehicleNameController extends Controller
 
     public function searchByVehicleType(Request $request)
     {
-        // $this->authorize('viewAny', VehicleName::class);
+        $this->authorize('viewAny', VehicleName::class);
 
         // use Filtering service OR Scope to do this
         if ($request->has('vehicle_type_id_search')) {
@@ -88,7 +88,7 @@ class VehicleNameController extends Controller
      */
     public function show(VehicleName $vehicleName)
     {
-        // $this->authorize('view', $vehicleName);
+        $this->authorize('view', $vehicleName);
         //
     }
 
@@ -112,7 +112,7 @@ class VehicleNameController extends Controller
      */
     public function destroy(VehicleName $vehicleName)
     {
-        // $this->authorize('delete', $vehicleName);
+        $this->authorize('delete', $vehicleName);
 
         $var = DB::transaction(function () use ($vehicleName) {
 
@@ -169,7 +169,7 @@ class VehicleNameController extends Controller
     {
         $vehicleName = VehicleName::withTrashed()->find($id);
 
-        // $this->authorize('restore', $vehicleName);
+        $this->authorize('restore', $vehicleName);
 
         $var = DB::transaction(function () use ($vehicleName) {
 

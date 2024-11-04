@@ -24,7 +24,7 @@ class BidController extends Controller
      */
     public function index(Request $request)
     {
-        // $this->authorize('viewAny', Bid::class);
+        $this->authorize('viewAny', Bid::class);
     }
 
 
@@ -182,7 +182,7 @@ class BidController extends Controller
      */
     public function show(Bid $bid)
     {
-        // $this->authorize('view', $bid);
+        $this->authorize('view', $bid);
     }
 
     /**
@@ -252,7 +252,7 @@ class BidController extends Controller
      */
     public function destroy(Bid $bid)
     {
-        // $this->authorize('delete', $bid);
+        $this->authorize('delete', $bid);
 
         $var = DB::transaction(function () use ($bid) {
 
@@ -270,7 +270,7 @@ class BidController extends Controller
     {
         $bid = Bid::withTrashed()->find($id);
 
-        // $this->authorize('restore', $bid);
+        $this->authorize('restore', $bid);
 
         $var = DB::transaction(function () use ($bid) {
             

@@ -12,9 +12,7 @@ class UpdateOrganizationUserRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
-
-        // return $this->user()->can('update', $this->organizationUser);
+        return $this->user()->can('update', $this->organizationUser);
     }
 
     /**

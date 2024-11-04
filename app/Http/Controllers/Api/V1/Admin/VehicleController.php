@@ -23,7 +23,7 @@ class VehicleController extends Controller
      */
     public function index(Request $request)
     {
-        // $this->authorize('viewAny', Vehicle::class);
+        $this->authorize('viewAny', Vehicle::class);
 
         $vehicles = Vehicle::whereNotNull('id');
         
@@ -193,7 +193,7 @@ class VehicleController extends Controller
      */
     public function show(Vehicle $vehicle)
     {
-        // $this->authorize('view', $vehicle);
+        $this->authorize('view', $vehicle);
         
         return VehicleResource::make($vehicle->load('media', 'vehicleName', 'address', 'supplier', 'driver', 'bank', 'bids'));
     }
@@ -296,7 +296,7 @@ class VehicleController extends Controller
      */
     public function destroy(Vehicle $vehicle)
     {
-        // $this->authorize('delete', $vehicle);
+        $this->authorize('delete', $vehicle);
 
         $var = DB::transaction(function () use ($vehicle) {
 
@@ -353,7 +353,7 @@ class VehicleController extends Controller
     {
         $vehicle = Vehicle::withTrashed()->find($id);
 
-        // $this->authorize('restore', $vehicle);
+        $this->authorize('restore', $vehicle);
 
         $var = DB::transaction(function () use ($vehicle) {
             

@@ -37,7 +37,7 @@ class OrganizationUserResource extends JsonResource
             'address' => AddressResource::make($this->whenLoaded('address')),
 
             'organization' => OrganizationResource::make($this->whenLoaded('organization', function () {
-                return $this->organization->load('contracts', 'address', 'media');
+                return $this->organization->load('address', 'media');
             })),
         ];
     }

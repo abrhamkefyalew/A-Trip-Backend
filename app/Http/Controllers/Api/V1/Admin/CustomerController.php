@@ -20,7 +20,7 @@ class CustomerController extends Controller
      */
     public function index(Request $request)
     {
-        // $this->authorize('viewAny', Customer::class);
+        $this->authorize('viewAny', Customer::class);
 
         $customers = Customer::whereNotNull('id');
 

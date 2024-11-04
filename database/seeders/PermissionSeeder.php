@@ -199,6 +199,30 @@ class PermissionSeeder extends Seeder
             [
                 'title' => Permission::RESTORE_SUPPLIER,
             ],
+            
+
+
+
+
+            [
+                'title' => Permission::INDEX_DRIVER,
+            ],
+            [
+                'title' => Permission::SHOW_DRIVER,
+            ],
+            [
+                'title' => Permission::CREATE_DRIVER,
+            ],
+            [
+                'title' => Permission::EDIT_DRIVER,
+            ],
+            [
+                'title' => Permission::DELETE_DRIVER,
+            ],
+            [
+                'title' => Permission::RESTORE_DRIVER,
+            ],
+            
 
 
 
@@ -288,28 +312,6 @@ class PermissionSeeder extends Seeder
                 'title' => Permission::RESTORE_CONTRACT,
             ],
 
-
-
-
-
-            [
-                'title' => Permission::INDEX_DRIVER,
-            ],
-            [
-                'title' => Permission::SHOW_DRIVER,
-            ],
-            [
-                'title' => Permission::CREATE_DRIVER,
-            ],
-            [
-                'title' => Permission::EDIT_DRIVER,
-            ],
-            [
-                'title' => Permission::DELETE_DRIVER,
-            ],
-            [
-                'title' => Permission::RESTORE_DRIVER,
-            ],
 
 
 

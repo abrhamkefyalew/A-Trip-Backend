@@ -23,7 +23,7 @@ class ContractController extends Controller
      */
     public function index(Request $request)
     {
-        // $this->authorize('viewAny', Contract::class);
+        $this->authorize('viewAny', Contract::class);
 
         // use Filtering service OR Scope to do this
         if ($request->has('organization_id_search')) {
@@ -138,7 +138,7 @@ class ContractController extends Controller
      */
     public function show(Contract $contract)
     {
-        // $this->authorize('view', $contract);
+        $this->authorize('view', $contract);
         
         return ContractResource::make($contract->load('media', 'contractDetails', 'organization'));
     }
@@ -211,7 +211,7 @@ class ContractController extends Controller
      */
     public function destroy(Contract $contract)
     {
-        // $this->authorize('delete', $contract);
+        $this->authorize('delete', $contract);
 
         $var = DB::transaction(function () use ($contract) {
 
@@ -242,7 +242,7 @@ class ContractController extends Controller
     {
         $contract = Contract::withTrashed()->find($id);
 
-        // $this->authorize('restore', $contract);
+        $this->authorize('restore', $contract);
 
         $var = DB::transaction(function () use ($contract) {
             

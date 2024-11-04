@@ -13,9 +13,7 @@ class StoreAdminRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        // return $this->user()->can('create', Admin::class);
-
-        return true;
+        return $this->user()->can('create', Admin::class);
     }
 
     /**
@@ -41,7 +39,7 @@ class StoreAdminRequest extends FormRequest
                 'required', 'min:8', 'confirmed',
             ],
             'phone_number' => [
-                'nullable', 'numeric',  Rule::unique('admins'),
+                'sometimes', 'numeric',  Rule::unique('admins'),
             ],
             
 

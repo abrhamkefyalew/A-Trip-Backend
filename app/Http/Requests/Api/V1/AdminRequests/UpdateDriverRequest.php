@@ -12,9 +12,7 @@ class UpdateDriverRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
-
-        // return $this->user()->can('update', $this->driver);
+        return $this->user()->can('update', $this->driver);
     }
 
     /**

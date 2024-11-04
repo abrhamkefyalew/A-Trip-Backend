@@ -20,7 +20,7 @@ class OrganizationController extends Controller
      */
     public function index(Request $request)
     {
-        // $this->authorize('viewAny', Organization::class);
+        $this->authorize('viewAny', Organization::class);
 
         $organizations = Organization::whereNotNull('id');
 
@@ -144,7 +144,7 @@ class OrganizationController extends Controller
      */
     public function show(Organization $organization)
     {
-        // $this->authorize('view', $organization);
+        $this->authorize('view', $organization);
         return OrganizationResource::make($organization->load('media', 'address', 'contracts' /*, 'orders'*/ , 'organizationUsers'));
     }
 

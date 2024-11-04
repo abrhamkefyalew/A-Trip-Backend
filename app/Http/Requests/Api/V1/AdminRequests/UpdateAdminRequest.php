@@ -38,7 +38,7 @@ class UpdateAdminRequest extends FormRequest
                 'sometimes', 'min:8', 'confirmed',
             ],
             'phone_number' => [
-                'nullable', 'numeric',  Rule::unique('admins'),
+                'sometimes', 'numeric',  Rule::unique('admins')->ignore($this->admin->id),
             ],
             
             

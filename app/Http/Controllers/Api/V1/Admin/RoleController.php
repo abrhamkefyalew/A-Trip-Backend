@@ -138,7 +138,7 @@ class RoleController extends Controller
      */
     public function destroy(Role $role)
     {
-        // $this->authorize('delete', $role);
+        $this->authorize('delete', $role);
 
         $var = DB::transaction(function () use ($role) {
 
