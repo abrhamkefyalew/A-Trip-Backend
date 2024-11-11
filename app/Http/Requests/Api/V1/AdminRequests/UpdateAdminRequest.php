@@ -32,7 +32,7 @@ class UpdateAdminRequest extends FormRequest
                 'sometimes', 'string', 'regex:/^\S*$/u', 'alpha',
             ],
             'email' => [
-                'sometimes', 'email', Rule::unique('admins'),
+                'sometimes', 'email', Rule::unique('admins')->ignore($this->admin->id),
             ],
             'password' => [
                 'sometimes', 'min:8', 'confirmed',

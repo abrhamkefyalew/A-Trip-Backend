@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Validation\Rule;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\MediaLibrary\HasMedia;
 use Illuminate\Support\Facades\Hash;
@@ -108,7 +109,8 @@ class Driver extends Authenticatable implements HasMedia
         if ($this->where('phone_number', $formattedPhoneNumber)->exists()) {
             // Use Laravel's validation mechanism to return an error
             $validator = Validator::make(['phone_number' => $formattedPhoneNumber], [
-                'phone_number' => 'unique:drivers',
+                // 'phone_number' => 'unique:drivers',
+                'phone_number' => Rule::unique('drivers')->ignore($this->id),
             ]);
 
             if ($validator->fails()) {
