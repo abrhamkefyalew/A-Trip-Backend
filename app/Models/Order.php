@@ -100,6 +100,14 @@ class Order extends Model implements HasMedia
         return $this->hasMany(Invoice::class);
     }
 
+    
+    // This is supplier Invoice // used WHEN supplier asks PR for his vehicles in orders (organization orders)
+    public function invoiceVehicles()
+    {
+        return $this->hasMany(InvoiceVehicle::class);
+    }
+
+
 
     public function trips()
     {

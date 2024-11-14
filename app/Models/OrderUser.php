@@ -107,6 +107,14 @@ class OrderUser extends Model
 
 
 
+    // This is supplier Invoice // used WHEN supplier asks PR for his vehicles in orderUsers (individual customer orders)
+    public function invoiceVehicles()
+    {
+        return $this->hasMany(InvoiceVehicle::class);
+    }
+
+
+
 
 
     // Order status constants

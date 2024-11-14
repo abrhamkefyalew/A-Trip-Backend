@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\V1\Admin\VehicleNameController;
 use App\Http\Controllers\Api\V1\Admin\VehicleTypeController;
 use App\Http\Controllers\Api\V1\Admin\OrganizationController;
 use App\Http\Controllers\Api\V1\Admin\ContractDetailController;
+use App\Http\Controllers\Api\V1\Admin\InvoiceVehicleController;
 use App\Http\Controllers\Api\V1\Admin\OrganizationUserController;
 use App\Http\Controllers\Api\V1\Auth\AdminAuth\AdminAuthController;
 use App\Http\Controllers\Api\V1\Callback\BOA\BOACallbackController;
@@ -54,6 +55,7 @@ use App\Http\Controllers\Api\V1\OrganizationUser\OrderController as OrderForOrga
 use App\Http\Controllers\Api\V1\Supplier\VehicleNameController as VehicleNameForSupplierController;
 use App\Http\Controllers\Api\V1\Supplier\VehicleTypeController as VehicleTypeForSupplierController;
 use App\Http\Controllers\Api\V1\OrganizationUser\InvoiceController as InvoiceForOrganizationController;
+use App\Http\Controllers\Api\V1\Supplier\InvoiceVehicleController as InvoiceVehicleForSupplierController;
 use App\Http\Controllers\Api\V1\OrganizationUser\OrganizationController as OrganizationForOrganizationController;
 use App\Http\Controllers\Api\V1\OrganizationUser\ContractDetailController as ContractDetailForOrganizationController;
 use App\Http\Controllers\Api\V1\OrganizationUser\OrganizationUserController as OrganizationUserForOrganizationController;
@@ -361,6 +363,18 @@ Route::prefix('v1')->group(function () {
             });
 
 
+            // admin will manage the PR for vehicles in this route // i.e. see vehicle PRs (vehicle Payment Requests)
+            Route::prefix('invoice_vehicles')->group(function () {
+                Route::post('/', [InvoiceVehicleController::class, 'store']);
+                Route::get('/', [InvoiceVehicleController::class, 'index']);
+                Route::prefix('/{invoiceVehicle}')->group(function () {
+                    Route::get('/', [InvoiceVehicleController::class, 'show']);
+                    Route::put('/', [InvoiceVehicleController::class, 'update']);
+                    Route::delete('/', [InvoiceVehicleController::class, 'destroy']);
+                }); 
+            });
+
+
 
             Route::prefix('dash_board')->group(function () {
                 Route::get('/dash_board_count_one', [DashBoardController::class, 'DashBoardCountOne']);
@@ -554,6 +568,7 @@ Route::prefix('v1')->group(function () {
             });
 
 
+            // routes for organization (for supplier) are below
             Route::prefix('orders')->group(function () {
                 Route::post('/', [OrderForSupplierController::class, 'store']);
                 Route::get('/', [OrderForSupplierController::class, 'index']);
@@ -586,7 +601,6 @@ Route::prefix('v1')->group(function () {
             });
 
 
-            // currently this bids route is NOT functional
             Route::prefix('bids')->group(function () {
                 Route::post('/', [BidForSupplierController::class, 'store']);
                 Route::get('/', [BidForSupplierController::class, 'index']);
@@ -597,6 +611,21 @@ Route::prefix('v1')->group(function () {
                 }); 
             });
             
+
+
+            // routes for finance and related (for supplier) are below
+
+            // supplier will manage the PR of his vehicles in this route // i.e. ask vehicle PR (vehicle Payment Request)
+            Route::prefix('invoice_vehicles')->group(function () {
+                Route::post('/vehicle_pr_for_order', [InvoiceVehicleForSupplierController::class, 'storeInvoiceVehicleForOrder']);
+                Route::post('/vehicle_pr_for_order_user', [InvoiceVehicleForSupplierController::class, 'storeInvoiceVehicleForOrderUser']);
+                Route::get('/', [InvoiceVehicleForSupplierController::class, 'index']);
+                Route::prefix('/{invoiceVehicle}')->group(function () {
+                    Route::get('/', [InvoiceVehicleForSupplierController::class, 'show']);
+                    Route::put('/', [InvoiceVehicleForSupplierController::class, 'update']);
+                    Route::delete('/', [InvoiceVehicleForSupplierController::class, 'destroy']);
+                }); 
+            });
 
 
 
@@ -703,7 +732,6 @@ Route::prefix('v1')->group(function () {
             });
 
 
-            // currently this bids route is NOT functional
             Route::prefix('bids')->group(function () {
                 Route::post('/', [BidForDriverController::class, 'store']);
                 Route::get('/', [BidForDriverController::class, 'index']);
