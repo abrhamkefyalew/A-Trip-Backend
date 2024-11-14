@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('permissions', function (Blueprint $table) {
             $table->id()->from(10000);
 
-            $table->string('title')->nullable()->unique();
+            $table->string('title')->unique();
             
             $table->timestamps();
             $table->softDeletes();

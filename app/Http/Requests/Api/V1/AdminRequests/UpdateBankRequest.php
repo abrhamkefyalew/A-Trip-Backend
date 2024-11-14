@@ -12,9 +12,7 @@ class UpdateBankRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
-
-        // return $this->user()->can('update', $this->bank);
+        return $this->user()->can('update', $this->bank);
     }
 
     /**

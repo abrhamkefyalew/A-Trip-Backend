@@ -10,13 +10,16 @@ class AdminRole extends Pivot
 {
     //
     use HasFactory, SoftDeletes;
+
+
+    protected $table = 'admin_role';
     
     protected $fillable = [
         'role_id',
         'admin_id',
     ];
 
-    protected $table = 'admin_role';
+    
 
     // is not used yet
     public function admin()

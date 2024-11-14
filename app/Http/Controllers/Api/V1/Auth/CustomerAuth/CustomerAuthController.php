@@ -40,19 +40,72 @@ class CustomerAuthController extends Controller
             MediaService::storeImage($customer, $file, $clearMedia, $collectionName);
         }
 
-        $tokenResult = $customer->createToken('Personal Access Token', ['access-customer']);
-        //$customer->sendEmailVerificationNotification();
+        // $tokenResult = $customer->createToken('Personal Access Token', ['access-customer']);
+        // //$customer->sendEmailVerificationNotification();
 
-        return response()->json(
-            [
-                'access_token' => $tokenResult->plainTextToken,
-                'token_abilities' => $tokenResult->accessToken->abilities,
-                'token_type' => 'Bearer',
-                'expires_at' => $tokenResult->accessToken->expires_at,
-                'data' => new CustomerForCustomerResource($customer->load(['media', 'address'])),
-            ],
-            201
-        );
+        // return response()->json(
+        //     [
+        //         'access_token' => $tokenResult->plainTextToken,
+        //         'token_abilities' => $tokenResult->accessToken->abilities,
+        //         'token_type' => 'Bearer',
+        //         'expires_at' => $tokenResult->accessToken->expires_at,
+        //         'data' => new CustomerForCustomerResource($customer->load(['media', 'address'])),
+        //     ],
+        //     201
+        // );
+
+
+
+
+
+
+        // IF there are any generated OTPs for this customer , then DELETE them
+        if ($customer->otps()->exists()) {
+            // DELETE the rest of the otps of that customer from the otps table
+            // $success = Otp::where('customer_id', $customer->id)->forceDelete();  // this works also
+            $success = $customer->otps()->forceDelete();                          // this works
+            //
+            if (!$success) {
+                return response()->json(['message' => 'otp Deletion Failed']);
+            }
+        }
+
+
+        $otpCode = OtpCodeGenerator::generate(6);
+
+
+        // Generate current datetime
+        $currentDateTime = Carbon::now();
+
+        // Add 5 minutes to the current datetime
+        $expiryTime = $currentDateTime->addMinutes(5);
+
+
+        $otp = $customer->otps()->create([
+            'code' => $otpCode,
+            'expiry_time' => $expiryTime,
+        ]);
+        //
+        if (!$otp) {
+            return response()->json(['message' => 'OTP creation Failed'], 500);
+        }
+
+        // $sendSms = SMSService::sendSms($customer->phone_number, 'Adiamat Vehicle Rental: OTP (Verification code): ' . $otpCode);
+        // //
+        // if (!$sendSms) {
+        //     return response()->json(['message' => 'Failed to send SMS'], 500);
+        // }
+
+        try {
+            SendSmsJob::dispatch($customer->phone_number, 'Adiamat Vehicle Rental: OTP (Verification code): ' . $otpCode)->onQueue('sms');
+        } catch (\Throwable $e) {
+            // Log the exception or handle it as needed
+            return response()->json(['message' => 'Failed to dispatch SMS job'], 500);
+        }
+
+
+        return response()->json(['message' => 'Account Successfully Created. you can login with this account from now on. SMS with OTP is sent to you. Please Verify'], 202);
+
     }
 
     

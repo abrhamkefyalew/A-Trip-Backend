@@ -19,7 +19,7 @@ class SupplierController extends Controller
      */
     public function index(Request $request)
     {
-        // $this->authorize('viewAny', Supplier::class);
+        $this->authorize('viewAny', Supplier::class);
 
         $suppliers = Supplier::whereNotNull('id');
 
@@ -61,9 +61,7 @@ class SupplierController extends Controller
 
 
 
-            $hasLocationData = ($request->has('country') ||
-                $request->has('city')
-            );
+            $hasLocationData = ($request->has('country') || $request->has('city'));
 
             if ($hasLocationData) {
                 $supplier->address()->create([
@@ -111,7 +109,8 @@ class SupplierController extends Controller
      */
     public function show(Supplier $supplier)
     {
-        // $this->authorize('view', $supplier);
+        $this->authorize('view', $supplier);
+        
         return SupplierResource::make($supplier->load('media', 'address', 'vehicles'));
     }
 

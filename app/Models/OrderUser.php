@@ -38,6 +38,7 @@ class OrderUser extends Model
         'original_end_date',
         'price_total',
         'paid_complete_status',
+        'price_vehicle_payment',
         'vehicle_pr_status',
         'order_description',
         'with_driver',

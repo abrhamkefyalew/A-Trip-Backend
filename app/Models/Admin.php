@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Validation\Rule;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\MediaLibrary\HasMedia;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
@@ -11,6 +13,7 @@ use Illuminate\Support\Facades\Validator;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Validators\Api\V1\PhoneNumberValidator;
+use App\Traits\Api\V1\NonQueuedMediaConversions;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -19,7 +22,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class Admin extends Authenticatable implements HasMedia
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, InteractsWithMedia, HasRelationships;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, InteractsWithMedia, HasRelationships, NonQueuedMediaConversions;
 
     protected $table = 'admins';
 
@@ -106,7 +109,8 @@ class Admin extends Authenticatable implements HasMedia
         if ($this->where('phone_number', $formattedPhoneNumber)->exists()) {
             // Use Laravel's validation mechanism to return an error
             $validator = Validator::make(['phone_number' => $formattedPhoneNumber], [
-                'phone_number' => 'unique:admins',
+                // 'phone_number' => 'unique:admins',
+                'phone_number' => Rule::unique('admins')->ignore($this->id),
             ]);
 
             if ($validator->fails()) {
@@ -148,21 +152,28 @@ class Admin extends Authenticatable implements HasMedia
     }
 
 
+    
+    
+
+
     public function registerMediaConversions(Media $media = null): void
     {
-        $this->addMediaConversion('optimized')
-            ->width(1000)
-            ->height(1000);
-
-        $this->addMediaConversion('thumb')
-            ->width(150)
-            ->height(150);
+        $this->customizeMediaConversions();
     }
+
+
+    
 
 
 
     // do boot function to do the following
         //     // if admin is deleted (soft deleted) , then, the corresponding data in the (Pivot table) AdminRole Should be deleted (soft deleted) also
         //     // if admin is restored, then, the deleted (soft deleted) corresponding data in the (Pivot table) AdminRole Should be restored (restored from bring soft deleted) also
+
+
+    
+
+    // constants
+    public const ADMIN_PROFILE_PICTURE = 'ADMIN_PROFILE_PICTURE';
 
 }

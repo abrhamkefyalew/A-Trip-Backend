@@ -28,7 +28,7 @@ class ContractDetailController extends Controller
      */
     public function index(Request $request)
     {
-        // $this->authorize('viewAny', ContractDetail::class);
+        $this->authorize('viewAny', ContractDetail::class);
 
         // use Filtering service OR Scope to do this
 
@@ -156,7 +156,7 @@ class ContractDetailController extends Controller
      */
     public function show(ContractDetail $contractDetail)
     {
-        // $this->authorize('view', $contractDetail);
+        $this->authorize('view', $contractDetail);
 
         return ContractDetailResource::make($contractDetail->load('contract', 'vehicleName'));
     }
@@ -200,7 +200,7 @@ class ContractDetailController extends Controller
      */
     public function destroy(ContractDetail $contractDetail)
     {
-        // $this->authorize('delete', $contractDetail);
+        $this->authorize('delete', $contractDetail);
 
         $var = DB::transaction(function () use ($contractDetail) {
 
@@ -231,7 +231,7 @@ class ContractDetailController extends Controller
     {
         $contractDetail = ContractDetail::withTrashed()->find($id);
 
-        // $this->authorize('restore', $contractDetail);
+        $this->authorize('restore', $contractDetail);
 
         $var = DB::transaction(function () use ($contractDetail) {
             

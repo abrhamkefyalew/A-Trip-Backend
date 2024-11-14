@@ -19,7 +19,7 @@ class DriverController extends Controller
      */
     public function index(Request $request)
     {
-        // $this->authorize('viewAny', Driver::class);
+        $this->authorize('viewAny', Driver::class);
 
         $drivers = Driver::whereNotNull('id');
 
@@ -124,7 +124,8 @@ class DriverController extends Controller
      */
     public function show(Driver $driver)
     {
-        // $this->authorize('view', $driver);
+        $this->authorize('view', $driver);
+        
         return DriverResource::make($driver->load('media', 'address', 'vehicle'));
     }
 

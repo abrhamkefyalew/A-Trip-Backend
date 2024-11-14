@@ -36,8 +36,6 @@ class VehicleNameController extends Controller
 
     public function searchByVehicleType(Request $request)
     {
-        // $this->authorize('viewAny', VehicleName::class);
-
         // use Filtering service OR Scope to do this
         if ($request->has('vehicle_type_id_search')) {
             if (isset($request['vehicle_type_id_search'])) {

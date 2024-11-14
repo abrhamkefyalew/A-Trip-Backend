@@ -11,9 +11,7 @@ class UpdateBidRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
-
-        // return $this->user()->can('update', $this->bid);
+        return $this->user()->can('update', $this->bid);
     }
 
     /**

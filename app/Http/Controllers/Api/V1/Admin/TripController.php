@@ -22,7 +22,7 @@ class TripController extends Controller
      */
     public function index(Request $request)
     {
-        // $this->authorize('viewAny', Trip::class);
+        $this->authorize('viewAny', Trip::class);
 
         /* $validatedData = */ $request->validate([
             'trip_status_search' => [
@@ -115,7 +115,7 @@ class TripController extends Controller
      */
     public function show(Trip $trip)
     {
-        // $this->authorize('view', $trip);
+        $this->authorize('view', $trip);
     }
 
 
@@ -270,7 +270,7 @@ class TripController extends Controller
      */
     public function destroy(Trip $trip)
     {
-        // $this->authorize('delete', $trip);
+        $this->authorize('delete', $trip);
 
         $var = DB::transaction(function () use ($trip) {
 
@@ -288,7 +288,7 @@ class TripController extends Controller
     {
         $trip = Trip::withTrashed()->find($id);
 
-        // $this->authorize('restore', $trip);
+        $this->authorize('restore', $trip);
 
         $var = DB::transaction(function () use ($trip) {
             

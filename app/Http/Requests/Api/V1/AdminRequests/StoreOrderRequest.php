@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api\V1\AdminRequests;
 
+use App\Models\Order;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreOrderRequest extends FormRequest
@@ -11,9 +12,7 @@ class StoreOrderRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
-
-        // return $this->user()->can('create', Order::class);
+        return $this->user()->can('create', Order::class);
     }
 
     /**

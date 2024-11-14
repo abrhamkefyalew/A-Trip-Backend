@@ -2,18 +2,20 @@
 
 namespace App\Models;
 
+use Illuminate\Validation\Rule;
 use Spatie\MediaLibrary\HasMedia;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Validators\Api\V1\PhoneNumberValidator;
+use App\Traits\Api\V1\NonQueuedMediaConversions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class Organization extends Model implements HasMedia
 {
-    use HasFactory, SoftDeletes, InteractsWithMedia;
+    use HasFactory, SoftDeletes, InteractsWithMedia, NonQueuedMediaConversions;
 
     protected $table = 'organizations';
 
@@ -57,7 +59,8 @@ class Organization extends Model implements HasMedia
         if ($this->where('phone_number', $formattedPhoneNumber)->exists()) {
             // Use Laravel's validation mechanism to return an error
             $validator = Validator::make(['phone_number' => $formattedPhoneNumber], [
-                'phone_number' => 'unique:organizations',
+                // 'phone_number' => 'unique:organizations',
+                'phone_number' => Rule::unique('organizations')->ignore($this->id),
             ]);
 
             if ($validator->fails()) {
@@ -100,15 +103,12 @@ class Organization extends Model implements HasMedia
         return $this->hasMany(Order::class);
     }
 
+    
+    
+
     public function registerMediaConversions(Media $media = null): void
     {
-        $this->addMediaConversion('optimized')
-            ->width(1000)
-            ->height(1000);
-
-        $this->addMediaConversion('thumb')
-            ->width(150)
-            ->height(150);
+        $this->customizeMediaConversions();
     }
 
 

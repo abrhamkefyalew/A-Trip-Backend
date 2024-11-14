@@ -11,9 +11,7 @@ class UpdateVehicleNameRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
-
-        // return $this->user()->can('update', $this->vehicleName);
+        return $this->user()->can('update', $this->vehicleName);
     }
 
     /**

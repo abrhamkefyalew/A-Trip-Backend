@@ -22,7 +22,7 @@ class InvoiceController extends Controller
      */
     public function index(Request $request)
     {
-        // $this->authorize('viewAny', Invoice::class);
+        $this->authorize('viewAny', Invoice::class);
 
         /* $validatedData = */ $request->validate([
             'invoice_status_search' => [
@@ -95,7 +95,7 @@ class InvoiceController extends Controller
      */
     public function indexByInvoiceCode(Request $request)
     {
-        // $this->authorize('viewAny', Invoice::class);
+        $this->authorize('viewAny', Invoice::class);
 
 
         $invoices = Invoice::whereNotNull('id');

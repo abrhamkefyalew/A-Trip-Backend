@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api\V1\AdminRequests;
 
+use App\Models\Bid;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreBidRequest extends FormRequest
@@ -11,9 +12,7 @@ class StoreBidRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
-
-        // return $this->user()->can('create', Bid::class);
+        return $this->user()->can('create', Bid::class);
     }
 
     /**

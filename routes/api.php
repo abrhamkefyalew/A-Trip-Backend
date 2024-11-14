@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\Admin\BidController;
 use App\Http\Controllers\Api\V1\Admin\BankController;
+use App\Http\Controllers\Api\V1\Admin\RoleController;
 use App\Http\Controllers\Api\V1\Admin\TripController;
 use App\Http\Controllers\Api\V1\Admin\AdminController;
 use App\Http\Controllers\Api\V1\Admin\OrderController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\Api\V1\Admin\CustomerController;
 use App\Http\Controllers\Api\V1\Admin\SupplierController;
 use App\Http\Controllers\Api\V1\Admin\DashBoardController;
 use App\Http\Controllers\Api\V1\Admin\OrderUserController;
+use App\Http\Controllers\Api\V1\Admin\PermissionController;
 use App\Http\Controllers\Api\V1\Admin\InvoiceUserController;
 use App\Http\Controllers\Api\V1\Admin\VehicleNameController;
 use App\Http\Controllers\Api\V1\Admin\VehicleTypeController;
@@ -110,6 +112,34 @@ Route::prefix('v1')->group(function () {
                 }); 
             });
 
+            
+
+            Route::prefix('roles')->group(function () {
+                Route::get('/', [RoleController::class, 'index']);
+                Route::post('/', [RoleController::class, 'store']);
+                Route::prefix('/{role}')->group(function () {
+                    Route::get('/', [RoleController::class, 'show']);
+                    Route::put('/', [RoleController::class, 'update']);
+                    Route::delete('/', [RoleController::class, 'destroy']);
+                });
+                Route::prefix('/{id}')->group(function () {
+                    Route::post('/restore', [RoleController::class, 'restore']);
+                });
+            });
+
+
+            Route::prefix('permissions')->group(function () {
+                Route::get('/', [PermissionController::class, 'index']);
+                Route::post('/', [PermissionController::class, 'store']);
+                Route::prefix('/{permission}')->group(function () {
+                    Route::get('/', [PermissionController::class, 'show']);
+                    Route::put('/', [PermissionController::class, 'update']);
+                    Route::delete('/', [PermissionController::class, 'destroy']);
+                });
+                Route::prefix('/{id}')->group(function () {
+                    Route::post('/restore', [PermissionController::class, 'restore']);
+                });
+            });
 
 
             

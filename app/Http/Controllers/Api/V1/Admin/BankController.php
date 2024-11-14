@@ -22,7 +22,7 @@ class BankController extends Controller
     public function index(Request $request)
     {
         //
-        // $this->authorize('viewAny', Bank::class);
+        $this->authorize('viewAny', Bank::class);
 
         // scope should be used here
         if (isset($request['paginate'])) {
@@ -61,7 +61,7 @@ class BankController extends Controller
      */
     public function show(Bank $bank)
     {
-        // $this->authorize('view', $bank);
+        $this->authorize('view', $bank);
         
         return BankResource::make($bank->load('vehicles'));
     }
@@ -85,7 +85,7 @@ class BankController extends Controller
      */
     public function destroy(Bank $bank)
     {
-        // $this->authorize('delete', $bank);
+        $this->authorize('delete', $bank);
 
         $var = DB::transaction(function () use ($bank) {
 
@@ -116,7 +116,7 @@ class BankController extends Controller
     {
         $bank = Bank::withTrashed()->find($id);
 
-        // $this->authorize('restore', $bank);
+        $this->authorize('restore', $bank);
 
         $var = DB::transaction(function () use ($bank) {
             

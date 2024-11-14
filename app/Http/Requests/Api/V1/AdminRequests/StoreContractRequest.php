@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api\V1\AdminRequests;
 
+use App\Models\Contract;
 use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -12,9 +13,7 @@ class StoreContractRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
-
-        // return $this->user()->can('create', Contract::class);
+        return $this->user()->can('create', Contract::class);
     }
 
     /**

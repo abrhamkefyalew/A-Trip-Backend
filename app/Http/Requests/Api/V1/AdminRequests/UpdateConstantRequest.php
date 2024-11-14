@@ -11,9 +11,7 @@ class UpdateConstantRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
-
-        // return $this->user()->can('update', $this->constant);
+        return $this->user()->can('update', $this->constant);
     }
 
     /**

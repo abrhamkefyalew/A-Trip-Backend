@@ -2,18 +2,25 @@
 
 namespace App\Policies;
 
+use App\Models\Admin as User;
 use App\Models\AdminRole;
-use App\Models\User;
+use App\Models\Permission;
 use Illuminate\Auth\Access\Response;
 
 class AdminRolePolicy
 {
+
+    public function sync(User $user): bool
+    {
+        return $user->permissions()->where('permissions.title', Permission::SYNC_ADMIN_ROLE)->exists();
+    }
+
     /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        //
+        return false;
     }
 
     /**
@@ -21,7 +28,7 @@ class AdminRolePolicy
      */
     public function view(User $user, AdminRole $adminRole): bool
     {
-        //
+        return false;
     }
 
     /**
@@ -29,7 +36,7 @@ class AdminRolePolicy
      */
     public function create(User $user): bool
     {
-        //
+        return false;
     }
 
     /**
@@ -37,7 +44,7 @@ class AdminRolePolicy
      */
     public function update(User $user, AdminRole $adminRole): bool
     {
-        //
+        return false;
     }
 
     /**
@@ -45,7 +52,7 @@ class AdminRolePolicy
      */
     public function delete(User $user, AdminRole $adminRole): bool
     {
-        //
+        return false;
     }
 
     /**
@@ -53,7 +60,7 @@ class AdminRolePolicy
      */
     public function restore(User $user, AdminRole $adminRole): bool
     {
-        //
+        return false;
     }
 
     /**
@@ -61,6 +68,6 @@ class AdminRolePolicy
      */
     public function forceDelete(User $user, AdminRole $adminRole): bool
     {
-        //
+        return false;
     }
 }

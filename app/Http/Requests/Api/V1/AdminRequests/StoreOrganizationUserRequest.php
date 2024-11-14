@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\V1\AdminRequests;
 
 use Illuminate\Validation\Rule;
+use App\Models\OrganizationUser;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreOrganizationUserRequest extends FormRequest
@@ -12,9 +13,7 @@ class StoreOrganizationUserRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
-
-        // return $this->user()->can('create', OrganizationUser::class);
+        return $this->user()->can('create', OrganizationUser::class);
     }
 
     /**

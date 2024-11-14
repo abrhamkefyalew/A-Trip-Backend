@@ -20,6 +20,10 @@ class ConstantSeeder extends Seeder
                 'title' => Constant::ORDER_USER_INITIAL_PAYMENT_PERCENT,
                 'percent_value' => 25,
             ],
+            [
+                'title' => Constant::ORDER_USER_VEHICLE_PAYMENT_PERCENT,
+                'percent_value' => 20,
+            ],
             // [
             //     'title' => Constant::OTHER_CONSTANT_ONE,
             //     'percent_value' => 100,

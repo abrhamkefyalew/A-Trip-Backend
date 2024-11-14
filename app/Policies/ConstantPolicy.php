@@ -3,7 +3,8 @@
 namespace App\Policies;
 
 use App\Models\Constant;
-use App\Models\User;
+use App\Models\Admin as User;
+use App\Models\Permission;
 use Illuminate\Auth\Access\Response;
 
 class ConstantPolicy
@@ -13,7 +14,7 @@ class ConstantPolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::INDEX_CONSTANT)->exists();
     }
 
     /**
@@ -21,7 +22,8 @@ class ConstantPolicy
      */
     public function view(User $user, Constant $constant): bool
     {
-        //
+        return false;
+        // return $user->permissions()->where('permissions.title', Permission::SHOW_CONSTANT)->exists();
     }
 
     /**
@@ -29,7 +31,8 @@ class ConstantPolicy
      */
     public function create(User $user): bool
     {
-        //
+        return false;
+        // return $user->permissions()->where('permissions.title', Permission::CREATE_CONSTANT)->exists();
     }
 
     /**
@@ -37,7 +40,7 @@ class ConstantPolicy
      */
     public function update(User $user, Constant $constant): bool
     {
-        //
+        return $user->permissions()->where('permissions.title', Permission::EDIT_CONSTANT)->exists();
     }
 
     /**
@@ -45,7 +48,7 @@ class ConstantPolicy
      */
     public function delete(User $user, Constant $constant): bool
     {
-        //
+        return false;
     }
 
     /**
@@ -53,7 +56,7 @@ class ConstantPolicy
      */
     public function restore(User $user, Constant $constant): bool
     {
-        //
+        return false;
     }
 
     /**
@@ -61,6 +64,6 @@ class ConstantPolicy
      */
     public function forceDelete(User $user, Constant $constant): bool
     {
-        //
+        return false;
     }
 }

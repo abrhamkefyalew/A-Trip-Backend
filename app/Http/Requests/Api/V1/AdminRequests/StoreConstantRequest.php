@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api\V1\AdminRequests;
 
+use App\Models\Constant;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreConstantRequest extends FormRequest
@@ -11,9 +12,7 @@ class StoreConstantRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
-
-        // return $this->user()->can('create', Constant::class);
+        return $this->user()->can('create', Constant::class);
     }
 
     /**

@@ -21,7 +21,7 @@ class OrganizationUserController extends Controller
      */
     public function index(Request $request)
     {
-        // $this->authorize('viewAny', OrganizationUser::class);
+        $this->authorize('viewAny', OrganizationUser::class);
 
         $organizationUsers = OrganizationUser::whereNotNull('id');
 
@@ -115,7 +115,8 @@ class OrganizationUserController extends Controller
      */
     public function show(OrganizationUser $organizationUser)
     {
-        // $this->authorize('view', $organizationUser);
+        $this->authorize('view', $organizationUser);
+
         return OrganizationUserResource::make($organizationUser->load('media', 'organization', 'address'));
     }
 
@@ -176,7 +177,7 @@ class OrganizationUserController extends Controller
      */
     public function destroy(OrganizationUser $organizationUser)
     {
-        // $this->authorize('delete', $organizationUser);
+        $this->authorize('delete', $organizationUser);
 
         $var = DB::transaction(function () use ($organizationUser) {
 
@@ -207,7 +208,7 @@ class OrganizationUserController extends Controller
     {
         $organizationUser = OrganizationUser::withTrashed()->find($id);
 
-        // $this->authorize('restore', $organizationUser);
+        $this->authorize('restore', $organizationUser);
 
         $var = DB::transaction(function () use ($organizationUser) {
             

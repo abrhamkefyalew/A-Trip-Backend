@@ -47,6 +47,24 @@ class Permission extends Model
     public const RESTORE_ADMIN = 'RESTORE_ADMIN';
 
 
+
+
+
+
+    public const INDEX_BANK = 'INDEX_BANK';
+
+    public const SHOW_BANK = 'SHOW_BANK';
+
+    public const CREATE_BANK = 'CREATE_BANK';
+
+    public const EDIT_BANK = 'EDIT_BANK';
+
+    public const DELETE_BANK = 'DELETE_BANK';
+
+    public const RESTORE_BANK = 'RESTORE_BANK';
+
+
+
     
 
 
@@ -156,6 +174,22 @@ class Permission extends Model
     public const RESTORE_SUPPLIER = 'RESTORE_SUPPLIER';
 
 
+
+
+
+    public const INDEX_DRIVER = 'INDEX_DRIVER';
+
+    public const SHOW_DRIVER = 'SHOW_DRIVER';
+
+    public const CREATE_DRIVER = 'CREATE_DRIVER';
+
+    public const EDIT_DRIVER = 'EDIT_DRIVER';
+
+    public const DELETE_DRIVER = 'DELETE_DRIVER';
+
+    public const RESTORE_DRIVER = 'RESTORE_DRIVER';
+
+
     
 
 
@@ -221,21 +255,6 @@ class Permission extends Model
 
 
 
-    public const INDEX_DRIVER = 'INDEX_DRIVER';
-
-    public const SHOW_DRIVER = 'SHOW_DRIVER';
-
-    public const CREATE_DRIVER = 'CREATE_DRIVER';
-
-    public const EDIT_DRIVER = 'EDIT_DRIVER';
-
-    public const DELETE_DRIVER = 'DELETE_DRIVER';
-
-    public const RESTORE_DRIVER = 'RESTORE_DRIVER';
-
-
-
-
 
     public const INDEX_CUSTOMER = 'INDEX_CUSTOMER';
 
@@ -286,6 +305,49 @@ class Permission extends Model
     public const DELETE_INVOICE = 'DELETE_INVOICE';
 
     public const RESTORE_INVOICE = 'RESTORE_INVOICE';
+
+
+
+
+
+    public const INDEX_BID = 'INDEX_BID';
+
+    public const SHOW_BID = 'SHOW_BID';
+
+    public const CREATE_BID = 'CREATE_BID';
+
+    public const EDIT_BID = 'EDIT_BID';
+
+    public const DELETE_BID = 'DELETE_BID';
+
+    public const RESTORE_BID = 'RESTORE_BID';
+
+
+
+
+
+
+    public const INDEX_CONSTANT = 'INDEX_CONSTANT';
+
+    public const EDIT_CONSTANT = 'EDIT_CONSTANT';
+
+
+
+
+
+
+
+    public const INDEX_TRIP = 'INDEX_TRIP';
+
+    public const SHOW_TRIP = 'SHOW_TRIP';
+
+    public const CREATE_TRIP = 'CREATE_TRIP';
+
+    public const EDIT_TRIP = 'EDIT_TRIP';
+
+    public const DELETE_TRIP = 'DELETE_TRIP';
+
+    public const RESTORE_TRIP = 'RESTORE_TRIP';
 
 
 
