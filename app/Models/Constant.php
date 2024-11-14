@@ -48,5 +48,6 @@ class Constant extends Model
 
 
     // constants // initial payment percent for order_users table
-    public const ORDER_USER_INITIAL_PAYMENT_PERCENT = 'ORDER_USER_INITIAL_PAYMENT_PERCENT';      
+    public const ORDER_USER_INITIAL_PAYMENT_PERCENT = 'ORDER_USER_INITIAL_PAYMENT_PERCENT';
+    public const ORDER_USER_VEHICLE_PAYMENT_PERCENT = 'ORDER_USER_VEHICLE_PAYMENT_PERCENT';      
 }

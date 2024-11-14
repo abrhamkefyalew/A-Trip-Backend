@@ -18,7 +18,7 @@ class TeleBirrOrganizationPaymentService
 {    
     
       
-    public function createOrder($title, $amount)
+    public function createOrder($invoiceCodeVal, $amount)
     {
 
         // // FOR TEST
@@ -29,7 +29,15 @@ class TeleBirrOrganizationPaymentService
         $fabricTokenFunction = $this->applyFabricToken();
         $fabricToken = $fabricTokenFunction['token'];
 
-        $requestCreateOrderResult = $this->requestCreateOrder($fabricToken, $title, $amount);
+
+        // at last 
+        // add prefix = "OPR-" : - prefix on the invoice code variable so that during call back later we could know that it is for ORGANIZATION PR payment
+        $invoiceCodeValWithPrefixPr = config('constants.payment.customer_to_business.organization_pr') . $invoiceCodeVal; // add the OPR- prefix to indicate the invoice code is for organization payment // we will use it later when the callback comes from the banks
+
+
+
+
+        $requestCreateOrderResult = $this->requestCreateOrder($fabricToken, $invoiceCodeValWithPrefixPr, $amount);
 
         // FOR TEST
         return $requestCreateOrderResult;

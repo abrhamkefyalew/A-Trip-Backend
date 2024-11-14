@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\Customer;
 
 use App\Models\Bid;
 use App\Models\Vehicle;
+use App\Models\Constant;
 use App\Models\Customer;
 use App\Models\OrderUser;
 use App\Models\InvoiceUser;
@@ -157,6 +158,31 @@ class BidController extends Controller
                 }
             }
             
+
+            // calculate the price_vehicle_payment percent for the parent order of this accepted bid
+            $priceTotalFromBid = (int) $bid->price_total;
+            
+            $constant = Constant::where('title', Constant::ORDER_USER_VEHICLE_PAYMENT_PERCENT)->first();
+            //
+            if (!$constant) {
+                return response()->json(['message' => 'payment percent for the vehicle is not found.  ORDER_USER_VEHICLE_PAYMENT_PERCENT from constants table does not exist'], 404); 
+            }
+            // check if $constant->percent_value is NULL
+            if ($constant->percent_value === null) {
+                return response()->json([
+                    'message' => 'Invalid percent value retrieved from the constants table. The percent value can not be null.'
+                ], 422);
+            }
+            // Check if the percent value is within the valid range
+            if ($constant->percent_value < 1 || $constant->percent_value > 100) {
+                return response()->json([
+                    'message' => 'Invalid percent value retrieved from the constants table. The percent value must be between 1 and 100.'
+                ], 422);
+            }
+            $orderUserVehiclePaymentPercentConstant = $constant->percent_value;
+            $vehiclePaymentMultiplierConstant = ((int) $orderUserVehiclePaymentPercentConstant)/100;
+
+            $vehiclePaymentPrice = $priceTotalFromBid * $vehiclePaymentMultiplierConstant;
             
 
 
@@ -171,7 +197,7 @@ class BidController extends Controller
                 'driver_id' => $driverId,
                 'supplier_id' => $bid->vehicle->supplier_id,
                 'price_total' => $bid->price_total,
-                
+                'price_vehicle_payment' => $vehiclePaymentPrice,
             ]);
             //
             if (!$success) {

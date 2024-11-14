@@ -436,10 +436,16 @@ class InvoiceController extends Controller
                 }
                 else if ($request['payment_method'] = Invoice::INVOICE_TELE_BIRR) {
 
-                    $boaOrganizationPaymentService = new BOAOrganizationPaymentService();
-                    $valuePaymentRenderedView = $boaOrganizationPaymentService->initiatePaymentForPR($totalPriceAmount, $invoiceCode);
+                    // $boaOrganizationPaymentService = new BOAOrganizationPaymentService();
+                    // $valuePaymentRenderedView = $boaOrganizationPaymentService->initiatePaymentForPR($totalPriceAmount, $invoiceCode);
 
-                    return $valuePaymentRenderedView;
+                    // return $valuePaymentRenderedView;
+
+                    $teleBirrOrganizationPaymentService = new TeleBirrOrganizationPaymentService();
+                    $valuePayment = $teleBirrOrganizationPaymentService->createOrder($invoiceCode, $totalPriceAmount);
+
+                    return $valuePayment; 
+
                 }
                 else {
                     return response()->json(['error' => 'Invalid payment method selected.'], 422);

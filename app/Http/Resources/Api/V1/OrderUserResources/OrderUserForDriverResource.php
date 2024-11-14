@@ -46,9 +46,11 @@ class OrderUserForDriverResource extends JsonResource
             'status' => $this->status,
 
             'is_terminated' => $this->is_terminated,
-            'original_end_date' => $this->original_end_date,
+            // 'original_end_date' => $this->original_end_date,
 
             'price_total' => $this->price_total,
+
+            'price_vehicle_payment' => $this->price_vehicle_payment,
 
             'vehicle_pr_status' => $this->vehicle_pr_status,
             

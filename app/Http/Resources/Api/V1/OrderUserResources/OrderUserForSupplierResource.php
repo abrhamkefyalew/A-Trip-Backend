@@ -47,6 +47,8 @@ class OrderUserForSupplierResource extends JsonResource
 
             'price_total' => $this->price_total,
 
+            'price_vehicle_payment' => $this->price_vehicle_payment,
+
             'vehicle_pr_status' => $this->vehicle_pr_status,
             
             'order_description' => $this->order_description,
