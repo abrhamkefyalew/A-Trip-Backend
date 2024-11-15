@@ -49,10 +49,10 @@ class TeleBirrOrganizationPaymentService
 
         // return $rawRequest;
 
-        $baseUrl = config('telebirr-super-app.baseUrl');
+        $baseUrlPay = config('telebirr-super-app.baseUrlPay');
         // //
 
-        return response()->json(['PayOrderUrl' => $baseUrl . $rawRequest . '&version=1.0&trade_type=Checkout'], 200);
+        return response()->json(['PayOrderUrl' => $baseUrlPay . '?' . $rawRequest . '&version=1.0&trade_type=Checkout'], 200);
 
     }
 
@@ -199,9 +199,10 @@ class TeleBirrOrganizationPaymentService
             "merch_code" => $map['merch_code'],
             "nonce_str" => $map['nonce_str'],
             "prepay_id" => $map['prepay_id'],
-            "timestamp" => $map['timestamp'],
             "sign" => $sign,
-            "sign_type" => "SHA256WithRSA"
+            "sign_type" => "SHA256WithRSA",
+            "timestamp" => $map['timestamp'],
+            
         ]);
 
         return $rawRequest;
