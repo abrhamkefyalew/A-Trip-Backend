@@ -5,17 +5,17 @@ return [
 
         // Adiamat is Getting Paid
         'customer_to_business' => [
-            'organization_pr' => env('PAYMENT_ORGANIZATION_PR', 'OPR-'),                            // (organization PR) payment
+            'organization_pr' => env('PAYMENT_ORGANIZATION_PR', 'OPR0'),                            // (organization PR) payment
             //
-            'individual_customer_initial' => env('PAYMENT_INDIVIDUAL_CUSTOMER_INITIAL', 'ICI-'),    // (individual customer initial) payment
-            'individual_customer_final' => env('PAYMENT_INDIVIDUAL_CUSTOMER_FINAL', 'ICF-'),        // (individual customer final) payment
+            'individual_customer_initial' => env('PAYMENT_INDIVIDUAL_CUSTOMER_INITIAL', 'ICI0'),    // (individual customer initial) payment
+            'individual_customer_final' => env('PAYMENT_INDIVIDUAL_CUSTOMER_FINAL', 'ICF0'),        // (individual customer final) payment
         ],
 
 
         // Adiamat is Paying
         'business_to_customer' => [
-            'vehicle_of_order' => env('PAYMENT_VEHICLE_OF_ORDER', 'VOO-'),                          // (vehicle of Order) payment 
-            'driver_trip_fuel' => env('PAYMENT_DRIVER_TRIP_FUEL', 'DTF-'),                          // (Driver Trip Fuel) payment
+            'vehicle_of_order' => env('PAYMENT_VEHICLE_OF_ORDER', 'VOO0'),                          // (vehicle of Order) payment 
+            'driver_trip_fuel' => env('PAYMENT_DRIVER_TRIP_FUEL', 'DTF0'),                          // (Driver Trip Fuel) payment
         ],
         
 

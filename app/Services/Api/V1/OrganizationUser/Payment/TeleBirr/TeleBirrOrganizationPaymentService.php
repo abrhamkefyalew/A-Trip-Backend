@@ -18,7 +18,7 @@ class TeleBirrOrganizationPaymentService
 {    
     
       
-    public function createOrder($invoiceCodeVal, $amount)
+    public function createOrder($title, $amount)
     {
 
         // // FOR TEST
@@ -30,28 +30,29 @@ class TeleBirrOrganizationPaymentService
         $fabricToken = $fabricTokenFunction['token'];
 
 
-        // at last 
-        // add prefix = "OPR-" : - prefix on the invoice code variable so that during call back later we could know that it is for ORGANIZATION PR payment
-        $invoiceCodeValWithPrefixPr = config('constants.payment.customer_to_business.organization_pr') . $invoiceCodeVal; // add the OPR- prefix to indicate the invoice code is for organization payment // we will use it later when the callback comes from the banks
+        
 
 
 
-
-        $requestCreateOrderResult = $this->requestCreateOrder($fabricToken, $invoiceCodeValWithPrefixPr, $amount);
+        $requestCreateOrderResult = $this->requestCreateOrder($fabricToken, $title, $amount);
 
         // FOR TEST
-        return $requestCreateOrderResult;
+        // return $requestCreateOrderResult;
 
 
-        // $prepayId = $requestCreateOrderResult->biz_content->prepay_id;
+        $prepayId = $requestCreateOrderResult['biz_content']['prepay_id'];
 
-        // $rawRequest = $this->createRawRequest($prepayId);
+        // return $prepayId;
+
+        $rawRequest = $this->createRawRequest($prepayId);
 
 
-        // $baseUrl = config('telebirr-super-app.baseUrl');
+        // return $rawRequest;
+
+        $baseUrl = config('telebirr-super-app.baseUrl');
         // //
 
-        // return response()->json(['PayOrderUrl' => $baseUrl . $rawRequest . '&version=1.0&trade_type=Checkout'], 200);
+        return response()->json(['PayOrderUrl' => $baseUrl . $rawRequest . '&version=1.0&trade_type=Checkout'], 200);
 
     }
 
@@ -138,12 +139,16 @@ class TeleBirrOrganizationPaymentService
             'version' => '1.0',
         ];
 
+        // at last 
+        // add prefix = "OPR-" : - prefix on the invoice code variable so that during call back later we could know that it is for ORGANIZATION PR payment
+        $invoiceCodeValWithPrefixPr = config('constants.payment.customer_to_business.organization_pr') . $this->createMerchantOrderId(); // add the OPR- prefix to indicate the invoice code is for organization payment // we will use it later when the callback comes from the banks
+        // $invoiceCodeValWithPrefixPr = $this->createMerchantOrderId();
 
         $biz = [
             'notify_url' => 'https://www.google.com',
             'appid' => config('telebirr-super-app.merchantAppId'),
             'merch_code' => config('telebirr-super-app.merchantCode'),
-            'merch_order_id' => $this->createMerchantOrderId(),
+            'merch_order_id' => $invoiceCodeValWithPrefixPr,
             'trade_type' => 'Checkout',
             'title' => $title,
             'total_amount' => $amount,
