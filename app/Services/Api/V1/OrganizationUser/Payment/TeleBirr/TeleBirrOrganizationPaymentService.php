@@ -58,22 +58,23 @@ class TeleBirrOrganizationPaymentService
 
     public function applyFabricToken()
     {
-        // $response = Http::withHeaders([
-        //         'Content-Type' => 'application/json',
-        //         'X-APP-Key' => config('telebirr-super-app.fabricAppId'),
-        //     ])
-        //     ->withOptions([
-        //         'verify' => false, // To bypass SSL verification
-        //     ])
-        //     ->post(config('telebirr-super-app.baseUrl') . '/payment/v1/token', [
-        //         'appSecret' => config('telebirr-super-app.appSecret'),
-        //     ])
-        //     // ->throw()
-        //     ->json();
+        $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'X-APP-Key' => config('telebirr-super-app.fabricAppId'),
+            ])
+            ->withOptions([
+                'verify' => false, // To bypass SSL verification
+            ])
+            ->post(config('telebirr-super-app.baseUrl') . '/payment/v1/token', [
+                'appSecret' => config('telebirr-super-app.appSecret'),
+            ])
+            // ->throw()
+            ->json();
 
-        // return $response;
+        return $response;
 
 
+        /*
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
             // 'X-APP-Key' => config('telebirr-super-app.fabricAppId'),
@@ -88,7 +89,8 @@ class TeleBirrOrganizationPaymentService
         // ->throw()
         ->json();
 
-    return $response;
+        return $response;
+        */
     }
 
 
