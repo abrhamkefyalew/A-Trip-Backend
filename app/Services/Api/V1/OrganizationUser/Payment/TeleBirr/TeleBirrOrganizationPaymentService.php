@@ -60,7 +60,7 @@ class TeleBirrOrganizationPaymentService
     {
         $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
-                'X-APP-Key' => config('telebirr-super-app.fabricAppId'),
+                // 'X-APP-Key' => config('telebirr-super-app.fabricAppId'),
             ])
             ->timeout(60)
             ->withOptions([
