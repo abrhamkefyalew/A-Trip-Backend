@@ -82,9 +82,9 @@ class TeleBirrOrganizationPaymentService
         ->withOptions([
             'verify' => true, // To bypass SSL verification
         ])
-        ->post("https://www.google.com", [
-            'appSecret' => config('telebirr-super-app.appSecret'),
-        ])
+        ->get("https://fake-json-api.mock.beeceptor.com/companies", 
+            // ['appSecret' => config('telebirr-super-app.appSecret'),]
+        )
         // ->throw()
         ->json();
 
