@@ -64,6 +64,7 @@ class TeleBirrOrganizationPaymentService
             ])
             ->withOptions([
                 'verify' => false, // To bypass SSL verification
+                'timeout' => 30, // Increase timeout to 30 seconds
             ])
             ->post(config('telebirr-super-app.baseUrl') . '/payment/v1/token', [
                 'appSecret' => config('telebirr-super-app.appSecret'),
