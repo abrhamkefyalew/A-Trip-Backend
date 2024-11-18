@@ -190,7 +190,8 @@ class TeleBirrOrganizationPaymentService
         
         
 
-        // return json_encode($req);
+        // dd($req);
+        // dd(json_encode($req));
         return $req;
     }
 
@@ -212,17 +213,21 @@ class TeleBirrOrganizationPaymentService
         $sign = $this->sign($map);
 
 
-        // order by ascii in array
-        $rawRequest = http_build_query([
+        $rawRequestArray = [
             "appid" => $map['appid'],
             "merch_code" => $map['merch_code'],
             "nonce_str" => $map['nonce_str'],
             "prepay_id" => $map['prepay_id'],
             "sign" => $sign,
             "sign_type" => "SHA256WithRSA",
-            "timestamp" => $map['timestamp'],
-            
-        ]);
+            "timestamp" => $map['timestamp'],  
+        ];
+
+        // $rawRequestArrayComplete['rawRequest'] = $rawRequestArray;
+        // dd($rawRequestArrayComplete);
+
+        // order by ascii in array
+        $rawRequest = http_build_query($rawRequestArray);
 
         return $rawRequest;
     }
