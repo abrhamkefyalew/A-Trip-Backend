@@ -52,6 +52,11 @@ class TeleBirrOrganizationPaymentService
         $baseUrlPay = config('telebirr-super-app.baseUrlPay');
         // //
 
+        /*
+        // $completeUrl = $baseUrlPay . '?' . $rawRequest . '&version=1.0&trade_type=Checkout';
+        // echo trim((string)$completeUrl);
+        */
+
         return response()->json(['PayOrderUrl' => $baseUrlPay . '?' . $rawRequest . '&version=1.0&trade_type=Checkout'], 200);
 
     }

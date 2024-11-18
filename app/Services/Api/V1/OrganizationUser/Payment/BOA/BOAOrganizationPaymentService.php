@@ -21,20 +21,20 @@ class BOAOrganizationPaymentService
      */
     public function initiatePaymentForPR($priceAmountTotalVal, $invoiceCodeVal)
     {
-        // $invoices = Invoice::where('invoice_code', $invoiceCodeVal)->get(); // multiple invoices will be fetched
-        // // Check if all invoices have the same transaction_id_system            // all invoices should have the same transaction_id_system (i.e. uuid), since we are going to send that transaction_id_system (i.e. uuid) to BOA
+        $invoices = Invoice::where('invoice_code', $invoiceCodeVal)->get(); // multiple invoices will be fetched
+        // Check if all invoices have the same transaction_id_system            // all invoices should have the same transaction_id_system (i.e. uuid), since we are going to send that transaction_id_system (i.e. uuid) to BOA
                 
-        // $transactionSystemUUIDs = $invoices->pluck('transaction_id_system')->unique();
-        // if ($transactionSystemUUIDs->count() > 1) {
-        //     return response()->json(['message' => 'All invoices must have the same transaction_id_system.'], 422);
-        // }
-        // if ($transactionSystemUUIDs->count() < 1) {
-        //     return response()->json(['message' => 'no valid transaction_id_system for the invoices.'], 422);
-        // }
+        $transactionSystemUUIDs = $invoices->pluck('transaction_id_system')->unique();
+        if ($transactionSystemUUIDs->count() > 1) {
+            return response()->json(['message' => 'All invoices must have the same transaction_id_system.'], 422);
+        }
+        if ($transactionSystemUUIDs->count() < 1) {
+            return response()->json(['message' => 'no valid transaction_id_system for the invoices.'], 422);
+        }
         // Now we are sure all the invoices have the same transaction_id_system
         // So let's get that one transaction_id_system      // it is worth to mention that the following collection only have one transaction_id_system
         // Now $uuidTransactionIdSystem contains the transaction_id_system that can be used in the making of the payload for BOA
-        $uuidTransactionIdSystem = "23456"; // Retrieves the first transaction_id_system FROM our collection which in fact at this stage have ONLY one transaction_id_system  
+        $uuidTransactionIdSystem = $transactionSystemUUIDs->first(); // Retrieves the first transaction_id_system FROM our collection which in fact at this stage have ONLY one transaction_id_system  
         
 
         
