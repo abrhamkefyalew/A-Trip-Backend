@@ -8,7 +8,6 @@ use phpseclib\Crypt\RSA;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Http\Client\RequestException;
 
 /**
  * handle different kinds of PAYMENTs for organization with different methods within this same class
@@ -59,30 +58,21 @@ class TeleBirrOrganizationPaymentService
 
     public function applyFabricToken()
     {
-        $retryCount = 3; // Number of times to retry
-$retryDelay = 1000; // Delay between retries in milliseconds
+        $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'X-APP-Key' => config('telebirr-super-app.fabricAppId'),
+            ])
+            ->timeout(60)
+            ->withOptions([
+                'verify' => false, // To bypass SSL verification
+            ])
+            ->post(config('telebirr-super-app.baseUrl') . '/payment/v1/token', [
+                'appSecret' => config('telebirr-super-app.appSecret'),
+            ])
+            // ->throw()
+            ->json();
 
-try {
-    $response = retry($retryCount, function () {
-        return Http::withHeaders([
-            'Content-Type' => 'application/json',
-            'X-APP-Key' => config('telebirr-super-app.fabricAppId'),
-        ])
-        ->withOptions([
-            'verify' => true,
-            'timeout' => 60, // Increased timeout
-        ])
-        ->post(config('telebirr-super-app.baseUrl') . '/payment/v1/token', [
-            'appSecret' => config('telebirr-super-app.appSecret'),
-        ])->json();
-    }, $retryDelay);
-} catch (RequestException $e) {
-    // Handle the exception
-    // Log the error or return a custom response
-    return response()->json(['error' => 'Request failed after multiple retries'], 500);
-}
-
-return $response;
+        return $response;
     }
 
 

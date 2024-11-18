@@ -2,7 +2,7 @@
 
 return [
 
-    'baseUrl' => env('TELEBIRR', 'https://196.188.120.3:38443/apiaccess/payment/gateway'),
+    'baseUrl' => env('TELEBIRR', 'https://developerportal.ethiotelebirr.et:38443/payment/web/paygate'),
     'baseUrlPay' => env('TELEBIRR', 'https://developerportal.ethiotelebirr.et:38443/payment/web/paygate'),
 
     'fabricAppId' => env('TELEBIRR', 'c4182ef8-9249-458a-985e-06d191f4d505'),
