@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Models\InvoiceTrip;
-use App\Http\Requests\StoreInvoiceTripRequest;
-use App\Http\Requests\UpdateInvoiceTripRequest;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\AdminRequests\StoreInvoiceTripRequest;
+use App\Http\Requests\Api\V1\AdminRequests\UpdateInvoiceTripRequest;
 
 class InvoiceTripController extends Controller
 {

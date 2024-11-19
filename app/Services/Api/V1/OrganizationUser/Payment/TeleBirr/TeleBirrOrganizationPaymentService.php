@@ -78,7 +78,7 @@ class TeleBirrOrganizationPaymentService
             ->post(config('telebirr-super-app.baseUrl') . '/payment/v1/token', [
                 'appSecret' => config('telebirr-super-app.appSecret'),
             ])
-            // ->throw()
+            ->throw()
             ->json();
 
         return $response;
