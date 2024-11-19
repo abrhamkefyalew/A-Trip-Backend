@@ -202,7 +202,7 @@ class InvoiceController extends Controller
                 // check if the organization_id of the orders is similar with the logged in organizationUser Organization_id
                 if ($organizationUser->organization_id != $organizationId) {
                     // this order is NOT be owned by the organization that the order requester belongs in // so i return error and abort
-                    return response()->json(['message' => 'invalid Order is selected or Requested. or the requested Order is not found. Deceptive request Aborted.'], 403);
+                    return response()->json(['message' => 'invalid Order is selected or Requested. or One of the requested Invoice is not found. Deceptive request Aborted.'], 403);
                 }
 
 
@@ -363,10 +363,10 @@ class InvoiceController extends Controller
 
                     // check if the actual invoice is Paid // if the this invoice have status = PAID
                     if ($invoice->status === Invoice::INVOICE_STATUS_PAID) {
-                        return response()->json(['message' => 'This Invoice is Already Paid.  Invoice: ' . $$invoice->id . ' , The Invoice have PAID status.'], 409);
+                        return response()->json(['message' => 'This Invoice is Already Paid.  Invoice: ' . $invoice->id . ' , The Invoice have PAID status.'], 409);
                     }
                     if ($invoice->paid_date !== null) {
-                        return response()->json(['message' => 'This Invoice is Already Paid.  Invoice: ' . $$invoice->id . ' , The Invoice have value in its paid date.'], 409);
+                        return response()->json(['message' => 'This Invoice is Already Paid.  Invoice: ' . $invoice->id . ' , The Invoice have value in its paid date.'], 409);
                     }
 
 

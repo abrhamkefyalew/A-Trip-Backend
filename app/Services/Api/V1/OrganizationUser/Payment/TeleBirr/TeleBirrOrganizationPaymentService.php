@@ -8,6 +8,7 @@ use phpseclib\Crypt\RSA;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\View;
 
 /**
  * handle different kinds of PAYMENTs for organization with different methods within this same class
@@ -18,7 +19,7 @@ class TeleBirrOrganizationPaymentService
 {    
     
       
-    public function createOrder($invoiceCodeVal, $amount)
+    public function createOrder($title, $amount)
     {
 
         // // FOR TEST
@@ -30,29 +31,39 @@ class TeleBirrOrganizationPaymentService
         $fabricToken = $fabricTokenFunction['token'];
 
 
-        // at last 
-        // add prefix = "OPR-" : - prefix on the invoice code variable so that during call back later we could know that it is for ORGANIZATION PR payment
-        $invoiceCodeValWithPrefixPr = config('constants.payment.customer_to_business.organization_pr') . $invoiceCodeVal; // add the OPR- prefix to indicate the invoice code is for organization payment // we will use it later when the callback comes from the banks
+        
 
 
 
-
-        $requestCreateOrderResult = $this->requestCreateOrder($fabricToken, $invoiceCodeValWithPrefixPr, $amount);
+        $requestCreateOrderResult = $this->requestCreateOrder($fabricToken, $title, $amount);
 
         // FOR TEST
-        return $requestCreateOrderResult;
+        // return $requestCreateOrderResult;
 
 
-        // $prepayId = $requestCreateOrderResult->biz_content->prepay_id;
+        $prepayId = $requestCreateOrderResult['biz_content']['prepay_id'];
 
-        // $rawRequest = $this->createRawRequest($prepayId);
+        // return $prepayId;
+
+        $rawRequest = $this->createRawRequest($prepayId);
 
 
-        // $baseUrl = config('telebirr-super-app.baseUrl');
+        // return $rawRequest;
+
+        $baseUrlPay = config('telebirr-super-app.baseUrlPay');
         // //
 
-        // return response()->json(['PayOrderUrl' => $baseUrl . $rawRequest . '&version=1.0&trade_type=Checkout'], 200);
+        
+        $completeUrl = $baseUrlPay . '?' . $rawRequest . '&version=1.0&trade_type=Checkout';
+        // echo trim((string)$completeUrl);
+        
 
+        // return response()->json(['PayOrderUrl' => $baseUrlPay . '?' . $rawRequest . '&version=1.0&trade_type=Checkout'], 200);
+
+        
+        $renderedView = View::make('telebirr_pay_organization_using_url', ['completeUrl' => (string)$completeUrl])->render(); // passing payload directly
+
+        return $renderedView;
     }
 
     public function applyFabricToken()
@@ -71,6 +82,25 @@ class TeleBirrOrganizationPaymentService
             ->json();
 
         return $response;
+
+
+        /*
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            // 'X-APP-Key' => config('telebirr-super-app.fabricAppId'),
+        ])
+        ->timeout(60)
+        ->withOptions([
+            'verify' => true, // To bypass SSL verification
+        ])
+        ->get("https://fake-json-api.mock.beeceptor.com/companies", 
+            // ['appSecret' => config('telebirr-super-app.appSecret'),]
+        )
+        // ->throw()
+        ->json();
+
+        return $response;
+        */
     }
 
 
@@ -138,12 +168,16 @@ class TeleBirrOrganizationPaymentService
             'version' => '1.0',
         ];
 
+        // at last 
+        // add prefix = "OPR-" : - prefix on the invoice code variable so that during call back later we could know that it is for ORGANIZATION PR payment
+        $invoiceCodeValWithPrefixPr = config('constants.payment.customer_to_business.organization_pr') . $this->createMerchantOrderId(); // add the OPR- prefix to indicate the invoice code is for organization payment // we will use it later when the callback comes from the banks
+        // $invoiceCodeValWithPrefixPr = $this->createMerchantOrderId();
 
         $biz = [
             'notify_url' => 'https://www.google.com',
             'appid' => config('telebirr-super-app.merchantAppId'),
             'merch_code' => config('telebirr-super-app.merchantCode'),
-            'merch_order_id' => $this->createMerchantOrderId(),
+            'merch_order_id' => $invoiceCodeValWithPrefixPr,
             'trade_type' => 'Checkout',
             'title' => $title,
             'total_amount' => $amount,
@@ -166,7 +200,8 @@ class TeleBirrOrganizationPaymentService
         
         
 
-        // return json_encode($req);
+        // dd($req);
+        // dd(json_encode($req));
         return $req;
     }
 
@@ -188,16 +223,21 @@ class TeleBirrOrganizationPaymentService
         $sign = $this->sign($map);
 
 
-        // order by ascii in array
-        $rawRequest = http_build_query([
+        $rawRequestArray = [
             "appid" => $map['appid'],
             "merch_code" => $map['merch_code'],
             "nonce_str" => $map['nonce_str'],
             "prepay_id" => $map['prepay_id'],
-            "timestamp" => $map['timestamp'],
             "sign" => $sign,
-            "sign_type" => "SHA256WithRSA"
-        ]);
+            "sign_type" => "SHA256WithRSA",
+            "timestamp" => $map['timestamp'],  
+        ];
+
+        // $rawRequestArrayComplete['rawRequest'] = $rawRequestArray;
+        // dd($rawRequestArrayComplete);
+
+        // order by ascii in array
+        $rawRequest = http_build_query($rawRequestArray);
 
         return $rawRequest;
     }
