@@ -36,18 +36,14 @@ class TeleBirrOrganizationPaymentService
 
 
         $requestCreateOrderResult = $this->requestCreateOrder($fabricToken, $title, $amount);
-
         // FOR TEST
         // return $requestCreateOrderResult;
 
 
         $prepayId = $requestCreateOrderResult['biz_content']['prepay_id'];
-
         // return $prepayId;
 
         $rawRequest = $this->createRawRequest($prepayId);
-
-
         // return $rawRequest;
 
         $baseUrlPay = config('telebirr-super-app.baseUrlPay');
@@ -72,13 +68,14 @@ class TeleBirrOrganizationPaymentService
                 'Content-Type' => 'application/json',
                 'X-APP-Key' => config('telebirr-super-app.fabricAppId'),
             ])
+            ->timeout(60)
             ->withOptions([
                 'verify' => false, // To bypass SSL verification
             ])
-            ->post(config('telebirr-super-app.baseUrlPay') . '/payment/v1/token', [
+            ->post(config('telebirr-super-app.baseUrl') . '/payment/v1/token', [
                 'appSecret' => config('telebirr-super-app.appSecret'),
             ])
-            ->throw()
+            // ->throw()
             ->json();
 
         return $response;
@@ -174,7 +171,7 @@ class TeleBirrOrganizationPaymentService
         // $invoiceCodeValWithPrefixPr = $this->createMerchantOrderId();
 
         $biz = [
-            'notify_url' => 'https://www.google.com',
+            'notify_url' => 'http://51.21.65.237:9050/api/v1/call_backs/tele_bir/pay_invoices_call_back',
             'appid' => config('telebirr-super-app.merchantAppId'),
             'merch_code' => config('telebirr-super-app.merchantCode'),
             'merch_order_id' => $invoiceCodeValWithPrefixPr,
