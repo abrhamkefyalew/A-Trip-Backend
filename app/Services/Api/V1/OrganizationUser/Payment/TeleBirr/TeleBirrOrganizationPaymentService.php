@@ -75,7 +75,7 @@ class TeleBirrOrganizationPaymentService
             ->withOptions([
                 'verify' => false, // To bypass SSL verification
             ])
-            ->post(config('telebirr-super-app.baseUrl') . '/payment/v1/token', [
+            ->post(config('telebirr-super-app.baseUrlPay') . '/payment/v1/token', [
                 'appSecret' => config('telebirr-super-app.appSecret'),
             ])
             ->throw()
