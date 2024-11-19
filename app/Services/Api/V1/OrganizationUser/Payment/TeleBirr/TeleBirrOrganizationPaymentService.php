@@ -8,6 +8,7 @@ use phpseclib\Crypt\RSA;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\View;
 
 /**
  * handle different kinds of PAYMENTs for organization with different methods within this same class
@@ -52,13 +53,17 @@ class TeleBirrOrganizationPaymentService
         $baseUrlPay = config('telebirr-super-app.baseUrlPay');
         // //
 
-        /*
-        // $completeUrl = $baseUrlPay . '?' . $rawRequest . '&version=1.0&trade_type=Checkout';
+        
+        $completeUrl = $baseUrlPay . '?' . $rawRequest . '&version=1.0&trade_type=Checkout';
         // echo trim((string)$completeUrl);
-        */
+        
 
-        return response()->json(['PayOrderUrl' => $baseUrlPay . '?' . $rawRequest . '&version=1.0&trade_type=Checkout'], 200);
+        // return response()->json(['PayOrderUrl' => $baseUrlPay . '?' . $rawRequest . '&version=1.0&trade_type=Checkout'], 200);
 
+        
+        $renderedView = View::make('telebirr_pay_organization_using_url', ['completeUrl' => (string)$completeUrl])->render(); // passing payload directly
+
+        return $renderedView;
     }
 
     public function applyFabricToken()

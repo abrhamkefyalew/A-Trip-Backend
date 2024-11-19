@@ -902,10 +902,13 @@ Route::prefix('v1')->group(function () {
 
 
     // TEST OPEN ROUTES (normal_endpoint + _open_route)
-        // boa initiate payment test
+        // initiate payment test C to B (C2B)
         Route::get('/pay_invoices_test_open_route_boa', [InvoiceForOrganizationController::class, 'testboa']);
         Route::get('/pay_invoices_test_open_route_telebirr_apply_fabric_token', [InvoiceForOrganizationController::class, 'testTelebirrApplyFabricToken']);
         Route::get('/pay_invoices_test_open_route_telebirr', [InvoiceForOrganizationController::class, 'testTelebirr']);
+
+        // initiate payment test B to C (B2C)
+
 
 
 });
