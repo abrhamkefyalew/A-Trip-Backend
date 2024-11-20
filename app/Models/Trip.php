@@ -59,6 +59,12 @@ class Trip extends Model
     }
 
 
+    public function invoiceTrips()
+    {
+        return $this->hasMany(InvoiceTrip::class);
+    }
+
+
 
     // Trip status constants // approved status constants
     public const TRIP_STATUS_APPROVED = 'APPROVED'; // paid trip // or paid log sheet
