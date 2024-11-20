@@ -154,7 +154,7 @@ class InvoiceVehicleController extends Controller
                 else if ($request['payment_method'] = InvoiceVehicle::INVOICE_TELE_BIRR) {
 
                     // $teleBirrVehiclePaymentService = new TeleBirrVehiclePaymentService();
-                    // $valuePayment = $teleBirrVehiclePaymentService->createOrder($$invoiceVehicle->price_amount, $invoiceVehicle->id);
+                    // $valuePayment = $teleBirrVehiclePaymentService->createOrder($invoiceVehicle->price_amount, $invoiceVehicle->id);
 
                     // return $valuePayment; 
 
@@ -221,7 +221,7 @@ class InvoiceVehicleController extends Controller
                 else if ($request['payment_method'] = InvoiceVehicle::INVOICE_TELE_BIRR) {
 
                     // $teleBirrVehiclePaymentService = new TeleBirrVehiclePaymentService();
-                    // $valuePayment = $teleBirrVehiclePaymentService->createOrder($$invoiceVehicle->price_amount, $invoiceVehicle->id);
+                    // $valuePayment = $teleBirrVehiclePaymentService->createOrder($invoiceVehicle->price_amount, $invoiceVehicle->id);
 
                     // return $valuePayment; 
 

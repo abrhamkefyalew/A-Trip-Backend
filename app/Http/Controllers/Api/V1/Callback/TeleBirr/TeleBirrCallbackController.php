@@ -2,23 +2,64 @@
 
 namespace App\Http\Controllers\Api\V1\Callback\TeleBirr;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\CallbackRequests\TeleBirr\TeleBirrCallbackRequest;
+use App\Services\Api\V1\Callback\Customer\TeleBirr\TeleBirrCustomerCallbackService;
+use App\Services\Api\V1\Callback\OrganizationUser\TeleBirr\TeleBirrOrganizationCallbackService;
 
 class TeleBirrCallbackController extends Controller
 {
     /**
      * payment callback for invoice (comes from banks)
      */
-    public function payInvoicesCallback(Request $request)
+    public function payInvoicesCallback(TeleBirrCallbackRequest $request)
     {
         //
-        // $var = DB::transaction(function () {
+        // Log::info("Callback info Telebirr : ". response()->json(['request value' => $request]));
+        Log::info("Callback info Telebirr: " . json_encode(['request value' => $request->all()]));
+        
+        //
+        if (substr($request['invoice_reference'], 0, 4) == config('constants.payment.customer_to_business.organization_pr')) {
             
-        // });
+            $teleBirrOrganizationCallbackService = new TeleBirrOrganizationCallbackService();
+            $handlePaymentByTeleBirrForPRCallbackValue = $teleBirrOrganizationCallbackService->handlePaymentForPRCallback($request['invoice_reference']);
 
-        // return $var;
+
+            // since it is call back we will not return value to the banks
+            // or may be 200 OK response // check abrham samson
+
+        }
+        
+        else if (substr($request['invoice_reference'], 0, 4) == config('constants.payment.customer_to_business.individual_customer_initial')) {
+            
+            // pass the whole invoice reference for the callback
+            $teleBirrCustomerPaymentService = new TeleBirrCustomerCallbackService($request['invoice_reference']);
+
+            // Calling a callback non static method
+            $value = $teleBirrCustomerPaymentService->handleInitialPaymentForVehicleCallback();
+
+            // since it is call back we will not return value to the banks
+            // or may be 200 OK response // check abrham samson
+
+        }
+        else if (substr($request['invoice_reference'], 0, 4) == config('constants.payment.customer_to_business.individual_customer_final')) {
+            
+            // pass the whole invoice reference for the callback
+            $teleBirrCustomerPaymentService = new TeleBirrCustomerCallbackService($request['invoice_reference']);
+
+            // Calling a callback non static method
+            $value = $teleBirrCustomerPaymentService->handleFinalPaymentForVehicleCallback();
+
+            // since it is call back we will not return value to the banks
+            // or may be 200 OK response // check abrham samson
+
+        }
+        
+
     }
+
 
 
 
