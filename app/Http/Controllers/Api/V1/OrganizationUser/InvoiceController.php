@@ -687,7 +687,7 @@ class InvoiceController extends Controller
     public function testTelebirr() 
     {
         $teleBirrOrganizationPaymentService = new TeleBirrOrganizationPaymentService();
-        $valuePayment = $teleBirrOrganizationPaymentService->createOrder("SampleTitle", "44");
+        $valuePayment = $teleBirrOrganizationPaymentService->createOrder("SampleTitle", "1");
 
         return $valuePayment; 
 
