@@ -27,7 +27,7 @@ class TeleBirrCallbackRequest extends FormRequest
         return [
             //
             
-            'invoice_reference' => [            // this should be the 'variable key name' tha banks send in the body
+            'merch_order_id' => [            // this should be the 'variable key name' tha banks send in the body
                 'required',
                 'string',
                 // 'integer',                 // COMMENTED because THIS id is NOT Integer,  because it have prefix (like    "o84"-for organization  or   "i84"-for individual customer)      or      they may also send the id as string even if it does not have prefix

@@ -880,6 +880,7 @@ Route::prefix('v1')->group(function () {
 
 
     // Callback Routes from banks and financial institutions
+    // These are C2B (i.e. C to B) callbacks
     Route::prefix('call_backs')->group(function () {
 
         Route::prefix('boa')->group(function () {
