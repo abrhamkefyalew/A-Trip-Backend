@@ -17,8 +17,18 @@ class TeleBirrCallbackController extends Controller
     public function payInvoicesCallback(TeleBirrCallbackRequest $request)
     {
         //
-        // Log::info("Callback info Telebirr : ". response()->json(['request value' => $request]));
-        Log::info("Callback info Telebirr: " . json_encode(['callback request value' => $request->all()]));
+        // Log::info("Callback info Telebirr : ". response()->json(['request value' => $request])); // NOT working
+        Log::info("Callback info Telebirr: " . json_encode(['Callback request Value' => $request->all()]));
+        Log::info("Callback info Telebirr: " . json_encode(['Callback request Headers: ' => $request->header()]));
+
+        // BEFORE PROCEEDING
+        // use 'trade_status' to check if payment is successful 
+        // 402 status code is = payment required
+        // 
+        if ($request['trade_status'] != "Completed") {
+            Log::alert('trade_status is NOT-Completed - so Payment NOT success - (payment required) for merch_order_id : - ' . $request['merch_order_id']);
+            abort(402, 'trade_status is NOT-Completed - so Payment NOT success - (payment required) for merch_order_id : - ' . $request['merch_order_id']);
+        }
         
         //
         if (substr($request['merch_order_id'], 0, 4) == config('constants.payment.customer_to_business.organization_pr')) {

@@ -142,8 +142,8 @@ class TeleBirrOrganizationPaymentService
         //     'callback_info' => 'From web',
         //     'merch_code' => config('telebirr-super-app.merchantCode'),
         //     'merch_order_id' => $this->createMerchantOrderId(),
-        //     'notify_url' => 'https://www.google.com',
-        //     'redirect_url' => 'https://www.bing.com/',
+        //     'notify_url' => 'http://51.21.65.237:9050/api/v1/call_backs/tele_birr/pay_invoices_call_back',
+        //     'redirect_url' => 'https://www.adiamat.com/', // this URL is : - it is the page that the Payer will Redirected after finishing the payment
         //     'timeout_express' => '120m',
         //     'title' => $title,
         //     'total_amount' => $amount,
@@ -175,7 +175,7 @@ class TeleBirrOrganizationPaymentService
             'trans_currency' => 'ETB',
             'timeout_express' => '120m',
             'business_type' => 'BuyGoods',
-            'redirect_url' => 'https://www.bing.com/',
+            'redirect_url' => 'https://www.adiamat.com/', // this URL is : - it is the page that the Payer will Redirected after finishing the payment
             'callback_info' => 'From web',
         ];
 
