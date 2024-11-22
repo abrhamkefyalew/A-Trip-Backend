@@ -27,6 +27,9 @@ class TeleBirrOrganizationCallbackService
         $invoiceCode = substr($invoiceReferenceWithPrefixFromTeleBirr, 4); // Start from the 5th character onwards // THIS WORKS
         // $invoiceCode = str_replace("OPR-", "", $invoiceReferenceWithPrefixFromTeleBirr);                        // This Works ALSO
 
+        Log::alert('prefixed-invoice_code: '. $invoiceReferenceWithPrefixFromTeleBirr);
+        Log::alert('invoice_code: '. $invoiceCode);
+
         DB::transaction(function () use ($invoiceCode) {
             
             // if paid status code from the bank is NOT 200 -> i will log and abort // abrham samson check
