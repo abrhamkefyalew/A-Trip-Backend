@@ -79,6 +79,13 @@ class TeleBirrOrganizationPaymentService
         // ->throw()
         ->json();
 
+        if ($response->successful()) {
+            // return response()->json(['message' => 'Authentication failed (precondition failed)'], 412);
+            // return response()->json(['message' => 'Authentication failed (expectation failed)'], 417);
+            // return response()->json(['message' => 'Authentication failed (gateway timeout)'], 504);
+            return response()->json(['message' => 'Authentication failed (request timeout)'], 408);
+        }
+
         return $response;
 
 
