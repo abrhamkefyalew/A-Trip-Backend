@@ -21,14 +21,22 @@ class TeleBirrCallbackController extends Controller
         Log::info("Callback info Telebirr: " . json_encode(['Callback request Value' => $request->all()]));
         Log::info("Callback info Telebirr: " . json_encode(['Callback request Headers: ' => $request->header()]));
 
-        // BEFORE PROCEEDING
+
+        // BEFORE PROCEEDING to the next step we need to check IF the Payment was ACTUALLY SUCCESSFUL
         // use 'trade_status' to check if payment is successful 
-        // 402 status code is = payment required
+        //      // 402 status code means = payment required
         // 
+        // check abrham samson
         if ($request['trade_status'] != "Completed") {
             Log::alert('trade_status is NOT-Completed - so Payment NOT success - (payment required) for merch_order_id : - ' . $request['merch_order_id']);
             abort(402, 'trade_status is NOT-Completed - so Payment NOT success - (payment required) for merch_order_id : - ' . $request['merch_order_id']);
         }
+
+
+        // Check abrham samson
+        // we need to store the callback body : - $request->all()   in the appropriate INVOICE table (i.e. based on the prefix)
+
+        
         
         //
         if (substr($request['merch_order_id'], 0, 4) == config('constants.payment.customer_to_business.organization_pr')) {
