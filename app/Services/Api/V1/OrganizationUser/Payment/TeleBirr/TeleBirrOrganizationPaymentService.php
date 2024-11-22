@@ -75,9 +75,8 @@ class TeleBirrOrganizationPaymentService
         ])
         ->post(config('telebirr-super-app.baseUrl') . '/payment/v1/token', [
             'appSecret' => config('telebirr-super-app.appSecret'),
-        ])
-        // ->throw()
-        ->json();
+        ]);
+
 
         if (!$response->successful()) {
             // return response()->json(['message' => 'Authentication failed (precondition failed)'], 412);
@@ -88,25 +87,6 @@ class TeleBirrOrganizationPaymentService
 
         return $response;
 
-
-
-        /*
-        $response = Http::withHeaders([
-            'Content-Type' => 'application/json',
-            // 'X-APP-Key' => config('telebirr-super-app.fabricAppId'),
-        ])
-        ->timeout(60)
-        ->withOptions([
-            'verify' => true, // To bypass SSL verification
-        ])
-        ->get("https://fake-json-api.mock.beeceptor.com/companies", 
-            // ['appSecret' => config('telebirr-super-app.appSecret'),]
-        )
-        // ->throw()
-        ->json();
-
-        return $response;
-        */
     }
 
 
@@ -130,9 +110,14 @@ class TeleBirrOrganizationPaymentService
         ])
         ->post(config('telebirr-super-app.baseUrl') . '/payment/v1/merchant/preOrder', 
             $reqObject,
-        )
-        // ->throw()
-        ->json();
+        );
+
+        if (!$response->successful()) {
+            // return response()->json(['message' => 'Authentication failed (precondition failed)'], 412);
+            // return response()->json(['message' => 'Authentication failed (expectation failed)'], 417);
+            // return response()->json(['message' => 'Authentication failed (gateway timeout)'], 504);
+            return response()->json(['message' => 'Authentication failed (request timeout)'], 408);
+        }
 
         return $response;
     }
