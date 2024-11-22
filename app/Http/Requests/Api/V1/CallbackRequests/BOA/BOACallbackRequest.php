@@ -49,7 +49,7 @@ class BOACallbackRequest extends FormRequest
         // Simple Way
         // Log and alert
         Log::alert('BOA: invoice_reference must be included in the request!');
-        abort(404, 'the invoice_code does not exist!');
+        abort(422, 'the invoice_code does not exist!');
 
 
 

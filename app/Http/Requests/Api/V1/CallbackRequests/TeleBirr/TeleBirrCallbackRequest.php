@@ -24,6 +24,7 @@ class TeleBirrCallbackRequest extends FormRequest
      */
     public function rules(): array
     {
+        
         return [
             //
             
@@ -48,11 +49,10 @@ class TeleBirrCallbackRequest extends FormRequest
     {
         // Simple Way
         // Log and alert
-        Log::alert('TeleBirr: invoice_reference must be included in the request!');
-        abort(404, 'the invoice_code does not exist!');
+        Log::alert('TeleBirr: merch_order_id must be included in the request!');
+        abort(422, 'TeleBirr: merch_order_id must be included in the request!');
 
-
-
+        
         /*
         // Advanced way                     // NOT TESTED
         $errors = $validator->errors();

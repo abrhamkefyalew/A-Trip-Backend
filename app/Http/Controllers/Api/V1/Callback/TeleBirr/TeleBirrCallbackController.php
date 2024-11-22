@@ -18,13 +18,13 @@ class TeleBirrCallbackController extends Controller
     {
         //
         // Log::info("Callback info Telebirr : ". response()->json(['request value' => $request]));
-        Log::info("Callback info Telebirr: " . json_encode(['request value' => $request->all()]));
+        Log::info("Callback info Telebirr: " . json_encode(['callback request value' => $request->all()]));
         
         //
-        if (substr($request['invoice_reference'], 0, 4) == config('constants.payment.customer_to_business.organization_pr')) {
+        if (substr($request['merch_order_id'], 0, 4) == config('constants.payment.customer_to_business.organization_pr')) {
             
             $teleBirrOrganizationCallbackService = new TeleBirrOrganizationCallbackService();
-            $handlePaymentByTeleBirrForPRCallbackValue = $teleBirrOrganizationCallbackService->handlePaymentForPRCallback($request['invoice_reference']);
+            $handlePaymentByTeleBirrForPRCallbackValue = $teleBirrOrganizationCallbackService->handlePaymentForPRCallback($request['merch_order_id']);
 
 
             // since it is call back we will not return value to the banks
@@ -32,10 +32,10 @@ class TeleBirrCallbackController extends Controller
 
         }
         
-        else if (substr($request['invoice_reference'], 0, 4) == config('constants.payment.customer_to_business.individual_customer_initial')) {
+        else if (substr($request['merch_order_id'], 0, 4) == config('constants.payment.customer_to_business.individual_customer_initial')) {
             
             // pass the whole invoice reference for the callback
-            $teleBirrCustomerPaymentService = new TeleBirrCustomerCallbackService($request['invoice_reference']);
+            $teleBirrCustomerPaymentService = new TeleBirrCustomerCallbackService($request['merch_order_id']);
 
             // Calling a callback non static method
             $value = $teleBirrCustomerPaymentService->handleInitialPaymentForVehicleCallback();
@@ -44,10 +44,10 @@ class TeleBirrCallbackController extends Controller
             // or may be 200 OK response // check abrham samson
 
         }
-        else if (substr($request['invoice_reference'], 0, 4) == config('constants.payment.customer_to_business.individual_customer_final')) {
+        else if (substr($request['merch_order_id'], 0, 4) == config('constants.payment.customer_to_business.individual_customer_final')) {
             
             // pass the whole invoice reference for the callback
-            $teleBirrCustomerPaymentService = new TeleBirrCustomerCallbackService($request['invoice_reference']);
+            $teleBirrCustomerPaymentService = new TeleBirrCustomerCallbackService($request['merch_order_id']);
 
             // Calling a callback non static method
             $value = $teleBirrCustomerPaymentService->handleFinalPaymentForVehicleCallback();

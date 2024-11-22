@@ -42,7 +42,7 @@ class TeleBirrOrganizationCallbackService
             // i used ->isEmpty() - (i.e. if ($invoices->isEmpty())) // because $invoices is a collection using if (!$invoices) will create a problem
             if ($invoices->isEmpty()) { 
                 Log::alert('TeleBirr callback: invoice (invoices) does not exist with the provided invoice_code!. invoice_code!: '. $invoiceCode);
-                abort(404, 'TeleBirr callback: invoice (invoices) does not exist with the provided invoice_code!. invoice_code!: '. $invoiceCode);
+                abort(422, 'TeleBirr callback: invoice (invoices) does not exist with the provided invoice_code!. invoice_code!: '. $invoiceCode);
             }
 
 

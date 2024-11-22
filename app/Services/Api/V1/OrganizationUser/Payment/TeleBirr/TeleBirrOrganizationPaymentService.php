@@ -173,7 +173,7 @@ class TeleBirrOrganizationPaymentService
         // $invoiceCodeValWithPrefixPr = $this->createMerchantOrderId();
 
         $biz = [
-            'notify_url' => 'http://51.21.65.237:9050/api/v1/call_backs/tele_bir/pay_invoices_call_back',
+            'notify_url' => 'http://51.21.65.237:9050/api/v1/call_backs/tele_birr/pay_invoices_call_back',
             'appid' => config('telebirr-super-app.merchantAppId'),
             'merch_code' => config('telebirr-super-app.merchantCode'),
             'merch_order_id' => $invoiceCodeValWithPrefixPr,
