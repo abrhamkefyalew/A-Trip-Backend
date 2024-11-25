@@ -6,7 +6,7 @@ return [
 
 
 
-    'baseUrl' => env('TELEBIRR_BASE_URL', 'https://196.188.120.5:38443/apiaccess/payment/gateway'),
+    'baseUrl' => env('TELEBIRR_BASE_URL', 'https://superapp.ethiomobilemoney.et:38443/apiaccess/payment/gateway'),
     'baseUrl_testing' => env('TELEBIRR_BASE_URL_TESTING', 'https://196.188.120.3:38443/apiaccess/payment/gateway'),
 
     'baseUrlPay' => env('TELEBIRR_BASE_URL_PAY', 'https://superapp.ethiomobilemoney.et:38443/payment/web/paygate'),
