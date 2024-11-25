@@ -46,7 +46,7 @@ class TeleBirrOrganizationPaymentService
         $rawRequest = $this->createRawRequest($prepayId);
         // return $rawRequest;
 
-        $baseUrlPay = config('telebirr-super-app.baseUrlPay');
+        $baseUrlPay = config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrlPay_testing') : config('telebirr-super-app.baseUrlPay');
         // //
 
         
@@ -67,14 +67,14 @@ class TeleBirrOrganizationPaymentService
 
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
-            'X-APP-Key' => config('telebirr-super-app.fabricAppId'),
+            'X-APP-Key' => config('telebirr-super-app.testing') ? config('telebirr-super-app.fabricAppId_testing') : config('telebirr-super-app.fabricAppId'),
         ])
         ->timeout(60)
         ->withOptions([
             'verify' => false, // To bypass SSL verification
         ])
-        ->post(config('telebirr-super-app.baseUrl') . '/payment/v1/token', [
-            'appSecret' => config('telebirr-super-app.appSecret'),
+        ->post(config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrl_testing') : config('telebirr-super-app.baseUrl') . '/payment/v1/token', [
+            'appSecret' => config('telebirr-super-app.testing') ? config('telebirr-super-app.appSecret_testing') : config('telebirr-super-app.appSecret'),
         ]);
 
 
@@ -98,7 +98,7 @@ class TeleBirrOrganizationPaymentService
 
         $header = [
             'Content-Type' => 'application/json',
-            'X-APP-Key' => config('telebirr-super-app.fabricAppId'),
+            'X-APP-Key' => config('telebirr-super-app.testing') ? config('telebirr-super-app.fabricAppId_testing') : config('telebirr-super-app.fabricAppId'),
             'Authorization' => $fabricToken,
         ];
 
@@ -108,7 +108,7 @@ class TeleBirrOrganizationPaymentService
         ->withOptions([
             'verify' => false, // To bypass SSL verification
         ])
-        ->post(config('telebirr-super-app.baseUrl') . '/payment/v1/merchant/preOrder', 
+        ->post(config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrl_testing') : config('telebirr-super-app.baseUrl') . '/payment/v1/merchant/preOrder', 
             $reqObject,
         );
 
@@ -137,10 +137,10 @@ class TeleBirrOrganizationPaymentService
 
 
         // $biz = [
-        //     'appid' => config('telebirr-super-app.merchantAppId'),
+        //     'appid' => config('telebirr-super-app.testing') ? config('telebirr-super-app.merchantAppId_testing') : config('telebirr-super-app.merchantAppId'),
         //     'business_type' => 'BuyGoods',
         //     'callback_info' => 'From web',
-        //     'merch_code' => config('telebirr-super-app.merchantCode'),
+        //     'merch_code' => config('telebirr-super-app.testing') ? config('telebirr-super-app.merchantCode_testing') : config('telebirr-super-app.merchantCode'),
         //     'merch_order_id' => $this->createMerchantOrderId(),
         //     'notify_url' => 'http://51.21.65.237:9050/api/v1/call_backs/tele_birr/pay_invoices_call_back',
         //     'redirect_url' => 'https://www.adiamat.com/', // this URL is : - it is the page that the Payer will Redirected after finishing the payment
@@ -166,8 +166,8 @@ class TeleBirrOrganizationPaymentService
 
         $biz = [
             'notify_url' => 'http://51.21.65.237:9050/api/v1/call_backs/tele_birr/pay_invoices_call_back',
-            'appid' => config('telebirr-super-app.merchantAppId'),
-            'merch_code' => config('telebirr-super-app.merchantCode'),
+            'appid' => config('telebirr-super-app.testing') ? config('telebirr-super-app.merchantAppId_testing') : config('telebirr-super-app.merchantAppId'),
+            'merch_code' => config('telebirr-super-app.testing') ? config('telebirr-super-app.merchantCode_testing') : config('telebirr-super-app.merchantCode'),
             'merch_order_id' => $invoiceCodeValWithPrefixPr,
             'trade_type' => 'Checkout',
             'title' => $title,
@@ -204,8 +204,8 @@ class TeleBirrOrganizationPaymentService
     private function createRawRequest($prepayId)
     {
         $map = [
-            'appid' => config('telebirr-super-app.merchantAppId'),
-            'merch_code' => config('telebirr-super-app.merchantCode'),
+            'appid' => config('telebirr-super-app.testing') ? config('telebirr-super-app.merchantAppId_testing') : config('telebirr-super-app.merchantAppId'),
+            'merch_code' => config('telebirr-super-app.testing') ? config('telebirr-super-app.merchantCode_testing') : config('telebirr-super-app.merchantCode'),
             'nonce_str' => $this->createNonceStr(),
             'prepay_id' => $prepayId,
             'timestamp' => $this->createTimeStamp(),
@@ -321,7 +321,7 @@ class TeleBirrOrganizationPaymentService
         //
         $rsa = new RSA();
 
-        $private_key_load = config('telebirr-super-app.privateKey');
+        $private_key_load = config('telebirr-super-app.testing') ? config('telebirr-super-app.privateKey_testing') : config('telebirr-super-app.privateKey');
         $private_key = $this->trimPrivateKey($private_key_load)[2];
 
         if ($rsa->loadKey($private_key) != true) {
@@ -352,7 +352,7 @@ class TeleBirrOrganizationPaymentService
     //     // Create a new RSA key pair
     //     $rsa = RSA::createKey();
 
-    //     $privateKeyFromConfig = config('telebirr-super-app.privateKey');
+    //     $privateKeyFromConfig = config('telebirr-super-app.testing') ? config('telebirr-super-app.privateKey_testing') : config('telebirr-super-app.privateKey');
 
     //     $private_key = $this->trimPrivateKey($privateKeyFromConfig)[2];
 
@@ -372,7 +372,7 @@ class TeleBirrOrganizationPaymentService
     // private function signWithRSA($data)
     // {
     //     // Load the RSA private key from configuration
-    //     $rsaPrivateKeyConfig = config('telebirr-super-app.privateKey');
+    //     $rsaPrivateKeyConfig = config('telebirr-super-app.testing') ? config('telebirr-super-app.privateKey_testing') : config('telebirr-super-app.privateKey');
 
     //     // Create a private key resource for RSA operation
     //     $rsaPrivateKeyResource = openssl_pkey_get_private($rsaPrivateKeyConfig);
