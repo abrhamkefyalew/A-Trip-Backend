@@ -321,7 +321,7 @@ class TeleBirrOrganizationPaymentService
         //
         $rsa = new RSA();
 
-        $private_key_load = config('telebirr-super-app.testing') ? config('telebirr-super-app.privateKey_testing') : config('telebirr-super-app.privateKey');
+        $private_key_load = "fl";
         $private_key = $this->trimPrivateKey($private_key_load)[2];
 
         if ($rsa->loadKey($private_key) != true) {
