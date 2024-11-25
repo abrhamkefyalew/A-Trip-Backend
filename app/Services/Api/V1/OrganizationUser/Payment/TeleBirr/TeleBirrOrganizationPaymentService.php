@@ -73,17 +73,17 @@ class TeleBirrOrganizationPaymentService
         ->withOptions([
             'verify' => false, // To bypass SSL verification
         ])
-        ->post(config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrl_testing') : config('telebirr-super-app.baseUrl') . '/payment/v1/token', [
+        ->post((config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrl_testing') : config('telebirr-super-app.baseUrl')) . '/payment/v1/token', [
             'appSecret' => config('telebirr-super-app.testing') ? config('telebirr-super-app.appSecret_testing') : config('telebirr-super-app.appSecret'),
         ]);
 
 
-        if (!$response->successful()) {
-            // return response()->json(['message' => 'Authentication failed (precondition failed)'], 412);
-            // return response()->json(['message' => 'Authentication failed (expectation failed)'], 417);
-            // return response()->json(['message' => 'Authentication failed (gateway timeout)'], 504);
-            return response()->json(['message' => 'Authentication failed (request timeout)'], 408);
-        }
+        // if (!$response->successful()) {
+        //     // return response()->json(['message' => 'Authentication failed (precondition failed)'], 412);
+        //     // return response()->json(['message' => 'Authentication failed (expectation failed)'], 417);
+        //     // return response()->json(['message' => 'Authentication failed (gateway timeout)'], 504);
+        //     return response()->json(['message' => 'Authentication failed (request timeout)'], 408);
+        // }
 
         return $response;
 
@@ -108,16 +108,16 @@ class TeleBirrOrganizationPaymentService
         ->withOptions([
             'verify' => false, // To bypass SSL verification
         ])
-        ->post(config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrlPay_testing') : config('telebirr-super-app.baseUrlPay') . '/payment/v1/merchant/preOrder', 
+        ->post((config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrl_testing') : config('telebirr-super-app.baseUrl')) . '/payment/v1/merchant/preOrder', 
             $reqObject,
         );
 
-        if (!$response->successful()) {
-            // return response()->json(['message' => 'Authentication failed (precondition failed)'], 412);
-            // return response()->json(['message' => 'Authentication failed (expectation failed)'], 417);
-            // return response()->json(['message' => 'Authentication failed (gateway timeout)'], 504);
-            return response()->json(['message' => 'Authentication failed (request timeout)'], 408);
-        }
+        // if (!$response->successful()) {
+        //     // return response()->json(['message' => 'Authentication failed (precondition failed)'], 412);
+        //     // return response()->json(['message' => 'Authentication failed (expectation failed)'], 417);
+        //     // return response()->json(['message' => 'Authentication failed (gateway timeout)'], 504);
+        //     return response()->json(['message' => 'Authentication failed (request timeout)'], 408);
+        // }
 
         return $response;
     }
@@ -247,10 +247,19 @@ class TeleBirrOrganizationPaymentService
 
 
     /**
-     * @use phpseclibCryptRSA version - 1.0
+     * @use phpseclibCryptRSA version - 1.0 // this is what they say in TELEBirr Documentation // but it is NOT the correct version, the correct version is "~2.0"
+     * 
+     * So 1.0 is the WRONG version
+     * 
+     * instead USE = "~2.0"
+     * 
+     * PUT this in COMPOSER    then do = composer update and composer install
+     * phpseclib/phpseclib": "~2.0",
+     * // then
+     * import = use phpseclib3\Crypt\RSA
+     * 
+     * 
      */
-    // use phpseclibCryptRSA;
-
     private function sign($request)
     {
 
@@ -313,15 +322,15 @@ class TeleBirrOrganizationPaymentService
     public function SignWithRSA($data)
     {
         // requires package installation 
-        //          - v2.0   (import = use phpseclib3\Crypt\RSA)
+        //          ~ v2.0   (import = use phpseclib3\Crypt\RSA)
         //          // 
-        //          PUT this in COMPOSER    then do = composer update
+        //          PUT this in COMPOSER    then do = composer update and composer install
         //              phpseclib/phpseclib": "~2.0",
         //
         //
         $rsa = new RSA();
 
-        $private_key_load = config('telebirr-super-app.privateKey_testing');
+        $private_key_load = config('telebirr-super-app.testing') ? config('telebirr-super-app.privateKey_testing') : config('telebirr-super-app.privateKey');
         $private_key = $this->trimPrivateKey($private_key_load)[2];
 
         if ($rsa->loadKey($private_key) != true) {
