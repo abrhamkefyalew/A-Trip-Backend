@@ -98,7 +98,7 @@ class TeleBirrOrganizationPaymentService
 
         $header = [
             'Content-Type' => 'application/json',
-            'X-APP-Key' => "ea8b06fd-7d1e-40f7-9624-c06d5a5280ad",
+            'APP-Key' => "ea8b06fd-7d1e-40f7-9624-c06d5a5280ad",
             'Authorization' => $fabricToken,
         ];
 
