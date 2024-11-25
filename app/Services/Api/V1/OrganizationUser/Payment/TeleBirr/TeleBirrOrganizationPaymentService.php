@@ -37,7 +37,7 @@ class TeleBirrOrganizationPaymentService
 
         $requestCreateOrderResult = $this->requestCreateOrder($fabricToken, $title, $amount);
         // FOR TEST
-        return $requestCreateOrderResult;
+        // return $requestCreateOrderResult;
 
 
         $prepayId = $requestCreateOrderResult['biz_content']['prepay_id'];
@@ -108,7 +108,7 @@ class TeleBirrOrganizationPaymentService
         ->withOptions([
             'verify' => false, // To bypass SSL verification
         ])
-        ->post(config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrl_testing') : config('telebirr-super-app.baseUrl') . '/payment/v1/merchant/preOrder', 
+        ->post(config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrlPay_testing') : config('telebirr-super-app.baseUrlPay') . '/payment/v1/merchant/preOrder', 
             $reqObject,
         );
 
