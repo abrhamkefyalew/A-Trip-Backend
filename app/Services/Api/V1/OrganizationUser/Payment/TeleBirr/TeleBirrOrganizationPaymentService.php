@@ -98,7 +98,7 @@ class TeleBirrOrganizationPaymentService
 
         $header = [
             'Content-Type' => 'application/json',
-            'APP-Key' => "ea8b06fd-7d1e-40f7-9624-c06d5a5280ad",
+            'X-APP-Key' => config('telebirr-super-app.testing') ? config('telebirr-super-app.fabricAppId_testing') : config('telebirr-super-app.fabricAppId'),
             'Authorization' => $fabricToken,
         ];
 
@@ -166,8 +166,8 @@ class TeleBirrOrganizationPaymentService
 
         $biz = [
             'notify_url' => 'http://51.21.65.237:9050/api/v1/call_backs/tele_birr/pay_invoices_call_back',
-            'appid' => '1194619669504001',
-            'merch_code' => '513361',
+            'appid' => config('telebirr-super-app.testing') ? config('telebirr-super-app.merchantAppId_testing') : config('telebirr-super-app.merchantAppId'),
+            'merch_code' => config('telebirr-super-app.testing') ? config('telebirr-super-app.merchantCode_testing') : config('telebirr-super-app.merchantCode'),
             'merch_order_id' => $invoiceCodeValWithPrefixPr,
             'trade_type' => 'Checkout',
             'title' => $title,
