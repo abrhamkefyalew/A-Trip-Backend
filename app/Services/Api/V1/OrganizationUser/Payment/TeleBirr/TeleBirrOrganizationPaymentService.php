@@ -71,7 +71,7 @@ class TeleBirrOrganizationPaymentService
         ])
         ->timeout(60)
         ->withOptions([
-            'verify' => true, // To bypass SSL verification
+            'verify' => (!config('telebirr-super-app.testing')), // To bypass SSL verification
         ])
         ->post((config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrl_testing') : config('telebirr-super-app.baseUrl')) . '/payment/v1/token', [
             'appSecret' => config('telebirr-super-app.testing') ? config('telebirr-super-app.appSecret_testing') : config('telebirr-super-app.appSecret'),
@@ -106,7 +106,7 @@ class TeleBirrOrganizationPaymentService
             $header,
         ])
         ->withOptions([
-            'verify' => false, // To bypass SSL verification
+            'verify' => (!config('telebirr-super-app.testing')), // To bypass SSL verification
         ])
         ->post((config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrl_testing') : config('telebirr-super-app.baseUrl')) . '/payment/v1/merchant/preOrder', 
             $reqObject,
@@ -330,7 +330,7 @@ class TeleBirrOrganizationPaymentService
         //
         $rsa = new RSA();
 
-        $private_key_load = config('telebirr-super-app.testing') ? config('telebirr-super-app.privateKey_testing') : config('telebirr-super-app.privateKey');
+        $private_key_load = config('telebirr-super-app.privateKey_testing');
         $private_key = $this->trimPrivateKey($private_key_load)[2];
 
         if ($rsa->loadKey($private_key) != true) {
