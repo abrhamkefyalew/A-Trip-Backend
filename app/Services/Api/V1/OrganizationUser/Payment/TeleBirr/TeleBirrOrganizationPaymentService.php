@@ -71,7 +71,7 @@ class TeleBirrOrganizationPaymentService
         ])
         ->timeout(60)
         ->withOptions([
-            'verify' => false, // To bypass SSL verification
+            'verify' => (!config('telebirr-super-app.testing')), // To bypass SSL verification
         ])
         ->post((config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrl_testing') : config('telebirr-super-app.baseUrl')) . '/payment/v1/token', [
             'appSecret' => config('telebirr-super-app.testing') ? config('telebirr-super-app.appSecret_testing') : config('telebirr-super-app.appSecret'),
@@ -104,7 +104,7 @@ class TeleBirrOrganizationPaymentService
             $header,
         ])
         ->withOptions([
-            'verify' => false, // To bypass SSL verification
+            'verify' => (!config('telebirr-super-app.testing')), // To bypass SSL verification
         ])
         ->post((config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrl_testing') : config('telebirr-super-app.baseUrl')) . '/payment/v1/merchant/preOrder', 
             $reqObject,
@@ -120,7 +120,6 @@ class TeleBirrOrganizationPaymentService
         return response()->json([
             'reqObject' => $reqObject, 
             'header' => $header, 
-            'X-APP-Key' => config('telebirr-super-app.testing') ? config('telebirr-super-app.fabricAppId_testing') : config('telebirr-super-app.fabricAppId'),
             'baseUrl' => (config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrl_testing') : config('telebirr-super-app.baseUrl')) . '/payment/v1/merchant/preOrder',
             'privateKey' => config('telebirr-super-app.testing') ? config('telebirr-super-app.privateKey_testing') : config('telebirr-super-app.privateKey'),
             'response' => $response->json(), // Extract the response content from the HTTP response object USONG "->json()" // otherwise we return only $response, we will NOT get the value of the response
