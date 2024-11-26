@@ -183,6 +183,9 @@ class TeleBirrOrganizationPaymentService
             'business_type' => 'BuyGoods',
             'redirect_url' => 'https://www.adiamat.com/', // this URL is : - it is the page that the Payer will Redirected after finishing the payment
             'callback_info' => 'From web',
+            "payee_identifier" => config('telebirr-super-app.testing') ? config('telebirr-super-app.merchantCode_testing') : config('telebirr-super-app.merchantCode'),
+            "payee_identifier_type" => "04",
+	        "payee_type" => "5000",
         ];
 
 
