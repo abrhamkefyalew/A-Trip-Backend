@@ -71,7 +71,7 @@ class TeleBirrOrganizationPaymentService
         ])
         ->timeout(60)
         ->withOptions([
-            'verify' => (!config('telebirr-super-app.testing')), // To bypass SSL verification
+            'verify' => false, // To bypass SSL verification
         ])
         ->post((config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrl_testing') : config('telebirr-super-app.baseUrl')) . '/payment/v1/token', [
             'appSecret' => config('telebirr-super-app.testing') ? config('telebirr-super-app.appSecret_testing') : config('telebirr-super-app.appSecret'),
@@ -104,7 +104,7 @@ class TeleBirrOrganizationPaymentService
             $header,
         ])
         ->withOptions([
-            'verify' => (!config('telebirr-super-app.testing')), // To bypass SSL verification
+            'verify' => false, // To bypass SSL verification
         ])
         ->post((config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrl_testing') : config('telebirr-super-app.baseUrl')) . '/payment/v1/merchant/preOrder', 
             $reqObject,
