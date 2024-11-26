@@ -94,7 +94,7 @@ class TeleBirrOrganizationPaymentService
     {
         $reqObject = $this->createRequestObject($title, $amount);
 
-        // return $reqObject;
+        return $reqObject;
 
         $header = [
             'Content-Type' => 'application/json',
