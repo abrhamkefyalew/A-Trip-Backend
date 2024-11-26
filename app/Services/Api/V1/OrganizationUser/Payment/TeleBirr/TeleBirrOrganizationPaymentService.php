@@ -21,11 +21,6 @@ class TeleBirrOrganizationPaymentService
       
     public function createOrder($title, $amount)
     {
-
-        // // FOR TEST
-        // $reqObject = $this->createRequestObject($title, $amount);
-        // return $reqObject;
-
         
         $fabricTokenFunction = $this->applyFabricToken();
         $fabricToken = $fabricTokenFunction['token'];
@@ -131,15 +126,15 @@ class TeleBirrOrganizationPaymentService
 
 
         // LOG - ALL of Request and Response Info FOR requestCreateOrder() 
-        $allRequestResponseInfoFORrequestCreateOrder = response()->json([
+        $allRequestResponseInfoFORrequestCreateOrder_TO_BE_LOGGED = [
             'REQUEST_OBJECT_____we_sent_is' => $reqObject, 
             'THE_HEADER_____we_sent_is' => $header, 
             'baseUrl_____we_used_is' => (config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrl_testing') : config('telebirr-super-app.baseUrl')) . '/payment/v1/merchant/preOrder',
             'privateKey_____we_used_is' => config('telebirr-super-app.testing') ? config('telebirr-super-app.privateKey_testing') : config('telebirr-super-app.privateKey'),
             'response_____we_got_from_telebirr_is' => $response->json(), // Extract the response content from the HTTP response object USONG "->json()" // otherwise we return only $response, we will NOT get the value of the response
-        ]);
+        ];
         //
-        Log::info("Telebirr (Organization Payment For Order): ALL of Request and Response Info FOR requestCreateOrder()" . json_encode($allRequestResponseInfoFORrequestCreateOrder));
+        Log::info("Telebirr (Organization Payment For Order): ALL of Request and Response Info FOR requestCreateOrder()" . json_encode($allRequestResponseInfoFORrequestCreateOrder_TO_BE_LOGGED));
 
 
 
