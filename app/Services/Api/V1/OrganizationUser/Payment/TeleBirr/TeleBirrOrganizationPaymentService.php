@@ -104,9 +104,9 @@ class TeleBirrOrganizationPaymentService
             'Authorization' => $fabricToken,
         ];
 
-        $response = Http::withHeaders([
+        $response = Http::withHeaders(
             $header,
-        ])
+        )
         ->withOptions([
             'verify' => false, // To bypass SSL verification
         ])
