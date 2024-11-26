@@ -37,7 +37,7 @@ class TeleBirrOrganizationPaymentService
 
         $requestCreateOrderResult = $this->requestCreateOrder($fabricToken, $title, $amount);
         // FOR TEST
-        // return $requestCreateOrderResult;
+        return $requestCreateOrderResult;
 
 
         $prepayId = $requestCreateOrderResult['biz_content']['prepay_id'];
