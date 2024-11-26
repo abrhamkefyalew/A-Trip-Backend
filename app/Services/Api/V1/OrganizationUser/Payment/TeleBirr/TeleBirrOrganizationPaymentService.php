@@ -106,7 +106,7 @@ class TeleBirrOrganizationPaymentService
         ->withOptions([
             'verify' => (!config('telebirr-super-app.testing')), // To bypass SSL verification
         ])
-        ->post((config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrl_testing') : config('telebirr-super-app.baseUrl')) . '/payment/v1/merchant/preOrder', 
+        ->post((config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrlPay_testing') : config('telebirr-super-app.baseUrlPay')) . '/payment/v1/merchant/preOrder', 
             $reqObject,
         );
 
