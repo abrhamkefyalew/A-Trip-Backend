@@ -119,13 +119,13 @@ class TeleBirrOrganizationPaymentService
         //     return response()->json(['message' => 'Authentication failed (request timeout)'], 408);
         // }
 
-        return response()->json(['reqObject' => $reqObject, 
-            'header' => $header, 
-            'X-APP-Key' => config('telebirr-super-app.testing') ? config('telebirr-super-app.fabricAppId_testing') : config('telebirr-super-app.fabricAppId'),
-            'baseUrl' => (config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrl_testing') : config('telebirr-super-app.baseUrl')) . '/payment/v1/merchant/preOrder',
-            'privateKey' => config('telebirr-super-app.testing') ? config('telebirr-super-app.privateKey_testing') : config('telebirr-super-app.privateKey'),
-            'response' => $response, 
-        ]);
+        // return response()->json(['reqObject' => $reqObject, 
+        //     'header' => $header, 
+        //     'X-APP-Key' => config('telebirr-super-app.testing') ? config('telebirr-super-app.fabricAppId_testing') : config('telebirr-super-app.fabricAppId'),
+        //     'baseUrl' => (config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrl_testing') : config('telebirr-super-app.baseUrl')) . '/payment/v1/merchant/preOrder',
+        //     'privateKey' => config('telebirr-super-app.testing') ? config('telebirr-super-app.privateKey_testing') : config('telebirr-super-app.privateKey'),
+        //     'response' => $response, 
+        // ]);
 
         return $response;
     }
