@@ -94,7 +94,7 @@ class TeleBirrOrganizationPaymentService
     {
         $reqObject = $this->createRequestObject($title, $amount);
 
-        return $reqObject;
+        // return $reqObject;
 
         $header = [
             'Content-Type' => 'application/json',
@@ -118,6 +118,12 @@ class TeleBirrOrganizationPaymentService
         //     // return response()->json(['message' => 'Authentication failed (gateway timeout)'], 504);
         //     return response()->json(['message' => 'Authentication failed (request timeout)'], 408);
         // }
+
+        return response()->json(['reqObject' => $reqObject, 
+            'header' => $header, 
+            'X-APP-Key' => config('telebirr-super-app.testing') ? config('telebirr-super-app.fabricAppId_testing') : config('telebirr-super-app.fabricAppId'),
+            'baseUrl' => (config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrl_testing') : config('telebirr-super-app.baseUrl')) . '/payment/v1/merchant/preOrder',
+        ]);
 
         return $response;
     }
