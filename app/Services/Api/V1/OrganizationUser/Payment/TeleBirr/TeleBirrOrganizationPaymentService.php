@@ -45,7 +45,7 @@ class TeleBirrOrganizationPaymentService
         // returning pay url does NOT work
         // return response()->json(['PayOrderUrl' => $baseUrlPay . '?' . $rawRequest . '&version=1.0&trade_type=Checkout'], 200);
         
-        
+
         // instead RENDER a view and return it just as the following
         //
         $completeUrl = $baseUrlPay . '?' . $rawRequest . '&version=1.0&trade_type=Checkout';
@@ -128,7 +128,7 @@ class TeleBirrOrganizationPaymentService
             'REQUEST_OBJECT_____we_sent_is' => $reqObject, 
             'THE_HEADER_____we_sent_is' => $header, 
             'baseUrl_____we_used_is' => (config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrl_testing') : config('telebirr-super-app.baseUrl')) . '/payment/v1/merchant/preOrder',
-            'privateKey_____we_used_is' => config('telebirr-super-app.testing') ? config('telebirr-super-app.privateKey_testing') : config('telebirr-super-app.privateKey'),
+            // 'privateKey_____we_used_is' => config('telebirr-super-app.testing') ? config('telebirr-super-app.privateKey_testing') : config('telebirr-super-app.privateKey'),
             'response_____we_got_from_telebirr_is' => $response->json(), // Extract the response content from the HTTP response object USONG "->json()" // otherwise we return only $response, we will NOT get the value of the response
         ];
         //
@@ -195,9 +195,9 @@ class TeleBirrOrganizationPaymentService
             'business_type' => 'BuyGoods',
             'redirect_url' => 'https://www.adiamat.com/', // this URL is : - it is the page that the Payer will Redirected after finishing the payment
             'callback_info' => 'From web',
-            "payee_identifier" => config('telebirr-super-app.testing') ? config('telebirr-super-app.merchantCode_testing') : config('telebirr-super-app.merchantCode'),
-            "payee_identifier_type" => "04",
-	        "payee_type" => "5000",
+            // "payee_identifier" => config('telebirr-super-app.testing') ? config('telebirr-super-app.merchantCode_testing') : config('telebirr-super-app.merchantCode'),
+            // "payee_identifier_type" => "04",
+	        // "payee_type" => "5000",
         ];
 
 
