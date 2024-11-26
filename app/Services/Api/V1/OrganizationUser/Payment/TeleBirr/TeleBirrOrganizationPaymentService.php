@@ -32,28 +32,26 @@ class TeleBirrOrganizationPaymentService
 
         $requestCreateOrderResult = $this->requestCreateOrder($fabricToken, $title, $amount);
         // FOR TEST
-        return $requestCreateOrderResult;
+        // return $requestCreateOrderResult;
 
 
         $prepayId = $requestCreateOrderResult['biz_content']['prepay_id'];
-        // return $prepayId;
 
         $rawRequest = $this->createRawRequest($prepayId);
-        // return $rawRequest;
 
         $baseUrlPay = config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrlPay_testing') : config('telebirr-super-app.baseUrlPay');
         // //
 
-        
-        $completeUrl = $baseUrlPay . '?' . $rawRequest . '&version=1.0&trade_type=Checkout';
-        // echo trim((string)$completeUrl);
-        
-
+        // returning pay url does NOT work
         // return response()->json(['PayOrderUrl' => $baseUrlPay . '?' . $rawRequest . '&version=1.0&trade_type=Checkout'], 200);
-
         
+        
+        // instead RENDER a view and return it just as the following
+        //
+        $completeUrl = $baseUrlPay . '?' . $rawRequest . '&version=1.0&trade_type=Checkout';
+        //
         $renderedView = View::make('telebirr_pay_organization_using_url', ['completeUrl' => (string)$completeUrl])->render(); // passing payload directly
-
+        //
         return $renderedView;
     }
 
