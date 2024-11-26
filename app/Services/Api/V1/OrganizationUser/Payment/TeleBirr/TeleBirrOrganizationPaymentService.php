@@ -85,6 +85,10 @@ class TeleBirrOrganizationPaymentService
         //     return response()->json(['message' => 'Authentication failed (request timeout)'], 408);
         // }
 
+        return response()->json(['X-APP-key' => config('telebirr-super-app.testing') ? config('telebirr-super-app.fabricAppId_testing') : config('telebirr-super-app.fabricAppId'),
+            'appSecret' => config('telebirr-super-app.testing') ? config('telebirr-super-app.appSecret_testing') : config('telebirr-super-app.appSecret'),
+        ]);
+
         return $response;
 
     }
