@@ -97,7 +97,7 @@ class TeleBirrOrganizationPaymentService
         $header = [
             'Content-Type' => 'application/json',
             'X-APP-Key' => config('telebirr-super-app.testing') ? config('telebirr-super-app.fabricAppId_testing') : config('telebirr-super-app.fabricAppId'),
-            'Authorization' => substr($fabricToken, 7),
+            'Authorization' => $fabricToken,
         ];
 
         $response = Http::withHeaders([
