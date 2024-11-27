@@ -188,7 +188,7 @@ class TeleBirrOrganizationPaymentService
             'merch_code' => config('telebirr-super-app.testing') ? config('telebirr-super-app.merchantCode_testing') : config('telebirr-super-app.merchantCode'),
             'merch_order_id' => $invoiceCodeValWithPrefixPr,
             'trade_type' => 'Checkout',
-            'title' => $title,
+            'title' => "payment title" . $this->createMerchantOrderId(),
             'total_amount' => $amount,
             'trans_currency' => 'ETB',
             'timeout_express' => '120m',
