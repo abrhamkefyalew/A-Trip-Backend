@@ -9,17 +9,18 @@ use Illuminate\Support\Facades\Http;
 class TeleBirrVehiclePaymentService
 {    
 
-    public function initiatePaymentToVehicle($amount, $reason, $transactionId)
+    public function initiatePaymentToVehicle($transactionId, $amount, $reason)
     {
         try {
-            $telebirrRequestUrl = env('TELEBIRR_REQUEST_URL');
-            $thirdPartyID = env('THIRD_PARTY_ID');
-            $password = env('PASSWORD');
-            $resultURL = env('RESULT_URL');
-            $identifier = env('IDENTIFIER');
-            $securityCredential = env('SECURITY_CREDENTIAL');
-            $shortCode = env('SHORT_CODE');
-            $receiverIdentifier = env('RECEIVER_IDENTIFIER');
+            $telebirrRequestUrl = config('telebirr-b-to-c.testing') ? config('telebirr-b-to-c.request_url_testing') : config('telebirr-b-to-c.request_url');
+            $resultURL = config('telebirr-b-to-c.testing') ? config('telebirr-b-to-c.result_url_testing') : config('telebirr-b-to-c.result_url');
+
+            $thirdPartyID = config('telebirr-b-to-c.testing') ? config('telebirr-b-to-c.third_party_id_testing') : config('telebirr-b-to-c.third_party_id');
+            $password = config('telebirr-b-to-c.testing') ? config('telebirr-b-to-c.password_testing') : config('telebirr-b-to-c.password');
+            $identifier = config('telebirr-b-to-c.testing') ? config('telebirr-b-to-c.identifier_testing') : config('telebirr-b-to-c.identifier');
+            $securityCredential = config('telebirr-b-to-c.testing') ? config('telebirr-b-to-c.security_credential_testing') : config('telebirr-b-to-c.security_credential');
+            $shortCode = config('telebirr-b-to-c.testing') ? config('telebirr-b-to-c.short_code_testing') : config('telebirr-b-to-c.short_code');
+            $receiverIdentifier = "251913780190";
             
             // $amount = str($this->payment_transx->payment_amount);
             // $reason = $this->payment_transx->reason;

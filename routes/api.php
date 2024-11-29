@@ -909,6 +909,9 @@ Route::prefix('v1')->group(function () {
         Route::get('/pay_invoices_test_open_route_telebirr', [InvoiceForOrganizationController::class, 'testTelebirr']);
 
         // initiate payment test B to C (B2C)
+        Route::get('/pay_invoice_test_open_route_telebirr_b2c', [InvoiceVehicleController::class, 'testTelebirrB2C']);
+        
+
 
 
 
