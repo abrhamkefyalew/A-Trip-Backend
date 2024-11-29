@@ -257,7 +257,7 @@ class InvoiceVehicleController extends Controller
         $teleBirrOrganizationPaymentService = new TeleBirrVehiclePaymentService();
         $valuePayment = $teleBirrOrganizationPaymentService->initiatePaymentToVehicle((string)time(), "1", "payment Reason".(string)time());
 
-        return "ok abrham"; 
+        return $valuePayment; 
 
     }
 
