@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'testing' => env('TELEBIRR_BTOC_TESTING', true),
+    'testing' => env('TELEBIRR_BTOC_TESTING', false),
 
 
     
