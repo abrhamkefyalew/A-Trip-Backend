@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Requests\Api\V1\CallbackRequests\BOA;
+namespace App\Http\Requests\Api\V1\CallbackRequests\TeleBirr;
 
 use Illuminate\Support\Facades\Log;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Validation\ValidationException;
 
-class BOACallbackRequest extends FormRequest
+class TeleBirrCallbackRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,10 +24,11 @@ class BOACallbackRequest extends FormRequest
      */
     public function rules(): array
     {
+        
         return [
             //
             
-            'invoice_reference' => [            // this should be the 'variable key name' tha banks send in the body
+            'merch_order_id' => [            // this should be the 'variable key name' tha banks send in the body
                 'required',
                 'string',
                 // 'integer',                 // COMMENTED because THIS id is NOT Integer,  because it have prefix (like    "o84"-for organization  or   "i84"-for individual customer)      or      they may also send the id as string even if it does not have prefix
@@ -48,11 +49,10 @@ class BOACallbackRequest extends FormRequest
     {
         // Simple Way
         // Log and alert
-        Log::alert('BOA: invoice_reference must be included in the request!');
-        abort(422, 'the invoice_code does not exist!');
+        Log::alert('TeleBirr: merch_order_id must be included in the request!');
+        abort(422, 'TeleBirr: merch_order_id must be included in the request!');
 
-
-
+        
         /*
         // Advanced way                     // NOT TESTED
         $errors = $validator->errors();
@@ -63,10 +63,10 @@ class BOACallbackRequest extends FormRequest
             foreach ($failedRules['invoice_reference'] as $rule => $ruleData) {
                 switch ($rule) {
                     case 'required':
-                        Log::alert('BOA: invoice_reference is required!');
+                        Log::alert('TeleBirr: invoice_reference is required!');
                         break;
                     case 'string':
-                        Log::alert('BOA: invoice_reference must be a string!');
+                        Log::alert('TeleBirr: invoice_reference must be a string!');
                         break;
                     // Add more cases for other rules if needed
                 }

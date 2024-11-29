@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Api\V1\Callback\OrganizationUser\BOA;
+namespace App\Services\Api\V1\Callback\OrganizationUser\TeleBirr;
 
 use App\Models\Order;
 use App\Models\Invoice;
@@ -12,20 +12,23 @@ use Illuminate\Support\Facades\Log;
  * i.e. PR payment Callback for organization - or -  any other payment Callback for organization
  * 
  */
-class BOAOrganizationCallbackService
+class TeleBirrOrganizationCallbackService
 {
 
     /**
      * Handles PR payment callback
      * 
-     * // good names : - // processBankCallback // handleBankCallback // executeAfterBankCallback // performOperationOnBankCallback // onBankCallbackDoOperation // processPaymentByBoaForPRCallback // handlePaymentByBoaForPRCallback
+     * // good names : - // processBankCallback // handleBankCallback // executeAfterBankCallback // performOperationOnBankCallback // onBankCallbackDoOperation // processPaymentByTeleBirrForPRCallback // handlePaymentByTeleBirrForPRCallback
      * 
      */
-    public function handlePaymentForPRCallback($invoiceReferenceWithPrefixFromBoa)
+    public function handlePaymentForPRCallback($invoiceReferenceWithPrefixFromTeleBirr)
     {
         // first lets strip out "OPR-" prefix from the invoice code we got
-        $invoiceCode = substr($invoiceReferenceWithPrefixFromBoa, 4); // Start from the 5th character onwards // THIS WORKS
-        // $invoiceCode = str_replace("OPR-", "", $invoiceReferenceWithPrefixFromBoa);                        // This Works ALSO
+        $invoiceCode = substr($invoiceReferenceWithPrefixFromTeleBirr, 4); // Start from the 5th character onwards // THIS WORKS
+        // $invoiceCode = str_replace("OPR-", "", $invoiceReferenceWithPrefixFromTeleBirr);                        // This Works ALSO
+
+        Log::info('prefixed-invoice_code: '. $invoiceReferenceWithPrefixFromTeleBirr);
+        Log::info('invoice_code: '. $invoiceCode);
 
         DB::transaction(function () use ($invoiceCode) {
             
@@ -41,8 +44,8 @@ class BOAOrganizationCallbackService
             //
             // i used ->isEmpty() - (i.e. if ($invoices->isEmpty())) // because $invoices is a collection using if (!$invoices) will create a problem
             if ($invoices->isEmpty()) { 
-                Log::alert('BOA callback: invoice (invoices) does not exist with the provided invoice_code!. invoice_code!: '. $invoiceCode);
-                abort(422, 'BOA callback: invoice (invoices) does not exist with the provided invoice_code!. invoice_code!: '. $invoiceCode);
+                Log::alert('TeleBirr callback: invoice (invoices) does not exist with the provided invoice_code!. invoice_code!: '. $invoiceCode);
+                abort(422, 'TeleBirr callback: invoice (invoices) does not exist with the provided invoice_code!. invoice_code!: '. $invoiceCode);
             }
 
 
@@ -131,8 +134,8 @@ class BOAOrganizationCallbackService
                                 // this way we will have a variable to assign to the pr_status of order table as we did below (i.e = 'pr_status' => $orderPrStatus,)
 
         } else {
-            Log::alert('BOA callback: invalid order PR status for organization!. PR_STATUS: ' . $invoice->order->pr_status);
-            abort(422, 'BOA callback: invalid order PR status for organization!. PR_STATUS: ' . $invoice->order->pr_status);
+            Log::alert('TeleBirr callback: invalid order PR status for organization!. PR_STATUS: ' . $invoice->order->pr_status);
+            abort(422, 'TeleBirr callback: invalid order PR status for organization!. PR_STATUS: ' . $invoice->order->pr_status);
         }
 
     }
@@ -150,8 +153,8 @@ class BOAOrganizationCallbackService
         ]);
         // Handle invoice update failure
         if (!$success) {
-            Log::alert('BOA callback: Invoice Update Failed for organization!');
-            abort(500, 'BOA callback: Invoice Update Failed for organization!');
+            Log::alert('TeleBirr callback: Invoice Update Failed for organization!');
+            abort(500, 'TeleBirr callback: Invoice Update Failed for organization!');
         }
 
     }
@@ -165,8 +168,8 @@ class BOAOrganizationCallbackService
         ]);
         // Handle order update failure
         if (!$successTwo) {
-            Log::alert('BOA callback: Order Update Failed for organization!');
-            abort(500, 'BOA callback: Order Update Failed for organization!');
+            Log::alert('TeleBirr callback: Order Update Failed for organization!');
+            abort(500, 'TeleBirr callback: Order Update Failed for organization!');
         }
 
     }

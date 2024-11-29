@@ -2,23 +2,82 @@
 
 namespace App\Http\Controllers\Api\V1\Callback\TeleBirr;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\CallbackRequests\TeleBirr\TeleBirrCallbackRequest;
+use App\Services\Api\V1\Callback\Customer\TeleBirr\TeleBirrCustomerCallbackService;
+use App\Services\Api\V1\Callback\OrganizationUser\TeleBirr\TeleBirrOrganizationCallbackService;
 
 class TeleBirrCallbackController extends Controller
 {
     /**
      * payment callback for invoice (comes from banks)
      */
-    public function payInvoicesCallback(Request $request)
+    public function payInvoicesCallback(TeleBirrCallbackRequest $request)
     {
         //
-        // $var = DB::transaction(function () {
-            
-        // });
+        // Log::info("Callback info Telebirr : ". response()->json(['request value' => $request])); // NOT working
+        Log::info("Callback info Telebirr: " . json_encode(['Callback request Value' => $request->all()]));
+        Log::info("Callback info Telebirr: " . json_encode(['Callback request Headers: ' => $request->header()]));
 
-        // return $var;
+
+        // BEFORE PROCEEDING to the next step we need to check IF the Payment was ACTUALLY SUCCESSFUL
+        // use 'trade_status' to check if payment is successful 
+        //      // 402 status code means = payment required
+        // 
+        // check abrham samson
+        if ($request['trade_status'] != "Completed") {
+            Log::alert('trade_status is NOT-Completed - so Payment NOT success - (payment required) for merch_order_id : - ' . $request['merch_order_id']);
+            abort(402, 'trade_status is NOT-Completed - so Payment NOT success - (payment required) for merch_order_id : - ' . $request['merch_order_id']);
+        }
+
+
+        // Check abrham samson
+        // we need to store the callback body : - $request->all()   in the appropriate INVOICE table (i.e. based on the prefix)
+
+        
+        
+        //
+        if (substr($request['merch_order_id'], 0, 4) == config('constants.payment.customer_to_business.organization_pr')) {
+            
+            $teleBirrOrganizationCallbackService = new TeleBirrOrganizationCallbackService();
+            $handlePaymentByTeleBirrForPRCallbackValue = $teleBirrOrganizationCallbackService->handlePaymentForPRCallback($request['merch_order_id']);
+
+
+            // since it is call back we will not return value to the banks
+            // or may be 200 OK response // check abrham samson
+
+        }
+        
+        else if (substr($request['merch_order_id'], 0, 4) == config('constants.payment.customer_to_business.individual_customer_initial')) {
+            
+            // pass the whole invoice reference for the callback
+            $teleBirrCustomerPaymentService = new TeleBirrCustomerCallbackService($request['merch_order_id']);
+
+            // Calling a callback non static method
+            $value = $teleBirrCustomerPaymentService->handleInitialPaymentForVehicleCallback();
+
+            // since it is call back we will not return value to the banks
+            // or may be 200 OK response // check abrham samson
+
+        }
+        else if (substr($request['merch_order_id'], 0, 4) == config('constants.payment.customer_to_business.individual_customer_final')) {
+            
+            // pass the whole invoice reference for the callback
+            $teleBirrCustomerPaymentService = new TeleBirrCustomerCallbackService($request['merch_order_id']);
+
+            // Calling a callback non static method
+            $value = $teleBirrCustomerPaymentService->handleFinalPaymentForVehicleCallback();
+
+            // since it is call back we will not return value to the banks
+            // or may be 200 OK response // check abrham samson
+
+        }
+        
+
     }
+
 
 
 

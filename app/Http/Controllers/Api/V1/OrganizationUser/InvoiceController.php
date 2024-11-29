@@ -582,7 +582,7 @@ class InvoiceController extends Controller
             if (!$invoices) {
                 // I must CHECK this condition 
                 Log::alert('BOA: the invoice_code does not exist!');
-                abort(404, 'the invoice_code does not exist!');
+                abort(422, 'the invoice_code does not exist!');
             }
 
 
@@ -687,7 +687,7 @@ class InvoiceController extends Controller
     public function testTelebirr() 
     {
         $teleBirrOrganizationPaymentService = new TeleBirrOrganizationPaymentService();
-        $valuePayment = $teleBirrOrganizationPaymentService->createOrder("SampleTitle", "44");
+        $valuePayment = $teleBirrOrganizationPaymentService->createOrder("SampleTitle", "1"); // SampleTitle is the InvoiceCode
 
         return $valuePayment; 
 

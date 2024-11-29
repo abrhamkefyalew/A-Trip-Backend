@@ -61,7 +61,7 @@ class BOACustomerCallbackServiceMock
                 
                 // LOG it here                                            return response()->json(['message' => 'the invoice_user_id does not exist'], 404); // change this to log
                 Log::alert('BOA: the invoice_user_id does not exist!');
-                abort(404, 'the invoice_user_id does not exist!');
+                abort(422, 'the invoice_user_id does not exist!');
             }
 
             // Update the invoice status and paid date
@@ -168,7 +168,7 @@ class BOACustomerCallbackServiceMock
                 
                 // LOG it here                                            return response()->json(['message' => 'the invoice_user_id does not exist'], 404); // change this to log
                 Log::alert('BOA: the invoice_user_id does not exist!');
-                abort(404, 'the invoice_user_id does not exist!');
+                abort(422, 'the invoice_user_id does not exist!');
             }
 
             // Update the invoice status and paid date

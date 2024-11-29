@@ -9,7 +9,7 @@
         <?php
 
             function useAnchorOpen($completeUrl) {
-                echo '<a id="hiddenAnchor" href="' . htmlspecialchars($completeUrl) . '" target="_blank" rel="external" style="display:none;"> PAY </a>';
+                echo '<a id="hiddenAnchor" href="' . htmlspecialchars($completeUrl) . '" target="_self" rel="external" style="display:none;"> PAY </a>';
                 echo '<script>document.getElementById("hiddenAnchor").click();</script>';
             }
 

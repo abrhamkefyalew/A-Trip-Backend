@@ -21,11 +21,6 @@ class TeleBirrOrganizationPaymentService
       
     public function createOrder($title, $amount)
     {
-
-        // // FOR TEST
-        // $reqObject = $this->createRequestObject($title, $amount);
-        // return $reqObject;
-
         
         $fabricTokenFunction = $this->applyFabricToken();
         $fabricToken = $fabricTokenFunction['token'];
@@ -36,71 +31,59 @@ class TeleBirrOrganizationPaymentService
 
 
         $requestCreateOrderResult = $this->requestCreateOrder($fabricToken, $title, $amount);
-
         // FOR TEST
         // return $requestCreateOrderResult;
 
 
         $prepayId = $requestCreateOrderResult['biz_content']['prepay_id'];
 
-        // return $prepayId;
-
         $rawRequest = $this->createRawRequest($prepayId);
 
-
-        // return $rawRequest;
-
-        $baseUrlPay = config('telebirr-super-app.baseUrlPay');
+        $baseUrlPay = config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrlPay_testing') : config('telebirr-super-app.baseUrlPay');
         // //
 
-        
-        $completeUrl = $baseUrlPay . '?' . $rawRequest . '&version=1.0&trade_type=Checkout';
-        // echo trim((string)$completeUrl);
-        
-
+        // returning pay url does NOT work
         // return response()->json(['PayOrderUrl' => $baseUrlPay . '?' . $rawRequest . '&version=1.0&trade_type=Checkout'], 200);
-
         
-        $renderedView = View::make('telebirr_pay_organization_using_url', ['completeUrl' => (string)$completeUrl])->render(); // passing payload directly
 
+        // instead RENDER a view and return it just as the following
+        //
+        $completeUrl = $baseUrlPay . '?' . $rawRequest . '&version=1.0&trade_type=Checkout';
+        //
+        $renderedView = View::make('telebirr_pay_organization_using_url', ['completeUrl' => (string)$completeUrl])->render(); // passing payload directly
+        //
         return $renderedView;
     }
 
     public function applyFabricToken()
     {
-        $response = Http::withHeaders([
-                'Content-Type' => 'application/json',
-                'X-APP-Key' => config('telebirr-super-app.fabricAppId'),
-            ])
-            ->withOptions([
-                'verify' => false, // To bypass SSL verification
-            ])
-            ->post(config('telebirr-super-app.baseUrl') . '/payment/v1/token', [
-                'appSecret' => config('telebirr-super-app.appSecret'),
-            ])
-            // ->throw()
-            ->json();
 
-        return $response;
-
-
-        /*
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
-            // 'X-APP-Key' => config('telebirr-super-app.fabricAppId'),
+            'X-APP-Key' => config('telebirr-super-app.testing') ? config('telebirr-super-app.fabricAppId_testing') : config('telebirr-super-app.fabricAppId'),
         ])
         ->timeout(60)
         ->withOptions([
-            'verify' => true, // To bypass SSL verification
+            'verify' => (!config('telebirr-super-app.testing')), // To bypass SSL verification
         ])
-        ->get("https://fake-json-api.mock.beeceptor.com/companies", 
-            // ['appSecret' => config('telebirr-super-app.appSecret'),]
-        )
-        // ->throw()
-        ->json();
+        ->post((config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrl_testing') : config('telebirr-super-app.baseUrl')) . '/payment/v1/token', [
+            'appSecret' => config('telebirr-super-app.testing') ? config('telebirr-super-app.appSecret_testing') : config('telebirr-super-app.appSecret'),
+        ]);
+
+
+        // this is to avoid the Occurrence of laravel ERROR on the Screen when Error Happens from Telebirr side
+        if (!$response->successful()) {
+            // return response()->json(['message' => 'Authentication failed (precondition failed)'], 412);
+            // return response()->json(['message' => 'Authentication failed (expectation failed)'], 417);
+            // return response()->json(['message' => 'Authentication failed (gateway timeout)'], 504);
+            return response()->json([
+                'message' => 'Authentication failed (request timeout)',
+                'response_____we_got_from_telebirr_is' => $response->json(),
+            ], 408);
+        }
 
         return $response;
-        */
+
     }
 
 
@@ -108,25 +91,51 @@ class TeleBirrOrganizationPaymentService
     {
         $reqObject = $this->createRequestObject($title, $amount);
 
-        // return $reqObject;
-
         $header = [
             'Content-Type' => 'application/json',
-            'X-APP-Key' => config('telebirr-super-app.fabricAppId'),
+            'X-APP-Key' => config('telebirr-super-app.testing') ? config('telebirr-super-app.fabricAppId_testing') : config('telebirr-super-app.fabricAppId'),
             'Authorization' => $fabricToken,
         ];
 
-        $response = Http::withHeaders([
+        $response = Http::withHeaders(
             $header,
-        ])
-        ->withOptions([
-            'verify' => false, // To bypass SSL verification
-        ])
-        ->post(config('telebirr-super-app.baseUrl') . '/payment/v1/merchant/preOrder', 
-            $reqObject,
         )
-        // ->throw()
-        ->json();
+        ->withOptions([
+            'verify' => (!config('telebirr-super-app.testing')), // To bypass SSL verification
+        ])
+        ->post((config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrl_testing') : config('telebirr-super-app.baseUrl')) . '/payment/v1/merchant/preOrder', 
+            $reqObject,
+        );
+
+        // this is to avoid the Occurrence of laravel ERROR on the Screen when Error Happens from Telebirr side
+        if (!$response->successful()) {
+            // return response()->json(['message' => 'Authentication failed (precondition failed)'], 412);
+            // return response()->json(['message' => 'Authentication failed (expectation failed)'], 417);
+            // return response()->json(['message' => 'Authentication failed (gateway timeout)'], 504);
+            return response()->json([
+                'message' => 'Authentication failed (request timeout)',
+                'response_____we_got_from_telebirr_is' => $response->json(),
+            ], 408);
+        }
+
+
+
+
+
+
+        // LOG - ALL of Request and Response Info FOR requestCreateOrder() 
+        $allRequestResponseInfoFORrequestCreateOrder_TO_BE_LOGGED = [
+            'REQUEST_OBJECT_____we_sent_is' => $reqObject, 
+            'THE_HEADER_____we_sent_is' => $header, 
+            'baseUrl_____we_used_is' => (config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrl_testing') : config('telebirr-super-app.baseUrl')) . '/payment/v1/merchant/preOrder',
+            // 'privateKey_____we_used_is' => config('telebirr-super-app.testing') ? config('telebirr-super-app.privateKey_testing') : config('telebirr-super-app.privateKey'),
+            'response_____we_got_from_telebirr_is' => $response->json(), // Extract the response content from the HTTP response object USONG "->json()" // otherwise we return only $response, we will NOT get the value of the response
+        ];
+        //
+        Log::info("Telebirr (Organization Payment For Order): ALL of Request and Response Info FOR requestCreateOrder()" . json_encode($allRequestResponseInfoFORrequestCreateOrder_TO_BE_LOGGED));
+
+
+
 
         return $response;
     }
@@ -146,13 +155,13 @@ class TeleBirrOrganizationPaymentService
 
 
         // $biz = [
-        //     'appid' => config('telebirr-super-app.merchantAppId'),
+        //     'appid' => config('telebirr-super-app.testing') ? config('telebirr-super-app.merchantAppId_testing') : config('telebirr-super-app.merchantAppId'),
         //     'business_type' => 'BuyGoods',
         //     'callback_info' => 'From web',
-        //     'merch_code' => config('telebirr-super-app.merchantCode'),
+        //     'merch_code' => config('telebirr-super-app.testing') ? config('telebirr-super-app.merchantCode_testing') : config('telebirr-super-app.merchantCode'),
         //     'merch_order_id' => $this->createMerchantOrderId(),
-        //     'notify_url' => 'https://www.google.com',
-        //     'redirect_url' => 'https://www.bing.com/',
+        //     'notify_url' => 'http://51.21.65.237:9050/api/v1/call_backs/tele_birr/pay_invoices_call_back',
+        //     'redirect_url' => 'https://www.adiamat.com/', // this URL is : - it is the page that the Payer will Redirected after finishing the payment
         //     'timeout_express' => '120m',
         //     'title' => $title,
         //     'total_amount' => $amount,
@@ -174,18 +183,21 @@ class TeleBirrOrganizationPaymentService
         // $invoiceCodeValWithPrefixPr = $this->createMerchantOrderId();
 
         $biz = [
-            'notify_url' => 'https://www.google.com',
-            'appid' => config('telebirr-super-app.merchantAppId'),
-            'merch_code' => config('telebirr-super-app.merchantCode'),
+            'notify_url' => 'http://51.21.65.237:9050/api/v1/call_backs/tele_birr/pay_invoices_call_back',
+            'appid' => config('telebirr-super-app.testing') ? config('telebirr-super-app.merchantAppId_testing') : config('telebirr-super-app.merchantAppId'),
+            'merch_code' => config('telebirr-super-app.testing') ? config('telebirr-super-app.merchantCode_testing') : config('telebirr-super-app.merchantCode'),
             'merch_order_id' => $invoiceCodeValWithPrefixPr,
             'trade_type' => 'Checkout',
-            'title' => $title,
+            'title' => "payment title" . $this->createMerchantOrderId(),
             'total_amount' => $amount,
             'trans_currency' => 'ETB',
             'timeout_express' => '120m',
             'business_type' => 'BuyGoods',
-            'redirect_url' => 'https://www.bing.com/',
+            'redirect_url' => 'https://www.adiamat.com/', // this URL is : - it is the page that the Payer will Redirected after finishing the payment
             'callback_info' => 'From web',
+            "payee_identifier" => config('telebirr-super-app.testing') ? config('telebirr-super-app.merchantCode_testing') : config('telebirr-super-app.merchantCode'),
+            "payee_identifier_type" => "04",
+	        "payee_type" => "5000",
         ];
 
 
@@ -213,8 +225,8 @@ class TeleBirrOrganizationPaymentService
     private function createRawRequest($prepayId)
     {
         $map = [
-            'appid' => config('telebirr-super-app.merchantAppId'),
-            'merch_code' => config('telebirr-super-app.merchantCode'),
+            'appid' => config('telebirr-super-app.testing') ? config('telebirr-super-app.merchantAppId_testing') : config('telebirr-super-app.merchantAppId'),
+            'merch_code' => config('telebirr-super-app.testing') ? config('telebirr-super-app.merchantCode_testing') : config('telebirr-super-app.merchantCode'),
             'nonce_str' => $this->createNonceStr(),
             'prepay_id' => $prepayId,
             'timestamp' => $this->createTimeStamp(),
@@ -256,10 +268,19 @@ class TeleBirrOrganizationPaymentService
 
 
     /**
-     * @use phpseclibCryptRSA version - 1.0
+     * @use phpseclibCryptRSA version - 1.0 // this is what they say in TELEBirr Documentation // but it is NOT the correct version, the correct version is "~2.0"
+     * 
+     * So 1.0 is the WRONG version
+     * 
+     * instead USE = "~2.0"
+     * 
+     * PUT this in COMPOSER    then do = composer update and composer install
+     * phpseclib/phpseclib": "~2.0",
+     * // then
+     * import = use phpseclib3\Crypt\RSA
+     * 
+     * 
      */
-    // use phpseclibCryptRSA;
-
     private function sign($request)
     {
 
@@ -322,15 +343,15 @@ class TeleBirrOrganizationPaymentService
     public function SignWithRSA($data)
     {
         // requires package installation 
-        //          - v2.0   (import = use phpseclib3\Crypt\RSA)
+        //          ~ v2.0   (import = use phpseclib3\Crypt\RSA)
         //          // 
-        //          PUT this in COMPOSER    then do = composer update
+        //          PUT this in COMPOSER    then do = composer update and composer install
         //              phpseclib/phpseclib": "~2.0",
         //
         //
         $rsa = new RSA();
 
-        $private_key_load = config('telebirr-super-app.privateKey');
+        $private_key_load = config('telebirr-super-app.testing') ? config('telebirr-super-app.privateKey_testing') : config('telebirr-super-app.privateKey');
         $private_key = $this->trimPrivateKey($private_key_load)[2];
 
         if ($rsa->loadKey($private_key) != true) {
@@ -361,7 +382,7 @@ class TeleBirrOrganizationPaymentService
     //     // Create a new RSA key pair
     //     $rsa = RSA::createKey();
 
-    //     $privateKeyFromConfig = config('telebirr-super-app.privateKey');
+    //     $privateKeyFromConfig = config('telebirr-super-app.testing') ? config('telebirr-super-app.privateKey_testing') : config('telebirr-super-app.privateKey');
 
     //     $private_key = $this->trimPrivateKey($privateKeyFromConfig)[2];
 
@@ -381,7 +402,7 @@ class TeleBirrOrganizationPaymentService
     // private function signWithRSA($data)
     // {
     //     // Load the RSA private key from configuration
-    //     $rsaPrivateKeyConfig = config('telebirr-super-app.privateKey');
+    //     $rsaPrivateKeyConfig = config('telebirr-super-app.testing') ? config('telebirr-super-app.privateKey_testing') : config('telebirr-super-app.privateKey');
 
     //     // Create a private key resource for RSA operation
     //     $rsaPrivateKeyResource = openssl_pkey_get_private($rsaPrivateKeyConfig);
