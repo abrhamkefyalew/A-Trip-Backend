@@ -23,7 +23,7 @@ class TeleBirrVehiclePaymentService
             $identifier = config('telebirr-b-to-c.testing') ? config('telebirr-b-to-c.identifier_testing') : config('telebirr-b-to-c.identifier');
             $securityCredential = config('telebirr-b-to-c.testing') ? config('telebirr-b-to-c.security_credential_testing') : config('telebirr-b-to-c.security_credential');
             $shortCode = config('telebirr-b-to-c.testing') ? config('telebirr-b-to-c.short_code_testing') : config('telebirr-b-to-c.short_code');
-            $receiverIdentifier = "251913780190";
+            $receiverIdentifier = "251921169521";
             
             // $amount = str($this->payment_transx->payment_amount);
             // $reason = $this->payment_transx->reason;
