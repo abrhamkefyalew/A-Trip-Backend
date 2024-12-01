@@ -13,7 +13,6 @@ use App\Services\Api\V1\FilteringService;
 use App\Http\Requests\Api\V1\AdminRequests\PayInvoiceVehicleRequest;
 use App\Http\Resources\Api\V1\InvoiceVehicleResources\InvoiceVehicleResource;
 use App\Services\Api\V1\Admin\Payment\TeleBirr\TeleBirrVehiclePaymentService;
-use App\Services\Api\V1\Admin\Payment\TeleBirr\TeleBirrVehiclePaymentService2;
 
 class InvoiceVehicleController extends Controller
 {
@@ -255,7 +254,7 @@ class InvoiceVehicleController extends Controller
 
     public function testTelebirrB2C() 
     {
-        $teleBirrOrganizationPaymentService = new TeleBirrVehiclePaymentService2();
+        $teleBirrOrganizationPaymentService = new TeleBirrVehiclePaymentService();
         $valuePayment = $teleBirrOrganizationPaymentService->initiatePaymentToVehicle((string)time(), "1", "payment Reason".(string)time());
 
         return $valuePayment; 
