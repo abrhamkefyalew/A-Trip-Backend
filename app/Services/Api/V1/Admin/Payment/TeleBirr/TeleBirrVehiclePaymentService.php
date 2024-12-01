@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Http;
 class TeleBirrVehiclePaymentService
 {    
 
+    // B2C
     public function initiatePaymentToVehicle($transactionId, $amount, $reason)
     {
         try {
@@ -30,7 +31,7 @@ class TeleBirrVehiclePaymentService
 
 
             /*
-            $initiateRequestDataOne = "
+            $initiateRequestData = "
                 <soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:com='http://cps.huawei.com/cpsinterface/common' xmlns:api='http://cps.huawei.com/cpsinterface/api_requestmgr' xmlns:req='http://cps.huawei.com/cpsinterface/request'>
                 <soapenv:Header/>
                 <soapenv:Body>
@@ -79,11 +80,13 @@ class TeleBirrVehiclePaymentService
                 </soapenv:Envelope>
             ";
             */
+            
 
 
-            /*
 
-            $initiateRequestDataTwo = <<<XML
+            
+
+            $initiateRequestData = <<<XML
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:com="http://cps.huawei.com/cpsinterface/common" xmlns:api="http://cps.huawei.com/cpsinterface/api_requestmgr" xmlns:req="http://cps.huawei.com/cpsinterface/request">
                 <soapenv:Header/>
                 <soapenv:Body>
@@ -131,7 +134,15 @@ class TeleBirrVehiclePaymentService
                 </soapenv:Body>
             </soapenv:Envelope>
             XML;
-            */
+            
+
+
+            // dd($initiateRequestData);
+
+            return $initiateRequestData;
+
+
+
 
 /*            
 $initiateRequestData = <<<XML
@@ -170,17 +181,56 @@ $initiateRequestData = "
 */
 
 
-
+/*
 $initiateRequestData = "
 <soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:com='http://cps.huawei.com/cpsinterface/common' xmlns:api='http://cps.huawei.com/cpsinterface/api_requestmgr' xmlns:req='http://cps.huawei.com/cpsinterface/request'>
     <soapenv:Header/>
     <soapenv:Body>
         <api:Request>
-
+            <req:Header>
+                <req:Version>1.0</req:Version>
+                <req:CommandID>InitTrans_2003</req:CommandID>
+                <req:OriginatorConversationID>123456789</req:OriginatorConversationID>
+                <req:Caller>
+                    <req:CallerType>2</req:CallerType>
+                    <req:ThirdPartyID>AdiamatTrading</req:ThirdPartyID>
+                    <req:Password>+P0dZnDwl61Hx+D5EhDKtwZOyV9vfymkhx5TMDjQyx4=</req:Password>
+                    <req:ResultURL>eyewtw</req:ResultURL>
+                </req:Caller>
+                <req:KeyOwner>1</req:KeyOwner>
+                <req:Timestamp>1733054928</req:Timestamp>
+            </req:Header>
+            <req:Body>
+                <req:Identity>
+                    <req:Initiator>
+                        <req:IdentifierType>12</req:IdentifierType>
+                        <req:Identifier>5133611</req:Identifier>
+                        <req:SecurityCredential>PGZKqOv64CxUWIO9QW2320N+I9de3SJDid+BQhmT88g=</req:SecurityCredential>
+                        <req:ShortCode>513361</req:ShortCode>
+                    </req:Initiator>
+                    <req:ReceiverParty>
+                        <req:IdentifierType>1</req:IdentifierType>
+                        <req:Identifier>0903942298</req:Identifier>
+                    </req:ReceiverParty>
+                </req:Identity>
+                <req:TransactionRequest>
+                    <req:Parameters>
+                        <req:Amount>1</req:Amount>
+                        <req:Currency>ETB</req:Currency>
+                    </req:Parameters>
+                </req:TransactionRequest>
+                <req:ReferenceData>
+                    <req:ReferenceItem>
+                        <com:Key>Remarks</com:Key>
+                        <com:Value>dhdfutyu</com:Value>
+                    </req:ReferenceItem>
+                </req:ReferenceData>
+            </req:Body>
         </api:Request>
     </soapenv:Body>
 </soapenv:Envelope>
 ";
+*/
 
             // Send SOAP request
             $response = Http::withHeaders([

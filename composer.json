@@ -6,6 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.1",
+        "artisaninweb/laravel-soap": "^0.3.0",
         "guzzlehttp/guzzle": "^7.2",
         "kreait/firebase-php": "^7.13",
         "laravel/framework": "^10.10",
@@ -13,7 +14,8 @@
         "laravel/tinker": "^2.8",
         "phpseclib/phpseclib": "~2.0",
         "spatie/laravel-medialibrary": "^10.15",
-        "staudenmeir/eloquent-has-many-deep": "^1.7"
+        "staudenmeir/eloquent-has-many-deep": "^1.7",
+        "ext-soap": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
