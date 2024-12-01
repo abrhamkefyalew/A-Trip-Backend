@@ -128,8 +128,8 @@ class TeleBirrVehiclePaymentService
             // XML;
 
 
-
-            $initiateRequestData = <<<XML
+            /*
+            $initiateRequestDataThree = <<<XML
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:req="http://cps.huawei.com/cpsinterface/request">
                 <soapenv:Header/>
                 <soapenv:Body>
@@ -186,6 +186,68 @@ class TeleBirrVehiclePaymentService
                 </soapenv:Body>
             </soapenv:Envelope>
             XML;
+
+            */
+
+
+
+            $initiateRequestData = "
+            <soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:req='http://cps.huawei.com/cpsinterface/request'>
+                <soapenv:Header/>
+                <soapenv:Body>
+                    <req:RequestMsg><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
+                        <Request>
+                            <KeyOwner>1</KeyOwner>
+                            <Identity>
+                                <Caller>
+                                    <CallerType>2</CallerType>
+                                    <ThirdPartyID>{$thirdPartyID}</ThirdPartyID>
+                                    <Password>{$password}</Password>
+                                    <ResultURL>{$resultURL}</ResultURL>
+                                </Caller>
+                                <Initiator>
+                                    <IdentifierType>11</IdentifierType>
+                                    <Identifier>{$identifier}</Identifier>
+                                    <SecurityCredential>{$securityCredential}</SecurityCredential>
+                                    <ShortCode>{$shortCode}</ShortCode>
+                                </Initiator>
+                                <ReceiverParty>
+                                    <IdentifierType>1</IdentifierType>
+                                    <Identifier>{$receiverIdentifier}</Identifier>
+                                </ReceiverParty>
+                            </Identity>
+                            <Transaction>
+                                <CommandID>InitTrans_2304</CommandID>
+                                <Timestamp>{$timestamp}</Timestamp>
+                                <Parameters>
+                                    <Parameter>
+                                        <Key>Amount</Key>
+                                        <Value>{$amount}</Value>
+                                    </Parameter>
+                                    <Parameter>
+                                        <Key>Currency</Key>
+                                        <Value>ETB</Value>
+                                    </Parameter>
+                                    <Parameter>
+                                        <Key>ReasonType</Key>
+                                        <Value>Pay for Individual B2C_VDF_Demo</Value>
+                                    </Parameter>
+                                    <Parameter>
+                                        <Key>Remark</Key>
+                                        <Value>{$reason}</Value>
+                                    </Parameter>
+                                </Parameters>
+                                <ReferenceData>
+                                    <ReferenceItem>
+                                        <Key>POSDeviceID</Key>
+                                        <Value>POS234789</Value>
+                                    </ReferenceItem>
+                                </ReferenceData>
+                            </Transaction>
+                        </Request>]]></req:RequestMsg>
+                </soapenv:Body>
+            </soapenv:Envelope>
+            ";
 
 
             // Send SOAP request
