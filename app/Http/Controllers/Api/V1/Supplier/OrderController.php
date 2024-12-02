@@ -444,22 +444,72 @@ class OrderController extends Controller
                 return response()->json(['message' => 'this order is not STARTED. order should be STARTED before it can be COMPLETED.'], 428); 
             }
 
+            
+
+            /*
+                The reason i did the following TWO conditions is because of PR asking. and for the following TWO scenarios
+                        //
+                        NOW
+                    1. if a we COMPLETE an order before it's intended end_date, 
+                                    - then NO Problem, - there sill NOT be any problems caused by this scenario
+                             => SO the end_date of the order will be the date the order is completed.    i.e. in other words the order end_date will be today() [today being the date the order is being completed].
+                        //
+                        //
+                        BUT
+                    2. if a we COMPLETE an order way after it's intended end_date (or Complete the order on a date that is EQUAL to its intended end_date), 
+                                    - that will create extra days that the organization is asked PR by Adiamat
+                                    - that will create extra days that the vehicle (supplier) itself is payed by Adiamat
+                             => SO the end_date of the order will be the already existing end_date of the order.    i.e. in other words the order end_date will NOT be changed.
+            */
+            //
+            //
             // todays date
             $today = now()->format('Y-m-d');
             //
-            // if "order status is set to complete"  // the order end_date must be set to  $today().
-            // we do this Because if the order end date is in the future still and we sent ORDER_STATUS_COMPLETE, the project still charges the the organization for the remaining days until the project end_date is reached, even if the "order status is set to COPMPLETE"
+            // 
+            // we do this Because if the order end date is in the future still and we sent ORDER_STATUS_COMPLETE, the project still charges the the customer for the remaining days until the project end_date is reached, even if the "order status is set to COMPLETE"
             // solution is the above, if we make the order end date = today(), when order is set to Complete , then the order end_date will match the order Complete status,  and there will not be any left over dates we ask payment to after the order is complete
             //
             //
-            $success = $order->update([
-                'status' => Order::ORDER_STATUS_COMPLETE,
-                'end_date' => $today,                           /* // if "order status is set to complete"  // the order end_date must be set to  $today() */
-            ]);
             //
-            if (!$success) {
-                return response()->json(['message' => 'Order Update Failed'], 500);
+            $orderEndDate = Carbon::parse($order->end_date)->toDateString();
+            //
+            //
+            //
+            // if a we COMPLETE an order before it's intended end_date,   - or -   if the order that is about to be completed does NOT reach its end_date,
+            // if today's date does is less than the order's end_date
+            //
+            // => SO the end_date of the order will be the date the order is completed.    i.e. in other words the order end_date will be today() [today being the date the order is being completed].
+            if ($today < $orderEndDate) {
+
+                $success = $order->update([
+                    'status' => Order::ORDER_STATUS_COMPLETE,
+                    'end_date' => $today,
+                ]);
+                //
+                if (!$success) {
+                    return response()->json(['message' => 'Order Update Failed'], 500);
+                }
+
             }
+            //
+            // if a we COMPLETE an order way after it's intended end_date (or Complete the order on a date that is EQUAL to its intended end_date),   - or -   if the order that is about to be completed has already past its end_date (or at least its on its end_date (EQUALs to its end_date) )
+            // if today's date is greater than (or equals to end date) the order's end_date
+            //
+            //  => SO the end_date of the order will be the already existing end_date of the order.    i.e. in other words the order end_date will NOT be changed.
+            if ($today >= $orderEndDate) {
+
+                $success = $order->update([
+                    'status' => Order::ORDER_STATUS_COMPLETE,
+                ]);
+                //
+                if (!$success) {
+                    return response()->json(['message' => 'Order Update Failed'], 500);
+                }
+
+            }
+
+            
 
             $vehicle = Vehicle::find($order->vehicle_id);
             //
