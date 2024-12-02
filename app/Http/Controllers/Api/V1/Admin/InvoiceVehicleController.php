@@ -255,7 +255,7 @@ class InvoiceVehicleController extends Controller
     public function testTelebirrB2C() 
     {
         $teleBirrOrganizationPaymentService = new TeleBirrVehiclePaymentService();
-        $valuePayment = $teleBirrOrganizationPaymentService->initiatePaymentToVehicle((string)time(), "1", "payment Reason".(string)time());
+        $valuePayment = $teleBirrOrganizationPaymentService->initiatePaymentToVehicle((string)time(), "1", "payment Reason".(string)time(), "251903942298");
 
         return $valuePayment; 
 

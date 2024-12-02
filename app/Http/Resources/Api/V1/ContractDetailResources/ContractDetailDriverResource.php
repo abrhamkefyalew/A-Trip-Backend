@@ -20,6 +20,7 @@ class ContractDetailDriverResource extends JsonResource
             'with_fuel' => $this->with_fuel,
             'periodic' => $this->periodic,
             'price_vehicle_payment' => $this->price_vehicle_payment,
+            'price_fuel_payment_constant' => $this->price_fuel_payment_constant,
 
         ];
     }

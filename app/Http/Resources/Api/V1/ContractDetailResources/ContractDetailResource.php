@@ -26,6 +26,7 @@ class ContractDetailResource extends JsonResource
             'price_contract' => $this->price_contract,
             'price_vehicle_payment' => $this->price_vehicle_payment,
             'tax' => $this->tax,
+            'price_fuel_payment_constant' => $this->price_fuel_payment_constant,
             'is_available' => $this->is_available, 
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

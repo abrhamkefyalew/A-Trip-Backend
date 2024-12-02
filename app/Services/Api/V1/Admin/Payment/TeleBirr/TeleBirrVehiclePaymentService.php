@@ -12,7 +12,7 @@ class TeleBirrVehiclePaymentService
 {    
 
     // B2C
-    public function initiatePaymentToVehicle($transactionId, $amount, $reason)
+    public function initiatePaymentToVehicle($transactionId, $amount, $reason, $receiverIdentifier)
     {
         try {
             $telebirrRequestUrl = config('telebirr-b-to-c.testing') ? config('telebirr-b-to-c.request_url_testing') : config('telebirr-b-to-c.request_url');
@@ -23,7 +23,6 @@ class TeleBirrVehiclePaymentService
             $identifier = config('telebirr-b-to-c.testing') ? config('telebirr-b-to-c.identifier_testing') : config('telebirr-b-to-c.identifier');
             $securityCredential = config('telebirr-b-to-c.testing') ? config('telebirr-b-to-c.security_credential_testing') : config('telebirr-b-to-c.security_credential');
             $shortCode = config('telebirr-b-to-c.testing') ? config('telebirr-b-to-c.short_code_testing') : config('telebirr-b-to-c.short_code');
-            $receiverIdentifier = "251921169521";
             
             // $amount = str($this->payment_transx->payment_amount);
             // $reason = $this->payment_transx->reason;

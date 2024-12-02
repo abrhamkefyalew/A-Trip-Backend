@@ -28,6 +28,7 @@ class ContractDetail extends Model
         'periodic',
         'price_contract',
         'price_vehicle_payment',
+        'price_fuel_payment_constant',
         'tax',
         'is_available',
     ];
