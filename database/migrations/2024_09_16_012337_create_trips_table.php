@@ -23,6 +23,8 @@ return new class extends Migration
             $table->bigInteger('start_dashboard'); // should NOT be null // filled when the Trip is started
             $table->bigInteger('end_dashboard')->nullable(); // this is NULL when trip is made initially // filled by only the driver before the trip is approved
 
+            $table->decimal('price_fuel', 10, 2)->nullable(); //
+
             $table->string('source'); // should NOT be null  // filled when the Trip is started  // the starting location of the trip
             $table->string('destination')->nullable();
 

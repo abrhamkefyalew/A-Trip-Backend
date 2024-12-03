@@ -367,6 +367,7 @@ Route::prefix('v1')->group(function () {
             Route::prefix('invoice_vehicles')->group(function () {
                 Route::post('/', [InvoiceVehicleController::class, 'store']);
                 Route::get('/', [InvoiceVehicleController::class, 'index']);
+                Route::post('/', [InvoiceVehicleController::class, 'payInvoice']);
                 Route::prefix('/{invoiceVehicle}')->group(function () {
                     Route::get('/', [InvoiceVehicleController::class, 'show']);
                     Route::put('/', [InvoiceVehicleController::class, 'update']);

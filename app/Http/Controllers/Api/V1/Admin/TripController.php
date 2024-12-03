@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\Admin;
 use App\Models\Trip;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use App\Models\ContractDetail;
 use Illuminate\Validation\Rule;
 use App\Models\OrganizationUser;
 use Illuminate\Support\Facades\DB;
@@ -128,7 +129,7 @@ class TripController extends Controller
         //
         $var = DB::transaction(function () use ($request, $trip) {
             
-            if ($trip->status === Trip::TRIP_STATUS_APPROVED) {
+            if ($trip->status == Trip::TRIP_STATUS_APPROVED) {
                 return response()->json(['message' => 'this Trip is already APPROVED.'], 409); 
             }
 
@@ -137,6 +138,7 @@ class TripController extends Controller
                 $trip->organization_user_id === null ||
                 $trip->start_dashboard === null ||
                 $trip->end_dashboard === null ||
+                $trip->price_fuel === null ||
                 $trip->source === null ||
                 $trip->destination === null ||
                 $trip->trip_date === null ||
@@ -175,11 +177,11 @@ class TripController extends Controller
         //
         $var = DB::transaction(function () use ($request, $trip) {
             
-            if ($trip->status !== Trip::TRIP_STATUS_APPROVED) {
+            if ($trip->status != Trip::TRIP_STATUS_APPROVED) {
                 return response()->json(['message' => 'this Trip is should be APPROVED first.'], 428); 
             }
 
-            if ($trip->status_payment === Trip::TRIP_PAID) {
+            if ($trip->status_payment == Trip::TRIP_PAID) {
                 return response()->json(['message' => 'this Trip is already PAID.'], 409); 
             }
 
@@ -188,13 +190,14 @@ class TripController extends Controller
                 $trip->organization_user_id === null ||
                 $trip->start_dashboard === null ||
                 $trip->end_dashboard === null ||
+                $trip->price_fuel === null ||
                 $trip->source === null ||
                 $trip->destination === null ||
                 $trip->trip_date === null ||
                 $trip->status === null ||
                 $trip->status_payment === null) {
                 
-                return response()->json(['error' => 'Trip Can Not be Approved, Because some important values of the Trip are Not filled yet. Thr Driver should complete filling all the required Trip Values Before it can be approved.'], 428);
+                return response()->json(['error' => 'Trip Can Not be Paid, Because some important values of the Trip are Not filled yet. Thr Driver should complete filling all the required Trip Values Before it can be Paid.'], 428);
             }
             
             
@@ -234,17 +237,44 @@ class TripController extends Controller
                 $organizationUser = OrganizationUser::find($request['organization_user_id']);
                 
                 if ($organizationUser->organization_id != $trip->order->organization_id) {
-                    return response()->json(['message' => 'invalid Organization User is selected or Requested. or the Organization User provided is not found. Deceptive request Aborted.'], 422);
+                    return response()->json(['message' => 'invalid Organization User is sent in the request. The Organization user you sent to update this trip must be EQUAL to the Organization user in the Parent Order of this trip.'], 422);
                 }
             }
 
-            $startDashboard = (int) $request['start_dashboard'];
-            $endDashboard = (int) $request['end_dashboard'];
+            // the APPROvED status of trip should NOT matter, if super_admin of adiamat (or staff of adiamat) is the one doing the Update
+            // so basically since adiamat is updating the trip, we do NOT check the APPROvED status of the trip
 
 
-            if ($endDashboard < $startDashboard) {
-                return response()->json(['message' => 'the end dashboard reading should not be less than the start dashboard reading.'], 400); 
+
+
+            if (isset($request['start_dashboard'])) {
+                $startDashboard = (int) $request['start_dashboard'];
+            } 
+            else {
+                $startDashboard = (int) $trip->start_dashboard;
             }
+
+            if (isset($request['end_dashboard'])) {
+                $endDashboard = (int) $request['end_dashboard'];
+            } else {
+                $endDashboard = (int) $trip->end_dashboard;
+            }
+            
+
+            if (isset($endDashboard) && isset($startDashboard)) {
+
+                if ($endDashboard < $startDashboard) {
+                    return response()->json(['message' => 'the end dashboard reading should NOT be less than the start dashboard reading.'], 403); 
+                }
+
+                $differenceOfDashboards = $endDashboard - $startDashboard;
+                
+                $contractDetail = ContractDetail::find($trip->order->contract_detail_id);
+
+                $priceFuel = $differenceOfDashboards * $contractDetail->price_fuel_payment_constant;
+            }
+
+
             
 
 
@@ -253,6 +283,18 @@ class TripController extends Controller
             if (!$success) {
                 return response()->json(['message' => 'Trip Update Failed'], 500);
             }
+
+
+            if (isset($priceFuel)) {
+
+                if ($priceFuel !== null) { 
+                    $trip->price_fuel = $priceFuel;
+                
+                    $trip->save();
+                }
+                
+            }
+
 
             $updatedTrip = Trip::find($trip->id);
 

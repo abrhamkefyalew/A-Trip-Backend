@@ -24,6 +24,7 @@ class Trip extends Model
         'organization_user_id',
         'start_dashboard',
         'end_dashboard',
+        'price_fuel',
         'source',
         'destination',
         'trip_date',
