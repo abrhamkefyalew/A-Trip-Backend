@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Callback\BOA;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\CallbackRequests\BOA\BOACallbackRequest;
 use App\Services\Api\V1\Callback\Customer\BOA\BOACustomerCallbackService;
@@ -11,36 +12,38 @@ use App\Services\Api\V1\Callback\OrganizationUser\BOA\BOAOrganizationCallbackSer
 class BOACallbackController extends Controller
 {
     /**
-     * These are Constants for payments 
-     * They will be APPENDED on ID of invoices as PREFIX, before the those invoice IDs are sent to the banks
-     * //
-     * // DURING CALL Backs From BANKs,
-     * //       - they send us back those PREFIXed invoice IDs
-     * //       - we use those PREFIXEs to identify which user type owens that invoice ID
-     * //       - so FIRST we go to that "user type invoice table" THEN we do confirmation on the payment of that invoice id
-     * 
-     * 
-     * 
-     * from customer or organization to adiamat
-     *      //
-     *      "OPR-" = (organization PR) payment
-     *      //
-     *      "ICI-" = (individual customer initial) payment
-     *      "ICF-" = (individual customer final) payment
-     * 
-     * from adiamat to others payment
-     *      // NOTE : - 
-     *      //
-     *      "VOO-" = (vehicle of Order) payment
-     *      //
-     *      "DTF-" = (Driver Trip Fuel) payment
-     * 
-     * 
-     * 
+     * payment callback for invoice (comes from banks)
      */
     public function payInvoicesCallback(BOACallbackRequest $request)
     {
         //
+        //
+        Log::info("BOA callback info: " . json_encode(['Callback request Value' => $request->all()]));
+        Log::info("BOA callback info: " . json_encode(['Callback request Headers: ' => $request->header()]));
+
+
+        // TODO 
+        //              // abrham samson check
+        //  the SIGNATURE FROM BOA should be Checked,
+        //      I.E. i should sign the request with my private key (just as i did during payment)  - & -  compare it with the Signature that BOA sent
+        //              => and only if the both Signatures are EQUAL that i shall continue to the following operations
+
+
+        // BEFORE PROCEEDING to the next step we need to check IF the Payment was ACTUALLY SUCCESSFUL
+        // use
+
+
+
+
+
+
+
+
+        // NOT REALLY Check abrham samson
+        // we need to store the callback body : - $request->all()   in the appropriate INVOICE table (i.e. based on the prefix)
+
+
+
         //
         if (substr($request['invoice_reference'], 0, 4) == config('constants.payment.customer_to_business.organization_pr')) {
             
@@ -83,6 +86,7 @@ class BOACallbackController extends Controller
 
 
 
+    
 
     /**
      * Display a listing of the resource.

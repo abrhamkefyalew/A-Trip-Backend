@@ -180,6 +180,13 @@ class InvoiceController extends Controller
 
                 // Generate a random invoice code
                 $uniqueCode = Str::random(20); // Adjust the length as needed
+                                                   // In Laravel's Str::random(20) function, the generated random string will consist of only letters (both uppercase and lowercase) and numbers. Special characters are NOT included in the generated string by default.
+                                                   //       The generated string will be a combination of letters (A-Z and a-z) and numbers (0-9).
+                                                   //
+                                                   // So, if you specifically want a random string that contains only letters (both uppercase and lowercase) and numbers WITHOUT any special characters, using Str::random(20) in Laravel will meet that requirement. 
+                                                   //       
+                                                   // In Laravel, the Str::random(20) function generates a random string of 20 characters. The characters in the generated string can include uppercase letters (A-Z), lowercase letters (a-z), and numbers (0-9). 
+                                                   //       The generated string may consist of a combination of these characters, resulting in a 20-character random alphanumeric string. 
 
                 // Check if the generated code already exists in the database
                 while (Invoice::where('invoice_code', $uniqueCode)->exists()) {

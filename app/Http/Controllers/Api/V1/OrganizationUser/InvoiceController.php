@@ -663,7 +663,7 @@ class InvoiceController extends Controller
     public function testboa() 
     {
         $boaOrganizationPaymentService = new BOAOrganizationPaymentService();
-        $valuePayment = $boaOrganizationPaymentService->initiatePaymentForPR(48, "9387kh4ohf734dddd");
+        $valuePayment = $boaOrganizationPaymentService->initiatePaymentForPR(48, "9387kh4ohf734dddd".(string)time());
 
         return $valuePayment; // to return any value , including a RENDERED VIEW value from BOAPrPaymentService
 
@@ -687,7 +687,7 @@ class InvoiceController extends Controller
     public function testTelebirr() 
     {
         $teleBirrOrganizationPaymentService = new TeleBirrOrganizationPaymentService();
-        $valuePayment = $teleBirrOrganizationPaymentService->createOrder("SampleTitle", "1"); // SampleTitle is the InvoiceCode
+        $valuePayment = $teleBirrOrganizationPaymentService->createOrder("SampleTitle".(string)time(), "1"); // SampleTitle is the InvoiceCode
 
         return $valuePayment; 
 

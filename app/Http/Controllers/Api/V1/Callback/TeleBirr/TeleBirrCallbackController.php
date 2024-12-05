@@ -18,22 +18,28 @@ class TeleBirrCallbackController extends Controller
     {
         //
         // Log::info("Callback info Telebirr : ". response()->json(['request value' => $request])); // NOT working
-        Log::info("Callback info Telebirr: " . json_encode(['Callback request Value' => $request->all()]));
-        Log::info("Callback info Telebirr: " . json_encode(['Callback request Headers: ' => $request->header()]));
+        Log::info("TeleBirr callback info: " . json_encode(['Callback request Value' => $request->all()]));
+        Log::info("TeleBirr callback info: " . json_encode(['Callback request Headers: ' => $request->header()]));
+
+
+        // TODO 
+        //              // abrham samson check
+        //  the SIGNATURE FROM TELEBIRR should be Checked,
+        //      I.E. i should sign the request with my private key (just as i did during payment)  - & -  compare it with the Signature that TeleBirr sent
+        //              => and only if the both Signatures are EQUAL that i shall continue to the following operations
 
 
         // BEFORE PROCEEDING to the next step we need to check IF the Payment was ACTUALLY SUCCESSFUL
         // use 'trade_status' to check if payment is successful 
         //      // 402 status code means = payment required
         // 
-        // check abrham samson
         if ($request['trade_status'] != "Completed") {
-            Log::alert('trade_status is NOT-Completed - so Payment NOT success - (payment required) for merch_order_id : - ' . $request['merch_order_id']);
-            abort(402, 'trade_status is NOT-Completed - so Payment NOT success - (payment required) for merch_order_id : - ' . $request['merch_order_id']);
+            Log::alert('TeleBirr callback info: trade_status is NOT-Completed - so Payment NOT success - (payment required) for merch_order_id : - ' . $request['merch_order_id']);
+            abort(402, 'TeleBirr callback info: trade_status is NOT-Completed - so Payment NOT success - (payment required) for merch_order_id : - ' . $request['merch_order_id']);
         }
 
 
-        // Check abrham samson
+        // NOT REALLY Check abrham samson
         // we need to store the callback body : - $request->all()   in the appropriate INVOICE table (i.e. based on the prefix)
 
         

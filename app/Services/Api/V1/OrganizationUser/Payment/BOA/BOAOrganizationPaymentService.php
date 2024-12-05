@@ -41,7 +41,7 @@ class BOAOrganizationPaymentService
 
         // at last 
         // add prefix = "OPR-" : - prefix on the invoice code variable so that during call back later we could know that it is for ORGANIZATION PR payment
-        $invoiceCodeValWithPrefixPr = config('constants.payment.customer_to_business.organization_pr') . $invoiceCodeVal; // add the OPR- prefix to indicate the invoice code is for organization payment // we will use it later when the callback comes from the banks
+        $invoiceCodeValWithPrefixPr = config('constants.payment.customer_to_business.organization_pr') . (string) $invoiceCodeVal; // add the OPR- prefix to indicate the invoice code is for organization payment // we will use it later when the callback comes from the banks
 
 
         $boaData = [

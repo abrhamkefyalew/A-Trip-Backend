@@ -27,8 +27,8 @@ class TeleBirrOrganizationCallbackService
         $invoiceCode = substr($invoiceReferenceWithPrefixFromTeleBirr, 4); // Start from the 5th character onwards // THIS WORKS
         // $invoiceCode = str_replace("OPR-", "", $invoiceReferenceWithPrefixFromTeleBirr);                        // This Works ALSO
 
-        Log::info('prefixed-invoice_code: '. $invoiceReferenceWithPrefixFromTeleBirr);
-        Log::info('invoice_code: '. $invoiceCode);
+        Log::info('TeleBirr callback: prefixed-invoice_code: '. $invoiceReferenceWithPrefixFromTeleBirr);
+        Log::info('TeleBirr callback: invoice_code: '. $invoiceCode);
 
         DB::transaction(function () use ($invoiceCode) {
             

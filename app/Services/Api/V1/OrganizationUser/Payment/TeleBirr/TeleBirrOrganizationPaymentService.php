@@ -18,8 +18,8 @@ use Illuminate\Support\Facades\View;
 class TeleBirrOrganizationPaymentService
 {    
     
-      
-    public function createOrder($title, $amount)
+    // initiatePaymentForPR($title, $amount)
+    public function /* initiatePaymentForPR($title, $amount) */ createOrder($title, $amount)
     {
         
         $fabricTokenFunction = $this->applyFabricToken();
@@ -179,8 +179,9 @@ class TeleBirrOrganizationPaymentService
 
         // at last 
         // add prefix = "OPR-" : - prefix on the invoice code variable so that during call back later we could know that it is for ORGANIZATION PR payment
-        $invoiceCodeValWithPrefixPr = config('constants.payment.customer_to_business.organization_pr') . $this->createMerchantOrderId(); // add the OPR- prefix to indicate the invoice code is for organization payment // we will use it later when the callback comes from the banks
+        // $invoiceCodeValWithPrefixPr = config('constants.payment.customer_to_business.organization_pr') . $this->createMerchantOrderId(); // add the OPR- prefix to indicate the invoice code is for organization payment // we will use it later when the callback comes from the banks
         // $invoiceCodeValWithPrefixPr = $this->createMerchantOrderId();
+        $invoiceCodeValWithPrefixPr = config('constants.payment.customer_to_business.organization_pr') . (string) $title;
 
         $biz = [
             'notify_url' => 'http://51.21.65.237:9050/api/v1/call_backs/tele_birr/pay_invoices_call_back',
