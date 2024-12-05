@@ -142,6 +142,7 @@ class ContractDetailController extends Controller
                 'periodic' => (int) $request->input('periodic', 0),
                 'price_contract' => $request['price_contract'],
                 'price_vehicle_payment' => $request['price_vehicle_payment'],
+                'price_fuel_payment_constant' => $request['price_fuel_payment_constant'],
                 'tax' => (int) $request->input('tax', ContractDetail::CONTRACT_DETAIL_DEFAULT_TAX_15), // use isset() or filled() on this one
                 'is_available' => 1, // is_available should be not be sent at ContractDetail store for the first time, it is "1" by default in the controller       // 1 = means parent contract not terminated   // 0 = means parent contract terminated
                             // the "is_available" column in CONTRACT_DETAILs table should NOT be update separately,  // we ONLY update "is_available" when Terminating or UnTerminating the PARENT CONTRACT
