@@ -14,6 +14,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\CustomerRequests\PayInvoiceFinalRequest;
 use App\Services\Api\V1\Customer\Payment\BOA\BOACustomerPaymentService;
 use App\Http\Requests\Api\V1\CustomerRequests\PayInvoiceCallbackTelebirrRequest;
+use App\Services\Api\V1\Customer\Payment\TeleBirr\TeleBirrCustomerPaymentService;
 
 class InvoiceUserController extends Controller
 {
@@ -126,6 +127,13 @@ class InvoiceUserController extends Controller
             }
 
 
+            // get the newly created invoice
+            $invoiceUserCreated = InvoiceUser::find($invoiceUser->id);
+            // get the new invoice id
+            $invoiceUserCreatedId = $invoiceUserCreated->id;
+            // get the new invoice price
+            $invoiceUserCreatedAmount = $invoiceUserCreated->price;
+
             
             /* START Payment Service Call */
             
@@ -134,10 +142,20 @@ class InvoiceUserController extends Controller
             if ($request['payment_method'] = InvoiceUser::INVOICE_BOA) {
 
                 // Setting values
-                $boaCustomerPaymentService = new BOACustomerPaymentService($invoiceUser->id);
+                $boaCustomerPaymentService = new BOACustomerPaymentService($invoiceUserCreatedId);
 
                 // Calling a non static method
                 $valuePaymentRenderedView = $boaCustomerPaymentService->initiateFinalPaymentForVehicle();
+
+                return $valuePaymentRenderedView;
+            }
+            else if ($request['payment_method'] = InvoiceUser::INVOICE_TELE_BIRR) {
+
+                // Setting values
+                $teleBirrCustomerPaymentService = new TeleBirrCustomerPaymentService();
+
+                // Calling a non static method
+                $valuePaymentRenderedView = $teleBirrCustomerPaymentService->initiateFinalPaymentForVehicle($invoiceUserCreatedId, $invoiceUserCreatedAmount);
 
                 return $valuePaymentRenderedView;
             }

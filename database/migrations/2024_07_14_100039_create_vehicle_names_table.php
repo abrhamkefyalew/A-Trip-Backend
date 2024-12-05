@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id()->from(10000);
 
             $table->foreignId('vehicle_type_id')->constrained('vehicle_types');
-            $table->string('vehicle_name'); // this can have GENERAL, for each vehicle types (i.e pickup - GENERAL), // this is for those organization who just want to mention only the just vehicle type in their contract detail
+            $table->string('vehicle_name'); // this can have GENERAL, for each vehicle types (i.e pickup - GENERAL), // this is for those organization who just want to mention only the just vehicle type in their contract detail // otherwise it is Brand (Toyota Hilux, Audi, Nissan, Ford, Chevrolet) or any sub brand 
             $table->longText('vehicle_description')->nullable();
             $table->unique(['vehicle_type_id', 'vehicle_name']); // they are unique together , but if the admin mis spells the vehicle_name, an unintended duplicated (same) vehicle could end up in this table // so the admin should not mis spell
             // this problem can not be solved by adding another table for the vehicle_name to refer to, // because the super admin can still insert same vehicles with mis spelling by mistake // like chevrolet, chevrolt

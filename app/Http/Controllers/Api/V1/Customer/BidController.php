@@ -15,6 +15,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\CustomerRequests\AcceptBidRequest;
 use App\Services\Api\V1\Customer\Payment\BOA\BOACustomerPaymentService;
 use App\Http\Resources\Api\V1\OrderUserResources\OrderUserForCustomerResource;
+use App\Services\Api\V1\Customer\Payment\TeleBirr\TeleBirrCustomerPaymentService;
 
 class BidController extends Controller
 {
@@ -234,7 +235,8 @@ class BidController extends Controller
             $invoiceUserCreated = InvoiceUser::find($invoiceUser->id);
             // get the new invoice id
             $invoiceUserCreatedId = $invoiceUserCreated->id;
-
+            // get the new invoice price
+            $invoiceUserCreatedAmount = $invoiceUserCreated->price;
 
 
 
@@ -249,6 +251,16 @@ class BidController extends Controller
 
                 // Calling a non static method
                 $valuePaymentRenderedView = $boaCustomerPaymentService->initiateInitialPaymentForVehicle();
+
+                return $valuePaymentRenderedView;
+            }
+            else if ($request['payment_method'] = InvoiceUser::INVOICE_TELE_BIRR) {
+
+                // Setting values
+                $teleBirrCustomerPaymentService = new TeleBirrCustomerPaymentService();
+
+                // Calling a non static method
+                $valuePaymentRenderedView = $teleBirrCustomerPaymentService->initiateInitialPaymentForVehicle($invoiceUserCreatedId, $invoiceUserCreatedAmount);
 
                 return $valuePaymentRenderedView;
             }

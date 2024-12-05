@@ -19,7 +19,7 @@ class TeleBirrOrganizationPaymentService
 {    
     
     // initiatePaymentForPR($title, $amount)
-    public function /* initiatePaymentForPR($title, $amount) */ createOrder($title, $amount)
+    public function createOrder($title, $amount)/* initiatePaymentForPR($title, $amount) */
     {
         
         $fabricTokenFunction = $this->applyFabricToken();
@@ -190,7 +190,7 @@ class TeleBirrOrganizationPaymentService
             'merch_order_id' => $invoiceCodeValWithPrefixPr,
             'trade_type' => 'Checkout',
             'title' => "payment title" . $this->createMerchantOrderId(),
-            'total_amount' => $amount,
+            'total_amount' => (string) $amount,
             'trans_currency' => 'ETB',
             'timeout_express' => '120m',
             'business_type' => 'BuyGoods',

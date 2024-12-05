@@ -442,7 +442,7 @@ class InvoiceController extends Controller
                     // return $valuePaymentRenderedView;
 
                     $teleBirrOrganizationPaymentService = new TeleBirrOrganizationPaymentService();
-                    $valuePayment = $teleBirrOrganizationPaymentService->createOrder($invoiceCode, $totalPriceAmount);
+                    $valuePayment = $teleBirrOrganizationPaymentService->createOrder($invoiceCode, $totalPriceAmount)/* initiatePaymentForPR($invoiceCode, $totalPriceAmount) */;
 
                     return $valuePayment; 
 

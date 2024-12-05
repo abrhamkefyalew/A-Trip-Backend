@@ -215,7 +215,7 @@ class TeleBirrCustomerPaymentService
             'merch_order_id' => $title,
             'trade_type' => 'Checkout',
             'title' => "payment title" . $this->createMerchantOrderId(),
-            'total_amount' => $amount,
+            'total_amount' => (string) $amount,
             'trans_currency' => 'ETB',
             'timeout_express' => '120m',
             'business_type' => 'BuyGoods',
