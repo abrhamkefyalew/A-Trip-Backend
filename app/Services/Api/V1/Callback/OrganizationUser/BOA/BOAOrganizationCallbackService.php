@@ -58,7 +58,7 @@ class BOAOrganizationCallbackService
             foreach ($invoices as $invoice) {
                 $orderPrStatus = $this->getOrderPrStatus($invoice);
 
-                $this->updatedOrder($invoice, $orderPrStatus);
+                $this->updateOrder($invoice, $orderPrStatus);
 
                 // $invoiceIdList[] = $invoice->id;
             }
@@ -160,7 +160,7 @@ class BOAOrganizationCallbackService
     }
 
 
-    private function updatedOrder($invoice, $orderPrStatus)
+    private function updateOrder($invoice, $orderPrStatus)
     {
         // Update the order pr_status
         $successTwo = $invoice->order()->update([

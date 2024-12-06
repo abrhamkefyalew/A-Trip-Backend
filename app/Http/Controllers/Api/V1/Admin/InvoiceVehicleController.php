@@ -235,7 +235,7 @@ class InvoiceVehicleController extends Controller
             else {
                 // an invoice must have at least order_id or order_user_id, - - - -  other wise it will be the Following ERROR
                 //
-                return response()->json(['message' => 'This Invoice Can NOT be Processed'], 422);
+                return response()->json(['message' => 'This Invoice Can NOT be Processed. Because: - this InvoiceVehicle does NOT have BOTH order_id or order_user_id'], 422);
             }
 
             
@@ -255,7 +255,7 @@ class InvoiceVehicleController extends Controller
     public function testTelebirrB2C() 
     {
         $teleBirrOrganizationPaymentService = new TeleBirrVehiclePaymentService();
-        $valuePayment = $teleBirrOrganizationPaymentService->initiatePaymentToVehicle((string)time(), "1", "payment Reason".(string)time(), "251903942298");
+        $valuePayment = $teleBirrOrganizationPaymentService->initiatePaymentToVehicle((string)time() /* this must be 'transaction_id_system' because we have multiple B2C invoice tables and we want to avoid invoice_id being repeated */ , "1", "payment Reason".(string)time(), "251903942298");
 
         return $valuePayment; 
 
