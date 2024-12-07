@@ -713,7 +713,13 @@ class OrderController extends Controller
         //
         $var = DB::transaction(function () use ($request, $order) {
 
-            $vehicle = Vehicle::find($request['vehicle_id']);
+            if(isset($request['vehicle_id'])){
+                $vehicle = Vehicle::find($request['vehicle_id']);
+            }
+            else {
+                $vehicle = Vehicle::find($order->vehicle_id);
+            }
+            
             $supplier = Supplier::find($vehicle->supplier_id);  // i could use relation, instead of fetching all ,  =     $vehicle->supplier->is_active   and     $vehicle->supplier->is_approved         // check abrham samson
             $driver = Driver::find($vehicle->driver_id);        // i could use relation, instead of fetching all ,  =     $vehicle->driver->is_active     and     $vehicle->supplier->is_approved         // check abrham samson
 
