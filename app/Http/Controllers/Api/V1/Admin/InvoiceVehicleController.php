@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Models\Order;
+use App\Models\Vehicle;
 use App\Models\OrderUser;
 use Illuminate\Http\Request;
 use App\Models\InvoiceVehicle;
@@ -142,20 +143,21 @@ class InvoiceVehicleController extends Controller
 
 
 
+                $vehicle = Vehicle::find($invoiceVehicle->order->vehicle_id);
 
                 $typeOfOrder = "organization";
                 /////////// call the payment Services
                 if ($request['payment_method'] = InvoiceVehicle::INVOICE_BOA) {
 
                     // $boaVehiclePaymentService = new BOAVehiclePaymentService();
-                    // $valuePaymentRenderedView = $boaVehiclePaymentService->initiatePaymentForVehiclePR($invoiceVehicle->price_amount, $invoiceVehicle->id, $typeOfOrder);
+                    // $valuePaymentRenderedView = $boaVehiclePaymentService->initiatePaymentForVehiclePR($invoiceVehicle->price_amount, $invoiceVehicle->id, $typeOfOrder, $vehicle->supplier->phone_number);
 
                     // return $valuePaymentRenderedView;
                 }
                 else if ($request['payment_method'] = InvoiceVehicle::INVOICE_TELE_BIRR) {
 
                     // $teleBirrVehiclePaymentService = new TeleBirrVehiclePaymentService();
-                    // $valuePayment = $teleBirrVehiclePaymentService->createOrder($invoiceVehicle->price_amount, $invoiceVehicle->id);
+                    // $valuePayment = $teleBirrVehiclePaymentService->createOrder($invoiceVehicle->price_amount, $invoiceVehicle->id, $vehicle->supplier->phone_number);
 
                     // return $valuePayment; 
 
@@ -209,20 +211,21 @@ class InvoiceVehicleController extends Controller
 
 
 
+                $vehicle = Vehicle::find($invoiceVehicle->orderUser->vehicle_id);
 
                 $typeOfOrder = "individual_customer";
                 /////////// call the payment Services
                 if ($request['payment_method'] = InvoiceVehicle::INVOICE_BOA) {
 
                     // $boaVehiclePaymentService = new BOAVehiclePaymentService();
-                    // $valuePaymentRenderedView = $boaVehiclePaymentService->initiatePaymentForVehiclePR($invoiceVehicle->price_amount, $invoiceVehicle->id, $typeOfOrder);
+                    // $valuePaymentRenderedView = $boaVehiclePaymentService->initiatePaymentForVehiclePR($invoiceVehicle->price_amount, $invoiceVehicle->id, $typeOfOrder, $vehicle->supplier->phone_number);
 
                     // return $valuePaymentRenderedView;
                 }
                 else if ($request['payment_method'] = InvoiceVehicle::INVOICE_TELE_BIRR) {
 
                     // $teleBirrVehiclePaymentService = new TeleBirrVehiclePaymentService();
-                    // $valuePayment = $teleBirrVehiclePaymentService->createOrder($invoiceVehicle->price_amount, $invoiceVehicle->id);
+                    // $valuePayment = $teleBirrVehiclePaymentService->createOrder($invoiceVehicle->price_amount, $invoiceVehicle->id, $vehicle->supplier->phone_number);
 
                     // return $valuePayment; 
 

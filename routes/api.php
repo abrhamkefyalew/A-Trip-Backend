@@ -426,7 +426,7 @@ Route::prefix('v1')->group(function () {
             });
 
 
-            Route::prefix('organization_user_profile')->group(function () {
+            Route::prefix('organization_users')->group(function () {
                 Route::post('/', [OrganizationUserForOrganizationController::class, 'store']);
                 Route::get('/', [OrganizationUserForOrganizationController::class, 'index']);
                 Route::prefix('/{organizationUser}')->group(function () {
