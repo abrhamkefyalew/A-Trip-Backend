@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\V1\Admin\SupplierController;
 use App\Http\Controllers\Api\V1\Admin\DashBoardController;
 use App\Http\Controllers\Api\V1\Admin\OrderUserController;
 use App\Http\Controllers\Api\V1\Admin\PermissionController;
+use App\Http\Controllers\Api\V1\Admin\InvoiceTripController;
 use App\Http\Controllers\Api\V1\Admin\InvoiceUserController;
 use App\Http\Controllers\Api\V1\Admin\VehicleNameController;
 use App\Http\Controllers\Api\V1\Admin\VehicleTypeController;
@@ -351,7 +352,7 @@ Route::prefix('v1')->group(function () {
             });
 
 
-            // currently this bids route is NOT functional
+            // 
             Route::prefix('bids')->group(function () {
                 Route::post('/', [BidController::class, 'store']);
                 Route::get('/', [BidController::class, 'index']);
@@ -372,6 +373,18 @@ Route::prefix('v1')->group(function () {
                     Route::get('/', [InvoiceVehicleController::class, 'show']);
                     Route::put('/', [InvoiceVehicleController::class, 'update']);
                     Route::delete('/', [InvoiceVehicleController::class, 'destroy']);
+                }); 
+            });
+
+
+            Route::prefix('invoice_trips')->group(function () {
+                Route::post('/', [InvoiceTripController::class, 'store']);
+                Route::get('/', [InvoiceTripController::class, 'index']);
+                Route::post('/', [InvoiceTripController::class, 'payInvoice']);
+                Route::prefix('/{invoiceTrip}')->group(function () {
+                    Route::get('/', [InvoiceTripController::class, 'show']);
+                    Route::put('/', [InvoiceTripController::class, 'update']);
+                    Route::delete('/', [InvoiceTripController::class, 'destroy']);
                 }); 
             });
 

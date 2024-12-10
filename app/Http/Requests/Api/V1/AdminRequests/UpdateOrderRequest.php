@@ -53,7 +53,7 @@ class UpdateOrderRequest extends FormRequest
             ],
 
             'status' => [
-                'sometimes', 'string', Rule::in([Order::ORDER_STATUS_PENDING, Order::ORDER_STATUS_SET, Order::ORDER_STATUS_START, Order::ORDER_STATUS_COMPLETE]),
+                'sometimes', 'string', Rule::in([Order::ORDER_STATUS_PENDING /*, Order::ORDER_STATUS_SET, Order::ORDER_STATUS_START, Order::ORDER_STATUS_COMPLETE */ ]), // status should only be changed back to PENDING
             ],
 
             // 'pr_status' => [

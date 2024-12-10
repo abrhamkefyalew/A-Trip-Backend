@@ -156,10 +156,10 @@ class InvoiceVehicleController extends Controller
                 }
                 else if ($request['payment_method'] = InvoiceVehicle::INVOICE_TELE_BIRR) {
 
-                    // $teleBirrVehiclePaymentService = new TeleBirrVehiclePaymentService();
-                    // $valuePayment = $teleBirrVehiclePaymentService->createOrder($invoiceVehicle->price_amount, $invoiceVehicle->id, $vehicle->supplier->phone_number);
+                    $teleBirrVehiclePaymentService = new TeleBirrVehiclePaymentService();
+                    $valuePayment = $teleBirrVehiclePaymentService->initiatePaymentToVehicle($invoiceVehicle->transaction_id_system, $invoiceVehicle->price_amount, "paymentReason", $vehicle->supplier->phone_number);
 
-                    // return $valuePayment; 
+                    return $valuePayment; 
 
                 }
                 else {
@@ -224,10 +224,10 @@ class InvoiceVehicleController extends Controller
                 }
                 else if ($request['payment_method'] = InvoiceVehicle::INVOICE_TELE_BIRR) {
 
-                    // $teleBirrVehiclePaymentService = new TeleBirrVehiclePaymentService();
-                    // $valuePayment = $teleBirrVehiclePaymentService->createOrder($invoiceVehicle->price_amount, $invoiceVehicle->id, $vehicle->supplier->phone_number);
+                    $teleBirrVehiclePaymentService = new TeleBirrVehiclePaymentService();
+                    $valuePayment = $teleBirrVehiclePaymentService->initiatePaymentToVehicle($invoiceVehicle->transaction_id_system, $invoiceVehicle->price_amount, "paymentReason", $vehicle->supplier->phone_number);
 
-                    // return $valuePayment; 
+                    return $valuePayment; 
 
                 }
                 else {

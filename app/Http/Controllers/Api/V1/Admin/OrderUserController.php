@@ -233,7 +233,7 @@ class OrderUserController extends Controller
                         'order_description' => $requestData['order_description'],
 
                         'with_driver' => (int) (isset($requestData['with_driver']) ? $requestData['with_driver'] : 0),
-                        'with_fuel' => (int) (isset($requestData['with_fuel']) ? $requestData['with_fuel'] : 0),
+                        'with_fuel' => 0,
                         'periodic' => (int) (isset($requestData['periodic']) ? $requestData['periodic'] : 0),
 
                     ]);

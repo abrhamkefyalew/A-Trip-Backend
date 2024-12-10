@@ -271,7 +271,7 @@ class TripController extends Controller
                 
                 $contractDetail = ContractDetail::find($trip->order->contract_detail_id);
 
-                $priceFuel = $differenceOfDashboards * $contractDetail->price_fuel_payment_constant;
+                $priceFuel = $differenceOfDashboards *((double) $contractDetail->price_fuel_payment_constant);
             }
 
 
