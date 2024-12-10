@@ -554,109 +554,109 @@ class InvoiceController extends Controller
      * 
      * telebirr call back , to confirm payment // for organization
      */
-    public function payInvoicesCallbackTelebirr(PayInvoicesCallbackTelebirrRequest $request)
-    {
-        //
-        DB::transaction(function () use ($request) {
+    // public function payInvoicesCallbackTelebirr(PayInvoicesCallbackTelebirrRequest $request)
+    // {
+    //     //
+    //     DB::transaction(function () use ($request) {
 
-            // if paid status code from the bank is NOT 200 -> i will log and abort // abrham samson check
-            // if paid status code from the bank is 200,  ->  I wil do the following // abrham samson check
-
-
-
-            // todays date
-            $today = now()->format('Y-m-d');
+    //         // if paid status code from the bank is NOT 200 -> i will log and abort // abrham samson check
+    //         // if paid status code from the bank is 200,  ->  I wil do the following // abrham samson check
 
 
 
-            /* $invoiceIdList = []; */
-
-
-            // Get the invoice_code from the request
-            $invoiceCode = $request['invoice_code'];
-
-
-            // Fetch all invoices where invoice_code matches the one from the request
-            $invoices = Invoice::where('invoice_code', $invoiceCode)->get(); // this should NOT be exists().  this should be get(), because i am going to use actual data (records) of $invoices in the below foreach
-            //
-            if (!$invoices) {
-                // I must CHECK this condition 
-                Log::alert('BOA: the invoice_code does not exist!');
-                abort(422, 'the invoice_code does not exist!');
-            }
+    //         // todays date
+    //         $today = now()->format('Y-m-d');
 
 
 
-            // Update all invoices with the sent invoice_code
-            $success = Invoice::where('invoice_code', $invoiceCode)->update([
-                'status' => Invoice::INVOICE_STATUS_PAID,
-                'paid_date' => $today,
-            ]);
-            // Handle invoice update failure
-            if (!$success) {
-                return response()->json(['message' => 'Invoice Update Failed'], 500);
-            }
+    //         /* $invoiceIdList = []; */
 
 
-            // in the following foreach i am going to update the PARENT ORDER of each INVOICE one by one
-            foreach ($invoices as $invoice) {
-                if ($invoice->order->pr_status === Order::ORDER_PR_STARTED) {
-                    $orderPrStatus = Order::ORDER_PR_STARTED;
-                } else if ($invoice->order->pr_status === Order::ORDER_PR_LAST) {
+    //         // Get the invoice_code from the request
+    //         $invoiceCode = $request['invoice_code'];
+
+
+    //         // Fetch all invoices where invoice_code matches the one from the request
+    //         $invoices = Invoice::where('invoice_code', $invoiceCode)->get(); // this should NOT be exists().  this should be get(), because i am going to use actual data (records) of $invoices in the below foreach
+    //         //
+    //         if (!$invoices) {
+    //             // I must CHECK this condition 
+    //             Log::alert('BOA: the invoice_code does not exist!');
+    //             abort(422, 'the invoice_code does not exist!');
+    //         }
+
+
+
+    //         // Update all invoices with the sent invoice_code
+    //         $success = Invoice::where('invoice_code', $invoiceCode)->update([
+    //             'status' => Invoice::INVOICE_STATUS_PAID,
+    //             'paid_date' => $today,
+    //         ]);
+    //         // Handle invoice update failure
+    //         if (!$success) {
+    //             return response()->json(['message' => 'Invoice Update Failed'], 500);
+    //         }
+
+
+    //         // in the following foreach i am going to update the PARENT ORDER of each INVOICE one by one
+    //         foreach ($invoices as $invoice) {
+    //             if ($invoice->order->pr_status === Order::ORDER_PR_STARTED) {
+    //                 $orderPrStatus = Order::ORDER_PR_STARTED;
+    //             } else if ($invoice->order->pr_status === Order::ORDER_PR_LAST) {
                     
-                    $orderPrStatus = Order::ORDER_PR_COMPLETED;
+    //                 $orderPrStatus = Order::ORDER_PR_COMPLETED;
 
-                    // this is no longer used since i am controlling it in invoice asking,
-                    // which means in invoice asking i will prevent super_admin not ask another invoice for an order if there is an already UnPaid invoice for that order in invoices table
-                    // $orderInvoicesPaymentCheck = Invoice::where('order_id', $invoice->order->id)
-                    //                 ->where('status', Invoice::INVOICE_STATUS_NOT_PAID)
-                    //                 ->get();
+    //                 // this is no longer used since i am controlling it in invoice asking,
+    //                 // which means in invoice asking i will prevent super_admin not ask another invoice for an order if there is an already UnPaid invoice for that order in invoices table
+    //                 // $orderInvoicesPaymentCheck = Invoice::where('order_id', $invoice->order->id)
+    //                 //                 ->where('status', Invoice::INVOICE_STATUS_NOT_PAID)
+    //                 //                 ->get();
 
-                    // if ($orderInvoicesPaymentCheck->isEmpty()) {
-                    //     $orderPrStatus = Order::ORDER_PR_COMPLETED;
-                    // } else {
-                    //     $orderPrStatus = Order::ORDER_PR_LAST;
-                    // }
+    //                 // if ($orderInvoicesPaymentCheck->isEmpty()) {
+    //                 //     $orderPrStatus = Order::ORDER_PR_COMPLETED;
+    //                 // } else {
+    //                 //     $orderPrStatus = Order::ORDER_PR_LAST;
+    //                 // }
                     
-                } else if ($invoice->order->pr_status === Order::ORDER_PR_COMPLETED) { 
-                    // CURRENTLY THIS WILL NOT HAPPEN BECAUSE , I AM HANDLING IT WHEN 'SUPER_ADMIN' ASKS PR
-                        //
-                        // i added this condition because (IN CASE I DID NOT HANDLE THIS CASE when PR IS ASKED BY 'SUPER_ADMIN' - the following may happen) 
-                                //
-                                // a multiple pr request can be made to the same order in consecutive timelines one after the other 
-                                // and from those invoices that are asked of the same order if the last invoice is asked of that order then the pr_status of the order would be PR_LAST
-                                // and if we pay any one of that order invoice, the order pr_status will be changed from PR_LAST to PR_COMPLETED
-                                // so when paying the rest of the invoices of that same order we must set the variable $orderPrStatus value (to PR_COMPLETED), even if the order shows PR_COMPLETED
-                                // this way we will have a variable to assign to the pr_status of order table as we did below (i.e = 'pr_status' => $orderPrStatus,)
-                    $orderPrStatus = Order::ORDER_PR_COMPLETED;
-                }
+    //             } else if ($invoice->order->pr_status === Order::ORDER_PR_COMPLETED) { 
+    //                 // CURRENTLY THIS WILL NOT HAPPEN BECAUSE , I AM HANDLING IT WHEN 'SUPER_ADMIN' ASKS PR
+    //                     //
+    //                     // i added this condition because (IN CASE I DID NOT HANDLE THIS CASE when PR IS ASKED BY 'SUPER_ADMIN' - the following may happen) 
+    //                             //
+    //                             // a multiple pr request can be made to the same order in consecutive timelines one after the other 
+    //                             // and from those invoices that are asked of the same order if the last invoice is asked of that order then the pr_status of the order would be PR_LAST
+    //                             // and if we pay any one of that order invoice, the order pr_status will be changed from PR_LAST to PR_COMPLETED
+    //                             // so when paying the rest of the invoices of that same order we must set the variable $orderPrStatus value (to PR_COMPLETED), even if the order shows PR_COMPLETED
+    //                             // this way we will have a variable to assign to the pr_status of order table as we did below (i.e = 'pr_status' => $orderPrStatus,)
+    //                 $orderPrStatus = Order::ORDER_PR_COMPLETED;
+    //             }
 
                 
 
-                // Update the order pr_status
-                $successTwo = $invoice->order()->update([
-                    'pr_status' => $orderPrStatus,
-                ]);
-                // Handle order update failure
-                if (!$successTwo) {
-                    return response()->json(['message' => 'Order Update Failed'], 500);
-                }
+    //             // Update the order pr_status
+    //             $successTwo = $invoice->order()->update([
+    //                 'pr_status' => $orderPrStatus,
+    //             ]);
+    //             // Handle order update failure
+    //             if (!$successTwo) {
+    //                 return response()->json(['message' => 'Order Update Failed'], 500);
+    //             }
 
-                /* $invoiceIdList[] = $invoice->id; */
-            }
+    //             /* $invoiceIdList[] = $invoice->id; */
+    //         }
 
-            // since it is call back we will not return value to the banks
-            // or may be 200 OK response // check abrham samson
-            //
-            // // Fetch the above updated invoices based on the invoice ids
-            // $invoicesData = Invoice::whereIn('id', $invoiceIdList)->with('order')->latest()->get();
+    //         // since it is call back we will not return value to the banks
+    //         // or may be 200 OK response // check abrham samson
+    //         //
+    //         // // Fetch the above updated invoices based on the invoice ids
+    //         // $invoicesData = Invoice::whereIn('id', $invoiceIdList)->with('order')->latest()->get();
 
-            // return InvoiceForOrganizationResource::collection($invoicesData);
+    //         // return InvoiceForOrganizationResource::collection($invoicesData);
             
-        });
+    //     });
 
-        // return $var;
-    }
+    //     // return $var;
+    // }
 
 
 

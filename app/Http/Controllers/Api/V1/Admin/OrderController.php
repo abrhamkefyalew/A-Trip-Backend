@@ -716,40 +716,47 @@ class OrderController extends Controller
             if(isset($request['vehicle_id'])){
                 $vehicle = Vehicle::find($request['vehicle_id']);
             }
-            else {
+            else if (isset($order->vehicle_id) && $order->vehicle_id !== null){
                 $vehicle = Vehicle::find($order->vehicle_id);
             }
             
-            $supplier = Supplier::find($vehicle->supplier_id);  // i could use relation, instead of fetching all ,  =     $vehicle->supplier->is_active   and     $vehicle->supplier->is_approved         // check abrham samson
-            $driver = Driver::find($vehicle->driver_id);        // i could use relation, instead of fetching all ,  =     $vehicle->driver->is_active     and     $vehicle->supplier->is_approved         // check abrham samson
+            // the following if condition is executed if we find actual vehicle in the REQUEST or from thr orders table
 
-            if ($vehicle->vehicle_name_id !== $order->vehicle_name_id) {
-                return response()->json(['message' => 'invalid Vehicle is selected. or The Selected Vehicle does not match the orders requirement (the selected vehicle vehicle_name_id is NOT equal to the order vehicle_name_id). Deceptive request Aborted.'], 422); 
+            if ($vehicle) {
+
+                $supplier = Supplier::find($vehicle->supplier_id);  // i could use relation, instead of fetching all ,  =     $vehicle->supplier->is_active   and     $vehicle->supplier->is_approved         // check abrham samson
+                $driver = Driver::find($vehicle->driver_id);        // i could use relation, instead of fetching all ,  =     $vehicle->driver->is_active     and     $vehicle->supplier->is_approved         // check abrham samson
+
+                if ($vehicle->vehicle_name_id !== $order->vehicle_name_id) {
+                    return response()->json(['message' => 'invalid Vehicle is selected. or The Selected Vehicle does not match the orders requirement (the selected vehicle vehicle_name_id is NOT equal to the order vehicle_name_id). Deceptive request Aborted.'], 422); 
+                }
+
+                if ($vehicle->is_available !== Vehicle::VEHICLE_AVAILABLE) {
+                    return response()->json(['message' => 'the selected vehicle is not currently available'], 409); 
+                }
+
+
+                // i could use relation, instead of fetching all ,  =     $vehicle->driver->is_active     and     $vehicle->driver->is_approved         // check abrham samson
+                if ($driver) {
+                    if ($driver->is_active != 1) {
+                        return response()->json(['message' => 'Forbidden: Deactivated Driver'], 428); 
+                    }
+                    if ($driver->is_approved != 1) {
+                        return response()->json(['message' => 'Forbidden: NOT Approved Driver'], 428); 
+                    }
+                }
+                // i could use relation, instead of fetching all ,  =     $vehicle->supplier->is_active   and     $vehicle->supplier->is_approved         // check abrham samson
+                if ($supplier) {
+                    if ($supplier->is_active != 1) {
+                        return response()->json(['message' => 'Forbidden: Deactivated Supplier'], 428); 
+                    }
+                    if ($supplier->is_approved != 1) {
+                        return response()->json(['message' => 'Forbidden: NOT Approved Supplier'], 428); 
+                    }
+                }
             }
 
-            if ($vehicle->is_available !== Vehicle::VEHICLE_AVAILABLE) {
-                return response()->json(['message' => 'the selected vehicle is not currently available'], 409); 
-            }
-
-
-            // i could use relation, instead of fetching all ,  =     $vehicle->driver->is_active     and     $vehicle->supplier->is_approved         // check abrham samson
-            if ($driver) {
-                if ($driver->is_active != 1) {
-                    return response()->json(['message' => 'Forbidden: Deactivated Driver'], 428); 
-                }
-                if ($driver->is_approved != 1) {
-                    return response()->json(['message' => 'Forbidden: NOT Approved Driver'], 428); 
-                }
-            }
-            // i could use relation, instead of fetching all ,  =     $vehicle->supplier->is_active   and     $vehicle->supplier->is_approved         // check abrham samson
-            if ($supplier) {
-                if ($supplier->is_active != 1) {
-                    return response()->json(['message' => 'Forbidden: Deactivated Supplier'], 428); 
-                }
-                if ($supplier->is_approved != 1) {
-                    return response()->json(['message' => 'Forbidden: NOT Approved Supplier'], 428); 
-                }
-            }
+            
 
 
             if ($order->status !== Order::ORDER_STATUS_PENDING) {
@@ -761,17 +768,25 @@ class OrderController extends Controller
             $contractDetail = null;
             // this contract_detail_id should be owned by the organization that the super_admin is making the order to
             if ($request->has('contract_detail_id') && isset($request['contract_detail_id'])) {
+
                 $contractDetail = ContractDetail::where('id', $request['contract_detail_id'])->first();
+
+
+                // if we send 'vehicle_id' or 'contract_detail_id' in the REQUEST, both of them should have similar vehicle_name_id , otherwise it will create inconsistent order
+                if ($vehicle && $contractDetail) {
+                    if ($vehicle->vehicle_name_id !== $contractDetail->vehicle_name_id) {
+                        return response()->json(['message' => 'the vehicle\'s vehicle_name_id is NOT equal to contractDetail\'s vehicle_name_id. Deceptive request Aborted.'], 422); 
+                    }
+                }
+
 
                 if ($contractDetail) {
                     if ($contractDetail->is_available != 1) {
                         // the parent contract of this contract_detail is Terminated
-                        return response()->json(['message' => 'Not Found - the server cannot find the requested resource. The Contract Detail for this Vehicle Name is NOT Available, because the Contract for the requested Vehicle Name is Terminated.'], 410);
+                        return response()->json(['message' => 'Not Found - the server cannot find the requested resource. The Contract Detail for this Vehicle Name is NOT Available, because the Contract Detail for the requested Vehicle Name is made to be Unavailable.'], 410);
                     }
 
-                    if ($vehicle->vehicle_name_id !== $contractDetail->vehicle_name_id) {
-                        return response()->json(['message' => 'the vehicle\'s vehicle_name_id is NOT equal to contractDetail\'s vehicle_name_id. Deceptive request Aborted.'], 422); 
-                    }
+
 
                     $contract = Contract::where('id', $contractDetail->contract_id)->first();
 
@@ -883,6 +898,7 @@ class OrderController extends Controller
 
             // DO THE ACTUAL UPDATE on Orders Table
             $success = $order->update($request->validated());
+            // 
 
 
             if ($request->has('vehicle_id') && isset($request['vehicle_id'])) {
@@ -892,6 +908,9 @@ class OrderController extends Controller
             }
             if ($request->has('is_terminated') && isset($request['is_terminated'])) {
                 if ($request['is_terminated'] == 1) {
+                    // if ($order->status === Order::ORDER_STATUS_SET) {
+                    //     return response()->json(['message' => 'this order can not be terminated. because the order is already accepted'], 422); 
+                    // }
                     if ($order->status === Order::ORDER_STATUS_START) {
                         return response()->json(['message' => 'this order can not be terminated. because the order is already started'], 422); 
                     }
