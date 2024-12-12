@@ -139,7 +139,7 @@ class InvoiceUserController extends Controller
             
             // do the actual payment 
 
-            if ($request['payment_method'] = InvoiceUser::INVOICE_BOA) {
+            if ($request['payment_method'] == InvoiceUser::INVOICE_BOA) {
 
                 // Setting values
                 $boaCustomerPaymentService = new BOACustomerPaymentService($invoiceUserCreatedId);
@@ -149,7 +149,7 @@ class InvoiceUserController extends Controller
 
                 return $valuePaymentRenderedView;
             }
-            else if ($request['payment_method'] = InvoiceUser::INVOICE_TELE_BIRR) {
+            else if ($request['payment_method'] == InvoiceUser::INVOICE_TELE_BIRR) {
 
                 // Setting values
                 $teleBirrCustomerPaymentService = new TeleBirrCustomerPaymentService();

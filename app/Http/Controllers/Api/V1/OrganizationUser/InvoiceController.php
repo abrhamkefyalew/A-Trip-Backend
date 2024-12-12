@@ -427,14 +427,14 @@ class InvoiceController extends Controller
                 // pass the $totalPriceAmount so that the customer could pay it
                 // pass the $invoiceCode so that it could be used in the callback endpoint
                 
-                if ($request['payment_method'] = Invoice::INVOICE_BOA) {
+                if ($request['payment_method'] == Invoice::INVOICE_BOA) {
 
                     $boaOrganizationPaymentService = new BOAOrganizationPaymentService();
                     $valuePaymentRenderedView = $boaOrganizationPaymentService->initiatePaymentForPR($totalPriceAmount, $invoiceCode);
 
                     return $valuePaymentRenderedView;
                 }
-                else if ($request['payment_method'] = Invoice::INVOICE_TELE_BIRR) {
+                else if ($request['payment_method'] == Invoice::INVOICE_TELE_BIRR) {
 
                     // $boaOrganizationPaymentService = new BOAOrganizationPaymentService();
                     // $valuePaymentRenderedView = $boaOrganizationPaymentService->initiatePaymentForPR($totalPriceAmount, $invoiceCode);

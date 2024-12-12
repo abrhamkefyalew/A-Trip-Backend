@@ -35,7 +35,7 @@ class BOACustomerPaymentService
      */
     public function initiateInitialPaymentForVehicle()
     {
-        $invoiceUser = InvoiceUser::where('id', $this->invoiceUserIdVal)->get();
+        $invoiceUser = InvoiceUser::where('id', $this->invoiceUserIdVal)->first();
 
         
 
@@ -84,7 +84,7 @@ class BOACustomerPaymentService
      */
     public function initiateFinalPaymentForVehicle()
     {
-        $invoiceUser = InvoiceUser::where('id', $this->invoiceUserIdVal)->get();
+        $invoiceUser = InvoiceUser::where('id', $this->invoiceUserIdVal)->first();
 
         
 

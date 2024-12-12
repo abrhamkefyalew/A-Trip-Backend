@@ -147,14 +147,14 @@ class InvoiceVehicleController extends Controller
 
                 $typeOfOrder = "organization";
                 /////////// call the payment Services
-                if ($request['payment_method'] = InvoiceVehicle::INVOICE_BOA) {
+                if ($request['payment_method'] == InvoiceVehicle::INVOICE_BOA) {
 
                     // $boaVehiclePaymentService = new BOAVehiclePaymentService();
                     // $valuePaymentRenderedView = $boaVehiclePaymentService->initiatePaymentForVehiclePR($invoiceVehicle->price_amount, $invoiceVehicle->id, $typeOfOrder, $vehicle->supplier->phone_number);
 
                     // return $valuePaymentRenderedView;
                 }
-                else if ($request['payment_method'] = InvoiceVehicle::INVOICE_TELE_BIRR) {
+                else if ($request['payment_method'] == InvoiceVehicle::INVOICE_TELE_BIRR) {
 
                     $teleBirrVehiclePaymentService = new TeleBirrVehiclePaymentService();
                     $valuePayment = $teleBirrVehiclePaymentService->initiatePaymentToVehicle($invoiceVehicle->transaction_id_system, $invoiceVehicle->price_amount, "paymentReason", $vehicle->supplier->phone_number);
@@ -215,14 +215,14 @@ class InvoiceVehicleController extends Controller
 
                 $typeOfOrder = "individual_customer";
                 /////////// call the payment Services
-                if ($request['payment_method'] = InvoiceVehicle::INVOICE_BOA) {
+                if ($request['payment_method'] == InvoiceVehicle::INVOICE_BOA) {
 
                     // $boaVehiclePaymentService = new BOAVehiclePaymentService();
                     // $valuePaymentRenderedView = $boaVehiclePaymentService->initiatePaymentForVehiclePR($invoiceVehicle->price_amount, $invoiceVehicle->id, $typeOfOrder, $vehicle->supplier->phone_number);
 
                     // return $valuePaymentRenderedView;
                 }
-                else if ($request['payment_method'] = InvoiceVehicle::INVOICE_TELE_BIRR) {
+                else if ($request['payment_method'] == InvoiceVehicle::INVOICE_TELE_BIRR) {
 
                     $teleBirrVehiclePaymentService = new TeleBirrVehiclePaymentService();
                     $valuePayment = $teleBirrVehiclePaymentService->initiatePaymentToVehicle($invoiceVehicle->transaction_id_system, $invoiceVehicle->price_amount, "paymentReason", $vehicle->supplier->phone_number);
