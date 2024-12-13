@@ -105,14 +105,55 @@ class BidController extends Controller
             if ($bid->orderUser->is_terminated !== 0) {
                 return response()->json(['message' => 'this bid parent order is Terminated'], 410); 
             }
+
+
+            // MANDATORY - - - - start
+            //
+            // we know accepting bids (i.e. acceptBid()) involve PAYING initial Payment
+            // so for a single vehicle that has been bided for multiple orders, WE can NOT allow multiple customers to pay for that single vehicle, that has been bided for multiple orders while Accepting bid (i.e. acceptBid()), multiple times
+            // in other words there should NOT be payments for multiple orders if the bid selected contains that single particular vehicle for those multiple orders, only one of them should be allowed to pay using that vehicle in the bid and, DIS-ALLOW the rest (bid-acceptance or payment) using that particular vehicle
+            // 
+            // SINCE single vehicle can bid for multiple orders 
+            // we are going to make sure that single vehicle is NOT Accepted (& paid for) by those multiple orders during acceptBid().  (i.e. ONLY ONE of those orders can accept (i.e. acceptBid()) that vehicle in the bids and pay)
+            //
+            
+            // $orderUsers = OrderUser::where('vehicle_id', $bid->vehicle_id)->orWhere('status', OrderUser::ORDER_STATUS_SET)->orWhere('status', OrderUser::ORDER_STATUS_START)->get(); // this may NOT work
+            $orderUsers = OrderUser::where('vehicle_id', $bid->vehicle_id)
+                ->whereIn('status', [OrderUser::ORDER_STATUS_SET, OrderUser::ORDER_STATUS_START])
+                ->get();
+            
+            if (!$orderUsers->isEmpty()) {
+
+                foreach ($orderUsers as $orderUser) {
+
+                    // $invoiceUserInspect = InvoiceUser::where('order_user_id', $orderUser->id)->where('status', InvoiceUser::INVOICE_STATUS_PAID)->whereNotNull('paid_date')->exists();
+                    $invoiceUserInspect = $orderUser->invoiceUsers()->where('status', InvoiceUser::INVOICE_STATUS_PAID)->whereNotNull('paid_date')->exists();
+
+                    if ($invoiceUserInspect) {
+                        return response()->json([
+                            'message' => 'the VEHICLE in the selected bid was already PAID for and ACCEPTED by another customer for another Order. Another Customer already paid for this vehicle_id to accept another order. vehicle_id: ' . $bid->vehicle_id,
+                            'vehicle_id' => $bid->vehicle_id,
+                        ], 409);
+                    }
+                }
+                
+            }
+            //
+            // MANDATORY - - - - end
+
+
             
 
 
-            // this MUST BE COMMENTED
-            //
+            
+            // check this scenario
             // if ($bid->orderUser->status !== OrderUser::ORDER_STATUS_PENDING) {
             //     return response()->json(['message' => 'this Bid Can Not be Selected. Because its order is not pending. it is already accepted , started or completed'], 409); 
             // }
+            //
+            
+            
+            // this MUST BE COMMENTED
             //
             // if (($bid->orderUser->vehicle_id !== null) || ($bid->orderUser->driver_id !== null) || ($bid->orderUser->supplier_id !== null)) {
             //     return response()->json(['message' => 'this bid can not be selected. Because its order is already being accepted and it already have a value on the columns (driver_id or supplier_id or vehicle_id) , for some reason'], 409); 

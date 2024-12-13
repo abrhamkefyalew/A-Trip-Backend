@@ -272,10 +272,10 @@ class InvoiceUserController extends Controller
            
             if (Bid::where('order_user_id', $invoiceUser->orderUser->id)->exists()) {
                 // DELETE All the BIDS of this ORDER
-                // // Soft delete all Bid records with order_user_id equal to $bid->order->id
-                // Bid::where('order_user_id', $bid->order->id)->delete();
+                // // Soft delete all Bid records with order_user_id equal to $bid->orderUser->id
+                // Bid::where('order_user_id', $bid->orderUser->id)->delete();
                 //
-                // // Force delete all Bid records with order_user_id equal to $bid->order->id
+                // // Force delete all Bid records with order_user_id equal to $bid->orderUser->id
                 $successForceDelete = Bid::where('order_user_id', $invoiceUser->orderUser->id)->forceDelete();
                 //
                 if (!$successForceDelete) {
