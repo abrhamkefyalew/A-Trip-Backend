@@ -210,7 +210,7 @@ $initiateRequestData = "
                     </req:Initiator>
                     <req:ReceiverParty>
                         <req:IdentifierType>1</req:IdentifierType>
-                        <req:Identifier>0903942298</req:Identifier>
+                        <req:Identifier>0921169521</req:Identifier>
                     </req:ReceiverParty>
                 </req:Identity>
                 <req:TransactionRequest>
