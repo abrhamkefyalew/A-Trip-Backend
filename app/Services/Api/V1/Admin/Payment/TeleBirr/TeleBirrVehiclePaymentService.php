@@ -178,16 +178,33 @@ Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): REQUEST we SENT : 
                 // Payment Should be SUCCESS , but Still payment may NOT be Successful
                 // if ResponseCode === 0          // if ResponseCode !== 0
 
+                
+
+                // NOT Working
+                // // This is a the response
+                // // Check for elements in the xml
+                // // 
+                // // Body of XML
+                // $responseCode = (string) $xml->xpath('//res:ResponseCode')[0];
+                // $responseDesc = (string) $xml->xpath('//res:ResponseDesc')[0];
+                // //
+                // // Header of XML
+                // $transactionIdSystem = (string) $xml->xpath('//res:OriginatorConversationID')[0];
+                // $transactionIdBanks = (string) $xml->xpath('//res:ConversationID')[0];
+
+
                 // This is a the response
                 // Check for elements in the xml
                 // 
                 // Body of XML
-                $responseCode = (string) $xml->xpath('//res:ResponseCode')[0];
-                $responseDesc = (string) $xml->xpath('//res:ResponseDesc')[0];
+                $responseCode = (string) $xml->xpath('//api:Response/res:ResponseCode')[0];
+                $responseDesc = (string) $xml->xpath('//api:Response/res:ResponseDesc')[0];
                 //
                 // Header of XML
-                $transactionIdSystem = (string) $xml->xpath('//res:OriginatorConversationID')[0];
-                $transactionIdBanks = (string) $xml->xpath('//res:ConversationID')[0];
+                $transactionIdSystem = (string) $xml->xpath('//api:Response/res:OriginatorConversationID')[0];
+                $transactionIdBanks = (string) $xml->xpath('//api:Response/res:ConversationID')[0];
+
+                
 
                 // assign them to global variables for they are to be used below
                 $this->transactionIdSystemVal = $transactionIdBanks;
