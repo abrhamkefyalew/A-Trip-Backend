@@ -157,6 +157,15 @@ Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): REQUEST we SENT : 
             Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): RESPONSE XML: - ' . $responseXml);
 
             $xml = simplexml_load_string($responseXml);
+            //
+            if ($xml === false) {
+                die('Error loading XML');
+            }
+            
+            // Register the necessary namespaces
+            $xml->registerXPathNamespace('soapenv', 'http://schemas.xmlsoap.org/soap/envelope/');
+            $xml->registerXPathNamespace('api', 'http://cps.huawei.com/cpsinterface/api_requestmgr');
+            $xml->registerXPathNamespace('res', 'http://cps.huawei.com/cpsinterface/response');
 
             // Check if the response contains a Fault element or Success element
             //
@@ -166,8 +175,14 @@ Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): REQUEST we SENT : 
                 
                 // This is a failure response
                 // You can access the faultcode and faultstring like this
-                $faultCode = (string) $xml->xpath('//faultcode')[0];
-                $faultString = (string) $xml->xpath('//faultstring')[0];
+                //
+                // NOT working
+                // $faultCode = (string) $xml->xpath('//faultcode')[0];
+                // $faultString = (string) $xml->xpath('//faultstring')[0];
+                //
+                // 
+                $faultCode = (string) $xml->xpath('//soapenv:faultcode')[0];
+                $faultString = (string) $xml->xpath('//soapenv:faultstring')[0];
                 
                 // Handle the failure scenario
                 // Log or handle the failure response accordingly
@@ -204,7 +219,7 @@ Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): REQUEST we SENT : 
                 $transactionIdSystem = (string) $xml->xpath('//api:Response/res:OriginatorConversationID')[0];
                 $transactionIdBanks = (string) $xml->xpath('//api:Response/res:ConversationID')[0];
 
-                
+
 
                 // assign them to global variables for they are to be used below
                 $this->transactionIdSystemVal = $transactionIdBanks;
