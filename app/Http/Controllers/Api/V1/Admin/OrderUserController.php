@@ -297,6 +297,7 @@ class OrderUserController extends Controller
             //     return response()->json(['message' => 'the order at least should be accepted by either a driver or supplier'], 428); 
             // }
 
+
             if ($orderUser->driver) {
                 if ($orderUser->driver->is_active != 1) {
                     return response()->json(['message' => 'Forbidden: Deactivated Driver'], 428); 
@@ -312,6 +313,23 @@ class OrderUserController extends Controller
                 if ($orderUser->supplier->is_approved != 1) {
                     return response()->json(['message' => 'Forbidden: NOT Approved Supplier'], 428); 
                 }
+            }
+
+
+            // this is MANDATORY 
+            //  - a customer, can Accept MULTIPLE orders using a ONE SIMILAR vehicle.      // - BUT they can NOT Start MULTIPLE orders using that one similar vehicle
+            //  - a single vehicle can accept multiple orders                                               // - BUT a single vehicle can NOT start multiple orders
+            //
+            // so in the above scenario 
+            // when we ACCEPT order that vehicle 'is_available' attribute is NOT changed
+            // BUT when we START order that vehicle 'is_available' attribute will be changed to - is_available=VEHICLE_ON_TRIP
+            //
+            // so considering the above scenario, this if condition is done so that
+            // //
+            // so that a single vehicle can NOT be used to start multiple orders       (IMPORTANT condition)
+            //      // IT means we check the vehicle 'is_available' every time we start an order, so that a single vehicle can NOT be used to start multiple orders
+            if ($orderUser->vehicle->is_available !== Vehicle::VEHICLE_AVAILABLE) {
+                return response()->json(['message' => 'the selected vehicle is not currently available'], 409); 
             }
 
 

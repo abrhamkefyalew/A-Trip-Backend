@@ -310,10 +310,11 @@ class OrderController extends Controller
                 return response()->json(['message' => 'invalid Order is selected. Deceptive request Aborted.'], 403); 
             }
             //
-            // redundant
+            // mandatory for the following if condition, BUT do NOT do this check when super_admin starts an order
             if (!$order->driver) { 
                 return response()->json(['message' => 'this order needs a driver to be started'], 422); 
             }
+            
 
             // if ADIAMT wants to rent their own vehicles, They Can Register as SUPPLIERs Themselves // but i commented the below // so check abrham samson
             // if (!$order->supplier) { 
@@ -335,6 +336,23 @@ class OrderController extends Controller
                 if ($order->supplier->is_approved != 1) {
                     return response()->json(['message' => 'Forbidden: NOT Approved Supplier'], 403); 
                 }
+            }
+
+
+            // this is MANDATORY 
+            //  - a supplier, driver or admin, can Accept MULTIPLE orders using a ONE SIMILAR vehicle.      // - BUT they can NOT Start MULTIPLE orders using that one similar vehicle
+            //  - a single vehicle can accept multiple orders                                               // - BUT a single vehicle can NOT start multiple orders
+            //
+            // so in the above scenario 
+            // when we ACCEPT order that vehicle 'is_available' attribute is NOT changed
+            // BUT when we START order that vehicle 'is_available' attribute will be changed to - is_available=VEHICLE_ON_TRIP
+            //
+            // so considering the above scenario, this if condition is done so that
+            // //
+            // so that a single vehicle can NOT be used to start multiple orders       (IMPORTANT condition)
+            //      // IT means we check the vehicle 'is_available' every time we start an order, so that a single vehicle can NOT be used to start multiple orders
+            if ($order->vehicle->is_available !== Vehicle::VEHICLE_AVAILABLE) {
+                return response()->json(['message' => 'the selected vehicle is not currently available'], 409); 
             }
 
 
