@@ -157,15 +157,6 @@ Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): REQUEST we SENT : 
             Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): RESPONSE XML: - ' . $responseXml);
 
             $xml = simplexml_load_string($responseXml);
-            //
-            if ($xml === false) {
-                die('Error loading XML');
-            }
-            
-            // Register the necessary namespaces
-            $xml->registerXPathNamespace('soapenv', 'http://schemas.xmlsoap.org/soap/envelope/');
-            $xml->registerXPathNamespace('api', 'http://cps.huawei.com/cpsinterface/api_requestmgr');
-            $xml->registerXPathNamespace('res', 'http://cps.huawei.com/cpsinterface/response');
 
             // Check if the response contains a Fault element or Success element
             //
@@ -175,14 +166,8 @@ Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): REQUEST we SENT : 
                 
                 // This is a failure response
                 // You can access the faultcode and faultstring like this
-                //
-                // NOT working
-                // $faultCode = (string) $xml->xpath('//faultcode')[0];
-                // $faultString = (string) $xml->xpath('//faultstring')[0];
-                //
-                // 
-                $faultCode = (string) $xml->xpath('//soapenv:faultcode')[0];
-                $faultString = (string) $xml->xpath('//soapenv:faultstring')[0];
+                $faultCode = (string) $xml->xpath('//faultcode')[0];
+                $faultString = (string) $xml->xpath('//faultstring')[0];
                 
                 // Handle the failure scenario
                 // Log or handle the failure response accordingly
@@ -193,33 +178,16 @@ Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): REQUEST we SENT : 
                 // Payment Should be SUCCESS , but Still payment may NOT be Successful
                 // if ResponseCode === 0          // if ResponseCode !== 0
 
-                
-
-                // NOT Working
-                // // This is a the response
-                // // Check for elements in the xml
-                // // 
-                // // Body of XML
-                // $responseCode = (string) $xml->xpath('//res:ResponseCode')[0];
-                // $responseDesc = (string) $xml->xpath('//res:ResponseDesc')[0];
-                // //
-                // // Header of XML
-                // $transactionIdSystem = (string) $xml->xpath('//res:OriginatorConversationID')[0];
-                // $transactionIdBanks = (string) $xml->xpath('//res:ConversationID')[0];
-
-
                 // This is a the response
                 // Check for elements in the xml
                 // 
                 // Body of XML
-                $responseCode = (string) $xml->xpath('//api:Response/res:ResponseCode')[0];
-                $responseDesc = (string) $xml->xpath('//api:Response/res:ResponseDesc')[0];
+                $responseCode = (string) $xml->xpath('//res:ResponseCode')[0];
+                $responseDesc = (string) $xml->xpath('//res:ResponseDesc')[0];
                 //
                 // Header of XML
-                $transactionIdSystem = (string) $xml->xpath('//api:Response/res:OriginatorConversationID')[0];
-                $transactionIdBanks = (string) $xml->xpath('//api:Response/res:ConversationID')[0];
-
-
+                $transactionIdSystem = (string) $xml->xpath('//res:OriginatorConversationID')[0];
+                $transactionIdBanks = (string) $xml->xpath('//res:ConversationID')[0];
 
                 // assign them to global variables for they are to be used below
                 $this->transactionIdSystemVal = $transactionIdBanks;
