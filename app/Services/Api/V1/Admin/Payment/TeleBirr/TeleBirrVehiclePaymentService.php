@@ -159,10 +159,14 @@ Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): REQUEST we SENT : 
 
             $xmlResponse = simplexml_load_string($responseXml);
 
+            return $responseXml;
+
 
             // ----------------------------------------------------- READ THE XML Response From Telebirr ---------------------------------------------------------------------------------------------//
-
-            $xmlResponseObj = new SimpleXMLElement($xmlResponse);
+            //
+            //
+            //
+            $xmlResponseObj = new SimpleXMLElement($responseXml);
             //
             // this URL (XPathNamespace) is for BOTH SUCCESS and FAIL XML response From Telebirr (<api:Response> and <soapenv:Fault>)
             $xmlResponseObj->registerXPathNamespace('soapenv', 'http://schemas.xmlsoap.org/soap/envelope/');
@@ -233,20 +237,20 @@ Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): REQUEST we SENT : 
                 // Check if the response code indicates success (You can define your own success code logic)
                 if ($responseCode === '0') {
                     // This is the SUCCESSFUL response
-                    Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle) SUCCESS - ResponseCode: ' . $responseCode . ', ResponseDesc: ' . $responseDesc . ', OriginatorConversationID (transaction_id_system): ' . $transactionIdSystem . ', ConversationID (transaction_id_banks): ' . $transactionIdBanks);
+                    Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle) -------- SUCCESS ----------.  ResponseCode: ' . $responseCode . ', ResponseDesc: ' . $responseDesc . ', OriginatorConversationID (transaction_id_system): ' . $transactionIdSystem . ', ConversationID (transaction_id_banks): ' . $transactionIdBanks);
                 
 
                     $responseValue = $this->handlePaymentToVehicleAfterTeleBirrResponse();
 
-                    if (!$responseValue->successful()) {
-                        return response()->json(['message' => 'B2C TeleBirr Vehicle Payment (Payment to Vehicle) FAIL during handlePaymentToVehicleAfterTeleBirrResponse() Method, we use this method to handle SYSTEM logic after telebirr returns SUCCESS Response'], 500);
-                    }
 
-                    return response()->json([
-                            'message' => 'B2C TeleBirr Vehicle Payment (Payment to Vehicle) SUCCESS.  ResponseCode: ' . $responseCode . ', ResponseDesc: ' . $responseDesc . ', OriginatorConversationID (transaction_id_system): ' . $transactionIdSystem . ', ConversationID (transaction_id_banks): ' . $transactionIdBanks,
-                            'telebirr_response_parameters' => $telebirrResponseParameters,
-                        ], 200);
-                
+                    $valuePayment = [
+                        'message' => 'B2C TeleBirr Vehicle Payment (Payment to Vehicle) SUCCESS.  ResponseCode: ' . $responseCode . ', ResponseDesc: ' . $responseDesc . ', OriginatorConversationID (transaction_id_system): ' . $transactionIdSystem . ', ConversationID (transaction_id_banks): ' . $transactionIdBanks,
+                        'telebirr_response_parameters' => $telebirrResponseParameters,
+                    ];
+
+
+                    return $valuePayment;
+
                 } 
                 else if ($responseCode === '1001') {
                     Log::alert('B2C TeleBirr Vehicle Payment (Payment to Vehicle) FAIL due to Caller Authentication ERROR - ResponseCode: ' . $responseCode . ', ResponseDesc: ' . $responseDesc . ', OriginatorConversationID (transaction_id_system): ' . $transactionIdSystem . ', ConversationID (transaction_id_banks): ' . $transactionIdBanks);
@@ -268,13 +272,34 @@ Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): REQUEST we SENT : 
 
         } catch (\Exception $e) {
             // Handle exceptions
-            Log::alert('B2C TeleBirr Vehicle Payment (Payment to Vehicle): FAIL, ERROR : - ' . $e->getMessage());
+            Log::alert('B2C TeleBirr Vehicle Payment (Payment to Vehicle): FAIL, ERROR caught in CATCH=(catch of the try,catch): - ' . $e->getMessage());
 
-            return response()->json(['message' => 'B2C TeleBirr Vehicle Payment (Payment to Vehicle): FAIL, ERROR : - ' . $e->getMessage()], 422);
+            return response()->json(['message' => 'B2C TeleBirr Vehicle Payment (Payment to Vehicle): FAIL, ERROR caught in CATCH=(catch of the try,catch): - ' . $e->getMessage()], 500);
         }
     }
 
+    // the logic implemented here about the (TRY-CATCH - & - ABORT)
+    /*
+        1. ONLY Abort
+            If the `abort` statement is encountered and the code is not wrapped in a `try-catch` block:
+            - The `abort` statement will immediately stop the execution of the script and return a response with the specified error message and status code.
+            - The script will not continue execution beyond the `abort` statement.
+                    //
+                    SO ABORT is also enough, without the try-catch
+                        - `abort` is designed to immediately stop the execution of the script and return a response with the specified error message and status code. 
+                        - In scenarios where you intend to halt the script execution upon encountering a particular condition or error, using `abort` can be sufficient to handle such cases without the need for a surrounding `try-catch` block. 
+                
 
+        2. Abort with TRY-CATCH    
+            If the `abort` statement is encountered and the code is wrapped in a `try-catch` block:
+            - The `abort` statement will still immediately stop the execution of the script and return a response with the specified error message and status code.
+            - The `catch` block will catch the exception thrown by the `abort` function, allowing you to handle the error, log it, and return an appropriate response.
+            - The `try-catch` construct, with the `catch` block, will prevent the script from crashing completely due to the `abort`, but the execution will still stop at the point where the `abort` is encountered.
+                    //
+                    USE of the TRY-CATCH
+                        - However, if you want to catch and handle the exception thrown by `abort`, or if you need to perform additional error handling or logging, then using a `try-catch` block around the potentially aborting code would be appropriate. 
+                        - In summary, `abort` can effectively stop the script execution and return an error response without the necessity of a `try-catch` block, but the choice depends on your specific requirements for error handling and control flow in your application.
+    */
 
 
 
@@ -299,12 +324,11 @@ Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): REQUEST we SENT : 
             // $invoiceIdList = [];
 
 
-            // Fetch all invoices where invoice_code matches the one from the request
             $invoiceVehicle = InvoiceVehicle::where('transaction_id_system', $transactionIdSystemValue)->first(); // this should NOT be exists().  this should be get(), because i am going to use actual data (records) of $invoices in the below foreach
             //
             if (!$invoiceVehicle) { 
-                Log::alert('B2C TeleBirr (AFTER TELEBIRR RESPONSE) - Vehicle Payment (Payment to Vehicle): the InvoiceVehicle with the transaction_id_system is not found. transaction_id_system' . $this->transactionIdSystemVal);
-                abort(500, 'B2C TeleBirr (AFTER TELEBIRR RESPONSE) - Vehicle Payment (Payment to Vehicle): the InvoiceVehicle with the transaction_id_system is not found. transaction_id_system' . $this->transactionIdSystemVal);
+                Log::alert('B2C TeleBirr (AFTER TELEBIRR RESPONSE) - Vehicle Payment (Payment to Vehicle): the InvoiceVehicle with the transaction_id_system is not found. transaction_id_system: ' . $this->transactionIdSystemVal);                
+                abort(500, 'B2C TeleBirr (AFTER TELEBIRR RESPONSE) - Vehicle Payment (Payment to Vehicle): the InvoiceVehicle with the transaction_id_system is not found. transaction_id_system: ' . $this->transactionIdSystemVal);
             }
 
 
@@ -321,7 +345,7 @@ Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): REQUEST we SENT : 
 
             // return 200 OK response // check abrham samson
 
-            return response()->json(['message' => 'Success'], 200); // means everything worked up, to reach this level of the code
+            return "OK"; // means everything worked up, to reach this level of the code
 
         });
 
@@ -347,9 +371,9 @@ Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): REQUEST we SENT : 
 
         if ($invoiceVehicle->order_id !== null && $invoiceVehicle->order_user_id === null) {
 
-            if ($invoiceVehicle->order->pr_status === Order::VEHICLE_PR_STARTED) {
+            if ($invoiceVehicle->order->vehicle_pr_status === Order::VEHICLE_PR_STARTED) {
                 return Order::VEHICLE_PR_STARTED;
-            } else if ($invoiceVehicle->order->pr_status === Order::VEHICLE_PR_LAST) {
+            } else if ($invoiceVehicle->order->vehicle_pr_status === Order::VEHICLE_PR_LAST) {
                 return Order::VEHICLE_PR_COMPLETED;
     
                         // this is no longer used since i am controlling it in invoice asking,
@@ -364,29 +388,29 @@ Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): REQUEST we SENT : 
                         //     $orderPrStatus = Order::VEHICLE_PR_LAST;
                         // }
     
-            } else if ($invoiceVehicle->order->pr_status === Order::VEHICLE_PR_COMPLETED) {
+            } else if ($invoiceVehicle->order->vehicle_pr_status === Order::VEHICLE_PR_COMPLETED) {
                 return Order::VEHICLE_PR_COMPLETED;
                         // CURRENTLY THIS WILL NOT HAPPEN BECAUSE , I AM HANDLING IT WHEN 'SUPER_ADMIN' ASKS PR
                             //
                             // i added this condition because (IN CASE I DID NOT HANDLE THIS CASE when PR IS ASKED BY 'SUPER_ADMIN' - the following may happen) 
                                     //
                                     // a multiple pr request can be made to the same order in consecutive timelines one after the other 
-                                    // and from those invoices that are asked of the same order if the last invoice is asked of that order then the pr_status of the order would be PR_LAST
-                                    // and if we pay any one of that order invoice, the order pr_status will be changed from PR_LAST to PR_COMPLETED
+                                    // and from those invoices that are asked of the same order if the last invoice is asked of that order then the vehicle_pr_status of the order would be PR_LAST
+                                    // and if we pay any one of that order invoice, the order vehicle_pr_status will be changed from PR_LAST to PR_COMPLETED
                                     // so when paying the rest of the invoices of that same order we must set the variable $orderPrStatus value (to PR_COMPLETED), even if the order shows PR_COMPLETED
-                                    // this way we will have a variable to assign to the pr_status of order table as we did below (i.e = 'pr_status' => $orderPrStatus,)
+                                    // this way we will have a variable to assign to the vehicle_pr_status of order table as we did below (i.e = 'vehicle_pr_status' => $orderPrStatus,)
     
             } else {
-                Log::alert('TeleBirr callback: invalid order PR status for organization!. PR_STATUS: ' . $invoiceVehicle->order->pr_status);
-                abort(422, 'TeleBirr callback: invalid order PR status for organization!. PR_STATUS: ' . $invoiceVehicle->order->pr_status);
+                Log::alert('TeleBirr callback: invalid order PR status for organization!. VEHICLE_PR_STATUS: ' . $invoiceVehicle->order->vehicle_pr_status);
+                abort(422, 'TeleBirr callback: invalid order PR status for organization!. VEHICLE_PR_STATUS: ' . $invoiceVehicle->order->vehicle_pr_status);
             }
 
         }
         else if ($invoiceVehicle->order_id === null && $invoiceVehicle->order_user_id !== null) {
 
-            if ($invoiceVehicle->order->pr_status === OrderUser::VEHICLE_PR_STARTED) {
+            if ($invoiceVehicle->order->vehicle_pr_status === OrderUser::VEHICLE_PR_STARTED) {
                 return OrderUser::VEHICLE_PR_STARTED;
-            } else if ($invoiceVehicle->order->pr_status === OrderUser::VEHICLE_PR_LAST) {
+            } else if ($invoiceVehicle->order->vehicle_pr_status === OrderUser::VEHICLE_PR_LAST) {
                 return OrderUser::VEHICLE_PR_COMPLETED;
     
                         // this is no longer used since i am controlling it in invoice asking,
@@ -401,28 +425,28 @@ Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): REQUEST we SENT : 
                         //     $orderPrStatus = Order::VEHICLE_PR_LAST;
                         // }
     
-            } else if ($invoiceVehicle->order->pr_status === OrderUser::VEHICLE_PR_COMPLETED) {
+            } else if ($invoiceVehicle->order->vehicle_pr_status === OrderUser::VEHICLE_PR_COMPLETED) {
                 return OrderUser::VEHICLE_PR_COMPLETED;
                         // CURRENTLY THIS WILL NOT HAPPEN BECAUSE , I AM HANDLING IT WHEN 'SUPER_ADMIN' ASKS PR
                             //
                             // i added this condition because (IN CASE I DID NOT HANDLE THIS CASE when PR IS ASKED BY 'SUPER_ADMIN' - the following may happen) 
                                     //
                                     // a multiple pr request can be made to the same order in consecutive timelines one after the other 
-                                    // and from those invoices that are asked of the same order if the last invoice is asked of that order then the pr_status of the order would be PR_LAST
-                                    // and if we pay any one of that order invoice, the order pr_status will be changed from PR_LAST to PR_COMPLETED
+                                    // and from those invoices that are asked of the same order if the last invoice is asked of that order then the vehicle_pr_status of the order would be PR_LAST
+                                    // and if we pay any one of that order invoice, the order vehicle_pr_status will be changed from PR_LAST to PR_COMPLETED
                                     // so when paying the rest of the invoices of that same order we must set the variable $orderPrStatus value (to PR_COMPLETED), even if the order shows PR_COMPLETED
-                                    // this way we will have a variable to assign to the pr_status of order table as we did below (i.e = 'pr_status' => $orderPrStatus,)
+                                    // this way we will have a variable to assign to the vehicle_pr_status of order table as we did below (i.e = 'vehicle_pr_status' => $orderPrStatus,)
     
             } else {
-                Log::alert('TeleBirr callback: invalid order PR status for organization!. PR_STATUS: ' . $invoiceVehicle->order->pr_status);
-                abort(422, 'TeleBirr callback: invalid order PR status for organization!. PR_STATUS: ' . $invoiceVehicle->order->pr_status);
+                Log::alert('TeleBirr callback: invalid order PR status for organization!. VEHICLE_PR_STATUS: ' . $invoiceVehicle->order->vehicle_pr_status);
+                abort(422, 'TeleBirr callback: invalid order PR status for organization!. VEHICLE_PR_STATUS: ' . $invoiceVehicle->order->vehicle_pr_status);
             }
 
         }
         else {
             // an invoice must have at least order_id or order_user_id, - - - -  other wise it will be the Following ERROR
             //
-            return response()->json(['message' => 'B2C TeleBirr (AFTER TELEBIRR RESPONSE) - Vehicle Payment (Payment to Vehicle): This Invoice Can NOT be Processed. Because: - this InvoiceVehicle does NOT have BOTH order_id or order_user_id'], 422);
+            abort(422, 'B2C TeleBirr (AFTER TELEBIRR RESPONSE) - Vehicle Payment (Payment to Vehicle): This Invoice Can NOT be Processed. Because: - this InvoiceVehicle have NEITHER order_id NOR order_user_id. At least it should have ONE of the foreign ID');
         }
 
         
@@ -443,7 +467,6 @@ Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): REQUEST we SENT : 
         //     abort(500, 'B2C TeleBirr (AFTER TELEBIRR RESPONSE) - Vehicle Payment (Payment to Vehicle): the InvoiceVehicle with the transaction_id_system is not found. transaction_id_system' . $this->transactionIdSystemVal);
         // }
 
-        // Update all invoices with the sent invoice_code
         $success = $invoiceVehicle->update([
             'status' => InvoiceVehicle::INVOICE_STATUS_PAID,
             'paid_date' => $today,
@@ -467,12 +490,12 @@ Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): REQUEST we SENT : 
             //
             // Check if the associated Order exists
             if (!$invoiceVehicle->order) {
-                return response()->json(['message' => 'B2C TeleBirr (AFTER TELEBIRR RESPONSE) - Vehicle Payment (Payment to Vehicle): Related order NOT found for this invoiceVehicle.'], 404);
+                abort(422, 'B2C TeleBirr (AFTER TELEBIRR RESPONSE) - Vehicle Payment (Payment to Vehicle): Related order NOT found for this invoiceVehicle.');
             }
 
-            // Update the order pr_status
+            // Update the order vehicle_pr_status
             $successTwo = $invoiceVehicle->order()->update([
-                'pr_status' => $orderPrStatus,
+                'vehicle_pr_status' => $orderPrStatus,
             ]);
             // Handle order update failure
             if (!$successTwo) {
@@ -487,12 +510,12 @@ Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): REQUEST we SENT : 
             //
             // Check if the associated OrderUser exists
             if (!$invoiceVehicle->orderUser) {
-                return response()->json(['message' => 'Related orderUser NOT found for this invoice.'], 404);
+                abort(422, 'Related orderUser NOT found for this invoice.');
             }
 
-            // Update the orderUser pr_status
+            // Update the orderUser vehicle_pr_status
             $successTwo = $invoiceVehicle->orderUser()->update([
-                'pr_status' => $orderPrStatus,
+                'vehicle_pr_status' => $orderPrStatus,
             ]);
             // Handle orderUser update failure
             if (!$successTwo) {
@@ -504,7 +527,7 @@ Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): REQUEST we SENT : 
         else {
             // an invoice must have at least order_id or order_user_id, - - - -  other wise it will be the Following ERROR
             //
-            return response()->json(['message' => 'B2C TeleBirr (AFTER TELEBIRR RESPONSE) - Vehicle Payment (Payment to Vehicle): This Invoice Can NOT be Processed. Because: - this InvoiceVehicle does NOT have BOTH order_id or order_user_id'], 422);
+            abort(422, 'B2C TeleBirr (AFTER TELEBIRR RESPONSE) - Vehicle Payment (Payment to Vehicle): This Invoice Can NOT be Processed. Because: - this InvoiceVehicle have NEITHER order_id NOR order_user_id. At least it should have ONE of the foreign ID');
         }
         
     }
