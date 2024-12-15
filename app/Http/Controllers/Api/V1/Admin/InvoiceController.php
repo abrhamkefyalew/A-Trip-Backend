@@ -140,6 +140,8 @@ class InvoiceController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     * 
+     * Super Admin is Asking PR from Organizations
      */
     public function store(StoreInvoiceRequest $request)
     {
