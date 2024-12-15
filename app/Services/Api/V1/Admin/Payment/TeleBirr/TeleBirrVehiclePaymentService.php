@@ -235,7 +235,7 @@ Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): REQUEST we SENT : 
                 // Check if the response code indicates success (You can define your own success code logic)
                 if ($responseCode === '0') {
                     // This is the SUCCESSFUL response
-                    Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle) SUCCESS - ResponseCode: ' . $responseCode . ', ResponseDesc: ' . $responseDesc . ', OriginatorConversationID (transaction_id_system): ' . $transactionIdSystem . ', ConversationID (transaction_id_banks): ' . $transactionIdBanks);
+                    Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle) -------- SUCCESS ----------.  ResponseCode: ' . $responseCode . ', ResponseDesc: ' . $responseDesc . ', OriginatorConversationID (transaction_id_system): ' . $transactionIdSystem . ', ConversationID (transaction_id_banks): ' . $transactionIdBanks);
                 
 
                     $responseValue = $this->handlePaymentToVehicleAfterTeleBirrResponse();
