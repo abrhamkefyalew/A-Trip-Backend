@@ -268,9 +268,9 @@ Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): REQUEST we SENT : 
 
         } catch (\Exception $e) {
             // Handle exceptions
-            Log::alert('B2C TeleBirr Vehicle Payment (Payment to Vehicle): FAIL, ERROR in CATCH=(catch of the try,catch): - ' . $e->getMessage());
+            Log::alert('B2C TeleBirr Vehicle Payment (Payment to Vehicle): FAIL, ERROR caught in CATCH=(catch of the try,catch): - ' . $e->getMessage());
 
-            return response()->json(['message' => 'B2C TeleBirr Vehicle Payment (Payment to Vehicle): FAIL, ERROR in CATCH=(catch of the try,catch): - ' . $e->getMessage()], 422);
+            return response()->json(['message' => 'B2C TeleBirr Vehicle Payment (Payment to Vehicle): FAIL, ERROR caught in CATCH=(catch of the try,catch): - ' . $e->getMessage()], 422);
         }
     }
 
