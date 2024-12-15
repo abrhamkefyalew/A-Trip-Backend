@@ -97,31 +97,39 @@ class TeleBirrOrganizationPaymentService
             'Authorization' => $fabricToken,
         ];
 
-        $response = Http::withHeaders(
-            $header,
-        )
-        ->withOptions([
-            'verify' => (!config('telebirr-super-app.testing')), // To bypass SSL verification
-        ])
-        ->post((config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrl_testing') : config('telebirr-super-app.baseUrl')) . '/payment/v1/merchant/preOrder', 
-            $reqObject,
-        );
+        try {
 
-        // this is to avoid the Occurrence of laravel ERROR on the Screen when Error Happens from Telebirr side
-        if (!$response->successful()) {
-            // return response()->json(['message' => 'Authentication failed (precondition failed)'], 412);
-            // return response()->json(['message' => 'Authentication failed (expectation failed)'], 417);
-            // return response()->json(['message' => 'Authentication failed (gateway timeout)'], 504);
+            $response = Http::withHeaders(
+                $header,
+            )
+            ->withOptions([
+                'verify' => (!config('telebirr-super-app.testing')), // To bypass SSL verification
+            ])
+            ->post((config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrl_testing') : config('telebirr-super-app.baseUrl')) . '/payment/v1/merchant/preOrder', 
+                $reqObject,
+            );
+    
+            // this is to avoid the Occurrence of laravel ERROR on the Screen when Error Happens from Telebirr side
+            if (!$response->successful()) {
+                // return response()->json(['message' => 'Authentication failed (precondition failed)'], 412);
+                // return response()->json(['message' => 'Authentication failed (expectation failed)'], 417);
+                // return response()->json(['message' => 'Authentication failed (gateway timeout)'], 504);
+                return response()->json([
+                    'message' => 'Authentication failed (request timeout)',
+                    'response_____we_got_from_telebirr_is' => $response->json(),
+                ], 408);
+            }
+
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+
+            // Handle the connection timeout error
             return response()->json([
-                'message' => 'Authentication failed (request timeout)',
-                'response_____we_got_from_telebirr_is' => $response->json(),
+                'message' => 'Connection timeout occurred',
+                'error' => $e->getMessage(),
             ], 408);
+            
         }
-
-
-
-
-
+        
 
         // LOG - ALL of Request and Response Info FOR requestCreateOrder() 
         $allRequestResponseInfoFORrequestCreateOrder_TO_BE_LOGGED = [
@@ -133,8 +141,6 @@ class TeleBirrOrganizationPaymentService
         ];
         //
         Log::info("Telebirr (Organization Payment For Order): ALL of Request and Response Info FOR requestCreateOrder()" . json_encode($allRequestResponseInfoFORrequestCreateOrder_TO_BE_LOGGED));
-
-
 
 
         return $response;
