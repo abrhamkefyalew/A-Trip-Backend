@@ -91,7 +91,7 @@ class TeleBirrOrganizationPaymentService
             abort(408, 'Connection Timeout occurred (From TeleBirr Side) - - - - - - : ');
 
         } catch (\Exception $e) {
-            abort(408, 'Error (From TeleBirrSide) - - - - - - : ' );
+            abort(500, 'An unexpected error occurred (From TeleBirrSide) - - - - - - : ' );
         }
         
 
@@ -151,7 +151,7 @@ class TeleBirrOrganizationPaymentService
             abort(408, 'Connection Timeout occurred (From TeleBirrSide) - - - - - - : ');
 
         } catch (\Exception $e) {
-            abort(408, 'Error (From TeleBirrSide) - - - - - - : ');
+            abort(500, 'An unexpected error occurred (From TeleBirrSide) - - - - - - : ');
         }
         
 
