@@ -5,6 +5,7 @@ namespace App\Services\Api\V1\Admin\Payment\TeleBirr;
 use SoapClient;
 use Carbon\Carbon;
 use App\Models\Order;
+use SimpleXMLElement;
 use App\Models\OrderUser;
 use App\Models\InvoiceVehicle;
 use Illuminate\Support\Facades\DB;
@@ -156,24 +157,48 @@ Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): REQUEST we SENT : 
 
             Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): RESPONSE XML: - ' . $responseXml);
 
-            $xml = simplexml_load_string($responseXml);
+            $xmlResponse = simplexml_load_string($responseXml);
 
-            // Check if the response contains a Fault element or Success element
+
+            // ----------------------------------------------------- READ THE XML Response From Telebirr ---------------------------------------------------------------------------------------------//
+
+            $xmlResponseObj = new SimpleXMLElement($xmlResponse);
             //
-            if ($xml->xpath('//soapenv:Fault')) {
-                // THIS HAPPENs if the SENT XML is NOT Correct (INCORRECT) in the first place
-                // 100 % FAIL
-                
-                // This is a failure response
-                // You can access the faultcode and faultstring like this
-                $faultCode = (string) $xml->xpath('//faultcode')[0];
-                $faultString = (string) $xml->xpath('//faultstring')[0];
-                
-                // Handle the failure scenario
-                // Log or handle the failure response accordingly
-                Log::error('B2C TeleBirr Vehicle Payment (Payment to Vehicle) FAIL - FaultCode: ' . $faultCode . ', FaultString: ' . $faultString);
+            // this URL (XPathNamespace) is for BOTH SUCCESS and FAIL XML response From Telebirr (<api:Response> and <soapenv:Fault>)
+            $xmlResponseObj->registerXPathNamespace('soapenv', 'http://schemas.xmlsoap.org/soap/envelope/');
+            //
+            // this URL (XPathNamespace) is exclusively only for the SUCCESS XML response From Telebirr (<api:Response>)
+            $xmlResponseObj->registerXPathNamespace('api', 'http://cps.huawei.com/cpsinterface/api_requestmgr');
+            $xmlResponseObj->registerXPathNamespace('res', 'http://cps.huawei.com/cpsinterface/response');
+            //
+            // this URL (XPathNamespace) is exclusively only for the FAULT XML response From Telebirr (<soapenv:Fault>)
+            $xmlResponseObj->registerXPathNamespace('axis2ns9', 'http://www.w3.org/2003/05/soap-envelope');
+
+
+
+            /////////////////////////  Check if the response contains a FAULT element or SUCCESS element  ////////////////////////////////////////////////////
+            //
+
+            // Check if it's a fail XML response
+            $faultElements = $xmlResponseObj->xpath('//soapenv:Body/soapenv:Fault');
+            $successElements = $xmlResponseObj->xpath('//soapenv:Body/api:Response');
+
+            //
+            if (!empty($faultElements)) {
+                // handle Fail XML response
+                $faultCode = (string)$xmlResponseObj->xpath('//soapenv:Body/soapenv:Fault/faultcode')[0] ?? null;
+                $faultString = (string)$xmlResponseObj->xpath('//soapenv:Body/soapenv:Fault/faultstring')[0] ?? null;
+
+                if ($faultCode !== null && $faultString !== null) {
+                    // Handle fail XML response
+                    return response()->json([
+                        'message' => 'B2C TeleBirr Vehicle Payment (Payment to Vehicle) FAIL (Failed because Telebirr Responded Fault XML) - faultcode: ' . $faultCode . ', faultstring: ' . $faultString,
+                        'faultCode' => $faultCode,
+                        'faultstring' => $faultString,
+                    ], 422);
+                }
             } 
-            else if ($xml->xpath('//api:Response')) {
+            else if (!empty($successElements)) {
                 // THIS HAPPENs if the SENT XML is CORRECT
                 // Payment Should be SUCCESS , but Still payment may NOT be Successful
                 // if ResponseCode === 0          // if ResponseCode !== 0
@@ -182,20 +207,22 @@ Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): REQUEST we SENT : 
                 // Check for elements in the xml
                 // 
                 // Body of XML
-                $responseCode = (string) $xml->xpath('//res:ResponseCode')[0];
-                $responseDesc = (string) $xml->xpath('//res:ResponseDesc')[0];
+                $responseCode = (string)$xmlResponseObj->xpath('//soapenv:Body/api:Response/res:Body/res:ResponseCode')[0];
+                $responseDesc = (string)$xmlResponseObj->xpath('//soapenv:Body/api:Response/res:Body/res:ResponseDesc')[0];
+                $serviceStatus = (string)$xmlResponseObj->xpath('//soapenv:Body/api:Response/res:Body/res:ServiceStatus')[0];
                 //
                 // Header of XML
-                $transactionIdSystem = (string) $xml->xpath('//res:OriginatorConversationID')[0];
-                $transactionIdBanks = (string) $xml->xpath('//res:ConversationID')[0];
+                $transactionIdSystem = (string)$xmlResponseObj->xpath('//soapenv:Body/api:Response/res:Header/res:OriginatorConversationID')[0];
+                $transactionIdBanks = (string)$xmlResponseObj->xpath('//soapenv:Body/api:Response/res:Header/res:ConversationID')[0];
 
                 // assign them to global variables for they are to be used below
-                $this->transactionIdSystemVal = $transactionIdBanks;
+                $this->transactionIdSystemVal = $transactionIdSystem;
                 $this->transactionIdBanksVal = $transactionIdBanks;
 
                 $telebirrResponseParameters = [
                     'ResponseCode' => $responseCode,
                     'ResponseDesc' => $responseDesc,
+                    'ServiceStatus' => $serviceStatus,
                     'OriginatorConversationID_or_transaction_id_system' => $transactionIdSystem,
                     'ConversationID_or_transaction_id_banks' => $transactionIdBanks,
                 ];
@@ -212,12 +239,11 @@ Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): REQUEST we SENT : 
                     $responseValue = $this->handlePaymentToVehicleAfterTeleBirrResponse();
 
                     if (!$responseValue->successful()) {
-                        return response()->json(['message' => 'B2C TeleBirr Vehicle Payment (Payment to Vehicle) FAIL during handlePaymentToVehicleAfterTeleBirrResponse() Method, this is when you handle SYSTEM logic after telebirr returns SUCCESS Response'], 422);
+                        return response()->json(['message' => 'B2C TeleBirr Vehicle Payment (Payment to Vehicle) FAIL during handlePaymentToVehicleAfterTeleBirrResponse() Method, we use this method to handle SYSTEM logic after telebirr returns SUCCESS Response'], 500);
                     }
 
-                    return response()->json(
-                        [
-                            'message' => 'B2C TeleBirr Vehicle Payment (Payment to Vehicle) SUCCESS - ResponseCode: ' . $responseCode . ', ResponseDesc: ' . $responseDesc . ', OriginatorConversationID (transaction_id_system): ' . $transactionIdSystem . ', ConversationID (transaction_id_banks): ' . $transactionIdBanks,
+                    return response()->json([
+                            'message' => 'B2C TeleBirr Vehicle Payment (Payment to Vehicle) SUCCESS.  ResponseCode: ' . $responseCode . ', ResponseDesc: ' . $responseDesc . ', OriginatorConversationID (transaction_id_system): ' . $transactionIdSystem . ', ConversationID (transaction_id_banks): ' . $transactionIdBanks,
                             'telebirr_response_parameters' => $telebirrResponseParameters,
                         ], 200);
                 

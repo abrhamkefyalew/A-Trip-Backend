@@ -918,12 +918,15 @@ Route::prefix('v1')->group(function () {
 
     // TEST OPEN ROUTES (normal_endpoint + _open_route)
         // initiate payment test C to B (C2B)
-        Route::get('/pay_invoices_test_open_route_boa', [InvoiceForOrganizationController::class, 'testboa']);
-        Route::get('/pay_invoices_test_open_route_telebirr_apply_fabric_token', [InvoiceForOrganizationController::class, 'testTelebirrApplyFabricToken']);
-        Route::get('/pay_invoices_test_open_route_telebirr', [InvoiceForOrganizationController::class, 'testTelebirr']);
+            Route::get('/pay_invoices_test_open_route_boa', [InvoiceForOrganizationController::class, 'testboa']);
+            Route::get('/pay_invoices_test_open_route_telebirr_apply_fabric_token', [InvoiceForOrganizationController::class, 'testTelebirrApplyFabricToken']);
+            Route::get('/pay_invoices_test_open_route_telebirr', [InvoiceForOrganizationController::class, 'testTelebirr']);
 
         // initiate payment test B to C (B2C)
-        Route::get('/pay_invoice_test_open_route_telebirr_b2c', [InvoiceVehicleController::class, 'testTelebirrB2C']);
+            Route::get('/pay_invoice_test_open_route_telebirr_b2c', [InvoiceVehicleController::class, 'testTelebirrB2C']);
+            // the below is Test code that could read Telebirr Response XML code after B2C request
+            Route::get('/pay_invoice_test_open_route_telebirr_b2c_read_returned_xml', [InvoiceVehicleController::class, 'testTelebirrB2CReadReturnedXml']);
+
         
 
 

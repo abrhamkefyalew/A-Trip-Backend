@@ -14,6 +14,7 @@ use App\Services\Api\V1\FilteringService;
 use App\Http\Requests\Api\V1\AdminRequests\PayInvoiceVehicleRequest;
 use App\Http\Resources\Api\V1\InvoiceVehicleResources\InvoiceVehicleResource;
 use App\Services\Api\V1\Admin\Payment\TeleBirr\TeleBirrVehiclePaymentService;
+use App\Services\Api\V1\Admin\Payment\TeleBirr\TeleBirrVehiclePaymentServiceMock;
 
 class InvoiceVehicleController extends Controller
 {
@@ -259,6 +260,16 @@ class InvoiceVehicleController extends Controller
     {
         $teleBirrOrganizationPaymentService = new TeleBirrVehiclePaymentService();
         $valuePayment = $teleBirrOrganizationPaymentService->initiatePaymentToVehicle((string)time() /* this must be 'transaction_id_system' because we have multiple B2C invoice tables and we want to avoid invoice_id being repeated */ , "1", "payment Reason".(string)time(), "251903942298");
+
+        return $valuePayment; 
+
+    }
+
+
+    public function testTelebirrB2CReadReturnedXml() 
+    {
+        $teleBirrOrganizationPaymentService = new TeleBirrVehiclePaymentServiceMock();
+        $valuePayment = $teleBirrOrganizationPaymentService->xmlReadingTest();
 
         return $valuePayment; 
 
