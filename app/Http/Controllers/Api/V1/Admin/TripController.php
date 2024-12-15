@@ -236,18 +236,18 @@ class TripController extends Controller
             }
             else if ($request['payment_method'] == InvoiceTrip::INVOICE_TELE_BIRR) {
 
-                $teleBirrTripPaymentService = new TeleBirrTripPaymentService();
-                $valuePayment = $teleBirrTripPaymentService->initiatePaymentToTrip($invoiceTrip->transaction_id_system, $invoiceTrip->price, "paymentReasonValue", $trip->driver->phone_number);
+                // $teleBirrTripPaymentService = new TeleBirrTripPaymentService();
+                // $valuePayment = $teleBirrTripPaymentService->initiatePaymentToTrip($invoiceTrip->transaction_id_system, $invoiceTrip->price, "paymentReasonValue", $trip->driver->phone_number);
 
-                $updatedTrip = Trip::find($trip->id);
+                // $updatedTrip = Trip::find($trip->id);
 
-                // since this condition is for the organization admin we return him the organizationUser relation
-                // return TripResource::make($updatedTrip->load('order', 'driver', 'organizationUser'));
+                // // since this condition is for the organization admin we return him the organizationUser relation
+                // // return TripResource::make($updatedTrip->load('order', 'driver', 'organizationUser'));
 
-                return response()->json([
-                    'value_payment' => $valuePayment,
-                    'updated_trip' => TripResource::make($updatedTrip->load('order', 'driver', 'organizationUser')),
-                ]); 
+                // return response()->json([
+                //     'value_payment' => $valuePayment,
+                //     'updated_trip' => TripResource::make($updatedTrip->load('order', 'driver', 'organizationUser')),
+                // ]); 
 
             }
             else {
