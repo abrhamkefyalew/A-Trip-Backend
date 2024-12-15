@@ -77,6 +77,7 @@ class TeleBirrCustomerPaymentService
         // instead RENDER a view and return it just as the following
         //
         $completeUrl = $baseUrlPay . '?' . $rawRequest . '&version=1.0&trade_type=Checkout';
+        Log::info("complete_url : - " . $completeUrl);
         //
         $renderedView = View::make('telebirr_pay_individual_customer_using_url', ['completeUrl' => (string)$completeUrl])->render(); // passing payload directly
         //
