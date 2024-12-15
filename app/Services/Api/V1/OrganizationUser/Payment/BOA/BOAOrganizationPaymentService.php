@@ -21,27 +21,27 @@ class BOAOrganizationPaymentService
      */
     public function initiatePaymentForPR($priceAmountTotalVal, $invoiceCodeVal)
     {
-        // $invoices = Invoice::where('invoice_code', $invoiceCodeVal)->get(); // multiple invoices will be fetched
-        // // Check if all invoices have the same transaction_id_system            // all invoices should have the same transaction_id_system (i.e. uuid), since we are going to send that transaction_id_system (i.e. uuid) to BOA
+        $invoices = Invoice::where('invoice_code', $invoiceCodeVal)->get(); // multiple invoices will be fetched
+        // Check if all invoices have the same transaction_id_system            // all invoices should have the same transaction_id_system (i.e. uuid), since we are going to send that transaction_id_system (i.e. uuid) to BOA
                 
-        // $transactionSystemUUIDs = $invoices->pluck('transaction_id_system')->unique();
-        // if ($transactionSystemUUIDs->count() > 1) {
-        //     return response()->json(['message' => 'All invoices must have the same transaction_id_system.'], 422);
-        // }
-        // if ($transactionSystemUUIDs->count() < 1) {
-        //     return response()->json(['message' => 'no valid transaction_id_system for the invoices.'], 422);
-        // }
-        // // Now we are sure all the invoices have the same transaction_id_system
-        // // So let's get that one transaction_id_system      // it is worth to mention that the following collection only have one transaction_id_system
-        // // Now $uuidTransactionIdSystem contains the transaction_id_system that can be used in the making of the payload for BOA
-        // $uuidTransactionIdSystem = $transactionSystemUUIDs->first(); // Retrieves the first transaction_id_system FROM our collection which in fact at this stage have ONLY one transaction_id_system  
+        $transactionSystemUUIDs = $invoices->pluck('transaction_id_system')->unique();
+        if ($transactionSystemUUIDs->count() > 1) {
+            return response()->json(['message' => 'All invoices must have the same transaction_id_system.'], 422);
+        }
+        if ($transactionSystemUUIDs->count() < 1) {
+            return response()->json(['message' => 'no valid transaction_id_system for the invoices.'], 422);
+        }
+        // Now we are sure all the invoices have the same transaction_id_system
+        // So let's get that one transaction_id_system      // it is worth to mention that the following collection only have one transaction_id_system
+        // Now $uuidTransactionIdSystem contains the transaction_id_system that can be used in the making of the payload for BOA
+        $uuidTransactionIdSystem = $transactionSystemUUIDs->first(); // Retrieves the first transaction_id_system FROM our collection which in fact at this stage have ONLY one transaction_id_system  
         
 
         
 
-        // // at last 
-        // // add prefix = "OPR-" : - prefix on the invoice code variable so that during call back later we could know that it is for ORGANIZATION PR payment
-        // $invoiceCodeValWithPrefixPr = config('constants.payment.customer_to_business.organization_pr') . (string) $invoiceCodeVal; // add the OPR- prefix to indicate the invoice code is for organization payment // we will use it later when the callback comes from the banks
+        // at last 
+        // add prefix = "OPR-" : - prefix on the invoice code variable so that during call back later we could know that it is for ORGANIZATION PR payment
+        $invoiceCodeValWithPrefixPr = config('constants.payment.customer_to_business.organization_pr') . (string) $invoiceCodeVal; // add the OPR- prefix to indicate the invoice code is for organization payment // we will use it later when the callback comes from the banks
 
 
         $boaData = [
@@ -53,12 +53,12 @@ class BOAOrganizationPaymentService
             // 'payment_method' => 'card',
             'profile_id' => config('boa.testing') ? config('boa.testing_profile_id') : config('boa.profile_id'),
 
-            'reference_number' => (string) $invoiceCodeVal,
+            'reference_number' => (string) $invoiceCodeValWithPrefixPr,
             'signed_date_time' => gmdate("Y-m-d\TH:i:s\Z"), // str(signed_date_time)
             'signed_field_names' => 'access_key,amount,currency,locale,profile_id,reference_number,signed_date_time,signed_field_names,transaction_type,transaction_uuid,unsigned_field_names', // the order of the field name matters significantly when signing and unsigning
 
             'transaction_type' => config('boa.testing') ? config('boa.testing_transaction_type') : config('boa.transaction_type'),
-            'transaction_uuid' => (string) $invoiceCodeVal, // universal_id (i.e. UUID)
+            'transaction_uuid' => (string) $uuidTransactionIdSystem, // universal_id (i.e. UUID)
             'unsigned_field_names' => '',
         ];
 
