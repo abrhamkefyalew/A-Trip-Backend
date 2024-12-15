@@ -83,7 +83,7 @@ class InvoiceVehicleController extends Controller
     /**
      * Store a newly created resource in storage.
      * 
-     * Vehicle PR asking by supplier for organizations order
+     * Supplier is asking Adiamat PR for his vehicles that are in Organizations order table
      */
     public function storeInvoiceVehicleForOrder(StoreInvoiceVehicleOrderRequest $request)
     {
@@ -328,7 +328,7 @@ class InvoiceVehicleController extends Controller
     /**
      * Store a newly created resource in storage.
      * 
-     * Vehicle PR asking by supplier for individual customers order
+     * Supplier is asking Adiamat PR for his vehicles that are in individual customers order table
      */
     public function storeInvoiceVehicleForOrderUser(StoreInvoiceVehicleOrderUserRequest $request)
     {
