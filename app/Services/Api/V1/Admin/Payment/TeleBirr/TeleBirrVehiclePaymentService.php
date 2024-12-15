@@ -161,8 +161,10 @@ Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): REQUEST we SENT : 
 
 
             // ----------------------------------------------------- READ THE XML Response From Telebirr ---------------------------------------------------------------------------------------------//
-
-            $xmlResponseObj = new SimpleXMLElement($xmlResponse);
+            //
+            //
+            //
+            $xmlResponseObj = new SimpleXMLElement($responseXml);
             //
             // this URL (XPathNamespace) is for BOTH SUCCESS and FAIL XML response From Telebirr (<api:Response> and <soapenv:Fault>)
             $xmlResponseObj->registerXPathNamespace('soapenv', 'http://schemas.xmlsoap.org/soap/envelope/');
