@@ -88,10 +88,10 @@ class TeleBirrOrganizationPaymentService
 
         } catch (\Illuminate\Http\Client\ConnectionException $e) {
             // Handle the connection timeout error
-            abort(500, 'Connection timeout occurred: ' . $e->getMessage());
+            abort(500, 'Connection Timeout occurred (From TeleBirr Side) - - - - - - : ' . $e->getMessage());
 
         } catch (\Exception $e) {
-            abort(500, 'Error: ' . $e->getMessage());
+            abort(500, 'Error (From TeleBirrSide) - - - - - - : ' . $e->getMessage());
         }
         
 
@@ -148,10 +148,10 @@ class TeleBirrOrganizationPaymentService
 
         } catch (\Illuminate\Http\Client\ConnectionException $e) {
             // Handle the connection timeout error
-            abort(500, 'Connection timeout occurred: ' . $e->getMessage());
+            abort(500, 'Connection Timeout occurred (From TeleBirrSide) - - - - - - : ' . $e->getMessage());
 
         } catch (\Exception $e) {
-            abort(500, 'Error: ' . $e->getMessage());
+            abort(500, 'Error (From TeleBirrSide) - - - - - - : ' . $e->getMessage());
         }
         
 
