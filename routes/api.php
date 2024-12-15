@@ -861,6 +861,7 @@ Route::prefix('v1')->group(function () {
                     Route::get('/', [BidForCustomerController::class, 'show']);
                     Route::put('/', [BidForCustomerController::class, 'update']);
                     Route::put('/accept_bid', [BidForCustomerController::class, 'acceptBid']);
+                    Route::get('/accept_bid/{paymentMethod}', [BidForCustomerController::class, 'acceptBidNew']);
                     Route::delete('/', [BidForCustomerController::class, 'destroy']);
                 }); 
             });
