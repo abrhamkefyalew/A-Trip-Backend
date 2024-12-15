@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Models\Trip;
+use App\Models\InvoiceTrip;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Models\ContractDetail;
@@ -315,6 +316,20 @@ class TripController extends Controller
         $this->authorize('delete', $trip);
 
         $var = DB::transaction(function () use ($trip) {
+
+
+            if (InvoiceTrip::where('trip_id', $trip->id)->exists()) {
+                
+                // this works
+                // return response()->json([
+                //     'message' => 'Cannot delete the Trip because it is in use by InvoiceTrips.',
+                // ], 409);
+
+                // this also works
+                return response()->json([
+                    'message' => 'Cannot delete the contract because it is in use by InvoiceTrips.'
+                ], Response::HTTP_CONFLICT);
+            }
 
             $trip->delete();
 
