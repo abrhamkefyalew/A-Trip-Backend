@@ -15,7 +15,7 @@ class PayTripRequest extends FormRequest
     {
         return true;
 
-        // return $this->user()->can('pay', InvoiceTrip::class);
+        // return $this->user()->can('pay', $this->trip);
     }
 
     /**

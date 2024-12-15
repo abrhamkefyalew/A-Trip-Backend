@@ -377,10 +377,10 @@ Route::prefix('v1')->group(function () {
             });
 
 
+             // currently this invoice_trips route is NOT functional
             Route::prefix('invoice_trips')->group(function () {
                 Route::post('/', [InvoiceTripController::class, 'store']);
                 Route::get('/', [InvoiceTripController::class, 'index']);
-                Route::post('/', [InvoiceTripController::class, 'payInvoice']);
                 Route::prefix('/{invoiceTrip}')->group(function () {
                     Route::get('/', [InvoiceTripController::class, 'show']);
                     Route::put('/', [InvoiceTripController::class, 'update']);
