@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Models\Trip;
 use App\Models\InvoiceTrip;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Models\ContractDetail;
@@ -13,8 +14,10 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Services\Api\V1\FilteringService;
 use App\Http\Resources\Api\V1\TripResources\TripResource;
+use App\Http\Requests\Api\V1\AdminRequests\PayTripRequest;
 use App\Http\Requests\Api\V1\AdminRequests\StoreTripRequest;
 use App\Http\Requests\Api\V1\AdminRequests\UpdateTripRequest;
+use App\Services\Api\V1\Admin\Payment\TeleBirr\TeleBirrTripPaymentService;
 
 
 class TripController extends Controller
@@ -173,7 +176,7 @@ class TripController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function payTrip(Request $request, Trip $trip)
+    public function payTrip(PayTripRequest $request, Trip $trip)
     {
         //
         $var = DB::transaction(function () use ($request, $trip) {
@@ -201,21 +204,58 @@ class TripController extends Controller
                 return response()->json(['error' => 'Trip Can Not be Paid, Because some important values of the Trip are Not filled yet. Thr Driver should complete filling all the required Trip Values Before it can be Paid.'], 428);
             }
             
-            
+            // generate Unique UUID for each Invoice Trips
+            $uuidTransactionIdSystem = Str::uuid(); // this uuid should be generated to be NEW and UNIQUE uuid (i.e. transaction_id_system) for Each invoice
 
-            $success = $trip->update([
-                'status_payment' => Trip::TRIP_PAID,
+            // create invoice for this Trip
+            $invoiceTrip = InvoiceTrip::create([
+                'trip_id' => $trip->id,
+                'driver_id' => $trip->driver_id,
+                'transaction_id_system' => $uuidTransactionIdSystem,
+
+                'price' => $trip->price_fuel,
+                'status' => InvoiceTrip::INVOICE_STATUS_NOT_PAID,
+                'paid_date' => null,                           // is NULL when the invoice is created initially, // and set when the invoice is paid by the organization
+                'payment_method' => $request['payment_method'],
             ]);
             //
-            if (!$success) {
-                return response()->json(['message' => 'Trip Update Failed'], 500);
+            if (!$invoiceTrip) {
+                return response()->json(['message' => 'Invoice Create Failed'], 500);
             }
 
-            
-            $updatedTrip = Trip::find($trip->id);
 
-            // since this condition is for the organization admin we return him the organizationUser relation
-            return TripResource::make($updatedTrip->load('order', 'driver', 'organizationUser'));
+
+
+            /////////// call the payment Services
+            if ($request['payment_method'] == InvoiceTrip::INVOICE_BOA) {
+
+                // $boaTripPaymentService = new BOATripPaymentService();
+                // $valuePaymentRenderedView = $boaTripPaymentService->initiatePaymentForTripPR($invoiceTrip->transaction_id_system, $invoiceTrip->price, "paymentReasonValue", $trip->driver->phone_number);
+
+                // return $valuePaymentRenderedView;
+            }
+            else if ($request['payment_method'] == InvoiceTrip::INVOICE_TELE_BIRR) {
+
+                $teleBirrTripPaymentService = new TeleBirrTripPaymentService();
+                $valuePayment = $teleBirrTripPaymentService->initiatePaymentToTrip($invoiceTrip->transaction_id_system, $invoiceTrip->price, "paymentReasonValue", $trip->driver->phone_number);
+
+                $updatedTrip = Trip::find($trip->id);
+
+                // since this condition is for the organization admin we return him the organizationUser relation
+                // return TripResource::make($updatedTrip->load('order', 'driver', 'organizationUser'));
+
+                return response()->json([
+                    'value_payment' => $valuePayment,
+                    'updated_trip' => TripResource::make($updatedTrip->load('order', 'driver', 'organizationUser')),
+                ]); 
+
+            }
+            else {
+                return response()->json(['error' => 'Invalid payment method selected.'], 422);
+            }
+
+
+            
             
         });
 

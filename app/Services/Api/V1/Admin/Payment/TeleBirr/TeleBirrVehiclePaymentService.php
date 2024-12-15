@@ -240,11 +240,15 @@ Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): REQUEST we SENT : 
 
                     $responseValue = $this->handlePaymentToVehicleAfterTeleBirrResponse();
 
-                    return response()->json([
-                            'message' => 'B2C TeleBirr Vehicle Payment (Payment to Vehicle) SUCCESS.  ResponseCode: ' . $responseCode . ', ResponseDesc: ' . $responseDesc . ', OriginatorConversationID (transaction_id_system): ' . $transactionIdSystem . ', ConversationID (transaction_id_banks): ' . $transactionIdBanks,
-                            'telebirr_response_parameters' => $telebirrResponseParameters,
-                        ], 200);
-                
+
+                    $valuePayment = [
+                        'message' => 'B2C TeleBirr Vehicle Payment (Payment to Vehicle) SUCCESS.  ResponseCode: ' . $responseCode . ', ResponseDesc: ' . $responseDesc . ', OriginatorConversationID (transaction_id_system): ' . $transactionIdSystem . ', ConversationID (transaction_id_banks): ' . $transactionIdBanks,
+                        'telebirr_response_parameters' => $telebirrResponseParameters,
+                    ];
+
+
+                    return $valuePayment;
+
                 } 
                 else if ($responseCode === '1001') {
                     Log::alert('B2C TeleBirr Vehicle Payment (Payment to Vehicle) FAIL due to Caller Authentication ERROR - ResponseCode: ' . $responseCode . ', ResponseDesc: ' . $responseDesc . ', OriginatorConversationID (transaction_id_system): ' . $transactionIdSystem . ', ConversationID (transaction_id_banks): ' . $transactionIdBanks);
@@ -318,7 +322,6 @@ Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): REQUEST we SENT : 
             // $invoiceIdList = [];
 
 
-            // Fetch all invoices where invoice_code matches the one from the request
             $invoiceVehicle = InvoiceVehicle::where('transaction_id_system', $transactionIdSystemValue)->first(); // this should NOT be exists().  this should be get(), because i am going to use actual data (records) of $invoices in the below foreach
             //
             if (!$invoiceVehicle) { 
@@ -462,7 +465,6 @@ Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): REQUEST we SENT : 
         //     abort(500, 'B2C TeleBirr (AFTER TELEBIRR RESPONSE) - Vehicle Payment (Payment to Vehicle): the InvoiceVehicle with the transaction_id_system is not found. transaction_id_system' . $this->transactionIdSystemVal);
         // }
 
-        // Update all invoices with the sent invoice_code
         $success = $invoiceVehicle->update([
             'status' => InvoiceVehicle::INVOICE_STATUS_PAID,
             'paid_date' => $today,

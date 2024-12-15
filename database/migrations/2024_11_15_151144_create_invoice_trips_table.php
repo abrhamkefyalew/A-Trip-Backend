@@ -23,7 +23,7 @@ return new class extends Migration
             $table->uuid('transaction_id_system'); // this is our transaction id, which is created all the time // this should NOT be unique because when paying using invoice_code, all the invoices under that invoice code should have the same uuid (i.e. transaction_id_system)
             $table->string('transaction_id_banks')->nullable(); // this is the transaction id that comes from the banks during callback
         
-            $table->integer('price'); // is (the dashboard differences multiplied by some constant)
+            $table->integer('price'); // is (the dashboard differences multiplied by price_fuel_payment_constant from contract_details)
             $table->string('status')->default(InvoiceTrip::INVOICE_STATUS_NOT_PAID); // this column is enum
             $table->date('paid_date')->nullable(); // initially it is NULL // set when organization pays this invoice
 

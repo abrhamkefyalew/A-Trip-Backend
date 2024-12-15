@@ -144,7 +144,6 @@ class InvoiceVehicleController extends Controller
 
 
 
-                $vehicle = Vehicle::find($invoiceVehicle->order->vehicle_id);
 
                 $typeOfOrder = "organization";
                 /////////// call the payment Services
@@ -158,9 +157,14 @@ class InvoiceVehicleController extends Controller
                 else if ($request['payment_method'] == InvoiceVehicle::INVOICE_TELE_BIRR) {
 
                     $teleBirrVehiclePaymentService = new TeleBirrVehiclePaymentService();
-                    $valuePayment = $teleBirrVehiclePaymentService->initiatePaymentToVehicle($invoiceVehicle->transaction_id_system, $invoiceVehicle->price_amount, "paymentReason", $vehicle->supplier->phone_number);
+                    $valuePayment = $teleBirrVehiclePaymentService->initiatePaymentToVehicle($invoiceVehicle->transaction_id_system, $invoiceVehicle->price_amount, "paymentReasonValue", $invoiceVehicle->supplier->phone_number);
 
-                    return $valuePayment; 
+                    $invoiceVehicleUpdated = InvoiceVehicle::find($invoiceVehicle->id);
+
+                    return response()->json([
+                        'value_payment' => $valuePayment,
+                        'updated_invoice_vehicle' => InvoiceVehicleResource::make($invoiceVehicleUpdated->load('order', 'orderUser', 'supplier')),
+                    ]); 
 
                 }
                 else {
@@ -212,7 +216,6 @@ class InvoiceVehicleController extends Controller
 
 
 
-                $vehicle = Vehicle::find($invoiceVehicle->orderUser->vehicle_id);
 
                 $typeOfOrder = "individual_customer";
                 /////////// call the payment Services
@@ -226,9 +229,14 @@ class InvoiceVehicleController extends Controller
                 else if ($request['payment_method'] == InvoiceVehicle::INVOICE_TELE_BIRR) {
 
                     $teleBirrVehiclePaymentService = new TeleBirrVehiclePaymentService();
-                    $valuePayment = $teleBirrVehiclePaymentService->initiatePaymentToVehicle($invoiceVehicle->transaction_id_system, $invoiceVehicle->price_amount, "paymentReason", $vehicle->supplier->phone_number);
+                    $valuePayment = $teleBirrVehiclePaymentService->initiatePaymentToVehicle($invoiceVehicle->transaction_id_system, $invoiceVehicle->price_amount, "paymentReasonValue", $invoiceVehicle->supplier->phone_number);
 
-                    return $valuePayment; 
+                    $invoiceVehicleUpdated = InvoiceVehicle::find($invoiceVehicle->id);
+
+                    return response()->json([
+                        'value_payment' => $valuePayment,
+                        'updated_invoice_vehicle' => InvoiceVehicleResource::make($invoiceVehicleUpdated->load('order', 'orderUser', 'supplier')),
+                    ]);
 
                 }
                 else {
