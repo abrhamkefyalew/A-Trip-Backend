@@ -87,13 +87,11 @@ class TeleBirrOrganizationPaymentService
             return $response;
 
         } catch (\Illuminate\Http\Client\ConnectionException $e) {
-
             // Handle the connection timeout error
-            abort(422, [
-                'message' => 'Connection timeout occurred',
-                'error' => $e->getMessage(),
-            ]);
+            abort(500, 'Connection timeout occurred: ' . $e->getMessage());
 
+        } catch (\Exception $e) {
+            abort(500, 'Error: ' . $e->getMessage());
         }
         
 
@@ -149,13 +147,11 @@ class TeleBirrOrganizationPaymentService
 
 
         } catch (\Illuminate\Http\Client\ConnectionException $e) {
-
             // Handle the connection timeout error
-            abort(422, [
-                'message' => 'Connection timeout occurred',
-                'error' => $e->getMessage(),
-            ]);
+            abort(500, 'Connection timeout occurred: ' . $e->getMessage());
 
+        } catch (\Exception $e) {
+            abort(500, 'Error: ' . $e->getMessage());
         }
         
 
