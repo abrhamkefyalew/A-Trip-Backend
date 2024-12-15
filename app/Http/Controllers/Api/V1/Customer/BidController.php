@@ -328,13 +328,13 @@ class BidController extends Controller
 
         return $var;
     }
-    public function acceptBidNew( Bid $bid,String $paymentMethod)
+    public function acceptBidNew(Bid $bid, int  $id, String $paymentMethod)
     {
         //
-        $var = DB::transaction(function () use ($paymentMethod, $bid) {
+        $var = DB::transaction(function () use ($paymentMethod, $id, $bid) {
             // get the customer identity
-            $user = auth()->user();
-            $customer = Customer::find($user->id);
+            // $user = auth()->user();
+            $customer = Customer::find($id);
 
 
             if (!$bid->orderUser) {
