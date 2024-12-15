@@ -182,7 +182,7 @@ class TripController extends Controller
         $var = DB::transaction(function () use ($request, $trip) {
             
             if ($trip->status != Trip::TRIP_STATUS_APPROVED) {
-                return response()->json(['message' => 'this Trip is should be APPROVED first.'], 428); 
+                return response()->json(['message' => 'this Trip should be APPROVED first.'], 428); 
             }
 
             if ($trip->status_payment == Trip::TRIP_PAID) {
