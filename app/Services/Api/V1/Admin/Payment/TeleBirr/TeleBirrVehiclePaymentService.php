@@ -306,11 +306,11 @@ Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): REQUEST we SENT : 
             //
             if (!$invoiceVehicle) { 
                 Log::alert('B2C TeleBirr (AFTER TELEBIRR RESPONSE) - Vehicle Payment (Payment to Vehicle): the InvoiceVehicle with the transaction_id_system is not found. transaction_id_system: ' . $this->transactionIdSystemVal);
-                // return response()->json([
-                //     'message' => 'B2C TeleBirr (AFTER TELEBIRR RESPONSE) - Vehicle Payment (Payment to Vehicle): the InvoiceVehicle with the transaction_id_system is not found. transaction_id_system: ' . $this->transactionIdSystemVal
-                // ], 500);
+                return response()->json([
+                    'message' => 'B2C TeleBirr (AFTER TELEBIRR RESPONSE) - Vehicle Payment (Payment to Vehicle): the InvoiceVehicle with the transaction_id_system is not found. transaction_id_system: ' . $this->transactionIdSystemVal
+                ], 500);
                 
-                abort(500, 'B2C TeleBirr (AFTER TELEBIRR RESPONSE) - Vehicle Payment (Payment to Vehicle): the InvoiceVehicle with the transaction_id_system is not found. transaction_id_system: ' . $this->transactionIdSystemVal);
+                // abort(500, 'B2C TeleBirr (AFTER TELEBIRR RESPONSE) - Vehicle Payment (Payment to Vehicle): the InvoiceVehicle with the transaction_id_system is not found. transaction_id_system: ' . $this->transactionIdSystemVal);
             }
 
 
