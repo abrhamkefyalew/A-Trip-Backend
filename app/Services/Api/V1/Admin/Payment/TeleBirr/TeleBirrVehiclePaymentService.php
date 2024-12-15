@@ -240,7 +240,7 @@ Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): REQUEST we SENT : 
 
                     $responseValue = $this->handlePaymentToVehicleAfterTeleBirrResponse();
 
-                    if (!$responseValue->successful()) {
+                    if (!$responseValue == "OK") {
                         return response()->json(['message' => 'B2C TeleBirr Vehicle Payment (Payment to Vehicle) FAIL during handlePaymentToVehicleAfterTeleBirrResponse() Method, we use this method to handle SYSTEM logic after telebirr returns SUCCESS Response'], 500);
                     }
 
@@ -272,7 +272,7 @@ Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): REQUEST we SENT : 
             // Handle exceptions
             Log::alert('B2C TeleBirr Vehicle Payment (Payment to Vehicle): FAIL, ERROR caught in CATCH=(catch of the try,catch): - ' . $e->getMessage());
 
-            return response()->json(['message' => 'B2C TeleBirr Vehicle Payment (Payment to Vehicle): FAIL, ERROR caught in CATCH=(catch of the try,catch): - ' . $e->getMessage()], 422);
+            return response()->json(['message' => 'B2C TeleBirr Vehicle Payment (Payment to Vehicle): FAIL, ERROR caught in CATCH=(catch of the try,catch): - ' . $e->getMessage()], 500);
         }
     }
 
@@ -327,7 +327,7 @@ Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): REQUEST we SENT : 
 
             // return 200 OK response // check abrham samson
 
-            return response()->json(['message' => 'Success'], 200); // means everything worked up, to reach this level of the code
+            return "OK"; // means everything worked up, to reach this level of the code
 
         });
 
@@ -428,7 +428,7 @@ Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): REQUEST we SENT : 
         else {
             // an invoice must have at least order_id or order_user_id, - - - -  other wise it will be the Following ERROR
             //
-            return response()->json(['message' => 'B2C TeleBirr (AFTER TELEBIRR RESPONSE) - Vehicle Payment (Payment to Vehicle): This Invoice Can NOT be Processed. Because: - this InvoiceVehicle does NOT have BOTH order_id or order_user_id'], 422);
+            return response()->json(['message' => 'B2C TeleBirr (AFTER TELEBIRR RESPONSE) - Vehicle Payment (Payment to Vehicle): This Invoice Can NOT be Processed. Because: - this InvoiceVehicle have NEITHER order_id NOR order_user_id. At least it should have ONE of the foreign ID'], 422);
         }
 
         
@@ -510,7 +510,7 @@ Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): REQUEST we SENT : 
         else {
             // an invoice must have at least order_id or order_user_id, - - - -  other wise it will be the Following ERROR
             //
-            return response()->json(['message' => 'B2C TeleBirr (AFTER TELEBIRR RESPONSE) - Vehicle Payment (Payment to Vehicle): This Invoice Can NOT be Processed. Because: - this InvoiceVehicle does NOT have BOTH order_id or order_user_id'], 422);
+            return response()->json(['message' => 'B2C TeleBirr (AFTER TELEBIRR RESPONSE) - Vehicle Payment (Payment to Vehicle): This Invoice Can NOT be Processed. Because: - this InvoiceVehicle have NEITHER order_id NOR order_user_id. At least it should have ONE of the foreign ID'], 422);
         }
         
     }

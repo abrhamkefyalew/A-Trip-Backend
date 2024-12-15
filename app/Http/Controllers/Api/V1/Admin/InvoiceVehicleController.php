@@ -239,7 +239,7 @@ class InvoiceVehicleController extends Controller
             else {
                 // an invoice must have at least order_id or order_user_id, - - - -  other wise it will be the Following ERROR
                 //
-                return response()->json(['message' => 'This Invoice Can NOT be Processed. Because: - this InvoiceVehicle does NOT have BOTH order_id or order_user_id'], 422);
+                return response()->json(['message' => 'This Invoice Can NOT be Processed. Because: - this InvoiceVehicle have NEITHER order_id NOR order_user_id. At least it should have ONE of the foreign ID'], 422);
             }
 
             
