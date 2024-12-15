@@ -159,7 +159,7 @@ Log::info('B2C TeleBirr Vehicle Payment (Payment to Vehicle): REQUEST we SENT : 
 
             $xmlResponse = simplexml_load_string($responseXml);
 
-            return $responseXml;
+            // return $responseXml;
 
 
             // ----------------------------------------------------- READ THE XML Response From Telebirr ---------------------------------------------------------------------------------------------//
