@@ -182,7 +182,7 @@ class InvoiceVehicleController extends Controller
                 
                 if ($unPaidOrderInvoiceExist) {
                     return response()->json([
-                        'message' => 'there is NOT_PAID invoice in invoices table with this order, you need to ask the system admins to pay the previous PR for this particular order before asking another PR for this particular Order: ' . $order->id,
+                        'message' => 'there is NOT_PAID invoice in invoice_vehicles table with this order, you need to ask the system admins to pay the previous PR for this particular order before asking another PR for this particular Order: ' . $order->id,
                         'order_id' => $order->id,
                         'order_vehicle_plate_number' => $order->vehicle->plate_number
                     ], 428);
@@ -427,7 +427,7 @@ class InvoiceVehicleController extends Controller
                 
                 if ($unPaidOrderInvoiceExist) {
                     return response()->json([
-                        'message' => 'there is NOT_PAID invoice in invoices table with this order, you need to ask the system admins to pay the previous PR for this particular order before asking another PR for this particular Order: ' . $orderUser->id,
+                        'message' => 'there is NOT_PAID invoice in invoice_vehicles table with this orderUser, you need to ask the system admins to pay the previous PR for this particular order before asking another PR for this particular Order: ' . $orderUser->id,
                         'order_user_id' => $orderUser->id,
                         'order_vehicle_plate_number' => $orderUser->vehicle->plate_number
                     ], 428);
