@@ -792,6 +792,12 @@ Route::prefix('v1')->group(function () {
             Route::post('/login_otp', [CustomerAuthController::class, 'loginOtp']);
             Route::post('/verify_otp', [CustomerAuthController::class, 'verifyOtp']);
 
+            Route::prefix('bids')->group(function () {
+                Route::prefix('/{bid}')->group(function () {
+                    Route::get('/accept_bid/{id}/{paymentMethod}', [BidForCustomerController::class, 'acceptBidNew']);
+                }); 
+            });
+
         });
 
 
