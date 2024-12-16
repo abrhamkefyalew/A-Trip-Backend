@@ -96,7 +96,7 @@ class TripController extends Controller
         }
 
 
-        $tripsData = $trips->with('order', 'organizationUser')->latest()->paginate(FilteringService::getPaginate($request));
+        $tripsData = $trips->with('order', 'driver', 'organizationUser')->latest()->paginate(FilteringService::getPaginate($request));
 
         return TripResource::collection($tripsData);
 
