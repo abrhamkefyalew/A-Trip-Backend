@@ -25,7 +25,7 @@ class StoreBidRequest extends FormRequest
             //
             'order_user_id' => 'required|integer|exists:order_users,id',
             'vehicle_id' => 'required|integer|exists:vehicles,id',
-            'price_total' => 'required|integer|between:10,9999999',
+            'price_total' => 'required|integer|between:1,9999999',
         ];
     }
 }
