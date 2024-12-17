@@ -166,17 +166,18 @@ class BidController extends Controller
             }
 
 
-            if ($bid->vehicle->with_driver !== $bid->orderUser->with_driver) {
+            // if ($bid->vehicle->with_driver !== $bid->orderUser->with_driver) {
 
-                if (($bid->vehicle->with_driver === 1) && ($bid->orderUser->with_driver === 0)) {
-                    return response()->json(['message' => 'the bid can not be selected. Because the parent order does not need a driver and the vehicle in the bid sends the vehicle with driver'], 422);
-                } else if (($bid->vehicle->with_driver === 0) && ($bid->orderUser->with_driver === 1)) {
+            //     if (($bid->vehicle->with_driver === 1) && ($bid->orderUser->with_driver === 0)) {
+            //         return response()->json(['message' => 'the bid can not be selected. Because the parent order does not need a driver and the vehicle in the bid sends the vehicle with driver'], 422);
+            //     } 
+                /* else */ if (($bid->vehicle->with_driver === 0) && ($bid->orderUser->with_driver === 1)) {
                     return response()->json(['message' => 'the bid can not be selected. Because the order needs vehicle with a driver and the vehicle in the bid does not provide a driver'], 422);
                 }
 
 
-                return response()->json(['message' => 'the vehicle with_driver value is not equal with that of the order requirement.'], 422);
-            }
+            //     return response()->json(['message' => 'the vehicle with_driver value is not equal with that of the order requirement.'], 422);
+            // }
 
             // this if is important and should be right here 
             // this if should NOT be nested in any other if condition // this if should be independent and done just like this  // this if should be checked independently just like i did it right here

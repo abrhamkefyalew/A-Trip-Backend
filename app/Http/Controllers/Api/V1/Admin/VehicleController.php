@@ -242,7 +242,7 @@ class VehicleController extends Controller
 
 
             if ($withDriver == 1) {
-                if ( !(isset($driverId)) ) {
+                if (!isset($driverId)) {
                     return response()->json(['message' => 'missing driver_id. This Vehicle has with_driver = 1, so driver_id must also be set for your vehicle.'], 422);
                 }
                 if ($driverId === null) {
