@@ -65,7 +65,7 @@ class OrderUserController extends Controller
 
         
         // check if the pagination works overall in this orders data list
-        $ordersUsersData = $ordersUsers->with('vehicleName', 'vehicle', 'supplier', 'customer')
+        $ordersUsersData = $ordersUsers->with('vehicleName', 'vehicle', 'supplier', 'customer', 'bids')
             ->latest()
             ->paginate(FilteringService::getPaginate($request)); // get list of orders that fits this logged in driver // get orders that the logged in driver is already involved with in the past
 
@@ -107,7 +107,7 @@ class OrderUserController extends Controller
         $ordersUsersData = $ordersUsers->whereIn('vehicle_name_id', $vehicleNameIds)
             ->where('is_terminated', 0)
             ->whereDate('end_date', '>=', today()->toDateString()) // toDateString() is used , to get and use only the date value of today(), // so the time value is stripped out
-            ->with('vehicleName', 'vehicle', 'supplier', 'customer')
+            ->with('vehicleName', 'vehicle', 'supplier', 'customer', 'bids')
             ->latest()
             ->paginate(FilteringService::getPaginate($request)); // get list of orders that fits this logged in driver
 
@@ -273,7 +273,7 @@ class OrderUserController extends Controller
 
             $updatedOrderUser = OrderUser::find($orderUser->id);
                 
-            return OrderUserForDriverResource::make($updatedOrderUser->load('vehicleName', 'vehicle', 'supplier', 'customer'));
+            return OrderUserForDriverResource::make($updatedOrderUser->load('vehicleName', 'vehicle', 'supplier', 'customer', 'bids'));
 
         });
 
@@ -391,7 +391,7 @@ class OrderUserController extends Controller
 
             $updatedOrderUser = OrderUser::find($orderUser->id);
                 
-            return OrderUserForDriverResource::make($updatedOrderUser->load('vehicleName', 'vehicle', 'supplier', 'customer'));
+            return OrderUserForDriverResource::make($updatedOrderUser->load('vehicleName', 'vehicle', 'supplier', 'customer', 'bids'));
 
         });
 
