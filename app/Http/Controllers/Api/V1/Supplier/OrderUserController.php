@@ -112,6 +112,7 @@ class OrderUserController extends Controller
         // check if the pagination works overall in this orders data list
         $ordersUsersData = $ordersUsers->whereIn('vehicle_name_id', $vehicleNameIds)
             ->where('is_terminated', 0)
+            ->where('with_driver', 0)
             ->whereDate('end_date', '>=', today()->toDateString()) // toDateString() is used , to get and use only the date value of today(), // so the time value is stripped out
             ->with('vehicleName', 'vehicle', 'driver', 'bids')
             ->latest()

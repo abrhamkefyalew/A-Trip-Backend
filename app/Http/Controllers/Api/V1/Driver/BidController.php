@@ -42,6 +42,12 @@ class BidController extends Controller
                 return response()->json(['message' => 'invalid Vehicle is selected. or This Driver does not have a vehicle with this id. Deceptive request Aborted.'], 403); 
             }
 
+            //
+            if ($orderUser->with_driver == 0) {
+                return response()->json(['message' => 'the order with_driver is 0, so you can NOT accept this order'], 422); 
+            }
+            //
+
             if ($vehicle->vehicle_name_id !== $orderUser->vehicle_name_id) {
                 return response()->json(['message' => 'invalid Vehicle is selected. or The Selected Vehicle does not match the orders requirement (the selected vehicle vehicle_name_id is NOT equal to the order vehicle_name_id). Deceptive request Aborted.'], 422); 
             }
