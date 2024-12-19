@@ -348,7 +348,7 @@ class InvoiceController extends Controller
                     $invoiceRequestEndDate = Carbon::parse($requestData['end_date']); // because we need this for calculation we removed the toDateString
                     $invoiceRequestEndDateStringVersion = Carbon::parse($requestData['end_date'])->toDateString(); // this is used for comparison in the following if condition
                     // order end date // from orders table in the database
-                    $orderEndDate = Carbon::parse($order->end_date)->toDateString();
+                    $orderEndDate = Carbon::parse($order->end_date)->toDateString(); // this is used for comparison
 
                     // get the daily price of the order vehicle_name_id from contract_details_table;
                     $orderPricePerDay = $order->contractDetail->price_contract;
