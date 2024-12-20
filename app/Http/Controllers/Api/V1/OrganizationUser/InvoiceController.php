@@ -892,6 +892,8 @@ class InvoiceController extends Controller
 
                 $totalPriceAmountFromRequest = (int) $request['price_amount_total'];
 
+                dd($totalPriceAmount . ' and ' . $totalPriceAmountByInvoiceCode . ' and ' . $totalPriceAmountFromRequest);
+
 
                 if ($totalPriceAmount !== $totalPriceAmountFromRequest || 
                     $totalPriceAmount !== $totalPriceAmountByInvoiceCode || 
