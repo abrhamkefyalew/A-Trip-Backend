@@ -890,9 +890,17 @@ class InvoiceController extends Controller
                     ->sum('price_amount');
                     
 
-                $totalPriceAmountFromRequest = (int) $request['price_amount_total'];
+                $totalPriceAmountFromRequest = $request['price_amount_total'];
+
+                // convert all of them to integer for the following comparisons (// all values must be casted to be integers otherwise the comparison will NOT work)
+                $totalPriceAmountInt = (int) $totalPriceAmount;
+                $totalPriceAmountByInvoiceCodeInt = (int) $totalPriceAmountByInvoiceCode;
+                $totalPriceAmountFromRequestInt = (int) $totalPriceAmountFromRequest;
 
 
+                // use = var_dump(), to LOG in PHP or laravel.   
+                // 
+                // Example var_dump("your log value")
                 // Output the types of the variables for further inspection
                 var_dump(gettype($totalPriceAmount), gettype($totalPriceAmountByInvoiceCode), gettype($totalPriceAmountFromRequest));
 
@@ -902,9 +910,9 @@ class InvoiceController extends Controller
                 // dd($totalPriceAmount . ' and ' . $totalPriceAmountByInvoiceCode . ' and ' . $totalPriceAmountFromRequest);
 
 
-                if ($totalPriceAmount !== $totalPriceAmountFromRequest || 
-                    $totalPriceAmount !== $totalPriceAmountByInvoiceCode || 
-                    $totalPriceAmountFromRequest !== $totalPriceAmountByInvoiceCode) {
+                if ($totalPriceAmountInt !== $totalPriceAmountFromRequestInt || 
+                    $totalPriceAmountInt !== $totalPriceAmountByInvoiceCodeInt || 
+                    $totalPriceAmountFromRequestInt !== $totalPriceAmountByInvoiceCodeInt) {
                     return response()->json(['message' => 'The total prices do not match between the request and actual database calculations.'], 422);
                 }
 
