@@ -920,11 +920,16 @@ class InvoiceController extends Controller
                 // 
                 // Example var_dump("your log value")
                 // Output the types of the variables for further inspection
-                var_dump(gettype($totalPriceAmount), gettype($totalPriceAmountByInvoiceCode), gettype($totalPriceAmountFromRequest));
-                var_dump(gettype($totalPriceAmountInt), gettype($totalPriceAmountByInvoiceCodeInt), gettype($totalPriceAmountFromRequestInt));
-
                 //
+                // STRINGs
+                var_dump("STRINGs");
+                var_dump(gettype($totalPriceAmount), gettype($totalPriceAmountByInvoiceCode), gettype($totalPriceAmountFromRequest));
                 var_dump("here Prices (STRINGs : USING var_dump) : - " . $totalPriceAmount . ' and ' . $totalPriceAmountByInvoiceCode . ' and ' . $totalPriceAmountFromRequest);
+                
+                // 
+                // INTEGERs
+                var_dump("INTEGERs");
+                var_dump(gettype($totalPriceAmountInt), gettype($totalPriceAmountByInvoiceCodeInt), gettype($totalPriceAmountFromRequestInt));
                 var_dump("here Prices (INTEGERs : USING var_dump) : - " . $totalPriceAmountInt . ' and ' . $totalPriceAmountByInvoiceCodeInt . ' and ' . $totalPriceAmountFromRequestInt);
 
                 // dd($totalPriceAmount . ' and ' . $totalPriceAmountByInvoiceCode . ' and ' . $totalPriceAmountFromRequest);
