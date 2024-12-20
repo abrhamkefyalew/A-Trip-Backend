@@ -272,6 +272,8 @@ class InvoiceController extends Controller
                 
 
 
+
+
                 // METHOD TWO , WORKS and it is short and preside and NOT complected, might consume resources though
                 //
                 // Extract the invoice IDs from the nested structure in the request using Arr::pluck()
@@ -282,17 +284,60 @@ class InvoiceController extends Controller
 
                 $invoiceIdsFromDatabase = Invoice::where('invoice_code', $invoiceCode)->pluck('id')->all();
 
-                // Sort the arrays before comparing to ensure order doesn't affect the comparison
+                
+
+                // SORT the ARRAYs before comparing to ensure ORDER doesn't affect the comparison 
+                //      ||
+                //      \/
+
+
+                // NOT Working
+                /*
+                // ERROR = String vs Int
                 sort($invoiceIdsFromRequestArr);
                 sort($invoiceIdsFromDatabase);
+                // 
+                dd(json_encode($invoiceIdsFromRequestArr) . ' and ' . json_encode($invoiceIdsFromDatabase));
+                // this will get us the below value
+                //      // i.e.  "["2","3"] and [2,3]"    -   ERROR = even if the contents of both values are the same the double quotes on the first value andd the missing double quotes on the second value will make them NOT equal
+                //                  //
+                //                  // and i am getting this, i think this is why it is catching it as an ERROR,, because the first set of ids are wrapped in double quotes and the second are NOT
+                */
 
-                if ($invoiceIdsFromRequestArr !== $invoiceIdsFromDatabase) {
+
+                // FIX
+                //      // The issue you are facing is related to the comparison of two arrays in your PHP code. One array is created using Arr::pluck and is serialized with double quotes around the values, while the other array is obtained from the database and is not serialized in the same way. This difference in serialization is causing the arrays to not match when compared.
+                //      // To resolve this issue and ensure that the comparison between the arrays is accurate, you can normalize the arrays before comparing them. One way to achieve this is by converting both arrays to a common format before the comparison. Here's a revised version of your code that normalizes the arrays before comparing them:
+                //      // In this revised code snippet, both arrays are normalized by converting all values to integers using array_map('intval', ...). This step ensures that all values in both arrays are of the same type before comparison. Sorting the arrays after normalization helps in ensuring that the order of elements does not affect the comparison.
+                //      // By normalizing and sorting both arrays in this manner, you can compare them accurately and avoid issues arising from differences in serialization or data types.
+                //
+                //
+                // WORKING
+                //
+                // Normalize the arrays by converting all values to integers
+                $invoiceIdsFromRequestArrIntegerValue = array_map('intval', $invoiceIdsFromRequestArr);
+                $invoiceIdsFromDatabaseIntegerValue = array_map('intval', $invoiceIdsFromDatabase);
+
+                // Sort the arrays make order of the contents Similar
+                sort($invoiceIdsFromRequestArrIntegerValue);
+                sort($invoiceIdsFromDatabaseIntegerValue);
+
+
+                dd(json_encode($invoiceIdsFromRequestArrIntegerValue) . ' and ' . json_encode($invoiceIdsFromDatabaseIntegerValue));
+                // this will get us the below value
+                //      // i.e.  "[2,3] and [2,3]"      -    WORKING
+
+
+
+                if ($invoiceIdsFromRequestArrIntegerValue !== $invoiceIdsFromDatabaseIntegerValue) {
                     return response()->json([
                         'message' => 'All invoice IDs included in your payment request should be Exactly equals with All invoice IDs from the database that have the invoice_code: ' . $invoiceCode
                     ], 400);
                 }
                 //
                 // end METHOD TWO
+
+
                 
 
 
@@ -715,9 +760,9 @@ class InvoiceController extends Controller
                 sort($invoiceIdsFromDatabaseIntegerValue);
 
 
-                dd(json_encode($invoiceIdsFromRequestArrIntegerValue) . ' and ' . json_encode($invoiceIdsFromDatabaseIntegerValue));
+                // dd(json_encode($invoiceIdsFromRequestArrIntegerValue) . ' and ' . json_encode($invoiceIdsFromDatabaseIntegerValue));
                 // this will get us the below value
-                //      // i.e.      -    WORKING
+                //      // i.e.  "[2,3] and [2,3]"      -    WORKING - USED
 
 
 
