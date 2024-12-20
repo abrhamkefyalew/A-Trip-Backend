@@ -25,6 +25,8 @@ class PayInvoiceRequest extends FormRequest
     {
         return [
             //
+            'organization_user_id' => 'required|integer|exists:organization_users,id',
+
             'price_amount_total' => 'required|integer|between:1,9999999',
 
             'payment_method' => [

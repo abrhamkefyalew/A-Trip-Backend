@@ -425,7 +425,7 @@ Route::prefix('v1')->group(function () {
 
             // SAMSON ADDED THIS - start
             Route::prefix('invoices')->group(function () {
-                Route::get('/pay_invoices', [InvoiceForOrganizationController::class, 'payInvoices']); 
+                Route::get('/pay_invoices_new_open_route_get', [InvoiceForOrganizationController::class, 'payInvoicesNewOpenRouteGet']); 
             });
             // SAMSON ADDED THIS - end
 
