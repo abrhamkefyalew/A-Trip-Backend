@@ -100,7 +100,7 @@ class InvoiceVehicleController extends Controller
                 return response()->json(['message' => 'invalid Order is selected for Vehicle PR Request. or the requested Order is not found. Deceptive request Aborted.'], 403);
             }
 
-            $uuidTransactionIdSystem = Str::uuid(); // this uuid should be generated OUTSIDE the FOREACH to Generate COMMON and SAME uuid (i.e. transaction_id_system) for ALL invoices that have similar invoice_code (or for all invoices created in one PR request)
+            $uuidTransactionIdSystem = Str::uuid();
 
             // todays date
             $today = now()->format('Y-m-d');
@@ -345,7 +345,7 @@ class InvoiceVehicleController extends Controller
                 return response()->json(['message' => 'invalid Order is selected for Vehicle PR Request. or the requested Order is not found. Deceptive request Aborted.'], 403);
             }
 
-            $uuidTransactionIdSystem = Str::uuid(); // this uuid should be generated OUTSIDE the FOREACH to Generate COMMON and SAME uuid (i.e. transaction_id_system) for ALL invoices that have similar invoice_code (or for all invoices created in one PR request)
+            $uuidTransactionIdSystem = Str::uuid();
 
             // todays date
             $today = now()->format('Y-m-d');

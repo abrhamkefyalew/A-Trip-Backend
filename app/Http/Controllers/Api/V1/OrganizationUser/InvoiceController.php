@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\OrganizationUser;
 use App\Models\Order;
 use App\Models\Invoice;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Models\OrganizationUser;
@@ -874,6 +875,11 @@ class InvoiceController extends Controller
                 }
 
 
+
+                // generate Common UUID for all Organization invoices that will be paid below
+                $uuidTransactionIdSystem = Str::uuid(); // this uuid should be generated OUTSIDE the FOREACH to Generate COMMON and SAME uuid (i.e. transaction_id_system) for ALL invoices that have similar invoice_code (or for all invoices to be paid in one PR payment)
+
+
                 // we are just updating te payment method sent in the request for all invoices sent in the request
                 foreach ($request->safe()->invoices as $requestData) {
 
@@ -881,6 +887,7 @@ class InvoiceController extends Controller
 
                     $success = $invoice->update([
                         'payment_method' => $request['payment_method'],
+                        'transaction_id_system' => $uuidTransactionIdSystem,
                     ]);
                     //
                     if (!$success) {
