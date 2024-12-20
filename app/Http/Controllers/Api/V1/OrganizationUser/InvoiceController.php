@@ -674,7 +674,7 @@ class InvoiceController extends Controller
 
                 $invoiceIdsFromDatabase = Invoice::where('invoice_code', $invoiceCode)->pluck('id')->all();
 
-                dd($invoiceIdsFromRequestArr . ' and ' . $invoiceIdsFromDatabase);
+                dd(json_encode($invoiceIdsFromRequestArr) . ' and ' . json_encode($invoiceIdsFromDatabase));
 
                 // Sort the arrays before comparing to ensure order doesn't affect the comparison
                 sort($invoiceIdsFromRequestArr);
