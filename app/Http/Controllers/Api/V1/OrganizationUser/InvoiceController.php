@@ -453,7 +453,7 @@ class InvoiceController extends Controller
                     ->sum('price_amount');
                     
 
-                $totalPriceAmountFromRequest = (int) $requestData['price_amount_total'];
+                $totalPriceAmountFromRequest = (int) $request['price_amount_total'];
 
 
                 if ($totalPriceAmount !== $totalPriceAmountFromRequest || 
@@ -890,7 +890,7 @@ class InvoiceController extends Controller
                     ->sum('price_amount');
                     
 
-                $totalPriceAmountFromRequest = (int) $requestData['price_amount_total'];
+                $totalPriceAmountFromRequest = (int) $request['price_amount_total'];
 
 
                 if ($totalPriceAmount !== $totalPriceAmountFromRequest || 
