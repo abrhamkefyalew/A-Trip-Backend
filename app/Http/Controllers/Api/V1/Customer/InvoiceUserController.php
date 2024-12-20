@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\CustomerRequests\PayInvoiceFinalRequest;
 use App\Services\Api\V1\Customer\Payment\BOA\BOACustomerPaymentService;
+use App\Http\Requests\Api\V1\CustomerRequests\PayInvoiceFinalGetRequest;
 use App\Http\Requests\Api\V1\CustomerRequests\PayInvoiceCallbackTelebirrRequest;
 use App\Services\Api\V1\Customer\Payment\TeleBirr\TeleBirrCustomerPaymentService;
 
@@ -172,6 +173,145 @@ class InvoiceUserController extends Controller
 
         return $var;
     }
+
+
+
+
+
+
+
+    /**
+     * Pay the FINAL invoice payment for an order.
+     */
+    public function payInvoiceFinalNewOpenRouteGet(PayInvoiceFinalGetRequest $request)
+    {
+        //
+        $var = DB::transaction(function () use ($request) {
+            // get the customer identity
+            // $user = auth()->user();
+            $customer = Customer::find($request['customer_id']);
+
+
+            if ($customer->is_active != 1) {
+                return response()->json(['message' => 'Forbidden: Deactivated Customer'], 401); 
+            }
+            if ($customer->is_approved != 1) {
+                return response()->json(['message' => 'Forbidden: NOT Approved Customer'], 401); 
+            }
+
+
+            $orderUser = OrderUser::find($request['order_user_id']);
+
+
+            if ($customer->id != $orderUser->customer_id) {
+                return response()->json(['message' => 'invalid Order is selected or Requested. or the requested Order is not found. Deceptive request Aborted.'], 403);
+            }
+
+
+            if ($orderUser->paid_complete_status == 1) {
+                return response()->json(['message' => 'this Order is already PAID in full. Payment has been already completed for this order'], 409); 
+            }
+
+            if ($orderUser->status == OrderUser::ORDER_STATUS_PENDING) {
+                return response()->json(['message' => 'this Order is NOT eligible for final payment. Because the order have PENDING status. order should be accepted , started or completed to be eligible for final payment'], 428); 
+            }
+
+
+            $invoiceUserCheck = InvoiceUser::where('order_user_id', $orderUser->id)->where('status', InvoiceUser::INVOICE_STATUS_PAID)->whereNotNull('paid_date')->exists();
+            if ($invoiceUserCheck == false) {
+                return response()->json(['message' => 'this Order is NOT eligible for final payment. because its initial payment is not payed yet'], 428); 
+            }
+
+
+            $previouslyPaidAmount = InvoiceUser::where('order_user_id', $orderUser->id)
+                ->where('status', InvoiceUser::INVOICE_STATUS_PAID)
+                ->whereNotNull('paid_date')
+                ->sum('price');
+
+            $requiredPaymentAmount = $orderUser->price_total - $previouslyPaidAmount;
+            $paymentAmountFromRequest = (int) $request['price_amount_total'];
+
+            if ($paymentAmountFromRequest < $requiredPaymentAmount) {
+                return response()->json(['error' => 'Insufficient amount. Please pay the required amount.'], 422);
+            }
+
+
+            if (InvoiceUser::where('order_user_id', $orderUser->id)->where('status', InvoiceUser::INVOICE_STATUS_NOT_PAID)->where('paid_date', null)->exists()) {
+                // remove all the previous unpaid invoices for that order
+                $successForceDelete = InvoiceUser::where('order_user_id', $orderUser->id)->where('status', InvoiceUser::INVOICE_STATUS_NOT_PAID)->where('paid_date', null)->forceDelete();
+                //
+                if (!$successForceDelete) {
+                    return response()->json(['message' => 'Failed to DELETE Useless invoices'], 500);
+                }
+            }
+            
+            
+
+            // generate Unique UUID for each individual Customer invoices
+            $uuidTransactionIdSystem = Str::uuid(); // this uuid should be generated to be NEW and UNIQUE uuid (i.e. transaction_id_system) for Each invoice
+
+            // create invoice for this order
+            $invoiceUser = InvoiceUser::create([
+                'order_user_id' => $orderUser->id,
+                'transaction_id_system' => $uuidTransactionIdSystem,
+
+                'price' => $requiredPaymentAmount,
+                'status' => InvoiceUser::INVOICE_STATUS_NOT_PAID,
+                'paid_date' => null,                           // is NULL when the invoice is created initially, // and set when the invoice is paid by the organization
+                'payment_method' => $request['payment_method'],
+            ]);
+            //
+            if (!$invoiceUser) {
+                return response()->json(['message' => 'Invoice Create Failed'], 500);
+            }
+
+
+            // get the newly created invoice
+            $invoiceUserCreated = InvoiceUser::find($invoiceUser->id);
+            // get the new invoice id
+            $invoiceUserCreatedId = $invoiceUserCreated->id;
+            // get the new invoice price
+            $invoiceUserCreatedAmount = $invoiceUserCreated->price;
+
+            
+            /* START Payment Service Call */
+            
+            // do the actual payment 
+
+            if ($request['payment_method'] == InvoiceUser::INVOICE_BOA) {
+
+                // Setting values
+                $boaCustomerPaymentService = new BOACustomerPaymentService($invoiceUserCreatedId);
+
+                // Calling a non static method
+                $valuePaymentRenderedView = $boaCustomerPaymentService->initiateFinalPaymentForVehicle();
+
+                return $valuePaymentRenderedView;
+            }
+            else if ($request['payment_method'] == InvoiceUser::INVOICE_TELE_BIRR) {
+
+                // Setting values
+                $teleBirrCustomerPaymentService = new TeleBirrCustomerPaymentService();
+
+                // Calling a non static method
+                $valuePaymentRenderedView = $teleBirrCustomerPaymentService->initiateFinalPaymentForVehicle($invoiceUserCreatedId, $invoiceUserCreatedAmount);
+
+                return $valuePaymentRenderedView;
+            }
+            else {
+                return response()->json(['error' => 'Invalid payment method selected.'], 422);
+            }
+
+
+            /* END Payment Service Call */
+
+
+
+        });
+
+        return $var;
+    }
+
 
 
 

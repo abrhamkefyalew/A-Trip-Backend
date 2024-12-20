@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Requests\Api\V1\OrganizationUserRequests;
+namespace App\Http\Requests\Api\V1\CustomerRequests;
 
-use App\Models\Invoice;
+use App\Models\InvoiceUser;
 use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class PayInvoiceRequest extends FormRequest
+class PayInvoiceFinalGetRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,23 +24,17 @@ class PayInvoiceRequest extends FormRequest
     public function rules(): array
     {
         return [
+
+            'customer_id' => 'required|integer|exists:customers,id',
+            
             //
             'price_amount_total' => 'required|integer|between:1,9999999',
 
             'payment_method' => [
-                'required', 'string', Rule::in([Invoice::INVOICE_TELE_BIRR, Invoice::INVOICE_CBE_MOBILE_BANKING, Invoice::INVOICE_CBE_BIRR, Invoice::INVOICE_BOA]),
+                'required', 'string', Rule::in([InvoiceUser::INVOICE_TELE_BIRR, InvoiceUser::INVOICE_CBE_MOBILE_BANKING, InvoiceUser::INVOICE_CBE_BIRR, InvoiceUser::INVOICE_BOA]),
             ],
 
-
-
-            'invoices' => 'required|array',
-
-            'invoices.*' => 'sometimes',
-
-
-            'invoices.*.invoice_id' => 'required|integer|exists:invoices,id',
-
-
+            'order_user_id' => 'required|integer|exists:order_users,id',
         ];
     }
 }

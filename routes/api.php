@@ -819,7 +819,7 @@ Route::prefix('v1')->group(function () {
             });
 
             Route::prefix('invoice_users')->group(function () {
-                Route::get('/pay_invoice_final', [InvoiceUserForCustomerController::class, 'payInvoiceFinal']); // Bad idea // delete later // remove later
+                Route::get('/pay_invoice_final_new_open_route_get', [InvoiceUserForCustomerController::class, 'payInvoiceFinalNewOpenRouteGet']); // Bad idea // delete later // remove later
             });
             // SAMSON ADDED THIS - end
 

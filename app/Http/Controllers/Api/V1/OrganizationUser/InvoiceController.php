@@ -14,6 +14,7 @@ use App\Http\Controllers\Controller;
 use App\Services\Api\V1\FilteringService;
 use App\Http\Requests\Api\V1\OrganizationUserRequests\PayInvoiceRequest;
 use App\Http\Requests\Api\V1\OrganizationUserRequests\StoreInvoiceRequest;
+use App\Http\Requests\Api\V1\OrganizationUserRequests\PayInvoiceGetRequest;
 use App\Http\Requests\Api\V1\OrganizationUserRequests\UpdateInvoiceRequest;
 use App\Http\Resources\Api\V1\InvoiceResources\InvoiceForOrganizationResource;
 use App\Services\Api\V1\OrganizationUser\Payment\BOA\BOAOrganizationPaymentService;
@@ -453,12 +454,29 @@ class InvoiceController extends Controller
                     ->sum('price_amount');
                     
 
-                $totalPriceAmountFromRequest = (int) $request['price_amount_total'];
+                $totalPriceAmountFromRequest = $request['price_amount_total'];
+
+                // convert all of them to integer for the following comparisons (// all values must be casted to be integers otherwise the comparison will NOT work)
+                $totalPriceAmountInt = (int) $totalPriceAmount;
+                $totalPriceAmountByInvoiceCodeInt = (int) $totalPriceAmountByInvoiceCode;
+                $totalPriceAmountFromRequestInt = (int) $totalPriceAmountFromRequest;
 
 
-                if ($totalPriceAmount !== $totalPriceAmountFromRequest || 
-                    $totalPriceAmount !== $totalPriceAmountByInvoiceCode || 
-                    $totalPriceAmountFromRequest !== $totalPriceAmountByInvoiceCode) {
+                // use = var_dump(), to LOG in PHP or laravel.   
+                // 
+                // Example var_dump("your log value")
+                // Output the types of the variables for further inspection
+                var_dump(gettype($totalPriceAmount), gettype($totalPriceAmountByInvoiceCode), gettype($totalPriceAmountFromRequest));
+
+                //
+                var_dump("here (USING var_dump) : - " . $totalPriceAmount . ' and ' . $totalPriceAmountByInvoiceCode . ' and ' . $totalPriceAmountFromRequest);
+
+                // dd($totalPriceAmount . ' and ' . $totalPriceAmountByInvoiceCode . ' and ' . $totalPriceAmountFromRequest);
+
+
+                if ($totalPriceAmountInt !== $totalPriceAmountFromRequestInt || 
+                    $totalPriceAmountInt !== $totalPriceAmountByInvoiceCodeInt || 
+                    $totalPriceAmountFromRequestInt !== $totalPriceAmountByInvoiceCodeInt) {
                     return response()->json(['message' => 'The total prices do not match between the request and actual database calculations.'], 422);
                 }
 
@@ -593,7 +611,7 @@ class InvoiceController extends Controller
 
 
 
-    public function payInvoicesNewOpenRouteGet(PayInvoiceRequest $request)
+    public function payInvoicesNewOpenRouteGet(PayInvoiceGetRequest $request)
     {
         //
         $var = DB::transaction(function () use ($request) {
