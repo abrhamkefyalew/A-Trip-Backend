@@ -892,7 +892,11 @@ class InvoiceController extends Controller
 
                 $totalPriceAmountFromRequest = (int) $request['price_amount_total'];
 
-                dd($totalPriceAmount . ' and ' . $totalPriceAmountByInvoiceCode . ' and ' . $totalPriceAmountFromRequest);
+
+                // Output the types of the variables for further inspection
+                var_dump(gettype($totalPriceAmount), gettype($totalPriceAmountByInvoiceCode), gettype($totalPriceAmountFromRequest));
+
+                // dd($totalPriceAmount . ' and ' . $totalPriceAmountByInvoiceCode . ' and ' . $totalPriceAmountFromRequest);
 
 
                 if ($totalPriceAmount !== $totalPriceAmountFromRequest || 
