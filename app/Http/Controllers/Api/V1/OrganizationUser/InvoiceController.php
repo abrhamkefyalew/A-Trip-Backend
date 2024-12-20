@@ -896,6 +896,9 @@ class InvoiceController extends Controller
                 // Output the types of the variables for further inspection
                 var_dump(gettype($totalPriceAmount), gettype($totalPriceAmountByInvoiceCode), gettype($totalPriceAmountFromRequest));
 
+                //
+                var_dump("here (USING var_dump) : - " . $totalPriceAmount . ' and ' . $totalPriceAmountByInvoiceCode . ' and ' . $totalPriceAmountFromRequest);
+
                 // dd($totalPriceAmount . ' and ' . $totalPriceAmountByInvoiceCode . ' and ' . $totalPriceAmountFromRequest);
 
 
