@@ -715,7 +715,7 @@ class InvoiceController extends Controller
                 sort($invoiceIdsFromDatabaseIntegerValue);
 
 
-                dd(json_encode($invoiceIdsFromRequestArr) . ' and ' . json_encode($invoiceIdsFromDatabase));
+                dd(json_encode($invoiceIdsFromRequestArrIntegerValue) . ' and ' . json_encode($invoiceIdsFromDatabaseIntegerValue));
                 // this will get us the below value
                 //      // i.e.      -    WORKING
 
