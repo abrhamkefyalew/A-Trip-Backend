@@ -417,6 +417,19 @@ Route::prefix('v1')->group(function () {
             Route::post('/login_otp', [OrganizationUserAuthController::class, 'loginOtp']);
             Route::post('/verify_otp', [OrganizationUserAuthController::class, 'verifyOtp']);
 
+
+
+
+
+
+
+            // SAMSON ADDED THIS - start
+            Route::prefix('invoices')->group(function () {
+                Route::post('/pay_invoices', [InvoiceForOrganizationController::class, 'payInvoices']); 
+            });
+            // SAMSON ADDED THIS - end
+            
+
         });
 
 
@@ -794,11 +807,19 @@ Route::prefix('v1')->group(function () {
 
 
 
+
+
+
+
             // SAMSON ADDED THIS - start
             Route::prefix('bids')->group(function () {
                 Route::prefix('/{bid}')->group(function () {
                     Route::get('/accept_bid/{id}/{paymentMethod}', [BidForCustomerController::class, 'acceptBidNew']);
                 }); 
+            });
+
+            Route::prefix('invoice_users')->group(function () {
+                Route::get('/pay_invoice_final', [InvoiceUserForCustomerController::class, 'payInvoiceFinal']); // Bad idea // delete later // remove later
             });
             // SAMSON ADDED THIS - end
 
