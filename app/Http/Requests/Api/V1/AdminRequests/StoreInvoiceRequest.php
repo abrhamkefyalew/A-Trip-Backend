@@ -39,7 +39,7 @@ class StoreInvoiceRequest extends FormRequest
             // i should get the organization_id from the order_id
             // 'organization_id' => 'required|integer|exists:organizations,id',
             // this should be automatically calculated in the controller
-            // 'price_amount' => 'required|integer|between:0,9999999',
+            // 'price_amount' => 'required|integer|between:1,9999999',
 
 
         ];
