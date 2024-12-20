@@ -903,7 +903,7 @@ Route::prefix('v1')->group(function () {
                 Route::post('/', [InvoiceUserForCustomerController::class, 'store']);
                 Route::get('/', [InvoiceUserForCustomerController::class, 'index']);
                 Route::post('/pay_invoice_final', [InvoiceUserForCustomerController::class, 'payInvoiceFinal']);
-                Route::get('/pay_invoice_final', [InvoiceUserForCustomerController::class, 'payInvoiceFinal']); // Bad idea // delete later // remove later
+                // Route::get('/pay_invoice_final', [InvoiceUserForCustomerController::class, 'payInvoiceFinal']); // Bad idea // delete later // remove later
                 Route::prefix('/{invoiceUser}')->group(function () {
                     Route::get('/', [InvoiceUserForCustomerController::class, 'show']);
                     Route::put('/', [InvoiceUserForCustomerController::class, 'update']);
