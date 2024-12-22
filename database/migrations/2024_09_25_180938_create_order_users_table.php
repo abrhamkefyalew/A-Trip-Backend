@@ -55,7 +55,7 @@ return new class extends Migration
             $table->integer('price_total')->nullable(); // initially this is NULL // it will be inserted when a bid is selected by the customer           // IT IS THE TOTAL PRICE THE CUSTOMER PAYS TO ADIAMAT
             $table->boolean('paid_complete_status')->default(0); // this will be 1 when both invoices of the order are paid  // it is 0 even if the initial amount is paid
 
-            $table->integer('price_vehicle_payment')->nullable(); // initially this is NULL // it will be inserted when a bid is selected by the customer // IT IS THE PORTION OF THE PRICE THAT will be PAID to Actual VEHICLE (this price is Percent of the price_total. as price_vehicle_payment = Constant::ORDER_USER_VEHICLE_PAYMENT_PERCENT * price_total)
+            $table->decimal('price_vehicle_payment', 10, 2)->nullable(); // DAILY PRICE of vehicle payment // initially this is NULL // it will be inserted when a bid is selected by the customer // IT IS THE PORTION OF THE PRICE THAT will be PAID to Actual VEHICLE (this price is Percent of the price_total. as price_vehicle_payment = Constant::ORDER_USER_VEHICLE_PAYMENT_PERCENT * price_total) divided by the order duration of days
 
             // this status checks if the payment share of the order is paid for the vehicles (i.e. the suppliers) 
             $table->string('vehicle_pr_status')->nullable(); // this is NULL when the order is made initially // this column is enum //

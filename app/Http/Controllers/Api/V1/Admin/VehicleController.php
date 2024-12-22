@@ -224,6 +224,33 @@ class VehicleController extends Controller
 
         //
         $var = DB::transaction(function () use ($request, $vehicle) {
+
+            if (isset($request['with_driver'])) {
+                $withDriver = $request['with_driver'];
+            } 
+            else {
+                $withDriver = $vehicle->with_driver;
+            }
+
+            if (isset($request['driver_id'])) {
+                $driverId = $request['driver_id'];
+            } 
+            else {
+                $driverId = $vehicle->driver_id;
+            }
+
+
+
+            if ($withDriver == 1) {
+                if (!isset($driverId)) {
+                    return response()->json(['message' => 'missing driver_id. This Vehicle has with_driver = 1, so driver_id must also be set for your vehicle.'], 422);
+                }
+                if ($driverId === null) {
+                    return response()->json(['message' => 'driver_id value should NOT be NULL. This Vehicle has with_driver = 1, so the vehicle must have driver_id value.'], 422);
+                }
+            }
+
+            
             
             $success = $vehicle->update($request->validated());
             //

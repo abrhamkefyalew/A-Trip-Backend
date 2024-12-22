@@ -75,7 +75,7 @@ class UpdateVehicleRequest extends FormRequest
 
             // there should be separate endpoint to update this 
                 // this update should be allowed only               
-                    // 1. if the vehicle is not in orders table     - or -    2. or even if the vehicle is in orders table:- the order (orders) that owns the vehicle should NOT be STARTED,
+                    // 1. if the vehicle is not in orders table     - or -    2. or even if the vehicle is in orders table:- the order (orders) that owns the vehicle should NOT have status = STARTED, to update the below column,
                             //
                             // (PENDING order with vehicle_id is less likely, and should NOT exist)
                             // if order is ACCEPTED (SET), and if vehicle is_available is sent , what should i do, check abrham samson // ask samson

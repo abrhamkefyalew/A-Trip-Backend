@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Models\Order;
+use App\Models\Vehicle;
 use App\Models\OrderUser;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\InvoiceVehicle;
 use Illuminate\Validation\Rule;
@@ -13,6 +15,7 @@ use App\Services\Api\V1\FilteringService;
 use App\Http\Requests\Api\V1\AdminRequests\PayInvoiceVehicleRequest;
 use App\Http\Resources\Api\V1\InvoiceVehicleResources\InvoiceVehicleResource;
 use App\Services\Api\V1\Admin\Payment\TeleBirr\TeleBirrVehiclePaymentService;
+use App\Services\Api\V1\Admin\Payment\TeleBirr\TeleBirrVehiclePaymentServiceMock;
 
 class InvoiceVehicleController extends Controller
 {
@@ -145,19 +148,24 @@ class InvoiceVehicleController extends Controller
 
                 $typeOfOrder = "organization";
                 /////////// call the payment Services
-                if ($request['payment_method'] = InvoiceVehicle::INVOICE_BOA) {
+                if ($request['payment_method'] == InvoiceVehicle::INVOICE_BOA) {
 
                     // $boaVehiclePaymentService = new BOAVehiclePaymentService();
-                    // $valuePaymentRenderedView = $boaVehiclePaymentService->initiatePaymentForVehiclePR($invoiceVehicle->price_amount, $invoiceVehicle->id, $typeOfOrder);
+                    // $valuePaymentRenderedView = $boaVehiclePaymentService->initiatePaymentForVehiclePR($invoiceVehicle->price_amount, $invoiceVehicle->id, $typeOfOrder, $vehicle->supplier->phone_number);
 
                     // return $valuePaymentRenderedView;
                 }
-                else if ($request['payment_method'] = InvoiceVehicle::INVOICE_TELE_BIRR) {
+                else if ($request['payment_method'] == InvoiceVehicle::INVOICE_TELE_BIRR) {
 
-                    // $teleBirrVehiclePaymentService = new TeleBirrVehiclePaymentService();
-                    // $valuePayment = $teleBirrVehiclePaymentService->createOrder($invoiceVehicle->price_amount, $invoiceVehicle->id);
+                    $teleBirrVehiclePaymentService = new TeleBirrVehiclePaymentService();
+                    $valuePayment = $teleBirrVehiclePaymentService->initiatePaymentToVehicle($invoiceVehicle->transaction_id_system, $invoiceVehicle->price_amount, "paymentReasonValue", $invoiceVehicle->supplier->phone_number);
 
-                    // return $valuePayment; 
+                    $invoiceVehicleUpdated = InvoiceVehicle::find($invoiceVehicle->id);
+
+                    return response()->json([
+                        'value_payment' => $valuePayment,
+                        'updated_invoice_vehicle' => InvoiceVehicleResource::make($invoiceVehicleUpdated->load('order', 'orderUser', 'supplier')),
+                    ]); 
 
                 }
                 else {
@@ -198,9 +206,14 @@ class InvoiceVehicleController extends Controller
 
 
 
+                // generate Common UUID for all Organization invoices that will be paid below
+                $uuidTransactionIdSystem = Str::uuid(); // this uuid should be generated OUTSIDE the FOREACH to Generate COMMON and SAME uuid (i.e. transaction_id_system) for ALL invoices that have similar invoice_code (or for all invoices to be paid in one PR payment)
+
+                
 
                 $success = $invoiceVehicle->update([
                     'payment_method' => $request['payment_method'],
+                    'transaction_id_system' => $uuidTransactionIdSystem,
                 ]);
                 //
                 if (!$success) {
@@ -212,19 +225,24 @@ class InvoiceVehicleController extends Controller
 
                 $typeOfOrder = "individual_customer";
                 /////////// call the payment Services
-                if ($request['payment_method'] = InvoiceVehicle::INVOICE_BOA) {
+                if ($request['payment_method'] == InvoiceVehicle::INVOICE_BOA) {
 
                     // $boaVehiclePaymentService = new BOAVehiclePaymentService();
-                    // $valuePaymentRenderedView = $boaVehiclePaymentService->initiatePaymentForVehiclePR($invoiceVehicle->price_amount, $invoiceVehicle->id, $typeOfOrder);
+                    // $valuePaymentRenderedView = $boaVehiclePaymentService->initiatePaymentForVehiclePR($invoiceVehicle->price_amount, $invoiceVehicle->id, $typeOfOrder, $vehicle->supplier->phone_number);
 
                     // return $valuePaymentRenderedView;
                 }
-                else if ($request['payment_method'] = InvoiceVehicle::INVOICE_TELE_BIRR) {
+                else if ($request['payment_method'] == InvoiceVehicle::INVOICE_TELE_BIRR) {
 
-                    // $teleBirrVehiclePaymentService = new TeleBirrVehiclePaymentService();
-                    // $valuePayment = $teleBirrVehiclePaymentService->createOrder($invoiceVehicle->price_amount, $invoiceVehicle->id);
+                    $teleBirrVehiclePaymentService = new TeleBirrVehiclePaymentService();
+                    $valuePayment = $teleBirrVehiclePaymentService->initiatePaymentToVehicle($invoiceVehicle->transaction_id_system, $invoiceVehicle->price_amount, "paymentReasonValue", $invoiceVehicle->supplier->phone_number);
 
-                    // return $valuePayment; 
+                    $invoiceVehicleUpdated = InvoiceVehicle::find($invoiceVehicle->id);
+
+                    return response()->json([
+                        'value_payment' => $valuePayment,
+                        'updated_invoice_vehicle' => InvoiceVehicleResource::make($invoiceVehicleUpdated->load('order', 'orderUser', 'supplier')),
+                    ]);
 
                 }
                 else {
@@ -235,7 +253,7 @@ class InvoiceVehicleController extends Controller
             else {
                 // an invoice must have at least order_id or order_user_id, - - - -  other wise it will be the Following ERROR
                 //
-                return response()->json(['message' => 'This Invoice Can NOT be Processed'], 422);
+                return response()->json(['message' => 'This Invoice Can NOT be Processed. Because: - this InvoiceVehicle have NEITHER order_id NOR order_user_id. At least it should have ONE of the foreign ID'], 422);
             }
 
             
@@ -255,7 +273,17 @@ class InvoiceVehicleController extends Controller
     public function testTelebirrB2C() 
     {
         $teleBirrOrganizationPaymentService = new TeleBirrVehiclePaymentService();
-        $valuePayment = $teleBirrOrganizationPaymentService->initiatePaymentToVehicle((string)time(), "1", "payment Reason".(string)time());
+        $valuePayment = $teleBirrOrganizationPaymentService->initiatePaymentToVehicle((string)time() /* this must be 'transaction_id_system' because we have multiple B2C invoice tables and we want to avoid invoice_id being repeated */ , "1", "payment Reason".(string)time(), "251903942298");
+
+        return $valuePayment; 
+
+    }
+
+
+    public function testTelebirrB2CReadReturnedXml() 
+    {
+        $teleBirrOrganizationPaymentService = new TeleBirrVehiclePaymentServiceMock();
+        $valuePayment = $teleBirrOrganizationPaymentService->xmlReadingTest();
 
         return $valuePayment; 
 

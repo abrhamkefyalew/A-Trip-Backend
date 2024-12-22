@@ -6,7 +6,7 @@ use App\Models\Invoice;
 use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class PayInvoiceRequest extends FormRequest
+class PayInvoiceGetRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,6 +25,8 @@ class PayInvoiceRequest extends FormRequest
     {
         return [
             //
+            'organization_user_id' => 'required|integer|exists:organization_users,id',
+
             'price_amount_total' => 'required|integer|between:1,9999999',
 
             'payment_method' => [

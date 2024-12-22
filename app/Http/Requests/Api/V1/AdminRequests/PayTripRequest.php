@@ -1,10 +1,12 @@
 <?php
 
-namespace App\Http\Requests\Api\V1\DriverRequests;
+namespace App\Http\Requests\Api\V1\AdminRequests;
 
+use App\Models\InvoiceTrip;
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreBidRequest extends FormRequest
+class PayTripRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -12,6 +14,8 @@ class StoreBidRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
+
+        // return $this->user()->can('pay', $this->trip);
     }
 
     /**
@@ -22,10 +26,10 @@ class StoreBidRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
-            'order_user_id' => 'required|integer|exists:order_users,id',
-            'vehicle_id' => 'required|integer|exists:vehicles,id',
-            'price_total' => 'required|integer|between:1,9999999',
+            'payment_method' => [
+                'required', 'string', Rule::in([InvoiceTrip::INVOICE_TELE_BIRR, InvoiceTrip::INVOICE_CBE_MOBILE_BANKING, InvoiceTrip::INVOICE_CBE_BIRR, InvoiceTrip::INVOICE_BOA]),
+            ],
+
         ];
     }
 }

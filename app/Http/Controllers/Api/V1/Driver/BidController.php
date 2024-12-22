@@ -42,6 +42,12 @@ class BidController extends Controller
                 return response()->json(['message' => 'invalid Vehicle is selected. or This Driver does not have a vehicle with this id. Deceptive request Aborted.'], 403); 
             }
 
+            //
+            if ($orderUser->with_driver == 0) {
+                return response()->json(['message' => 'the order with_driver is 0, so you can NOT accept this order'], 422); 
+            }
+            //
+
             if ($vehicle->vehicle_name_id !== $orderUser->vehicle_name_id) {
                 return response()->json(['message' => 'invalid Vehicle is selected. or The Selected Vehicle does not match the orders requirement (the selected vehicle vehicle_name_id is NOT equal to the order vehicle_name_id). Deceptive request Aborted.'], 422); 
             }
@@ -91,20 +97,22 @@ class BidController extends Controller
 
 
             
+            
+            //
+            // if ($vehicle->with_driver !== $orderUser->with_driver) {
 
-            if ($vehicle->with_driver !== $orderUser->with_driver) {
-
-                if (($vehicle->with_driver === 1) && ($orderUser->with_driver === 0)) {
-                    return response()->json(['message' => 'the order does not need a driver'], 422); 
-                }
-                else if (($vehicle->with_driver === 0) && ($orderUser->with_driver === 1)) {
+            //     if (($vehicle->with_driver === 1) && ($orderUser->with_driver === 0)) {
+            //         return response()->json(['message' => 'the order does not need a driver'], 422); 
+            //     }
+                /* else */ if (($vehicle->with_driver === 0) && ($orderUser->with_driver === 1)) {
                     return response()->json(['message' => 'the order needs vehicle with a driver'], 422); 
                 }
                 
 
-                return response()->json(['message' => 'the vehicle with_driver value is not equal with that of the order requirement.'], 422); 
+            //     return response()->json(['message' => 'the vehicle with_driver value is not equal with that of the order requirement.'], 422); 
                 
-            }
+            // }    
+            
 
             // this if is important and should be right here 
             // this if should NOT be nested in any other if condition // this if should be independent and done just like this  // this if should be checked independently just like i did it right here

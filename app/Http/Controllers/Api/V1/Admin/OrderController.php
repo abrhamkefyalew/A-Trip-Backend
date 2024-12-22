@@ -352,6 +352,7 @@ class OrderController extends Controller
                 return response()->json(['message' => 'invalid Vehicle is selected. or The Selected Vehicle does not match the orders requirement (the selected vehicle vehicle_name_id is NOT equal to the order vehicle_name_id). Deceptive request Aborted.'], 422); 
             }
 
+            
             if ($vehicle->is_available !== Vehicle::VEHICLE_AVAILABLE) {
                 return response()->json(['message' => 'the selected vehicle is not currently available'], 409); 
             }
@@ -477,7 +478,6 @@ class OrderController extends Controller
 
         $var = DB::transaction(function () use ($request, $order) {
 
-
             // if ADIAMT wants to rent their own vehicles, They Can Register as SUPPLIERs Themselves
             // if (!$order->driver && !$order->supplier) { 
             //     return response()->json(['message' => 'the order at least should be accepted by either a driver or supplier'], 428); 
@@ -498,6 +498,22 @@ class OrderController extends Controller
                 if ($order->supplier->is_approved != 1) {
                     return response()->json(['message' => 'Forbidden: NOT Approved Supplier'], 428); 
                 }
+            }
+
+            // this is MANDATORY 
+            //  - a supplier, driver or admin, can Accept MULTIPLE orders using a ONE SIMILAR vehicle.      // - BUT they can NOT Start MULTIPLE orders using that one similar vehicle
+            //  - a single vehicle can accept multiple orders                                               // - BUT a single vehicle can NOT start multiple orders
+            //
+            // so in the above scenario 
+            // when we ACCEPT order that vehicle 'is_available' attribute is NOT changed
+            // BUT when we START order that vehicle 'is_available' attribute will be changed to - is_available=VEHICLE_ON_TRIP
+            //
+            // so considering the above scenario, this if condition is done so that
+            // //
+            // so that a single vehicle can NOT be used to start multiple orders       (IMPORTANT condition)
+            //      // IT means we check the vehicle 'is_available' every time we start an order, so that a single vehicle can NOT be used to start multiple orders
+            if ($order->vehicle->is_available !== Vehicle::VEHICLE_AVAILABLE) {
+                return response()->json(['message' => 'the selected vehicle is not currently available'], 409); 
             }
 
 
@@ -599,22 +615,72 @@ class OrderController extends Controller
                 return response()->json(['message' => 'this order is not STARTED. order should be STARTED before it can be COMPLETED.'], 428); 
             }
 
+
+
+            /*
+                The reason i did the following TWO conditions is because of PR asking. and for the following TWO scenarios
+                        //
+                        NOW
+                    1. if a we COMPLETE an order before it's intended end_date, 
+                                    - then NO Problem, - there sill NOT be any problems caused by this scenario
+                             => SO the end_date of the order will be the date the order is completed.    i.e. in other words the order end_date will be today() [today being the date the order is being completed].
+                        //
+                        //
+                        BUT
+                    2. if a we COMPLETE an order way after it's intended end_date (or Complete the order on a date that is EQUAL to its intended end_date), 
+                                    - that will create extra days that the organization is asked PR by Adiamat
+                                    - that will create extra days that the vehicle (supplier) itself is payed by Adiamat
+                             => SO the end_date of the order will be the already existing end_date of the order.    i.e. in other words the order end_date will NOT be changed.
+            */
+            //
+            //
             // todays date
             $today = now()->format('Y-m-d');
             //
-            // if "order status is set to complete"  // the order end_date must be set to  $today().
-            // we do this Because if the order end date is in the future still and we sent ORDER_STATUS_COMPLETE, the project still charges the the organization for the remaining days until the project end_date is reached, even if the "order status is set to COPMPLETE"
+            // 
+            // we do this Because if the order end date is in the future still and we sent ORDER_STATUS_COMPLETE, the project still charges the the customer for the remaining days until the project end_date is reached, even if the "order status is set to COMPLETE"
             // solution is the above, if we make the order end date = today(), when order is set to Complete , then the order end_date will match the order Complete status,  and there will not be any left over dates we ask payment to after the order is complete
             //
             //
-            $success = $order->update([
-                'status' => Order::ORDER_STATUS_COMPLETE,
-                'end_date' => $today,                           /* // if "order status is set to complete"  // the order end_date must be set to  $today() */
-            ]);
             //
-            if (!$success) {
-                return response()->json(['message' => 'Order Update Failed'], 500);
+            $orderEndDate = Carbon::parse($order->end_date)->toDateString();
+            //
+            //
+            //
+            // if a we COMPLETE an order before it's intended end_date,   - or -   if the order that is about to be completed does NOT reach its end_date,
+            // if today's date does is less than the order's end_date
+            //
+            // => SO the end_date of the order will be the date the order is completed.    i.e. in other words the order end_date will be today() [today being the date the order is being completed].
+            if ($today < $orderEndDate) {
+
+                $success = $order->update([
+                    'status' => Order::ORDER_STATUS_COMPLETE,
+                    'end_date' => $today,
+                ]);
+                //
+                if (!$success) {
+                    return response()->json(['message' => 'Order Update Failed'], 500);
+                }
+
             }
+            //
+            // if a we COMPLETE an order way after it's intended end_date (or Complete the order on a date that is EQUAL to its intended end_date),   - or -   if the order that is about to be completed has already past its end_date (or at least its on its end_date (EQUALs to its end_date) )
+            // if today's date is greater than (or equals to end date) the order's end_date
+            //
+            //  => SO the end_date of the order will be the already existing end_date of the order.    i.e. in other words the order end_date will NOT be changed.
+            if ($today >= $orderEndDate) {
+
+                $success = $order->update([
+                    'status' => Order::ORDER_STATUS_COMPLETE,
+                ]);
+                //
+                if (!$success) {
+                    return response()->json(['message' => 'Order Update Failed'], 500);
+                }
+
+            }
+
+
 
             $vehicle = Vehicle::find($order->vehicle_id);
             //
@@ -663,37 +729,50 @@ class OrderController extends Controller
         //
         $var = DB::transaction(function () use ($request, $order) {
 
-            $vehicle = Vehicle::find($request['vehicle_id']);
-            $supplier = Supplier::find($vehicle->supplier_id);  // i could use relation, instead of fetching all ,  =     $vehicle->supplier->is_active   and     $vehicle->supplier->is_approved         // check abrham samson
-            $driver = Driver::find($vehicle->driver_id);        // i could use relation, instead of fetching all ,  =     $vehicle->driver->is_active     and     $vehicle->supplier->is_approved         // check abrham samson
+            if(isset($request['vehicle_id'])){
+                $vehicle = Vehicle::find($request['vehicle_id']);
+            }
+            else if (isset($order->vehicle_id) && $order->vehicle_id !== null){
+                $vehicle = Vehicle::find($order->vehicle_id);
+            }
+            
+            // the following if condition is executed if we find actual vehicle in the REQUEST or from thr orders table
 
-            if ($vehicle->vehicle_name_id !== $order->vehicle_name_id) {
-                return response()->json(['message' => 'invalid Vehicle is selected. or The Selected Vehicle does not match the orders requirement (the selected vehicle vehicle_name_id is NOT equal to the order vehicle_name_id). Deceptive request Aborted.'], 422); 
+            if ($vehicle) {
+
+                $supplier = Supplier::find($vehicle->supplier_id);  // i could use relation, instead of fetching all ,  =     $vehicle->supplier->is_active   and     $vehicle->supplier->is_approved         // check abrham samson
+                $driver = Driver::find($vehicle->driver_id);        // i could use relation, instead of fetching all ,  =     $vehicle->driver->is_active     and     $vehicle->supplier->is_approved         // check abrham samson
+
+                if ($vehicle->vehicle_name_id !== $order->vehicle_name_id) {
+                    return response()->json(['message' => 'invalid Vehicle is selected. or The Selected Vehicle does not match the orders requirement (the selected vehicle vehicle_name_id is NOT equal to the order vehicle_name_id). Deceptive request Aborted.'], 422); 
+                }
+
+                if ($vehicle->is_available !== Vehicle::VEHICLE_AVAILABLE) {
+                    return response()->json(['message' => 'the selected vehicle is not currently available'], 409); 
+                }
+
+
+                // i could use relation, instead of fetching all ,  =     $vehicle->driver->is_active     and     $vehicle->driver->is_approved         // check abrham samson
+                if ($driver) {
+                    if ($driver->is_active != 1) {
+                        return response()->json(['message' => 'Forbidden: Deactivated Driver'], 428); 
+                    }
+                    if ($driver->is_approved != 1) {
+                        return response()->json(['message' => 'Forbidden: NOT Approved Driver'], 428); 
+                    }
+                }
+                // i could use relation, instead of fetching all ,  =     $vehicle->supplier->is_active   and     $vehicle->supplier->is_approved         // check abrham samson
+                if ($supplier) {
+                    if ($supplier->is_active != 1) {
+                        return response()->json(['message' => 'Forbidden: Deactivated Supplier'], 428); 
+                    }
+                    if ($supplier->is_approved != 1) {
+                        return response()->json(['message' => 'Forbidden: NOT Approved Supplier'], 428); 
+                    }
+                }
             }
 
-            if ($vehicle->is_available !== Vehicle::VEHICLE_AVAILABLE) {
-                return response()->json(['message' => 'the selected vehicle is not currently available'], 409); 
-            }
-
-
-            // i could use relation, instead of fetching all ,  =     $vehicle->driver->is_active     and     $vehicle->supplier->is_approved         // check abrham samson
-            if ($driver) {
-                if ($driver->is_active != 1) {
-                    return response()->json(['message' => 'Forbidden: Deactivated Driver'], 428); 
-                }
-                if ($driver->is_approved != 1) {
-                    return response()->json(['message' => 'Forbidden: NOT Approved Driver'], 428); 
-                }
-            }
-            // i could use relation, instead of fetching all ,  =     $vehicle->supplier->is_active   and     $vehicle->supplier->is_approved         // check abrham samson
-            if ($supplier) {
-                if ($supplier->is_active != 1) {
-                    return response()->json(['message' => 'Forbidden: Deactivated Supplier'], 428); 
-                }
-                if ($supplier->is_approved != 1) {
-                    return response()->json(['message' => 'Forbidden: NOT Approved Supplier'], 428); 
-                }
-            }
+            
 
 
             if ($order->status !== Order::ORDER_STATUS_PENDING) {
@@ -705,17 +784,25 @@ class OrderController extends Controller
             $contractDetail = null;
             // this contract_detail_id should be owned by the organization that the super_admin is making the order to
             if ($request->has('contract_detail_id') && isset($request['contract_detail_id'])) {
+
                 $contractDetail = ContractDetail::where('id', $request['contract_detail_id'])->first();
+
+
+                // if we send 'vehicle_id' or 'contract_detail_id' in the REQUEST, both of them should have similar vehicle_name_id , otherwise it will create inconsistent order
+                if ($vehicle && $contractDetail) {
+                    if ($vehicle->vehicle_name_id !== $contractDetail->vehicle_name_id) {
+                        return response()->json(['message' => 'the vehicle\'s vehicle_name_id is NOT equal to contractDetail\'s vehicle_name_id. Deceptive request Aborted.'], 422); 
+                    }
+                }
+
 
                 if ($contractDetail) {
                     if ($contractDetail->is_available != 1) {
                         // the parent contract of this contract_detail is Terminated
-                        return response()->json(['message' => 'Not Found - the server cannot find the requested resource. The Contract Detail for this Vehicle Name is NOT Available, because the Contract for the requested Vehicle Name is Terminated.'], 410);
+                        return response()->json(['message' => 'Not Found - the server cannot find the requested resource. The Contract Detail for this Vehicle Name is NOT Available, because the Contract Detail for the requested Vehicle Name is made to be Unavailable.'], 410);
                     }
 
-                    if ($vehicle->vehicle_name_id !== $contractDetail->vehicle_name_id) {
-                        return response()->json(['message' => 'the vehicle\'s vehicle_name_id is NOT equal to contractDetail\'s vehicle_name_id. Deceptive request Aborted.'], 422); 
-                    }
+
 
                     $contract = Contract::where('id', $contractDetail->contract_id)->first();
 
@@ -827,6 +914,7 @@ class OrderController extends Controller
 
             // DO THE ACTUAL UPDATE on Orders Table
             $success = $order->update($request->validated());
+            // 
 
 
             if ($request->has('vehicle_id') && isset($request['vehicle_id'])) {
@@ -836,6 +924,9 @@ class OrderController extends Controller
             }
             if ($request->has('is_terminated') && isset($request['is_terminated'])) {
                 if ($request['is_terminated'] == 1) {
+                    // if ($order->status === Order::ORDER_STATUS_SET) {
+                    //     return response()->json(['message' => 'this order can not be terminated. because the order is already accepted'], 422); 
+                    // }
                     if ($order->status === Order::ORDER_STATUS_START) {
                         return response()->json(['message' => 'this order can not be terminated. because the order is already started'], 422); 
                     }

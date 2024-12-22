@@ -10,7 +10,7 @@ class InvoiceTrip extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'invoice_vehicles';
+    protected $table = 'invoice_trips';
 
     /**
      * The attributes that are mass assignable.

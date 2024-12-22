@@ -88,6 +88,7 @@ class TripController extends Controller
                 $trip->organization_user_id === null ||
                 $trip->start_dashboard === null ||
                 $trip->end_dashboard === null ||
+                $trip->price_fuel === null ||
                 $trip->source === null ||
                 $trip->destination === null ||
                 $trip->trip_date === null ||
@@ -102,7 +103,7 @@ class TripController extends Controller
             $organizationUser = OrganizationUser::find($user->id);
 
 
-            if ($organizationUser->is_admin === 1) {
+            if ($organizationUser->is_admin == 1) {
 
                 if ($organizationUser->organization_id !== $trip->order->organization_id) {
                     return response()->json(['message' => 'invalid Trip. Deceptive request Aborted.'], 403);

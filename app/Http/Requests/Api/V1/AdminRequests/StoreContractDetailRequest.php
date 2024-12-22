@@ -36,11 +36,12 @@ class StoreContractDetailRequest extends FormRequest
             'periodic' => [
                 'sometimes', 'boolean',
             ],
-            'price_contract' => 'required|integer|between:0,9999999',
-            'price_vehicle_payment' => 'required|integer|between:0,9999999',
+            'price_contract' => 'required|integer|between:1,9999999',
+            'price_vehicle_payment' => 'required|integer|between:1,9999999',
 
             // Specifies that the numeric value of the field must be within the range of 0 to 15, inclusive. This means that the value of tax can be any numeric value between 0 and 15, including both 0 and 15.
             'tax' => 'sometimes|nullable|numeric|between:0,15',
+            'price_fuel_payment_constant' => 'required|numeric|between:1,9999999.99',
 
             // is_available = should be not be sent at ContractDetail store for the first time, it is "1" by default in the controller
             // 'is_available' => [

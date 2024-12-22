@@ -35,6 +35,26 @@ class CustomerController extends Controller
                 return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
             }
         }
+        if ($request->has('is_approved_search')) {
+            if (isset($request['is_approved_search'])) {
+                $isApproved = $request['is_approved_search'];
+
+                $customers = $customers->where('is_approved', $isApproved);
+            } 
+            else {
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
+            }
+        }
+        if ($request->has('is_active_search')) {
+            if (isset($request['is_active_search'])) {
+                $isActive = $request['is_active_search'];
+
+                $customers = $customers->where('is_active', $isActive);
+            } 
+            else {
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
+            }
+        }
 
         $customerData = $customers->with('media', 'address')->latest()->paginate(FilteringService::getPaginate($request));
 

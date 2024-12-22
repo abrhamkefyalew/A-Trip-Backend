@@ -38,7 +38,7 @@ class OrderUser extends Model
         'original_end_date',
         'price_total',
         'paid_complete_status',
-        'price_vehicle_payment',
+        'price_vehicle_payment', // DAILY PRICE of vehicle payment (this amount is price of single day)
         'vehicle_pr_status',
         'order_description',
         'with_driver',

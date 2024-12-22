@@ -149,14 +149,23 @@ class TeleBirrCustomerCallbackService
     {
         if (Bid::where('order_user_id', $invoiceUser->orderUser->id)->exists()) {
             // DELETE All the BIDS of this ORDER
-                // // Soft delete all Bid records with order_user_id equal to $bid->order->id
-                // Bid::where('order_user_id', $bid->order->id)->delete();
+                // // Soft delete all Bid records with order_user_id equal to $bid->orderUser->id
+                // Bid::where('order_user_id', $bid->orderUser->id)->delete();
                 //
-                // // Force delete all Bid records with order_user_id equal to $bid->order->id
+                // // Force delete all Bid records with order_user_id equal to $bid->orderUser->id
             $successForceDelete = Bid::where('order_user_id', $invoiceUser->orderUser->id)->forceDelete();
             //
             if (!$successForceDelete) {
                 Log::alert('TeleBirr callback: Bid Delete Failed! invoice_user_id: ' . $invoiceUser->id, 500);
+            }
+
+
+            // to DIS-ALLOW other customers from accepting this vehicle from previous bids , we DELETE ALL the Previous Bids this Vehicle has been bided to
+            //      // we are going to make sure that single vehicle is NOT Accepted (& paid for) by multiple orders during acceptBid().  (i.e. ONLY ONE of those orders can accept (i.e. acceptBid()) that vehicle in the bids and pay)
+            $successForceDeleteTwo = Bid::where('vehicle_id', $invoiceUser->orderUser->vehicle_id)->forceDelete();
+            //
+            if (!$successForceDeleteTwo) {
+                Log::alert('TeleBirr callback: Bid Delete Failed! invoice_user_id: ' . $invoiceUser->id . 'vehicle_id: ' .  $invoiceUser->orderUser->vehicle_id, 500);
             }
         }
         

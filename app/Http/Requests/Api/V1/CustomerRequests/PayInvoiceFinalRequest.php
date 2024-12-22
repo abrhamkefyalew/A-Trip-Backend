@@ -25,7 +25,7 @@ class PayInvoiceFinalRequest extends FormRequest
     {
         return [
             //
-            'price_amount_total' => 'required|integer|between:0,9999999',
+            'price_amount_total' => 'required|integer|between:1,9999999',
 
             'payment_method' => [
                 'required', 'string', Rule::in([InvoiceUser::INVOICE_TELE_BIRR, InvoiceUser::INVOICE_CBE_MOBILE_BANKING, InvoiceUser::INVOICE_CBE_BIRR, InvoiceUser::INVOICE_BOA]),

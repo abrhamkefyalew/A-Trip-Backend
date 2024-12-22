@@ -21,7 +21,9 @@ return new class extends Migration
             $table->foreignId('organization_user_id')->nullable()->constrained('organization_users'); // the organization user who APPROVES this Trip // initially NULL // filled when the order is APPROVED by organizationUser (we fill the approvers organization_user_id)
 
             $table->bigInteger('start_dashboard'); // should NOT be null // filled when the Trip is started
-            $table->bigInteger('end_dashboard')->nullable(); // this is NULL when trip is made initially // filled by only the driver before the trip is approved
+            $table->bigInteger('end_dashboard')->nullable(); // this is NULL when trip is made initially // filled by only the driver during trip UPDATE, should be filled before the trip is approved
+
+            $table->decimal('price_fuel', 10, 2)->nullable(); // this is NULL initially, it is CALCULATED and filled when the end_dashboard value is set during trip UPDATE, should be filled before the trip is approved
 
             $table->string('source'); // should NOT be null  // filled when the Trip is started  // the starting location of the trip
             $table->string('destination')->nullable();

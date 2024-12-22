@@ -27,6 +27,9 @@ class BOAOrganizationCallbackService
         $invoiceCode = substr($invoiceReferenceWithPrefixFromBoa, 4); // Start from the 5th character onwards // THIS WORKS
         // $invoiceCode = str_replace("OPR-", "", $invoiceReferenceWithPrefixFromBoa);                        // This Works ALSO
 
+        Log::info('BOA callback: prefixed-invoice_code: '. $invoiceReferenceWithPrefixFromBoa);
+        Log::info('BOA callback: invoice_code: '. $invoiceCode);
+
         DB::transaction(function () use ($invoiceCode) {
             
             // if paid status code from the bank is NOT 200 -> i will log and abort // abrham samson check
@@ -55,7 +58,7 @@ class BOAOrganizationCallbackService
             foreach ($invoices as $invoice) {
                 $orderPrStatus = $this->getOrderPrStatus($invoice);
 
-                $this->updatedOrder($invoice, $orderPrStatus);
+                $this->updateOrder($invoice, $orderPrStatus);
 
                 // $invoiceIdList[] = $invoice->id;
             }
@@ -157,7 +160,7 @@ class BOAOrganizationCallbackService
     }
 
 
-    private function updatedOrder($invoice, $orderPrStatus)
+    private function updateOrder($invoice, $orderPrStatus)
     {
         // Update the order pr_status
         $successTwo = $invoice->order()->update([

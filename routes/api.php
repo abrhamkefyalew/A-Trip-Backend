@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\V1\Admin\SupplierController;
 use App\Http\Controllers\Api\V1\Admin\DashBoardController;
 use App\Http\Controllers\Api\V1\Admin\OrderUserController;
 use App\Http\Controllers\Api\V1\Admin\PermissionController;
+use App\Http\Controllers\Api\V1\Admin\InvoiceTripController;
 use App\Http\Controllers\Api\V1\Admin\InvoiceUserController;
 use App\Http\Controllers\Api\V1\Admin\VehicleNameController;
 use App\Http\Controllers\Api\V1\Admin\VehicleTypeController;
@@ -351,7 +352,7 @@ Route::prefix('v1')->group(function () {
             });
 
 
-            // currently this bids route is NOT functional
+            // 
             Route::prefix('bids')->group(function () {
                 Route::post('/', [BidController::class, 'store']);
                 Route::get('/', [BidController::class, 'index']);
@@ -367,10 +368,23 @@ Route::prefix('v1')->group(function () {
             Route::prefix('invoice_vehicles')->group(function () {
                 Route::post('/', [InvoiceVehicleController::class, 'store']);
                 Route::get('/', [InvoiceVehicleController::class, 'index']);
+                Route::post('/', [InvoiceVehicleController::class, 'payInvoice']);
                 Route::prefix('/{invoiceVehicle}')->group(function () {
                     Route::get('/', [InvoiceVehicleController::class, 'show']);
                     Route::put('/', [InvoiceVehicleController::class, 'update']);
                     Route::delete('/', [InvoiceVehicleController::class, 'destroy']);
+                }); 
+            });
+
+
+             // currently this invoice_trips route is NOT functional
+            Route::prefix('invoice_trips')->group(function () {
+                Route::post('/', [InvoiceTripController::class, 'store']);
+                Route::get('/', [InvoiceTripController::class, 'index']);
+                Route::prefix('/{invoiceTrip}')->group(function () {
+                    Route::get('/', [InvoiceTripController::class, 'show']);
+                    Route::put('/', [InvoiceTripController::class, 'update']);
+                    Route::delete('/', [InvoiceTripController::class, 'destroy']);
                 }); 
             });
 
@@ -403,6 +417,19 @@ Route::prefix('v1')->group(function () {
             Route::post('/login_otp', [OrganizationUserAuthController::class, 'loginOtp']);
             Route::post('/verify_otp', [OrganizationUserAuthController::class, 'verifyOtp']);
 
+
+
+
+
+
+
+            // SAMSON ADDED THIS - start
+            Route::prefix('invoices')->group(function () {
+                Route::get('/pay_invoices_new_open_route_get', [InvoiceForOrganizationController::class, 'payInvoicesNewOpenRouteGet']); 
+            });
+            // SAMSON ADDED THIS - end
+
+
         });
 
 
@@ -425,7 +452,7 @@ Route::prefix('v1')->group(function () {
             });
 
 
-            Route::prefix('organization_user_profile')->group(function () {
+            Route::prefix('organization_users')->group(function () {
                 Route::post('/', [OrganizationUserForOrganizationController::class, 'store']);
                 Route::get('/', [OrganizationUserForOrganizationController::class, 'index']);
                 Route::prefix('/{organizationUser}')->group(function () {
@@ -778,6 +805,26 @@ Route::prefix('v1')->group(function () {
             Route::post('/login_otp', [CustomerAuthController::class, 'loginOtp']);
             Route::post('/verify_otp', [CustomerAuthController::class, 'verifyOtp']);
 
+
+
+
+
+
+
+            // SAMSON ADDED THIS - start
+            Route::prefix('bids')->group(function () {
+                Route::prefix('/{bid}')->group(function () {
+                    Route::get('/accept_bid/{id}/{paymentMethod}', [BidForCustomerController::class, 'acceptBidNew']);
+                }); 
+            });
+
+            Route::prefix('invoice_users')->group(function () {
+                Route::get('/pay_invoice_final_new_open_route_get', [InvoiceUserForCustomerController::class, 'payInvoiceFinalNewOpenRouteGet']); // Bad idea // delete later // remove later
+            });
+            // SAMSON ADDED THIS - end
+
+
+
         });
 
 
@@ -856,6 +903,7 @@ Route::prefix('v1')->group(function () {
                 Route::post('/', [InvoiceUserForCustomerController::class, 'store']);
                 Route::get('/', [InvoiceUserForCustomerController::class, 'index']);
                 Route::post('/pay_invoice_final', [InvoiceUserForCustomerController::class, 'payInvoiceFinal']);
+                // Route::get('/pay_invoice_final', [InvoiceUserForCustomerController::class, 'payInvoiceFinal']); // Bad idea // delete later // remove later
                 Route::prefix('/{invoiceUser}')->group(function () {
                     Route::get('/', [InvoiceUserForCustomerController::class, 'show']);
                     Route::put('/', [InvoiceUserForCustomerController::class, 'update']);
@@ -904,12 +952,15 @@ Route::prefix('v1')->group(function () {
 
     // TEST OPEN ROUTES (normal_endpoint + _open_route)
         // initiate payment test C to B (C2B)
-        Route::get('/pay_invoices_test_open_route_boa', [InvoiceForOrganizationController::class, 'testboa']);
-        Route::get('/pay_invoices_test_open_route_telebirr_apply_fabric_token', [InvoiceForOrganizationController::class, 'testTelebirrApplyFabricToken']);
-        Route::get('/pay_invoices_test_open_route_telebirr', [InvoiceForOrganizationController::class, 'testTelebirr']);
+            Route::get('/pay_invoices_test_open_route_boa', [InvoiceForOrganizationController::class, 'testboa']);
+            Route::get('/pay_invoices_test_open_route_telebirr_apply_fabric_token', [InvoiceForOrganizationController::class, 'testTelebirrApplyFabricToken']);
+            Route::get('/pay_invoices_test_open_route_telebirr', [InvoiceForOrganizationController::class, 'testTelebirr']);
 
         // initiate payment test B to C (B2C)
-        Route::get('/pay_invoice_test_open_route_telebirr_b2c', [InvoiceVehicleController::class, 'testTelebirrB2C']);
+            Route::get('/pay_invoice_test_open_route_telebirr_b2c', [InvoiceVehicleController::class, 'testTelebirrB2C']);
+            // the below is Test code that could read Telebirr Response XML code after B2C request
+            Route::get('/pay_invoice_test_open_route_telebirr_b2c_read_returned_xml', [InvoiceVehicleController::class, 'testTelebirrB2CReadReturnedXml']);
+
         
 
 

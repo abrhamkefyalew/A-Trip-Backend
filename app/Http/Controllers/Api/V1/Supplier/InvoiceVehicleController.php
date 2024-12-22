@@ -83,7 +83,7 @@ class InvoiceVehicleController extends Controller
     /**
      * Store a newly created resource in storage.
      * 
-     * Vehicle PR asking by supplier for organizations order
+     * Supplier is asking Adiamat PR for his vehicles that are in Organizations order table
      */
     public function storeInvoiceVehicleForOrder(StoreInvoiceVehicleOrderRequest $request)
     {
@@ -100,7 +100,7 @@ class InvoiceVehicleController extends Controller
                 return response()->json(['message' => 'invalid Order is selected for Vehicle PR Request. or the requested Order is not found. Deceptive request Aborted.'], 403);
             }
 
-            $uuidTransactionIdSystem = Str::uuid(); // this uuid should be generated OUTSIDE the FOREACH to Generate COMMON and SAME uuid (i.e. transaction_id_system) for ALL invoices that have similar invoice_code (or for all invoices created in one PR request)
+            $uuidTransactionIdSystem = Str::uuid();
 
             // todays date
             $today = now()->format('Y-m-d');
@@ -182,7 +182,7 @@ class InvoiceVehicleController extends Controller
                 
                 if ($unPaidOrderInvoiceExist) {
                     return response()->json([
-                        'message' => 'there is NOT_PAID invoice in invoices table with this order, you need to ask the organization to pay the previous PR for this particular order before asking another PR for this particular Order: ' . $order->id,
+                        'message' => 'there is NOT_PAID invoice in invoice_vehicles table with this order, you need to ask the system admins to pay the previous PR for this particular order before asking another PR for this particular Order: ' . $order->id,
                         'order_id' => $order->id,
                         'order_vehicle_plate_number' => $order->vehicle->plate_number
                     ], 428);
@@ -328,7 +328,7 @@ class InvoiceVehicleController extends Controller
     /**
      * Store a newly created resource in storage.
      * 
-     * Vehicle PR asking by supplier for individual customers order
+     * Supplier is asking Adiamat PR for his vehicles that are in individual customers order table
      */
     public function storeInvoiceVehicleForOrderUser(StoreInvoiceVehicleOrderUserRequest $request)
     {
@@ -345,7 +345,7 @@ class InvoiceVehicleController extends Controller
                 return response()->json(['message' => 'invalid Order is selected for Vehicle PR Request. or the requested Order is not found. Deceptive request Aborted.'], 403);
             }
 
-            $uuidTransactionIdSystem = Str::uuid(); // this uuid should be generated OUTSIDE the FOREACH to Generate COMMON and SAME uuid (i.e. transaction_id_system) for ALL invoices that have similar invoice_code (or for all invoices created in one PR request)
+            $uuidTransactionIdSystem = Str::uuid();
 
             // todays date
             $today = now()->format('Y-m-d');
@@ -427,7 +427,7 @@ class InvoiceVehicleController extends Controller
                 
                 if ($unPaidOrderInvoiceExist) {
                     return response()->json([
-                        'message' => 'there is NOT_PAID invoice in invoices table with this order, you need to ask the organization to pay the previous PR for this particular order before asking another PR for this particular Order: ' . $orderUser->id,
+                        'message' => 'there is NOT_PAID invoice in invoice_vehicles table with this orderUser, you need to ask the system admins to pay the previous PR for this particular order before asking another PR for this particular Order: ' . $orderUser->id,
                         'order_user_id' => $orderUser->id,
                         'order_vehicle_plate_number' => $orderUser->vehicle->plate_number
                     ], 428);
@@ -468,9 +468,9 @@ class InvoiceVehicleController extends Controller
             $invoiceRequestEndDate = Carbon::parse($request['end_date']); // because we need this for calculation we removed the toDateString
             $invoiceRequestEndDateStringVersion = Carbon::parse($request['end_date'])->toDateString(); // this is used for comparison in the following if condition
             // order end date // from orders table in the database
-            $orderEndDate = Carbon::parse($orderUser->end_date)->toDateString();
+            $orderEndDate = Carbon::parse($orderUser->end_date)->toDateString(); // this is used for comparison
 
-            // get the daily price of the order vehicle_name_id from contract_details_table;
+            // get the daily price from order_users;
             $orderPricePerDay = $orderUser->price_vehicle_payment;
 
             

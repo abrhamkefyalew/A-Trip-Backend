@@ -140,6 +140,8 @@ class InvoiceController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     * 
+     * Super Admin is Asking PR from Organizations
      */
     public function store(StoreInvoiceRequest $request)
     {
@@ -180,6 +182,13 @@ class InvoiceController extends Controller
 
                 // Generate a random invoice code
                 $uniqueCode = Str::random(20); // Adjust the length as needed
+                                                   // In Laravel's Str::random(20) function, the generated random string will consist of only letters (both uppercase and lowercase) and numbers. Special characters are NOT included in the generated string by default.
+                                                   //       The generated string will be a combination of letters (A-Z and a-z) and numbers (0-9).
+                                                   //
+                                                   // So, if you specifically want a random string that contains only letters (both uppercase and lowercase) and numbers WITHOUT any special characters, using Str::random(20) in Laravel will meet that requirement. 
+                                                   //       
+                                                   // In Laravel, the Str::random(20) function generates a random string of 20 characters. The characters in the generated string can include uppercase letters (A-Z), lowercase letters (a-z), and numbers (0-9). 
+                                                   //       The generated string may consist of a combination of these characters, resulting in a 20-character random alphanumeric string. 
 
                 // Check if the generated code already exists in the database
                 while (Invoice::where('invoice_code', $uniqueCode)->exists()) {
@@ -339,7 +348,7 @@ class InvoiceController extends Controller
                     $invoiceRequestEndDate = Carbon::parse($requestData['end_date']); // because we need this for calculation we removed the toDateString
                     $invoiceRequestEndDateStringVersion = Carbon::parse($requestData['end_date'])->toDateString(); // this is used for comparison in the following if condition
                     // order end date // from orders table in the database
-                    $orderEndDate = Carbon::parse($order->end_date)->toDateString();
+                    $orderEndDate = Carbon::parse($order->end_date)->toDateString(); // this is used for comparison
 
                     // get the daily price of the order vehicle_name_id from contract_details_table;
                     $orderPricePerDay = $order->contractDetail->price_contract;

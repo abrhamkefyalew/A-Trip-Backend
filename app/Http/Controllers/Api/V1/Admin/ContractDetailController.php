@@ -126,6 +126,13 @@ class ContractDetailController extends Controller
                 return response()->json(['message' => 'since you set with_fuel = 1, with_driver must also be 1. a Contract Detail that require fuel must also require driver'], 422);
             }
 
+
+            if ($request['with_fuel'] == 1 && (!isset($request['price_fuel_payment_constant']))) {
+                // Return an error response indicating that 'price_fuel_payment_constant' is required when 'with_fuel' is 1
+                return response()->json(['error' => 'The price_fuel_payment_constant field is required when with_fuel is set to 1.'], 422);
+            }
+        
+
             
             $contractDetail = ContractDetail::create([
                 'contract_id' => $request['contract_id'],
@@ -135,6 +142,7 @@ class ContractDetailController extends Controller
                 'periodic' => (int) $request->input('periodic', 0),
                 'price_contract' => $request['price_contract'],
                 'price_vehicle_payment' => $request['price_vehicle_payment'],
+                'price_fuel_payment_constant' => $request['price_fuel_payment_constant'],
                 'tax' => (int) $request->input('tax', ContractDetail::CONTRACT_DETAIL_DEFAULT_TAX_15), // use isset() or filled() on this one
                 'is_available' => 1, // is_available should be not be sent at ContractDetail store for the first time, it is "1" by default in the controller       // 1 = means parent contract not terminated   // 0 = means parent contract terminated
                             // the "is_available" column in CONTRACT_DETAILs table should NOT be update separately,  // we ONLY update "is_available" when Terminating or UnTerminating the PARENT CONTRACT
@@ -172,10 +180,51 @@ class ContractDetailController extends Controller
            // NOTE : - // the "is_available" column in CONTRACT_DETAILs table should NOT be update separately,  // we ONLY update "is_available" when Terminating or UnTerminating the PARENT CONTRACT
 
 
-           if (Order::where('contract_detail_id', $contractDetail->id)->exists()) {
+            if (Order::where('contract_detail_id', $contractDetail->id)->exists()) {
                 return response()->json(['message' => 'Cannot Update the Contract Detail because it is in use by organization Orders.'], 409);
             }
 
+            if (isset($request['with_fuel'])) {
+
+                if (isset($request['with_driver'])) {
+
+                    if ($request['with_fuel'] == 1 && $request['with_driver'] == 0) {
+                        return response()->json(['message' => 'since you set with_fuel = 1, with_driver must also be 1. a Contract Detail that require fuel must also require driver'], 422);
+                    }
+
+                } else {
+                    if ($request['with_fuel'] == 1 && $contractDetail->with_driver == 0) {
+                        return response()->json(['message' => 'the contract detail you updated have with_driver = 0, since you set with_fuel = 1, with_driver must also be 1.   a Contract Detail that require fuel must also require driver'], 422);
+                    }
+                }
+
+            }
+
+
+            if (isset($request['with_driver'])) {
+
+                if (isset($request['with_fuel'])) {
+
+                    if ($request['with_fuel'] == 1 && $request['with_driver'] == 0) {
+                        return response()->json(['message' => 'since you set with_fuel = 1, with_driver must also be 1. a Contract Detail that require fuel must also require driver'], 422);
+                    }
+
+                } else {
+                    if ($request['with_driver'] == 0 && $contractDetail->with_fuel == 1) {
+                        return response()->json(['message' => 'the contract detail you updated have with_fuel = 1, since you set with_driver = 0, with_fuel must also be 0.   a Contract Detail that does NOT require driver should NOT require fuel'], 422);
+                    }
+                }
+
+            }
+
+
+            if (isset($request['with_fuel'])) {
+                if ($request['with_fuel'] == 1 && (!isset($request['price_fuel_payment_constant']))) {
+                    // Return an error response indicating that 'price_fuel_payment_constant' is required when 'with_fuel' is 1
+                    return response()->json(['error' => 'The price_fuel_payment_constant field is required when with_fuel is set to 1.'], 422);
+                }
+            }
+            
         
 
 

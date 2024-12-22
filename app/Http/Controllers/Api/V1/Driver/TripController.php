@@ -15,6 +15,7 @@ use App\Services\Api\V1\FilteringService;
 use App\Http\Requests\Api\V1\DriverRequests\StoreTripRequest;
 use App\Http\Requests\Api\V1\DriverRequests\UpdateTripRequest;
 use App\Http\Resources\Api\V1\TripResources\TripForDriverResource;
+use App\Models\ContractDetail;
 use App\Models\OrganizationUser;
 
 class TripController extends Controller
@@ -247,19 +248,39 @@ class TripController extends Controller
             }
 
 
-            if ($trip->status === Trip::TRIP_STATUS_APPROVED) {
-                return response()->json(['message' => 'this Trip is already APPROVED , so no further updates on this trip is not allowed.'], 409); 
+            
+            if ($trip->status == Trip::TRIP_STATUS_APPROVED) {
+                return response()->json(['message' => 'this Trip is already APPROVED , so NO further updates on this trip is allowed.'], 409); 
             }
 
 
-            $startDashboard = (int) $request['start_dashboard'];
-            $endDashboard = (int) $request['end_dashboard'];
 
+            if (isset($request['start_dashboard'])) {
+                $startDashboard = (int) $request['start_dashboard'];
+            } 
+            else {
+                $startDashboard = (int) $trip->start_dashboard;
+            }
 
-            if ($endDashboard < $startDashboard) {
-                return response()->json(['message' => 'the end dashboard reading should not be less than the start dashboard reading.'], 403); 
+            if (isset($request['end_dashboard'])) {
+                $endDashboard = (int) $request['end_dashboard'];
+            } else {
+                $endDashboard = (int) $trip->end_dashboard;
             }
             
+
+            if (isset($endDashboard) && isset($startDashboard)) {
+
+                if ($endDashboard < $startDashboard) {
+                    return response()->json(['message' => 'the end dashboard reading should NOT be less than the start dashboard reading.'], 403); 
+                }
+
+                $differenceOfDashboards = $endDashboard - $startDashboard;
+                
+                $contractDetail = ContractDetail::find($trip->order->contract_detail_id);
+
+                $priceFuel = $differenceOfDashboards * ((double) $contractDetail->price_fuel_payment_constant);
+            }
 
 
             $success = $trip->update($request->validated());
@@ -268,6 +289,18 @@ class TripController extends Controller
                 return response()->json(['message' => 'Trip Update Failed'], 500);
             }
 
+
+            if (isset($priceFuel)) {
+
+                if ($priceFuel !== null) { 
+                    $trip->price_fuel = $priceFuel;
+                
+                    $trip->save();
+                }
+
+            }
+
+            
             $updatedTrip = Trip::find($trip->id);
 
             return TripForDriverResource::make($updatedTrip->load('order', 'organizationUser'));

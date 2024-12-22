@@ -13,7 +13,7 @@ class AcceptOrderRequest extends FormRequest
     public function authorize(): bool
     {
         // do AUTH here or in the controller
-        return $this->user()->can('update', Order::class);
+        return $this->user()->can('update', $this->order);
     }
 
     /**

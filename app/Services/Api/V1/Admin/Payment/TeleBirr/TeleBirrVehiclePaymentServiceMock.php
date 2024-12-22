@@ -3,6 +3,7 @@
 namespace App\Services\Api\V1\Admin\Payment\TeleBirr;
 
 use Carbon\Carbon;
+use SimpleXMLElement;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 
@@ -210,7 +211,7 @@ $initiateRequestData = "
                     </req:Initiator>
                     <req:ReceiverParty>
                         <req:IdentifierType>1</req:IdentifierType>
-                        <req:Identifier>0903942298</req:Identifier>
+                        <req:Identifier>0921169521</req:Identifier>
                     </req:ReceiverParty>
                 </req:Identity>
                 <req:TransactionRequest>
@@ -248,4 +249,139 @@ $initiateRequestData = "
         }
     }
 
+
+
+
+
+
+
+
+    /**
+     * We are going to handle the following TWO different XML responses (XML values), using ONE CODE
+     * 
+     * using the following Single Code, (in single execution)
+     *  // we are going to handle the following two Different XML Values (i.e. responses)
+     *      1. Fail Xml Response
+     *      3. Success XML Response
+     */
+    public function xmlReadingTest()
+    {
+     
+        /*
+        // FAIL XML Response ,   FAULT = (<soapenv:Fault)
+        $xmlResponse = <<<XML
+            <?xml version="1.0" encoding="UTF-8"?>
+            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+            <soapenv:Body>
+                <soapenv:Fault xmlns:axis2ns9="http://www.w3.org/2003/05/soap-envelope">
+                <faultcode>axis2ns9:Sender</faultcode>
+                <faultstring>Internal Server Exception</faultstring>
+                <detail />
+                </soapenv:Fault>
+            </soapenv:Body>
+            </soapenv:Envelope>
+            XML;
+        */
+
+
+        
+        // SUCCESS XML Response ,   SUCCESSFUL = (<api:Response)
+        $xmlResponse = <<<XML
+            <?xml version="1.0" encoding="utf-8"?>
+            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+            <soapenv:Body>
+                <api:Response xmlns:api="http://cps.huawei.com/cpsinterface/api_requestmgr"
+                xmlns:res="http://cps.huawei.com/cpsinterface/response">
+                <res:Header>
+                    <res:Version>1.0</res:Version>
+                    <res:OriginatorConversationID>1733085530</res:OriginatorConversationID>
+                    <res:ConversationID>AG_20241201_70100345c6ca05176645</res:ConversationID>
+                </res:Header>
+                <res:Body>
+                    <res:ResponseCode>0</res:ResponseCode>
+                    <res:ResponseDesc>Accept the service request successfully.</res:ResponseDesc>
+                    <res:ServiceStatus>0</res:ServiceStatus>
+                </res:Body>
+                </api:Response>
+            </soapenv:Body>
+            </soapenv:Envelope>
+            XML;
+        
+            
+
+
+            
+
+
+
+
+            $xmlResponseObj = new SimpleXMLElement($xmlResponse);
+            //
+            // this URL (XPathNamespace) is for BOTH SUCCESS and FAIL XML response From Telebirr (<api:Response> and <soapenv:Fault>)
+            $xmlResponseObj->registerXPathNamespace('soapenv', 'http://schemas.xmlsoap.org/soap/envelope/');
+            //
+            // this URL (XPathNamespace) is exclusively only for the SUCCESS XML response From Telebirr (<api:Response>)
+            $xmlResponseObj->registerXPathNamespace('api', 'http://cps.huawei.com/cpsinterface/api_requestmgr');
+            $xmlResponseObj->registerXPathNamespace('res', 'http://cps.huawei.com/cpsinterface/response');
+            //
+            // this URL (XPathNamespace) is exclusively only for the FAULT XML response From Telebirr (<soapenv:Fault>)
+            $xmlResponseObj->registerXPathNamespace('axis2ns9', 'http://www.w3.org/2003/05/soap-envelope');
+
+
+            /////////////////  Check if the response contains a FAULT element or SUCCESS element  ////////////////////////////////////////////////////
+            //
+
+            // Check if it's a fail XML response
+            $faultElements = $xmlResponseObj->xpath('//soapenv:Body/soapenv:Fault');
+            $successElements = $xmlResponseObj->xpath('//soapenv:Body/api:Response');
+
+            //
+            if (!empty($faultElements)) {
+                // handle Fail XML response
+                $faultCode = (string)$xmlResponseObj->xpath('//soapenv:Body/soapenv:Fault/faultcode')[0] ?? null;
+                $faultString = (string)$xmlResponseObj->xpath('//soapenv:Body/soapenv:Fault/faultstring')[0] ?? null;
+
+                if ($faultCode !== null && $faultString !== null) {
+                    // Handle fail XML response
+                    return response()->json([
+                        'message' => 'B2C TeleBirr Vehicle Payment (Payment to Vehicle) FAIL (Failed because Telebirr Responded Fault XML) - faultcode: ' . $faultCode . ', faultstring: ' . $faultString,
+                        'faultCode' => $faultCode,
+                        'faultstring' => $faultString,
+                    ], 200);
+                }
+            }
+            else if (!empty($successElements)) {
+
+                // body
+                $responseCode = (string)$xmlResponseObj->xpath('//soapenv:Body/api:Response/res:Body/res:ResponseCode')[0];
+                $responseDesc = (string)$xmlResponseObj->xpath('//soapenv:Body/api:Response/res:Body/res:ResponseDesc')[0];
+                $serviceStatus = (string)$xmlResponseObj->xpath('//soapenv:Body/api:Response/res:Body/res:ServiceStatus')[0];
+
+
+                // header
+                $transactionIdSystem = (string)$xmlResponseObj->xpath('//soapenv:Body/api:Response/res:Header/res:OriginatorConversationID')[0];
+                $transactionIdBanks = (string)$xmlResponseObj->xpath('//soapenv:Body/api:Response/res:Header/res:ConversationID')[0];
+            
+                return response()->json([
+                    'message' => 'B2C TeleBirr Vehicle Payment (Payment to Vehicle) SUCCESS.  ResponseCode: ' . $responseCode . ', ResponseDesc: ' . $responseDesc . ', ServiceStatus: ' . $serviceStatus . ', OriginatorConversationID: ' . $transactionIdSystem . ', ConversationID: ' . $transactionIdBanks,
+                    'ResponseCode' => $responseCode,
+                    'ResponseDesc' => $responseDesc,
+                    'ServiceStatus' => $serviceStatus,
+                    'OriginatorConversationID' => $transactionIdSystem,
+                    'ConversationID' => $transactionIdBanks,
+                ], 200);
+
+            }
+
+    }
+
+
+
+
+
+
 }
+
+
+
+

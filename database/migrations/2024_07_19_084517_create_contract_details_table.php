@@ -30,6 +30,8 @@ return new class extends Migration
             // $table->decimal('price_contract', 10, 2); 
             // $table->decimal('price_vehicle_payment', 10, 2); 
 
+            $table->decimal('price_fuel_payment_constant', 10, 2);
+
             $table->decimal('tax', 4, 2)->default(ContractDetail::CONTRACT_DETAIL_DEFAULT_TAX_15); // tax constants in percent
 
             $table->boolean('is_available')->default(1);  

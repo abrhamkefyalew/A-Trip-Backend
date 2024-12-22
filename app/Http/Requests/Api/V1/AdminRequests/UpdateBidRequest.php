@@ -23,7 +23,7 @@ class UpdateBidRequest extends FormRequest
     {
         return [
             //
-            'price_total' => 'sometimes|integer|between:0,9999999',
+            'price_total' => 'sometimes|integer|between:1,9999999',
         ];
     }
 }

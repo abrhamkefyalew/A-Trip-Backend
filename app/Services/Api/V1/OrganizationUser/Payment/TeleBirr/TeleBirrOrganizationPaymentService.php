@@ -18,8 +18,8 @@ use Illuminate\Support\Facades\View;
 class TeleBirrOrganizationPaymentService
 {    
     
-      
-    public function createOrder($title, $amount)
+    // initiatePaymentForPR($title, $amount)
+    public function createOrder($title, $amount)/* initiatePaymentForPR($title, $amount) */
     {
         
         $fabricTokenFunction = $this->applyFabricToken();
@@ -58,31 +58,42 @@ class TeleBirrOrganizationPaymentService
     public function applyFabricToken()
     {
 
-        $response = Http::withHeaders([
-            'Content-Type' => 'application/json',
-            'X-APP-Key' => config('telebirr-super-app.testing') ? config('telebirr-super-app.fabricAppId_testing') : config('telebirr-super-app.fabricAppId'),
-        ])
-        ->timeout(60)
-        ->withOptions([
-            'verify' => (!config('telebirr-super-app.testing')), // To bypass SSL verification
-        ])
-        ->post((config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrl_testing') : config('telebirr-super-app.baseUrl')) . '/payment/v1/token', [
-            'appSecret' => config('telebirr-super-app.testing') ? config('telebirr-super-app.appSecret_testing') : config('telebirr-super-app.appSecret'),
-        ]);
+        try {
 
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'X-APP-Key' => config('telebirr-super-app.testing') ? config('telebirr-super-app.fabricAppId_testing') : config('telebirr-super-app.fabricAppId'),
+            ])
+            ->timeout(60)
+            ->withOptions([
+                'verify' => (!config('telebirr-super-app.testing')), // To bypass SSL verification
+            ])
+            ->post((config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrl_testing') : config('telebirr-super-app.baseUrl')) . '/payment/v1/token', [
+                'appSecret' => config('telebirr-super-app.testing') ? config('telebirr-super-app.appSecret_testing') : config('telebirr-super-app.appSecret'),
+            ]);
+    
+    
+            // this is to avoid the Occurrence of laravel ERROR on the Screen when Error Happens from Telebirr side
+            if (!$response->successful()) {
+                // return response()->json(['message' => 'Authentication failed (precondition failed)'], 412);
+                // return response()->json(['message' => 'Authentication failed (expectation failed)'], 417);
+                // return response()->json(['message' => 'Authentication failed (gateway timeout)'], 504);
+                return response()->json([
+                    'message' => 'Authentication failed (request timeout)',
+                    'response_____we_got_from_telebirr_is' => $response->json(),
+                ], 408);
+            }
+    
+            return $response;
 
-        // this is to avoid the Occurrence of laravel ERROR on the Screen when Error Happens from Telebirr side
-        if (!$response->successful()) {
-            // return response()->json(['message' => 'Authentication failed (precondition failed)'], 412);
-            // return response()->json(['message' => 'Authentication failed (expectation failed)'], 417);
-            // return response()->json(['message' => 'Authentication failed (gateway timeout)'], 504);
-            return response()->json([
-                'message' => 'Authentication failed (request timeout)',
-                'response_____we_got_from_telebirr_is' => $response->json(),
-            ], 408);
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            // Handle the connection timeout error
+            abort(500, 'Connection Timeout occurred (From TeleBirr Side) - - - - - - : ');
+
+        } catch (\Exception $e) {
+            abort(500, 'An unexpected error occurred (From TeleBirrSide) - - - - - - : ' );
         }
-
-        return $response;
+        
 
     }
 
@@ -97,47 +108,54 @@ class TeleBirrOrganizationPaymentService
             'Authorization' => $fabricToken,
         ];
 
-        $response = Http::withHeaders(
-            $header,
-        )
-        ->withOptions([
-            'verify' => (!config('telebirr-super-app.testing')), // To bypass SSL verification
-        ])
-        ->post((config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrl_testing') : config('telebirr-super-app.baseUrl')) . '/payment/v1/merchant/preOrder', 
-            $reqObject,
-        );
+        try {
 
-        // this is to avoid the Occurrence of laravel ERROR on the Screen when Error Happens from Telebirr side
-        if (!$response->successful()) {
-            // return response()->json(['message' => 'Authentication failed (precondition failed)'], 412);
-            // return response()->json(['message' => 'Authentication failed (expectation failed)'], 417);
-            // return response()->json(['message' => 'Authentication failed (gateway timeout)'], 504);
-            return response()->json([
-                'message' => 'Authentication failed (request timeout)',
-                'response_____we_got_from_telebirr_is' => $response->json(),
-            ], 408);
+            $response = Http::withHeaders(
+                $header,
+            )
+            ->withOptions([
+                'verify' => (!config('telebirr-super-app.testing')), // To bypass SSL verification
+            ])
+            ->post((config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrl_testing') : config('telebirr-super-app.baseUrl')) . '/payment/v1/merchant/preOrder', 
+                $reqObject,
+            );
+    
+            // this is to avoid the Occurrence of laravel ERROR on the Screen when Error Happens from Telebirr side
+            if (!$response->successful()) {
+                // return response()->json(['message' => 'Authentication failed (precondition failed)'], 412);
+                // return response()->json(['message' => 'Authentication failed (expectation failed)'], 417);
+                // return response()->json(['message' => 'Authentication failed (gateway timeout)'], 504);
+                return response()->json([
+                    'message' => 'Authentication failed (request timeout)',
+                    'response_____we_got_from_telebirr_is' => $response->json(),
+                ], 408);
+            }
+
+            // LOG - ALL of Request and Response Info FOR requestCreateOrder() 
+            $allRequestResponseInfoFORrequestCreateOrder_TO_BE_LOGGED = [
+                'REQUEST_OBJECT_____we_sent_is' => $reqObject, 
+                'THE_HEADER_____we_sent_is' => $header, 
+                'baseUrl_____we_used_is' => (config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrl_testing') : config('telebirr-super-app.baseUrl')) . '/payment/v1/merchant/preOrder',
+                // 'privateKey_____we_used_is' => config('telebirr-super-app.testing') ? config('telebirr-super-app.privateKey_testing') : config('telebirr-super-app.privateKey'),
+                'response_____we_got_from_telebirr_is' => $response->json(), // Extract the response content from the HTTP response object USONG "->json()" // otherwise we return only $response, we will NOT get the value of the response
+            ];
+            //
+            Log::info("Telebirr (Organization Payment For Order): ALL of Request and Response Info FOR requestCreateOrder()" . json_encode($allRequestResponseInfoFORrequestCreateOrder_TO_BE_LOGGED));
+
+
+            return $response;
+
+
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            // Handle the connection timeout error
+            abort(500, 'Connection Timeout occurred (From TeleBirrSide) - - - - - - : ');
+
+        } catch (\Exception $e) {
+            abort(500, 'An unexpected error occurred (From TeleBirrSide) - - - - - - : ');
         }
+        
 
 
-
-
-
-
-        // LOG - ALL of Request and Response Info FOR requestCreateOrder() 
-        $allRequestResponseInfoFORrequestCreateOrder_TO_BE_LOGGED = [
-            'REQUEST_OBJECT_____we_sent_is' => $reqObject, 
-            'THE_HEADER_____we_sent_is' => $header, 
-            'baseUrl_____we_used_is' => (config('telebirr-super-app.testing') ? config('telebirr-super-app.baseUrl_testing') : config('telebirr-super-app.baseUrl')) . '/payment/v1/merchant/preOrder',
-            // 'privateKey_____we_used_is' => config('telebirr-super-app.testing') ? config('telebirr-super-app.privateKey_testing') : config('telebirr-super-app.privateKey'),
-            'response_____we_got_from_telebirr_is' => $response->json(), // Extract the response content from the HTTP response object USONG "->json()" // otherwise we return only $response, we will NOT get the value of the response
-        ];
-        //
-        Log::info("Telebirr (Organization Payment For Order): ALL of Request and Response Info FOR requestCreateOrder()" . json_encode($allRequestResponseInfoFORrequestCreateOrder_TO_BE_LOGGED));
-
-
-
-
-        return $response;
     }
 
 
@@ -179,8 +197,9 @@ class TeleBirrOrganizationPaymentService
 
         // at last 
         // add prefix = "OPR-" : - prefix on the invoice code variable so that during call back later we could know that it is for ORGANIZATION PR payment
-        $invoiceCodeValWithPrefixPr = config('constants.payment.customer_to_business.organization_pr') . $this->createMerchantOrderId(); // add the OPR- prefix to indicate the invoice code is for organization payment // we will use it later when the callback comes from the banks
+        // $invoiceCodeValWithPrefixPr = config('constants.payment.customer_to_business.organization_pr') . $this->createMerchantOrderId(); // add the OPR- prefix to indicate the invoice code is for organization payment // we will use it later when the callback comes from the banks
         // $invoiceCodeValWithPrefixPr = $this->createMerchantOrderId();
+        $invoiceCodeValWithPrefixPr = config('constants.payment.customer_to_business.organization_pr') . (string) $title;
 
         $biz = [
             'notify_url' => 'http://51.21.65.237:9050/api/v1/call_backs/tele_birr/pay_invoices_call_back',
@@ -189,7 +208,7 @@ class TeleBirrOrganizationPaymentService
             'merch_order_id' => $invoiceCodeValWithPrefixPr,
             'trade_type' => 'Checkout',
             'title' => "payment title" . $this->createMerchantOrderId(),
-            'total_amount' => $amount,
+            'total_amount' => (string) $amount,
             'trans_currency' => 'ETB',
             'timeout_express' => '120m',
             'business_type' => 'BuyGoods',
