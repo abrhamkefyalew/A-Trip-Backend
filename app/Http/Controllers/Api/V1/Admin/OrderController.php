@@ -64,6 +64,16 @@ class OrderController extends Controller
                 return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
             } 
         }
+        if ($request->has('vehicle_id_search')) {
+            if (isset($request['vehicle_id_search'])) {
+                $vehicleId = $request['vehicle_id_search'];
+
+                $orders = $orders->where('vehicle_id', $vehicleId);
+            } 
+            else {
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
+            } 
+        }
         if ($request->has('order_code_search')) {
             if (isset($request['order_code_search'])) {
                 $orderCode = $request['order_code_search'];
