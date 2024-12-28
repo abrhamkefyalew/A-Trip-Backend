@@ -49,7 +49,6 @@ class UpdateAdminRequest extends FormRequest
 
             'admin_profile_image' => [
                 'sometimes',       // this should be sometimes abrham check
-                'nullable',     // this should be sometimes abrham check
                 'image',
                 'max:3072',
             ],

@@ -28,6 +28,8 @@ class CustomerForDriverResource extends JsonResource
             'is_active' => $this->is_active,
             'is_approved' => $this->is_approved,
             'customer_profile_image_path' => $this->getOptimizedImagePath(Customer::CUSTOMER_PROFILE_PICTURE),
+            'customer_id_front_image_path' => $this->getOptimizedImagePath(Customer::CUSTOMER_ID_FRONT_PICTURE),
+            'customer_id_back_image_path' => $this->getOptimizedImagePath(Customer::CUSTOMER_ID_BACK_PICTURE),
             'address' => AddressResource::make($this->whenLoaded('address')),
 
         ];

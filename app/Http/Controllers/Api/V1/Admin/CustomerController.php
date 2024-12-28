@@ -123,6 +123,20 @@ class CustomerController extends Controller
                 MediaService::storeImage($customer, $file, $clearMedia, $collectionName);
             }
 
+            //
+            if ($request->has('customer_id_front_image')) {
+                $file = $request->file('customer_id_front_image');
+                $clearMedia = $request->input('customer_id_front_image_remove', false);
+                $collectionName = Customer::CUSTOMER_ID_FRONT_PICTURE;
+                MediaService::storeImage($customer, $file, $clearMedia, $collectionName);
+            }
+            if ($request->has('customer_id_back_image')) {
+                $file = $request->file('customer_id_back_image');
+                $clearMedia = $request->input('customer_id_back_image_remove', false);
+                $collectionName = Customer::CUSTOMER_ID_BACK_PICTURE;
+                MediaService::storeImage($customer, $file, $clearMedia, $collectionName);
+            }
+            
 
             $updatedCustomer = Customer::find($customer->id);
             

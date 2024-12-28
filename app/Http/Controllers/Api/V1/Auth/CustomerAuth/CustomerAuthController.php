@@ -40,6 +40,26 @@ class CustomerAuthController extends Controller
             MediaService::storeImage($customer, $file, $clearMedia, $collectionName);
         }
 
+        //
+        if ($request->has('customer_id_front_image')) {
+            $file = $request->file('customer_id_front_image');
+            $clearMedia = false; // or true // // NO Customer image remove, since it is the first time the customer is being Registered
+            $collectionName = Customer::CUSTOMER_ID_FRONT_PICTURE;
+            MediaService::storeImage($customer, $file, $clearMedia, $collectionName);
+        }
+
+        if ($request->has('customer_id_back_image')) {
+            $file = $request->file('customer_id_back_image');
+            $clearMedia = false; // or true // // NO Customer image remove, since it is the first time the customer is being Registered
+            $collectionName = Customer::CUSTOMER_ID_BACK_PICTURE;
+            MediaService::storeImage($customer, $file, $clearMedia, $collectionName);
+        }
+
+
+
+        // He Only Logs in after he verifies the otp on verify_otp,
+        // so we commented the following code
+        //
         // $tokenResult = $customer->createToken('Personal Access Token', ['access-customer']);
         // //$customer->sendEmailVerificationNotification();
 
