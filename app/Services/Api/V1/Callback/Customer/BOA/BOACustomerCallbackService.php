@@ -3,6 +3,7 @@
 namespace App\Services\Api\V1\Callback\Customer\BOA;
 
 use App\Models\Bid;
+use App\Jobs\SendSmsJob;
 use App\Models\OrderUser;
 use App\Models\InvoiceUser;
 use Illuminate\Support\Facades\DB;
@@ -38,6 +39,9 @@ class BOACustomerCallbackService
             $this->updateOrderUser($invoiceUser, true); // TRUE param is to indicate: - update 'status' column of Orders table
             $this->deleteAssociatedBids($invoiceUser);
         });
+
+        // this should be OUTSIDE the DB Transaction // because we will NOT Rollback the payment confirm DB Operation just because SMS sending is FAILED
+        $this->sendSMS($invoiceUser);
     }
 
     public function handleFinalPaymentForVehicleCallback()
@@ -171,6 +175,34 @@ class BOACustomerCallbackService
         }
         
     }
+
+
+    private function sendSMS($invoiceUser)
+    {
+        try {
+
+            $orderUser = $invoiceUser->orderUser();
+
+            if ($invoiceUser->orderUser->with_driver == 1) {
+                $phoneNumber = $orderUser->driver->phone_number;
+
+                // SendSmsJob::dispatch($phoneNumber, 'Adiamat Vehicle Rental: your Bid is Accepted for the, VEHICLE WITH Plate Number: ' . $orderUser->vehicle->plate_number . ', Order: ' . $orderUser->id . ', your Driver ID: ' . $orderUser->driver_id . ', your Phone: ' . $phoneNumber)->onQueue('sms');
+                SendSmsJob::dispatch($phoneNumber, "Adiamat Vehicle Rental: your Bid is Accepted for the, \n VEHICLE WITH Plate Number: " . $orderUser->vehicle->plate_number . ",\n Order: " . $orderUser->id . ",\n your Driver ID: " . $orderUser->driver_id . ",\n your Phone: " . $phoneNumber)->onQueue('sms');
+            } 
+            else if ($invoiceUser->orderUser->with_driver == 0) {
+                $phoneNumber = $orderUser->supplier->phone_number;
+
+                // SendSmsJob::dispatch($phoneNumber, 'Adiamat Vehicle Rental: your Bid is Accepted for the, VEHICLE WITH Plate Number: ' . $orderUser->vehicle->plate_number . ', Order: ' . $orderUser->id . ', your Supplier ID: ' . $orderUser->supplier_id . ', your Phone: ' . $phoneNumber)->onQueue('sms');
+                SendSmsJob::dispatch($phoneNumber, "Adiamat Vehicle Rental: your Bid is Accepted for the, \n VEHICLE WITH Plate Number: " . $orderUser->vehicle->plate_number . ",\n Order: " . $orderUser->id . ",\n your Supplier ID: " . $orderUser->supplier_id . ",\n your Phone: " . $phoneNumber)->onQueue('sms');
+            }
+            
+
+        } catch (\Throwable $e) {
+            // Log the exception or handle it as needed
+            return response()->json(['message' => 'Failed to dispatch SMS job' . $e], 500);
+        }
+    }
+    
 
     private function logAndAbort($message, $statusCode)
     {
