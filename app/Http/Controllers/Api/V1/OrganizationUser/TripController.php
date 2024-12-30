@@ -32,14 +32,14 @@ class TripController extends Controller
 
 
              // since this condition is for the organization admin we return him the organizationUser relation
-            $tripsData = $trips->with('order', 'driver', 'organizationUser')->latest()->paginate(FilteringService::getPaginate($request));
+            $tripsData = $trips->with('order', 'driver', 'organizationUser', 'invoiceTrips')->latest()->paginate(FilteringService::getPaginate($request));
 
             return TripForOrganizationResource::collection($tripsData);
 
         }
         else {
             $tripsValue = Trip::where('organization_user_id', $organizationUser->id)
-                ->with('order', 'driver')   // since this condition is for the organization user we do not return him the organizationUser relation
+                ->with('order', 'driver', 'invoiceTrips')   // since this condition is for the organization user we do not return him the organizationUser relation
                 ->latest()
                 ->paginate(FilteringService::getPaginate($request));
 
@@ -142,7 +142,7 @@ class TripController extends Controller
                 $updatedTrip = Trip::find($trip->id);
     
                 // since this condition is for the organization user we do not return him the organizationUser relation
-                return TripForOrganizationResource::make($updatedTrip->load('order', 'driver'));
+                return TripForOrganizationResource::make($updatedTrip->load('order', 'driver', 'invoiceTrips'));
 
             }
             

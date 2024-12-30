@@ -96,7 +96,7 @@ class TripController extends Controller
         }
 
 
-        $tripsData = $trips->with('order', 'driver', 'organizationUser' /*, 'invoiceTrips' */ )->latest()->paginate(FilteringService::getPaginate($request));
+        $tripsData = $trips->with('order', 'driver', 'organizationUser', 'invoiceTrips')->latest()->paginate(FilteringService::getPaginate($request));
 
         return TripResource::collection($tripsData);
 
@@ -122,7 +122,7 @@ class TripController extends Controller
     {
         $this->authorize('view', $trip);
 
-        return TripResource::make($trip->load('order', 'driver', 'organizationUser' /*, 'invoiceTrips' */));
+        return TripResource::make($trip->load('order', 'driver', 'organizationUser', 'invoiceTrips'));
     }
 
 
@@ -167,7 +167,7 @@ class TripController extends Controller
             $updatedTrip = Trip::find($trip->id);
 
             // since this condition is for the organization admin we return him the organizationUser relation
-            return TripResource::make($updatedTrip->load('order', 'driver', 'organizationUser'));
+            return TripResource::make($updatedTrip->load('order', 'driver', 'organizationUser', 'invoiceTrips'));
             
         });
 
@@ -341,7 +341,7 @@ class TripController extends Controller
 
             $updatedTrip = Trip::find($trip->id);
 
-            return TripResource::make($updatedTrip->load('order', 'organizationUser'));
+            return TripResource::make($updatedTrip->load('order', 'organizationUser', 'invoiceTrips'));
 
 
             

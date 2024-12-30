@@ -84,7 +84,7 @@ class TripController extends Controller
         }
 
 
-        $tripsData = $trips->with('order', 'organizationUser')->latest()->paginate(FilteringService::getPaginate($request));
+        $tripsData = $trips->with('order', 'organizationUser', 'invoiceTrips')->latest()->paginate(FilteringService::getPaginate($request));
 
         return TripForDriverResource::collection($tripsData);
 
@@ -216,7 +216,7 @@ class TripController extends Controller
             $tripValue = Trip::find($trip->id);
 
 
-            return TripForDriverResource::make($tripValue->load('order', 'organizationUser'));
+            return TripForDriverResource::make($tripValue->load('order', 'organizationUser', 'invoiceTrips'));
 
         });
 
@@ -303,7 +303,7 @@ class TripController extends Controller
             
             $updatedTrip = Trip::find($trip->id);
 
-            return TripForDriverResource::make($updatedTrip->load('order', 'organizationUser'));
+            return TripForDriverResource::make($updatedTrip->load('order', 'organizationUser', 'invoiceTrips'));
             
         });
 
