@@ -52,9 +52,20 @@ class RegisterCustomerRequest extends FormRequest
             // MEDIA ADD
             'customer_profile_image' => [
                 'sometimes',
-                'nullable',
                 'image',
                 'max:3072',
+            ],
+
+            //
+            'customer_id_front_image' => [
+                'sometimes',       // this should be required abrham check
+                'image',
+                'max:13072',        // decrease this size
+            ],
+            'customer_id_back_image' => [
+                'sometimes',    // this should be required abrham check
+                'image',
+                'max:13072',     // decrease this size
             ],
             
         ];

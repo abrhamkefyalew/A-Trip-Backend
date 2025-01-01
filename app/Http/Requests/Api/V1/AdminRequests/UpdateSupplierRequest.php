@@ -72,19 +72,16 @@ class UpdateSupplierRequest extends FormRequest
 
             'supplier_id_front_image' => [
                 'sometimes',       // this should be sometimes abrham check
-                'nullable',     // this should be sometimes abrham check
                 'image',
                 'max:3072',
             ],
             'supplier_id_back_image' => [
                 'sometimes',    // this should be sometimes abrham check
-                'nullable',     // this should be sometimes abrham check
                 'image',
                 'max:3072',
             ],
             'supplier_profile_image' => [
                 'sometimes',       // this should be sometimes abrham check
-                'nullable',     // this should be sometimes abrham check
                 'image',
                 'max:3072',
             ],

@@ -73,11 +73,21 @@ class UpdateCustomerRequest extends FormRequest
             // MEDIA ADD
             'customer_profile_image' => [
                 'sometimes',
-                'nullable',
                 'image',
                 'max:3072',
             ],
 
+            //
+            'customer_id_front_image' => [
+                'sometimes',       // this should be required abrham check
+                'image',
+                'max:13072',        // decrease this size
+            ],
+            'customer_id_back_image' => [
+                'sometimes',    // this should be required abrham check
+                'image',
+                'max:13072',     // decrease this size
+            ],
 
             // MEDIA REMOVE
             
@@ -88,6 +98,15 @@ class UpdateCustomerRequest extends FormRequest
             'customer_profile_image_remove' => [
                 'sometimes', 'boolean',
             ],
+
+            //
+            'customer_id_front_image_remove' => [
+                'sometimes', 'boolean',
+            ],
+            'customer_id_back_image_remove' => [
+                'sometimes', 'boolean',
+            ],
+            
         ];
     }
 }

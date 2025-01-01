@@ -64,6 +64,16 @@ class OrderController extends Controller
                 return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
             } 
         }
+        if ($request->has('vehicle_id_search')) {
+            if (isset($request['vehicle_id_search'])) {
+                $vehicleId = $request['vehicle_id_search'];
+
+                $orders = $orders->where('vehicle_id', $vehicleId);
+            } 
+            else {
+                return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
+            } 
+        }
         if ($request->has('order_code_search')) {
             if (isset($request['order_code_search'])) {
                 $orderCode = $request['order_code_search'];
@@ -500,6 +510,23 @@ class OrderController extends Controller
                 }
             }
 
+
+            
+
+            if ($order->status !== Order::ORDER_STATUS_SET) {
+                return response()->json(['message' => 'this order is not SET (ACCEPTED). order should be SET (ACCEPTED) before it can be STARTED.'], 428); 
+            }
+
+            if (($order->vehicle_id === null)) {
+                return response()->json(['message' => 'the order should have a vehicle_id before it can be STARTED. this order does NOT have vehicle_id'], 428);
+            }
+
+            if (!$order->vehicle) {
+                return response()->json(['message' => 'the order should have a vehicle before it can be STARTED. this order does NOT have Real vehicle associated to it'], 428);
+            }
+
+            
+
             // this is MANDATORY 
             //  - a supplier, driver or admin, can Accept MULTIPLE orders using a ONE SIMILAR vehicle.      // - BUT they can NOT Start MULTIPLE orders using that one similar vehicle
             //  - a single vehicle can accept multiple orders                                               // - BUT a single vehicle can NOT start multiple orders
@@ -514,11 +541,6 @@ class OrderController extends Controller
             //      // IT means we check the vehicle 'is_available' every time we start an order, so that a single vehicle can NOT be used to start multiple orders
             if ($order->vehicle->is_available !== Vehicle::VEHICLE_AVAILABLE) {
                 return response()->json(['message' => 'the selected vehicle is not currently available'], 409); 
-            }
-
-
-            if ($order->status !== Order::ORDER_STATUS_SET) {
-                return response()->json(['message' => 'this order is not SET (ACCEPTED). order should be SET (ACCEPTED) before it can be STARTED.'], 428); 
             }
 
             if ($order->end_date < today()->toDateString()) {

@@ -181,6 +181,8 @@ class Customer extends Authenticatable implements HasMedia
 
     // constants // customer constants
     public const CUSTOMER_PROFILE_PICTURE = 'CUSTOMER_PROFILE_PICTURE';
+    public const CUSTOMER_ID_FRONT_PICTURE = 'CUSTOMER_ID_FRONT_PICTURE';
+    public const CUSTOMER_ID_BACK_PICTURE = 'CUSTOMER_ID_BACK_PICTURE';
 
 
 }
