@@ -28,7 +28,7 @@ class SupplierController extends Controller
             if (isset($request['phone_number_search'])) {
                 $phoneNumber = $request['phone_number_search'];
 
-                $suppliers = $suppliers->where('phone_number', $phoneNumber);
+                $suppliers = $suppliers->where('phone_number', 'like', '%'.$phoneNumber.'%');
             } 
             else {
                 return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
