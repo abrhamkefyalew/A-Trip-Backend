@@ -289,7 +289,7 @@ class CustomerAuthController extends Controller
 
         // generate TOKEN
         $tokenResult = $customer->createToken('Personal Access Token', ['access-customer']);
-        $expiresAt = now()->addMinutes(9950); // Set the expiration time to 50 minutes from now - -   -   -   -   now() = is helper function of laravel, - - - (it is NOT Carbon's)
+        $expiresAt = now()->addMinutes(262170); // Set the expiration time to 50 minutes from now - -   -   -   -   now() = is helper function of laravel, - - - (it is NOT Carbon's)
         $token = $tokenResult->accessToken;
         $token->expires_at = $expiresAt;
         $token->save();
