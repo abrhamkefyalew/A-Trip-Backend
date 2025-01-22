@@ -120,7 +120,7 @@ class BidController extends Controller
 
             // $orderUsers = OrderUser::where('vehicle_id', $bid->vehicle_id)->orWhere('status', OrderUser::ORDER_STATUS_SET)->orWhere('status', OrderUser::ORDER_STATUS_START)->get(); // this may NOT work
             $orderUsers = OrderUser::where('vehicle_id', $bid->vehicle_id)
-                ->whereIn('status', [OrderUser::ORDER_STATUS_SET, OrderUser::ORDER_STATUS_START])
+                ->whereIn('status', [OrderUser::ORDER_STATUS_START])
                 ->get();
 
             if (!$orderUsers->isEmpty()) {
@@ -416,7 +416,7 @@ class BidController extends Controller
 
             // $orderUsers = OrderUser::where('vehicle_id', $bid->vehicle_id)->orWhere('status', OrderUser::ORDER_STATUS_SET)->orWhere('status', OrderUser::ORDER_STATUS_START)->get(); // this may NOT work
             $orderUsers = OrderUser::where('vehicle_id', $bid->vehicle_id)
-                ->whereIn('status', [OrderUser::ORDER_STATUS_SET, OrderUser::ORDER_STATUS_START])
+                ->whereIn('status', [OrderUser::ORDER_STATUS_START])
                 ->get();
 
             if (!$orderUsers->isEmpty()) {
@@ -496,7 +496,7 @@ class BidController extends Controller
 
 
             // calculate the price_vehicle_payment percent for the parent order of this accepted bid
-            $priceTotalFromBid = (int) $bid->price_total;
+            $priceTotalFromBid = (int) $bid->price_total;   // this is daily price
 
             $constant = Constant::where('title', Constant::ORDER_USER_VEHICLE_PAYMENT_PERCENT)->first();
             //
@@ -532,8 +532,8 @@ class BidController extends Controller
                 'vehicle_id' => $bid->vehicle_id,
                 'driver_id' => $driverId,
                 'supplier_id' => $bid->vehicle->supplier_id,
-                'price_total' => $bid->price_total,
-                'price_vehicle_payment' => $vehiclePaymentPrice,
+                'price_total' => $bid->price_total,     // this is the daily price for Adiamat
+                'price_vehicle_payment' => $vehiclePaymentPrice,    // this is daily price for the supplier (i.e. daily price for the suppliers vehicle)
             ]);
             //
             if (!$success) {
