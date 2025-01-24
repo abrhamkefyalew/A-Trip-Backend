@@ -224,6 +224,7 @@ Route::prefix('v1')->group(function () {
                     Route::get('/', [VehicleController::class, 'show']);
                     Route::put('/', [VehicleController::class, 'update']);
                     Route::delete('/', [VehicleController::class, 'destroy']);
+                    Route::post('/restore', [VehicleController::class, 'restore']);
                 }); 
             });
 
