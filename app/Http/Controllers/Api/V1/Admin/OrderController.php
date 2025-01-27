@@ -326,9 +326,9 @@ class OrderController extends Controller
 
                         $supplierIds = $vehicles->pluck('supplier_id')->unique();
 
-                        $supplier = Supplier::whereIn('supplier_id', $supplierIds);
+                        $suppliers = Supplier::whereIn('id', $supplierIds);
 
-                        $phoneNumbersOfSuppliers = $supplier->pluck('phone_number');
+                        $phoneNumbersOfSuppliers = $suppliers->pluck('phone_number');
 
 
                         // the below code is the optimized version of the above
@@ -339,15 +339,52 @@ class OrderController extends Controller
                         
 
                         try {
-                            SendSmsJob::dispatch($phoneNumbersOfSuppliers, 'Adiamat Vehicle Rental: there is an order with your vehicle. Needed Vehicle: ' . $contractDetail->vehicleName->vehicle_name)->onQueue('sms');
-
-                            Log::info("SMS job dispatched successfully, for Vehicle: " . $contractDetail->vehicleName->vehicle_name);
-                            
+                            foreach ($phoneNumbersOfSuppliers as $phoneNumber) {
+                                // Dispatch SMS job for each phone number
+                                SendSmsJob::dispatch($phoneNumber, 'Adiamat Vehicle Rental: there is an order with your vehicle. Needed Vehicle: ' . $contractDetail->vehicleName->vehicle_name)
+                                    ->onQueue('sms');
+                        
+                                Log::info("SMS job dispatched successfully to: $phoneNumber for Vehicle: " . $contractDetail->vehicleName->vehicle_name);
+                            }
                         } catch (\Throwable $e) {
                             // Log the exception or handle it as needed
-                            return response()->json(['message' => 'Failed to dispatch SMS job'], 500);
+                            Log::error("Failed to dispatch SMS job: " . $e->getMessage());
                         }
 
+
+                        
+                    }
+                    else if ($contractDetail->with_driver == 1) {
+                        $vehicles = Vehicle::where('vehicle_name_id', $contractDetail->vehicle_name_id);
+
+                        $driverIds = $vehicles->pluck('driver_id');
+
+                        $drivers = Driver::whereIn('id', $driverIds);
+
+                        $phoneNumbersOfDrivers = $drivers->pluck('phone_number');
+
+
+                        // the below code is the optimized version of the above
+                        // 
+                        // $phoneNumbersOfSuppliers = Supplier::whereHas('vehicles', function ($query) use ($contractDetail) {
+                        //     $query->where('vehicle_name_id', $contractDetail->vehicle_name_id);
+                        // })->pluck('phone_number');
+                        
+
+                        try {
+                            foreach ($phoneNumbersOfDrivers as $phoneNumber) {
+                                // Dispatch SMS job for each phone number
+                                SendSmsJob::dispatch($phoneNumber, 'Adiamat Vehicle Rental: there is an order with your vehicle. Needed Vehicle: ' . $contractDetail->vehicleName->vehicle_name)
+                                    ->onQueue('sms');
+                        
+                                Log::info("SMS job dispatched successfully to: $phoneNumber for Vehicle: " . $contractDetail->vehicleName->vehicle_name);
+                            }
+                        } catch (\Throwable $e) {
+                            // Log the exception or handle it as needed
+                            Log::error("Failed to dispatch SMS job: " . $e->getMessage());
+                        }
+
+                        
                         
                     }
 
