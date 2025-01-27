@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\Order;
 use App\Models\Driver;
 use App\Models\Vehicle;
+use App\Jobs\SendSmsJob;
 use App\Models\Contract;
 use App\Models\Supplier;
 use Illuminate\Support\Str;
@@ -13,6 +14,7 @@ use App\Models\Organization;
 use Illuminate\Http\Request;
 use App\Models\ContractDetail;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Services\Api\V1\FilteringService;
 use App\Http\Resources\Api\V1\OrderResources\OrderResource;
@@ -316,6 +318,39 @@ class OrderController extends Controller
 
                     $orderIds[] = $order->id;
                     
+
+
+                    // send SMS to the vehicle owners that holds the specific_vehicle_name_id this order requires
+                    if ($contractDetail->with_driver == 0) {
+                        $vehicles = Vehicle::where('vehicle_name_id', $contractDetail->vehicle_name_id);
+
+                        $supplierIds = $vehicles->pluck('supplier_id')->unique();
+
+                        $supplier = Supplier::whereIn('supplier_id', $supplierIds);
+
+                        $phoneNumbersOfSuppliers = $supplier->pluck('phone_number');
+
+
+                        // the below code is the optimized version of the above
+                        // 
+                        // $phoneNumbersOfSuppliers = Supplier::whereHas('vehicles', function ($query) use ($contractDetail) {
+                        //     $query->where('vehicle_name_id', $contractDetail->vehicle_name_id);
+                        // })->pluck('phone_number');
+                        
+
+                        try {
+                            SendSmsJob::dispatch($phoneNumbersOfSuppliers, 'Adiamat Vehicle Rental: there is an order with your vehicle. Needed Vehicle: ' . $contractDetail->vehicleName->vehicle_name)->onQueue('sms');
+
+                            Log::info("SMS job dispatched successfully, for Vehicle: " . $contractDetail->vehicleName->vehicle_name);
+                            
+                        } catch (\Throwable $e) {
+                            // Log the exception or handle it as needed
+                            return response()->json(['message' => 'Failed to dispatch SMS job'], 500);
+                        }
+
+                        
+                    }
+
 
                     
                 }
