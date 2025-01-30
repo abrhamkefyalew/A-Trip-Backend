@@ -53,6 +53,9 @@ return new class extends Migration
 
                                                                                                                             
             $table->integer('price_total')->nullable(); // initially this is NULL // it will be inserted when a bid is selected by the customer           // IT IS THE TOTAL PRICE THE CUSTOMER PAYS TO ADIAMAT
+                                                                                                                                                          // when a bid is accepted by individual customer              
+                                                                                                                                                          //        // that bid's $bid->price_total will be multiplied by the (total days of the order + 1) and will go to this order_users table column = price_total
+
             $table->boolean('paid_complete_status')->default(0); // this will be 1 when both invoices of the order are paid  // it is 0 even if the initial amount is paid
 
             $table->decimal('price_vehicle_payment', 10, 2)->nullable(); // DAILY PRICE of vehicle payment // initially this is NULL // it will be inserted when a bid is selected by the customer // IT IS THE PORTION OF THE PRICE THAT will be PAID to Actual VEHICLE (this price is Percent of the price_total. as price_vehicle_payment = Constant::ORDER_USER_VEHICLE_PAYMENT_PERCENT * price_total) divided by the order duration of days

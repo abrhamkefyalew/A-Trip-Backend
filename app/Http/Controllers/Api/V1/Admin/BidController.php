@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1\Admin;
 
+use Carbon\Carbon;
 use App\Models\Bid;
 use App\Models\Driver;
 use App\Models\Vehicle;
@@ -127,8 +128,35 @@ class BidController extends Controller
             }
             
 
+
+
+
             // calculate the initial payment for this bid entry
-            $priceTotalFromRequest = (int) $request['price_total'];
+            //
+            $bid_DailyPrice_For_OrderUser__FromRequest = (int) $request['price_total'];     // this is daily price
+            // 
+            // (this price is a Daily Price, so it must be multiplied with the total days of the order before calculating the initial price)
+            
+            // as the driver is bidding 
+            //      the Price submitted by the driver is the DAILY PRICE for this specific order.
+            // 
+            // when we calculate the initial price 
+            //      it should NOT be calculated using the DAILY PRICE the customer submitted in the bid
+            // the customer need to pay "a price that spans the whole order start and end date" when he accepts this bid
+            //
+            //
+            $orderUserEndDate = Carbon::parse($orderUser->end_date); // because we need this for calculation we removed the toDateString
+            $orderStartDate = Carbon::parse($orderUser->start_date); // because we need this for calculation we removed the toDateString
+
+            // the diffInDays method in Carbon accurately calculates the difference in days between two dates, considering the specific dates provided, including the actual number of days in each month and leap years. 
+            // It does not assume all months have a fixed number of days like 30 days.
+            $differenceInDays = $orderUserEndDate->diffInDays($orderStartDate);
+
+            // this means = (DATE DIFFERENCE + 1) // because the order start_date is entitled for payment also
+            $differenceInDaysPlusStartDate = $differenceInDays + 1;
+            
+            $bid_TotalPrice_For_OrderUser = $differenceInDaysPlusStartDate * $bid_DailyPrice_For_OrderUser__FromRequest;
+
             
             $constant = Constant::where('title', Constant::ORDER_USER_INITIAL_PAYMENT_PERCENT)->first();
             //
@@ -150,7 +178,9 @@ class BidController extends Controller
             $orderUserInitialPaymentPercentConstant = $constant->percent_value;
             $initialPaymentMultiplierConstant = ((int) $orderUserInitialPaymentPercentConstant)/100;
 
-            $priceInitial = $priceTotalFromRequest * $initialPaymentMultiplierConstant;
+
+
+            $bid_InitialPrice_Of_The_TotalPrice_For_OrderUser = $bid_TotalPrice_For_OrderUser * $initialPaymentMultiplierConstant;
             
             
             $bid = Bid::create([
@@ -158,7 +188,7 @@ class BidController extends Controller
                 'vehicle_id' => $request['vehicle_id'],
 
                 'price_total' => $request['price_total'],
-                'price_initial' => $priceInitial,
+                'price_initial' => $bid_InitialPrice_Of_The_TotalPrice_For_OrderUser,
             ]);
             //
             if (!$bid) {

@@ -122,6 +122,9 @@ class BidController extends Controller
             }
             
 
+
+            
+
             // calculate the initial payment for this bid entry
             //
             $bid_DailyPrice_For_OrderUser__FromRequest = (int) $request['price_total'];     // this is daily price
@@ -137,16 +140,16 @@ class BidController extends Controller
             //
             //
             $orderUserEndDate = Carbon::parse($orderUser->end_date); // because we need this for calculation we removed the toDateString
-            $orderBeginDate = Carbon::parse($orderUser->begin_date); // because we need this for calculation we removed the toDateString
+            $orderStartDate = Carbon::parse($orderUser->start_date); // because we need this for calculation we removed the toDateString
 
             // the diffInDays method in Carbon accurately calculates the difference in days between two dates, considering the specific dates provided, including the actual number of days in each month and leap years. 
             // It does not assume all months have a fixed number of days like 30 days.
-            $differenceInDays = $orderUserEndDate->diffInDays($orderBeginDate);
+            $differenceInDays = $orderUserEndDate->diffInDays($orderStartDate);
 
-            // this means = (DATE DIFFERENCE + 1) // because the order begin_date is entitled for payment also
-            $differenceInDaysPlusBeginDate = $differenceInDays + 1;
+            // this means = (DATE DIFFERENCE + 1) // because the order start_date is entitled for payment also
+            $differenceInDaysPlusStartDate = $differenceInDays + 1;
             
-            $bid_TotalPrice_For_OrderUser = $differenceInDaysPlusBeginDate * $bid_DailyPrice_For_OrderUser__FromRequest;
+            $bid_TotalPrice_For_OrderUser = $differenceInDaysPlusStartDate * $bid_DailyPrice_For_OrderUser__FromRequest;
 
             
             $constant = Constant::where('title', Constant::ORDER_USER_INITIAL_PAYMENT_PERCENT)->first();
