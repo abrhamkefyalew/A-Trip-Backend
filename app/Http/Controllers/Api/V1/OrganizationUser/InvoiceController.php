@@ -1225,6 +1225,32 @@ class InvoiceController extends Controller
     }
 
 
+    public function testTelebirr_sign___for_seregela_____OpenAPI__applyH5Token() 
+    {
+        $teleBirrOrganizationPaymentService = new TeleBirrOrganizationPaymentService();
+        $valuePayment = $teleBirrOrganizationPaymentService->justForTest_toTestSign____TEST_For_seregela_____OpenAPI__applyH5Token(); // SampleTitle is the InvoiceCode
+
+        return $valuePayment; 
+
+    }
+
+    public function testTelebirr_sign___for_seregela_____OpenAPI__authToken()
+    {
+        $teleBirrOrganizationPaymentService = new TeleBirrOrganizationPaymentService();
+        $valuePayment = $teleBirrOrganizationPaymentService->justForTest_toTestSign____TEST_For_seregela_____OpenAPI__authToken(); // SampleTitle is the InvoiceCode
+
+        return $valuePayment; 
+    }
+
+    public function testTelebirr_sign___for_seregela_____OpenAPI__createOrder() 
+    {
+        $teleBirrOrganizationPaymentService = new TeleBirrOrganizationPaymentService();
+        $valuePayment = $teleBirrOrganizationPaymentService->justForTest_toTestSign____TEST_For_seregela_____OpenAPI__createOrder(); // SampleTitle is the InvoiceCode
+
+        return $valuePayment; 
+
+    }
+
     /**
      * Store a newly created resource in storage.
      */
