@@ -24,6 +24,7 @@ class Admin extends Authenticatable implements HasMedia
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes, InteractsWithMedia, HasRelationships, NonQueuedMediaConversions;
 
+
     protected $table = 'admins';
 
     /**
@@ -132,7 +133,6 @@ class Admin extends Authenticatable implements HasMedia
 
 
 
-
     
 
     public function address()
@@ -156,7 +156,7 @@ class Admin extends Authenticatable implements HasMedia
     
 
 
-    public function registerMediaConversions(Media $media = null): void
+    public function registerMediaConversions(?Media $media = null): void
     {
         $this->customizeMediaConversions();
     }

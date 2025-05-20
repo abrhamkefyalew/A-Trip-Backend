@@ -24,12 +24,12 @@ class PermissionRoleSeeder extends Seeder
                    strpos($permission->title, 'PERMISSION') === false &&
                    strpos($permission->title, 'CREATE_ADMIN') === false &&
                    strpos($permission->title, 'EDIT_ADMIN') === false &&
-                //    strpos($permission->title, 'DELETE_ADMIN') === false &&       // because we already flagged deletion above
-                //    strpos($permission->title, 'RESTORE_ADMIN') === false &&      // because we already flagged deletion above
+                //    strpos($permission->title, 'DELETE_ADMIN') === false &&       // because we already flagged delete above
+                //    strpos($permission->title, 'RESTORE_ADMIN') === false &&      // because we already flagged restore above
                    strpos($permission->title, 'CREATE_BANK') === false &&
                    strpos($permission->title, 'EDIT_BANK') === false &&
-                //    strpos($permission->title, 'DELETE_BANK') === false &&        // because we already flagged deletion above
-                //    strpos($permission->title, 'RESTORE_BANK') === false &&       // because we already flagged deletion above
+                //    strpos($permission->title, 'DELETE_BANK') === false &&        // because we already flagged delete above
+                //    strpos($permission->title, 'RESTORE_BANK') === false &&       // because we already flagged restore above
                    strpos($permission->title, 'EDIT_INVOICE') === false &&
                    strpos($permission->title, 'EDIT_CONSTANT') === false &&
                    strpos($permission->title, 'SEND') === false;
@@ -42,12 +42,12 @@ class PermissionRoleSeeder extends Seeder
                    strpos($permission->title, 'PERMISSION') === false &&
                    strpos($permission->title, 'CREATE_ADMIN') === false &&
                    strpos($permission->title, 'EDIT_ADMIN') === false &&
-                //    strpos($permission->title, 'DELETE_ADMIN') === false &&       // because we already flagged deletion above
-                //    strpos($permission->title, 'RESTORE_ADMIN') === false &&      // because we already flagged deletion above
+                //    strpos($permission->title, 'DELETE_ADMIN') === false &&       // because we already flagged delete above
+                //    strpos($permission->title, 'RESTORE_ADMIN') === false &&      // because we already flagged restore above
                    strpos($permission->title, 'CREATE_BANK') === false &&
                    strpos($permission->title, 'EDIT_BANK') === false &&
-                //    strpos($permission->title, 'DELETE_BANK') === false &&        // because we already flagged deletion above
-                //    strpos($permission->title, 'RESTORE_BANK') === false &&       // because we already flagged deletion above
+                //    strpos($permission->title, 'DELETE_BANK') === false &&        // because we already flagged delete above
+                //    strpos($permission->title, 'RESTORE_BANK') === false &&       // because we already flagged restore above
                    strpos($permission->title, 'CREATE_VEHICLE_TYPE') === false &&
                    strpos($permission->title, 'EDIT_VEHICLE_TYPE') === false &&
                    strpos($permission->title, 'CREATE_VEHICLE_NAME') === false &&
@@ -64,12 +64,12 @@ class PermissionRoleSeeder extends Seeder
             strpos($permission->title, 'PERMISSION') === false &&
             strpos($permission->title, 'CREATE_ADMIN') === false &&
             strpos($permission->title, 'EDIT_ADMIN') === false &&
-         //    strpos($permission->title, 'DELETE_ADMIN') === false &&       // because we already flagged deletion above
-         //    strpos($permission->title, 'RESTORE_ADMIN') === false &&      // because we already flagged deletion above
+         //    strpos($permission->title, 'DELETE_ADMIN') === false &&       // because we already flagged delete above
+         //    strpos($permission->title, 'RESTORE_ADMIN') === false &&      // because we already flagged restore above
             strpos($permission->title, 'CREATE_BANK') === false &&
             strpos($permission->title, 'EDIT_BANK') === false &&
-         //    strpos($permission->title, 'DELETE_BANK') === false &&        // because we already flagged deletion above
-         //    strpos($permission->title, 'RESTORE_BANK') === false &&       // because we already flagged deletion above
+         //    strpos($permission->title, 'DELETE_BANK') === false &&        // because we already flagged delete above
+         //    strpos($permission->title, 'RESTORE_BANK') === false &&       // because we already flagged restore above
             strpos($permission->title, 'CREATE_VEHICLE_TYPE') === false &&
             strpos($permission->title, 'EDIT_VEHICLE_TYPE') === false &&
             strpos($permission->title, 'CREATE_VEHICLE_NAME') === false &&

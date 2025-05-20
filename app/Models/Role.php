@@ -69,7 +69,7 @@ class Role extends Model
 
     public const FINANCE_ROLE = 'FINANCE'; // can do everything except deleting
 
-    public const SYSTEM_USER_ROLE = 'SYSTEM_USER'; // can day to day activities of the company // the lowest of the roles
+    public const SYSTEM_USER_ROLE = 'SYSTEM_USER'; // can see day to day activities of the system // the lowest of the roles
 
     public const SYSTEM_ROLES = [self::SUPER_ADMIN_ROLE, self::MANAGER_ROLE, self::FINANCE_ROLE, self::SYSTEM_USER_ROLE];
 
