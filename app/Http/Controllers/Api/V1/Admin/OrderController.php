@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Services\Api\V1\FilteringService;
+use App\Services\Api\V1\Filters\OrderFilterService;
 use App\Http\Resources\Api\V1\OrderResources\OrderResource;
 use App\Http\Requests\Api\V1\AdminRequests\StartOrderRequest;
 use App\Http\Requests\Api\V1\AdminRequests\StoreOrderRequest;
@@ -26,10 +27,35 @@ use App\Http\Requests\Api\V1\AdminRequests\CompleteOrderRequest;
 
 class OrderController extends Controller
 {
+
+
+    /**
+     * Display a listing of the resource.
+     * 
+     * USE THIS ONE 
+     * 
+     * // we are using Filtering service to do all filters
+     * 
+     */
+    public function index(Request $request)
+    {
+        $this->authorize('viewAny', Order::class);
+
+        $ordersBuilder = Order::query();
+        $ordersBuilder = OrderFilterService::applyOrderFilter($ordersBuilder, $request->all());
+
+        $orders = $ordersBuilder
+            ->with(['organization', 'vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail'])
+            ->latest()
+            ->paginate(FilteringService::getPaginate($request));
+
+        return OrderResource::collection($orders);
+    }
+
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function indexOld_Filter_Done_Here(Request $request)
     {
         $this->authorize('viewAny', Order::class);
 

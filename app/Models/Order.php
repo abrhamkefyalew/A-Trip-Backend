@@ -144,6 +144,17 @@ class Order extends Model implements HasMedia
 
 
 
+    // allowed values section
+    //
+    public static function allowedOrderStatuses(): array
+    {
+        return [
+            self::ORDER_STATUS_PENDING,
+            self::ORDER_STATUS_SET,
+            self::ORDER_STATUS_START,
+            self::ORDER_STATUS_COMPLETE,
+        ];
+    }
     
 
 }

@@ -106,7 +106,7 @@ class Organization extends Model implements HasMedia
     
     
 
-    public function registerMediaConversions(Media $media = null): void
+    public function registerMediaConversions(?Media $media = null): void
     {
         $this->customizeMediaConversions();
     }

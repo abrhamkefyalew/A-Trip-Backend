@@ -187,7 +187,7 @@ class Driver extends Authenticatable implements HasMedia
 
 
 
-    public function registerMediaConversions(Media $media = null): void
+    public function registerMediaConversions(?Media $media = null): void
     {
         $this->customizeMediaConversions();
     }

@@ -37,7 +37,7 @@ return new class extends Migration
             $table->string('start_location')->nullable(); // should this be nullable // described by words
             $table->string('end_location')->nullable(); // should this be nullable // described by words
 
-            // for latitude and longitude values, using DOUBLE data type generally a suitable choice // double is suitable for data types such as scientific calculations or geographical coordinates
+            // for latitude and longitude values, using DOUBLE data type generally a suitable choice // double is suitable for data types such as scientific calculations or geographical coordinates // and location should not have to be accurate , // i.e. double is NOT accurate // BUT fast
             $table->double('start_latitude', 15, 10)->nullable();
             $table->double('start_longitude', 15, 10)->nullable();
             $table->double('end_latitude', 15, 10)->nullable();
