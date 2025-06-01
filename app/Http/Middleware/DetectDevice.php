@@ -32,7 +32,7 @@ class DetectDevice
             $deviceType = 'postman';
         }
 
-        // 🌀 2. curl
+        // 2. curl
         elseif (stripos($userAgent, 'curl') !== false) {
             $deviceType = 'curl';
         }
@@ -72,9 +72,10 @@ class DetectDevice
             'device_type' => $deviceType,
             'user_agent' => $userAgent,
             'ip' => $request->ip(),
+            'ip_got_using_custom_function' => \App\Services\AppService::getIp(),
             'url' => $request->fullUrl(),
         ]);
-        
+
         
         return $next($request);
     }

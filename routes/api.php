@@ -79,7 +79,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 
 Route::get('check-ip', function () {
-    $message = "Check IP request came from ip(from request): - \n using DEFAULT IP CHECKER (From Laravel Helper function) = " . request()->ip() . " ,   \n using CUSTOM IP CHECKER (From New function) = " . \App\Services\AppService::getIp();
+    $message = "Check IP: - request came from ip (IP from request): - \n - using DEFAULT IP CHECKER (From Laravel Helper function) = " . request()->ip() . " ,   \n - using CUSTOM IP CHECKER (From New function) = " . \App\Services\AppService::getIp();
 
     \Illuminate\Support\Facades\Log::info($message);
 
