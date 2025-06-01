@@ -22,6 +22,14 @@ class Kernel extends HttpKernel
         \App\Http\Middleware\TrimStrings::class,
         // \App\Http\Middleware\Cors::class, // this was created by me, and it is never worked and never used
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+
+        //
+        // ... other middleware
+        //              //
+        //              // Global Middleware
+        //              //              //
+        //              //              // Runs on every request.
+        \App\Http\Middleware\DetectDevice::class,
     ];
 
     /**

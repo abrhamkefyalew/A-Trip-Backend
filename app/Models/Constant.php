@@ -32,17 +32,66 @@ class Constant extends Model
     public static $rules = [
         'percent_value' => 'required|integer|between:1,100',
     ];
+
+
+
+    /**
+     * Validate model data before doing WRITE Operation
+     * 
+     * Override save() to validate input before saving.
+     * 
+     *  = > NOT recommended BECAUSE
+     *                      //
+     *                      - ONLY works if save() is called directly form Controller or other code parts
+     *                      - will NOT work for other write functions -> i.e. create(), update(), updateOrCreate(), fill()
+     * 
+     */
+    // public function save(array $options = [])
+    // {
+    //     $validator = Validator::make($this->attributes, self::$rules, self::$messages);
     
-    public function save(array $options = [])
+    //     if ($validator->fails()) {
+    //         throw new \Exception($validator->errors()->first());
+    //     }
+    
+    //     parent::save($options);
+    // }
+
+
+
+
+    /**
+     * Validate model data before doing WRITE Operation
+     * 
+     * The "booting" method of the model.
+     *
+     * Registers a saving event that validates model attributes before persisting.
+     * This ensures that only a validated data is written to Database during  - > save() / fill()->save() / create() / update() / updateOrCreate() operations.
+     * 
+     * But still NOT work for insert() and upsert() - Because these are Query Builder-level operations, bypassing Eloquent models entirely 
+     * 
+     * 
+     *  = > RECOMMENDED BECAUSE
+     *                      //
+     *                      - Triggers Validation and Writing to DB during - > i.e. save(), create(), update(), updateOrCreate(), fill() operations.
+     *                      - But still NOT work for insert() and upsert() - Because these are Query Builder-level operations, bypassing Eloquent models entirely, - so no events (and no validation) are triggered.
+     * 
+     *
+     * @return void
+     */
+    protected static function boot()
     {
-        $validator = Validator::make($this->attributes, self::$rules, self::$messages);
-    
-        if ($validator->fails()) {
-            throw new \Exception($validator->errors()->first());
-        }
-    
-        parent::save($options);
+        parent::boot();
+
+        static::saving(function ($model) {
+            $validator = Validator::make($model->attributesToArray(), self::getRules(), self::getMessages());
+
+            if ($validator->fails()) {
+                throw new \Exception($validator->errors()->first());
+            }
+        });
     }
+
     // END Define validation rules for the model, that percent value must be between 1 and 100
 
 
