@@ -37,14 +37,33 @@ class DetectDevice
             $deviceType = 'curl';
         }
 
+        
+
         // 3. Apple (iPhone, iPad, iOS)
+        //
+        //
+        // 3.1. Apple (iPhone, iPad, iOS)   -   the keyword "ios" exists in Axios = SO Axios check (avoid false IOS (Apple) detection) ,     // also optionally skip logging
+        //
+        elseif (stripos($userAgent, 'axios') !== false) {
+            $deviceType = 'axios';
+        }
+        //
+        // 3.2. Apple (iPhone, iPad, iOS)   -   the REAL (iPhone, iPad, iOS) CHECK
+        //
         elseif (
-            stripos($userAgent, 'iPhone') !== false ||
-            stripos($userAgent, 'iPad') !== false ||
-            stripos($userAgent, 'iOS') !== false
+            (
+                stripos($userAgent, 'iPhone') !== false ||
+                stripos($userAgent, 'iPad') !== false ||
+                preg_match('/(^|[^a-zA-Z])iOS([^a-zA-Z]|$)/i', $userAgent)
+                /* stripos($userAgent, 'iOS') !== false */ 
+            ) 
+            && 
+            stripos($userAgent, 'axios') === false
         ) {
             $deviceType = 'apple';
         }
+
+        
 
         // 4. Android
         elseif (stripos($userAgent, 'Android') !== false) {
