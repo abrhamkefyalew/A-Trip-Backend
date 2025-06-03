@@ -656,7 +656,7 @@ class InvoiceController extends Controller
 
 
                     $monthEnd = $current->copy()->endOfMonth(); // 2025-02-28
-                    $enterpriseService->status = 'PAYMENT_STARTED'; // this will ensure that the next if will be respected (i.e. the next if will be resolved to be TRUE)
+                    $enterpriseService->status = 'PAYMENT_STARTED'; // this will ensure that the next "if condition" will be respected (i.e. the next "if condition" will be resolved to be TRUE)
                 } 
                 
             } else if ($endDate->eq($monthEnd)) {
@@ -680,7 +680,7 @@ class InvoiceController extends Controller
                     // }
 
                     $monthEnd = $current->copy()->endOfMonth(); // 2025-02-28
-                    $enterpriseService->status = 'PAYMENT_STARTED'; // this will ensure that the next if will be respected (i.e. the next if will be resolved to be TRUE)
+                    $enterpriseService->status = 'PAYMENT_STARTED'; // this will ensure that the next "if condition" will be respected (i.e. the next "if condition" will be resolved to be TRUE)
                 } 
             }
 
@@ -696,30 +696,44 @@ class InvoiceController extends Controller
 
 
 
-            // PENALTY
-            $penaltyPriceForThisLot = 0;
-            
-            $monthEndOfThisMonth_UsedToCheck_AgainstPenalty = $current->copy()->endOfMonth();
-            //
-            $penaltyStartDate = $monthEndOfThisMonth_UsedToCheck_AgainstPenalty + $penaltyStartsAfter; // this calculation wasted resource // but there is nothing you can do it hsi essential for the following if
+            /*
 
-            // METHOD 1
-            //
-            // if ($endDate > $penaltyStartDate) {
-            // if ($endDate->gt($penaltyStartDate)) {  // i will use this IF the above if does NOT compare as I expected // i.e. the above may want me to change the dates to string format so that I can compare them
-            //     // $numberOfPenaltyDays = $endDate - $penaltyStartDate;
-            //     $numberOfPenaltyDays = $endDate->diffInDays($penaltyStartDate);
-            //
-            //     $penaltyPriceForThisLot = $numberOfPenaltyDays * $penaltyPerDay;
-            // }
+                // SINCE PENALTY IS CALCULATED SEPARATELY IN ANOTHER METHOD ( this code is NOT needed here, i.e. this code is overkill )
+
+                // PENALTY
+                $penaltyPriceForThisLot = 0;
+                
+                $monthEndOfThisMonth_UsedToCheck_AgainstPenalty = $current->copy()->endOfMonth();
+                //
+                // $penaltyStartDate = $monthEndOfThisMonth_UsedToCheck_AgainstPenalty + $penaltyStartsAfter;
+                $penaltyStartDate = $monthEndOfThisMonth_UsedToCheck_AgainstPenalty->copy()->addDays($penaltyStartsAfter);  // this calculation wasted resource // but there is nothing you can do it is essential for the following if
+                
 
 
-            // METHOD 2
-            //
-            // if ($endDate > $penaltyStartDate) {
-            if ($endDate->gt($penaltyStartDate)) {
-                $penaltyPriceForThisLot = $penaltyAmount;
-            }
+                // METHOD 1
+                //
+                // if ($endDate > $penaltyStartDate) {
+                if ($endDate->gt($penaltyStartDate)) {
+                    
+                    if ("PENALTY_TYPE_DAILY") {
+
+                        // $numberOfPenaltyDays = $endDate - $penaltyStartDate;
+                        $numberOfPenaltyDays = $endDate->diffInDays($penaltyStartDate);
+                    
+                        $penaltyPriceForThisLot = $numberOfPenaltyDays * $penaltyPerDay;        // $penaltyPerDay = [ principal price / number of days in this Term (i.e. month) ] * $penalty->percent_of_principal_price
+
+                    }
+
+                    if ("PENALTY_TYPE_FLAT") {
+                        $penaltyPriceForThisLot = $penaltyAmount;
+                    }
+
+
+
+                    
+                }
+
+                */
 
 
 
@@ -734,7 +748,7 @@ class InvoiceController extends Controller
                 'penalty' => $penaltyPriceForThisLot,
                 // 'number_of_penalty_days' => $numberOfPenaltyDays,
                 'immune_to_penalty' => 'T / F',  // this is for all invoice tables, if this is set to T -> will be skipped during penalty calculation of NOT_PAID invoices
-                'status' => $status, // paid / NOT Paid
+                'status' => "NOT_PAID", // paid / NOT_Paid   // REAL VAULE = NOT Paid, since we are only generating bill/invoice , NOT paid,    - this will be paid ONLY when the CALLBACK hits
                 'paid_date' => NOW(),
             ]);
 
@@ -847,7 +861,7 @@ class InvoiceController extends Controller
 
 
                 // if ($endDate < $monthEnd) {
-                if ($endDate->lt($monthEnd)) {  // i will use this IF the above if does NOT compare as I expected // i.e. the above may want me to change the dates to string format so that I can compare them
+                if ($endDate->lt($monthEnd)) {  // i will use this, IF the above if does NOT compare as I expected // i.e. the above may want me to change the dates to string format so that I can compare them
     
                     // the man is terminating the service he is using and pay the last price and stop using the service
                     // but since this is the first payment he should send explicitly that he wants stop service now (and pay his last payment)
@@ -914,36 +928,52 @@ class InvoiceController extends Controller
                 
 
 
+                /*
+
+                // SINCE PENALTY IS CALCULATED SEPARATELY IN ANOTHER METHOD ( this code is NOT needed here, i.e. this code is overkill )
+
                 // PENALTY
                 $penaltyPriceForThisLot = 0;
                 
                 $monthEndOfThisMonth_UsedToCheck_AgainstPenalty = $current->copy()->endOfMonth();
                 //
-                $penaltyStartDate = $monthEndOfThisMonth_UsedToCheck_AgainstPenalty + $penaltyStartsAfter; // this calculation wasted resource // but there is nothing you can do it hsi essential for the following if
+                // $penaltyStartDate = $monthEndOfThisMonth_UsedToCheck_AgainstPenalty + $penaltyStartsAfter;
+                $penaltyStartDate = $monthEndOfThisMonth_UsedToCheck_AgainstPenalty->copy()->addDays($penaltyStartsAfter);  // this calculation wasted resource // but there is nothing you can do it is essential for the following if
+                
+
 
                 // METHOD 1
                 //
                 // if ($endDate > $penaltyStartDate) {
-                // if ($endDate->gt($penaltyStartDate)) {  // i will use this IF the above if does NOT compare as I expected // i.e. the above may want me to change the dates to string format so that I can compare them
-                //     // $numberOfPenaltyDays = $endDate - $penaltyStartDate;
-                //     $numberOfPenaltyDays = $endDate->diffInDays($penaltyStartDate);
-                //
-                //     $penaltyPriceForThisLot = $numberOfPenaltyDays * $penaltyPerDay;
-                // }
+                if ($endDate->gt($penaltyStartDate)) {
+                    
+                    if ("PENALTY_TYPE_DAILY") {
+
+                        // $numberOfPenaltyDays = $endDate - $penaltyStartDate;
+                        $numberOfPenaltyDays = $endDate->diffInDays($penaltyStartDate);
+                    
+                        $penaltyPriceForThisLot = $numberOfPenaltyDays * $penaltyPerDay;        // $penaltyPerDay = [ principal price / number of days in this Term (i.e. month) ] * $penalty->percent_of_principal_price
+
+                    }
+
+                    if ("PENALTY_TYPE_FLAT") {
+                        $penaltyPriceForThisLot = $penaltyAmount;
+                    }
 
 
-                // METHOD 2
-                //
-                // if ($endDate > $penaltyStartDate) {
-                if ($endDate->gt($penaltyStartDate)) { 
-                    $penaltyPriceForThisLot = $penaltyAmount;
+
+                    
                 }
 
+                */
+
+
+                
 
 
 
                 $invoice = Invoice::create([
-                    'invoice_code' => Str::uuid(), // used when a payer selects multiple invoices and pays those multiple selected invoices // it is used for callback only, // E.x. the banks will send only one ID (i.e. invoice_code as callback)
+                    'invoice_code' => NULL, // initially null,   SET during payment - used when a payer selects multiple invoices and pays those multiple selected invoices // it is used for callback only, // E.x. the banks will send only one ID (i.e. invoice_code as callback)
                     'enterprise_service_id' => $enterpriseService->id,
                     'customer_id' => $customerId,
                     'enterprize_id' => '$enterprize_id',
@@ -953,7 +983,7 @@ class InvoiceController extends Controller
                     'penalty' => $penaltyPriceForThisLot,
                     // 'number_of_penalty_days' => $numberOfPenaltyDays,
                     'immune_to_penalty' => 'T / F',  // this is for all invoice tables, if this is set to T -> will be skipped during penalty calculation of NOT_PAID invoices
-                    'status' => $status, // paid / NOT Paid
+                    'status' => "NOT_PAID", // paid / NOT_Paid   // REAL VAULE = NOT Paid, since we are only generating bill/invoice , NOT paid,    - this will be paid ONLY when the CALLBACK hits
                     'paid_date' => NOW(),
                 ]);
     
@@ -1012,35 +1042,122 @@ class InvoiceController extends Controller
 
 
     /**
-     * Penalty will only be generated for UNPAID last invoices
+     * Penalty will only be generated/Updated for the already generated invoices/bills ONLY (those already generaged  Bills/invoices should also be UNPAID invoices)
+     * 
+     * so NO new invoice/bill will be generated here
+     * 
      */
-    public function updatePenalty($enterpriseService)
+    public function updatePenalty($assetUnit /*  */ )
     {
         $request[] = "";
 
+
+        // ONLY one of the following columns will be created for the penalty table
+        $penaltyPerDay = $assetUnit->penalty->penaltyPerDay;    // i.e. 20
+        $penaltyAmountFlat = $assetUnit->penalty->penaltyAmountFlat;  // i.e. 200
+
+
+        // from penalties table
+        $penaltyStartsAfter = $assetUnit->penalty->penalty_starts_after; // only in days (i.e. 10 days)
         
-        $status = $enterpriseService->status;
+        $status = $assetUnit->status;
 
 
-        $endDate = $endDate ?? Carbon::now();  // penalty calculation end date must always be until TODAY,     - so ALWAYS this is set automatically as NOW(),    - NO other value can NOT be set from other customer input or db input
+        $endDate = Carbon::now();  // penalty calculation end date must always be until TODAY,     - so ALWAYS this is set automatically as NOW(),    - NO other value can NOT be set from other customer input or db input
 
 
-        if ($status == "PAYMENT_STARTED") {
+        
 
 
-            // i.e. and some enterpriseServices does NOT have END date, they are infinite // Ex. - EDIR,    - Rent without contract
-            // i.e. some enterpriseServices HAVE END DATE , so they are finite            // Ex. - EKUB, ,  - Rent with contract that have end date 
+
+        // if ($status == "PAYMENT_STARTED") {  // COMMENTED BECAUSE // THIS CONDITION is USELESS here
+
+
+
+            $unpaidInvoices = $assetUnit->invoices()
+                ->where('status', 'NOT_PAID')
+                ->get();
+
+
+
+            /*
+
+            //
+            // for the cronjob -> USE this instead
+            //                          // if you are using cronjob at midnight to run the jobs, us the following commented code instead
+            //
+            // $unpaidInvoices = Invoice::where('status', 'NOT_PAID')->get();
+            //
+            // 
+            //
+            // foreach ($unpaidInvoices as $invoice) {
+            //     $assetUnit = $invoice->assetUnit()->first();
+            // }
+            //
+
+            */
+
+
+            foreach ($unpaidInvoices as $invoice) {
+
+
+                $invoiceEndDate = Carbon::parse($invoice->end_date);
+
+                // PENALTY
+                $penaltyPriceForThisLot = 0;
+                
+                //
+                // $penaltyStartDate = $monthEndOfThisMonth_UsedToCheck_AgainstPenalty + $penaltyStartsAfter;
+                $penaltyStartDate = $invoiceEndDate->copy()->addDays($penaltyStartsAfter);   // this calculation wasted resource // but there is nothing you can do it is essential for the following if
+
+                // METHOD 1
+                //
+                // if ($endDate > $penaltyStartDate) {
+                if ($endDate->gt($penaltyStartDate)) {
+                    
+                    if ("PENALTY_TYPE_DAILY") {
+
+                        // $numberOfPenaltyDays = $endDate - $penaltyStartDate;
+                        $numberOfPenaltyDays = $endDate->diffInDays($penaltyStartDate);
+                    
+                        $penaltyPriceForThisLot = $numberOfPenaltyDays * $penaltyPerDay;        // $penaltyPerDay = [ principal price / number of days in this Term (i.e. month) ] * $penalty->percent_of_principal_price
+
+                    }
+
+                    if ("PENALTY_TYPE_FLAT") {
+                        $penaltyPriceForThisLot = $penaltyAmountFlat;
+                    }
+
+
+
+                    
+                }
+
+
+
+                
+            }
+
+
+
+            //
+            // THE BELOW CODE IS USLESS - - - I THINK IT IS USELESS, DO NOT USE THE BELOW CODE I THINK
+            //
+            //  -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
+
+            // i.e. and some assetUnits does NOT have END date, they are infinite // Ex. - EDIR,    - Rent without contract
+            // i.e. some assetUnits HAVE END DATE , so they are finite            // Ex. - EKUB, ,  - Rent with contract that have end date 
             //
             //
             //
-            // if the end date of enterpriseService is set  (Ex. - EKUB ,   - Rent with contract that have end date)        
-            if (isset($enterpriseService->end_date)) {
+            // if the end date of assetUnit is set  (Ex. - EKUB ,   - Rent with contract that have end date)        
+            if (isset($assetUnit->end_date)) {
 
-                $enterpriseServiceEndDate = Carbon::parse($enterpriseService->end_date);
+                $assetUnitEndDate = Carbon::parse($assetUnit->end_date);
 
 
                 // the end date the user inserts OR now() is greater than the date where the Actual enterprise ends,  then we should return error
-                if ($endDate->gt($enterpriseServiceEndDate)) {
+                if ($endDate->gt($assetUnitEndDate)) {
                     return "the bill calculation date in which calculation will be done upto must always be less than the date the Actual service ends";
                 }
             }
@@ -1052,7 +1169,7 @@ class InvoiceController extends Controller
             //      // when he chooses one of the enterprize services, i will catch it in object named $enterprizeService
             //      //      // then i will use that $enterprizeService, in the code below,  i.e. in INVOICEs and other purposes
 
-            $lastInvoice = $enterpriseService->invoices()->latest()->first();
+            $lastInvoice = $assetUnit->invoices()->latest()->first();
             $lastInvoiceEndDate = Carbon::parse($lastInvoice->end_date); // 2025-02-28
 
             if ($endDate->lte($lastInvoiceEndDate)) {
@@ -1085,7 +1202,7 @@ class InvoiceController extends Controller
                     
             $monthEndOfThisMonth_UsedToCheck_AgainstPenalty = $current->copy()->endOfMonth();
             //
-            $penaltyStartDate = $monthEndOfThisMonth_UsedToCheck_AgainstPenalty + $penaltyStartsAfter; // this calculation wasted resource // but there is nothing you can do it hsi essential for the following if
+            $penaltyStartDate = $monthEndOfThisMonth_UsedToCheck_AgainstPenalty + $penaltyStartsAfter; // this calculation wasted resource // but there is nothing you can do it is essential for the following if
 
 
             //
@@ -1099,7 +1216,11 @@ class InvoiceController extends Controller
             //     $penaltyPriceForThisLot = $numberOfPenaltyDays * $penaltyPerDay;
             // }
                 
-        }
+        
+        
+        
+        
+        // }
 
         
     }
