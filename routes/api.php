@@ -88,6 +88,13 @@ Route::get('check-ip', function () {
 
 
 
+Route::get('/test-handler', function () {
+    return get_class(app()->make(Illuminate\Contracts\Debug\ExceptionHandler::class));
+});
+
+
+
+
 //
 Route::prefix('v1')->group(function () {
 

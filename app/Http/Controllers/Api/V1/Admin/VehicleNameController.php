@@ -89,7 +89,8 @@ class VehicleNameController extends Controller
     public function show(VehicleName $vehicleName)
     {
         $this->authorize('view', $vehicleName);
-        //
+        
+        return VehicleNameResource::make($vehicleName->load('vehicleType'));
     }
 
     /**

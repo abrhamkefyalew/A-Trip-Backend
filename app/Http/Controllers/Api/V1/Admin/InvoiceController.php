@@ -980,7 +980,7 @@ class InvoiceController extends Controller
                     'start_date' => $monthStart,
                     'end_date' => $monthEnd,
                     'price' => $priceForThisLot,
-                    'penalty' => $penaltyPriceForThisLot,
+                    // 'penalty' => $penaltyPriceForThisLot,
                     // 'number_of_penalty_days' => $numberOfPenaltyDays,
                     'immune_to_penalty' => 'T / F',  // this is for all invoice tables, if this is set to T -> will be skipped during penalty calculation of NOT_PAID invoices
                     'status' => "NOT_PAID", // paid / NOT_Paid   // REAL VAULE = NOT Paid, since we are only generating bill/invoice , NOT paid,    - this will be paid ONLY when the CALLBACK hits

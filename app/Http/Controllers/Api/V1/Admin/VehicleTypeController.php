@@ -61,7 +61,7 @@ class VehicleTypeController extends Controller
     {
         $this->authorize('view', $vehicleType);
         
-        return VehicleTypeResource::make($vehicleType->load('vehicleNames'));
+        return VehicleTypeResource::make($vehicleType->load('vehicleNames')); // i.e. is done like this for COMBO BOXs in the frontend
     }
 
     /**
