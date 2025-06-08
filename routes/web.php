@@ -2,6 +2,7 @@
 
 use App\Models\Invoice;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\V1\OrganizationUser\InvoiceController as InvoiceForOrganizationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,3 +33,13 @@ Route::get('web/v1/organization_user/invoices/pay_invoices/{invoice}', fn (Invoi
         'invoice' => $invoice,
     ]
 ))->name('pay.with.boa');
+
+
+
+
+// fayda callback
+//      MUST BE in here with out any prefixes 
+//      BECAUSE Fayda requires the callback to be JUST like below without any prefixes, the Callback URL just exactly as below
+//          i.e. 'http://localhost:3000/callback'
+//
+Route::get('/callback', [InvoiceForOrganizationController::class, 'callback']);

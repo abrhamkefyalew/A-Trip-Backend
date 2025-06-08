@@ -972,6 +972,22 @@ Route::prefix('v1')->group(function () {
             Route::get('/pay_invoices_test_open_route_boa', [InvoiceForOrganizationController::class, 'testboa']);
             Route::get('/pay_invoices_test_open_route_telebirr_apply_fabric_token', [InvoiceForOrganizationController::class, 'testTelebirrApplyFabricToken']);
             Route::get('/pay_invoices_test_open_route_telebirr', [InvoiceForOrganizationController::class, 'testTelebirr']);
+
+
+
+
+            // FAYDA TEST OPEN ROUTE
+            Route::get('/fayda_test_open_route/fayda/redirect', [InvoiceForOrganizationController::class, 'redirect']);
+            //
+            //
+            // Callback
+            //      See Web.php
+            //              for substitute
+            //
+            
+
+
+
             //
             Route::get('/pay_invoices_test_open_route_telebirr-test-seregela-OpenAPI_____OpenAPI__applyH5Token', [InvoiceForOrganizationController::class, 'testTelebirr_sign___for_seregela_____OpenAPI__applyH5Token']);
 

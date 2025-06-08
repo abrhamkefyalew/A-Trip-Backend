@@ -7,6 +7,7 @@ use App\Models\Invoice;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Services\FaydaService;
 use Illuminate\Validation\Rule;
 use App\Models\OrganizationUser;
 use Illuminate\Support\Facades\DB;
@@ -1222,6 +1223,34 @@ class InvoiceController extends Controller
 
         return $valuePayment; 
 
+    }
+
+
+    public function redirect(FaydaService $fayda) 
+    {
+       
+
+
+        return redirect()->away($fayda->getAuthorizationUrl());
+        
+
+    }
+
+
+    public function callback(Request $request, FaydaService $fayda)
+    {
+        $code = $request->query('code');
+        if (!$code) {
+            return response()->json(['error' => 'Missing authorization code'], 400);
+        }
+
+        $token = $fayda->getToken($code);
+        if (!isset($token['access_token'])) {
+            return response()->json(['error' => 'Failed to retrieve token', 'details' => $token], 400);
+        }
+
+        $user = $fayda->getUserInfo($token['access_token']);
+        return response()->json($user);
     }
 
 
