@@ -1229,29 +1229,68 @@ class InvoiceController extends Controller
     public function redirect(FaydaService $fayda) 
     {
        
-
-
         return redirect()->away($fayda->getAuthorizationUrl());
         
 
     }
 
 
+    
+
+
     public function callback(Request $request, FaydaService $fayda)
     {
         $code = $request->query('code');
+        $error = $request->query('error');
+
+        if ($error) {
+            return response()->json(['error' => $error, 'description' => $request->query('error_description')], 400);
+        }
+
         if (!$code) {
-            return response()->json(['error' => 'Missing authorization code'], 400);
+            return response()->json(['error' => 'Authorization code missing'], 400);
         }
 
-        $token = $fayda->getToken($code);
-        if (!isset($token['access_token'])) {
-            return response()->json(['error' => 'Failed to retrieve token', 'details' => $token], 400);
-        }
+        try {
+            $tokenResponse = $fayda->getToken($code);
+            $accessToken = $tokenResponse['access_token'] ?? null;
 
-        $user = $fayda->getUserInfo($token['access_token']);
-        return response()->json($user);
+            if (!$accessToken) {
+                return response()->json(['error' => 'No access token received'], 500);
+            }
+
+            $userInfo = $fayda->getUserInfo($accessToken);
+
+            // Save to session or DB as needed
+            // session(['fayda_user' => $userInfo]);
+
+            return response()->json([
+                'token' => $tokenResponse,
+                'user' => $userInfo,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Callback failed', 'message' => $e->getMessage()], 500);
+        }
     }
+
+
+    // public function callback(Request $request, FaydaService $fayda)
+    // {
+    //     $code = $request->query('code');
+    //     if (!$code) {
+    //         return response()->json(['error' => 'Missing authorization code'], 400);
+    //     }
+
+    //     $token = $fayda->getToken($code);
+    //     if (!isset($token['access_token'])) {
+    //         return response()->json(['error' => 'Failed to retrieve token', 'details' => $token], 400);
+    //     }
+
+    //     $user = $fayda->getUserInfo($token['access_token']);
+    //     return response()->json($user);
+    // }
+
+
 
 
     public function testTelebirr_sign___for_seregela_____OpenAPI__applyH5Token() 
