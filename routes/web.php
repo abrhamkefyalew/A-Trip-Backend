@@ -37,9 +37,24 @@ Route::get('web/v1/organization_user/invoices/pay_invoices/{invoice}', fn (Invoi
 
 
 
-// fayda callback
-//      MUST BE in here with out any prefixes 
-//      BECAUSE Fayda requires the callback to be JUST like below without any prefixes, the Callback URL just exactly as below
-//          i.e. 'http://localhost:3000/callback'
-//
-Route::get('/callback', [InvoiceForOrganizationController::class, 'callback']);
+
+
+
+
+Route::middleware('web')->group(function () {
+    // FAYDA TEST ROUTE
+    // Route::get('/fayda_test_open_route/fayda/redirect', [InvoiceForOrganizationController::class, 'redirect']);
+    Route::get('/fayda_test_open_route/fayda/redirect', [InvoiceForOrganizationController::class, 'home']);
+                //
+                //
+                // Callback
+                //      See Web.php
+                //              for substitute
+                //
+    // fayda callback
+    //      MUST BE in here with out any prefixes 
+    //      BECAUSE Fayda requires the callback to be JUST like below without any prefixes, the Callback URL just exactly as below
+    //          i.e. 'http://localhost:3000/callback'
+    //
+    Route::get('/callback', [InvoiceForOrganizationController::class, 'callback']);
+});

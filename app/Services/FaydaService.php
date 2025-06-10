@@ -33,7 +33,7 @@ class FaydaService
         $this->authorizationEndpoint = env('AUTHORIZATION_ENDPOINT');
         $this->tokenEndpoint = env('TOKEN_ENDPOINT');
         $this->userinfoEndpoint = env('USERINFO_ENDPOINT');
-        $this->privateKeyJwkBase64 = env('FAYDA_PRIVATE_KEY'); // base64 JWK JSON string
+        $this->privateKeyJwkBase64 = env('FAYDA_PRIVATE_KEY_BASE64_JWK_JSON_STRING'); // base64 JWK JSON string
         $this->algorithm = env('ALGORITHM', 'RS256');
         $this->clientAssertionType = env('CLIENT_ASSERTION_TYPE', 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer');
         $this->publicKey = env('FAYDA_PUBLIC_KEY');
@@ -41,11 +41,17 @@ class FaydaService
     }
 
 
+    //---------------------------- Decode ---------------------------------------------------------------------------//
+    // TEST i.e. this is how fayda decodes
+    //
+    // i.e. USED for separate testing
+    //
     public function decodeUserInfo($userInfoJwt)
     {
         // Decode JWT using the public key and RS256 algorithm
         return JWT::decode($userInfoJwt, new Key($this->publicKey, $this->algorithm));
     }
+    //---------------------------- end Decode ---------------------------------------------------------------------------//
 
 
 
@@ -104,6 +110,23 @@ class FaydaService
         return $rsa->toString('PKCS1');
     }
 
+    // private function generatePkce()
+    // {
+    //     $this->codeVerifier = rtrim(strtr(base64_encode(random_bytes(32)), '+/', '-_'), '=');
+    //     $hash = hash('sha256', $this->codeVerifier, true);
+    //     $this->codeChallenge = rtrim(strtr(base64_encode($hash), '+/', '-_'), '=');
+
+    //     // Save to session for later use
+    //     session(['code_verifier' => $this->codeVerifier]);
+
+    //     session()->save(); // Force the session to persist
+
+    //     Log::info('Storing code_verifier in session: ' . $this->codeVerifier);
+
+
+    // }
+    //
+    //
     private function generatePkce()
     {
         $this->codeVerifier = rtrim(strtr(base64_encode(random_bytes(32)), '+/', '-_'), '=');
@@ -111,8 +134,17 @@ class FaydaService
         $this->codeChallenge = rtrim(strtr(base64_encode($hash), '+/', '-_'), '=');
 
         // Save to session for later use
-        session(['code_verifier' => $this->codeVerifier]);
+        session()->put('code_verifier', $this->codeVerifier);
+
+        Log::info('Storing Session ID: ' . session()->getId());
+        Log::info('Storing code_verifier in session: ' . $this->codeVerifier . ', - - - - - ORIGINAL Session(code_verifier) = ' . session('code_verifier')); // both are similar
     }
+
+
+
+
+
+
 
     private function generateSignedJwt(): string
     {
@@ -172,7 +204,12 @@ class FaydaService
             return response()->json(['error' => 'Authorization code not provided'], 400);
         }
 
+        
         $codeVerifier = session('code_verifier');
+        //
+        Log::info('Retrieved code_verifier from session: ' . session('code_verifier'));
+
+
         if (!$codeVerifier) {
             return response()->json(['error' => 'Code verifier missing from session'], 400);
         }
@@ -190,7 +227,15 @@ class FaydaService
         ];
 
         try {
-            $tokenResponse = Http::asForm()->post($this->tokenEndpoint, $payload);
+            $tokenResponse = Http::asForm()
+                ->withOptions([
+                    // 'verify' => file_exists(base_path('cacert.pem')) ? base_path('cacert.pem') : false, // or set to false for dev environment
+                    // TIP = USE .env for this   // ------------ // RECOMMENDED
+                    // 'verify' => base_path(env('CURL_CA_BUNDLE', 'cacert.pem')),
+                    //
+                    'verify' => false,
+                ])
+                ->post($this->tokenEndpoint, $payload);
 
             if (!$tokenResponse->successful()) {
                 Log::error('Token endpoint error: ' . $tokenResponse->body());
@@ -204,20 +249,42 @@ class FaydaService
             }
 
             $userinfoResponse = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $accessToken,
-            ])->get($this->userinfoEndpoint);
+                    'Authorization' => 'Bearer ' . $accessToken,
+                ])
+                ->withOptions([
+                        // 'verify' => file_exists(base_path('cacert.pem')) ? base_path('cacert.pem') : false, // or set to false for dev environment
+                        // TIP = USE .env for this   // ------------ // RECOMMENDED
+                        // 'verify' => base_path(env('CURL_CA_BUNDLE', 'cacert.pem')),
+                        //
+                        'verify' => false,
+                    ])
+                ->get($this->userinfoEndpoint);
 
             if (!$userinfoResponse->successful()) {
                 Log::error('Userinfo endpoint error: ' . $userinfoResponse->body());
                 return response()->json(['error' => 'Failed to fetch userinfo'], $userinfoResponse->status());
             }
+            //
+            Log::info('Userinfo (User INFO) got SUCCESSFULLY = ' . $userinfoResponse->body());
+
+
+
 
             $userInfoJwt = $userinfoResponse->body();
 
             // Decode userinfo JWT without verifying signature (for demo)
-            $decodedUserInfo = JWT::decode($userInfoJwt, new Key('', $this->algorithm), [$this->algorithm]);
+            // Decode userinfo JWT with proper signature verification
+            // $decodedUserInfo = JWT::decode($userInfoJwt, new Key('', $this->algorithm), [$this->algorithm]);
+            $decodedUserInfo = JWT::decode($userInfoJwt, new Key($this->publicKey, $this->algorithm));
+            //
+            Log::info('Decoded Userinfo (User INFO) = ' . $decodedUserInfo);
+
 
             $userInfo = json_decode(json_encode($decodedUserInfo), true);
+            //
+            Log::info('Userinfo (User INFO) = ' . $userInfo);
+
+            
 
             return view('oidc.callback', [
                 'name' => $userInfo['name'] ?? 'N/A',
@@ -235,4 +302,9 @@ class FaydaService
             return response()->json(['error' => 'Exception: ' . $e->getMessage()], 500);
         }
     }
+
+    
+
+
+
 }
