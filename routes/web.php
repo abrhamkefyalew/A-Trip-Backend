@@ -43,7 +43,7 @@ Route::get('web/v1/organization_user/invoices/pay_invoices/{invoice}', fn (Invoi
 
 Route::middleware('web')->group(function () {
     // FAYDA TEST ROUTE
-    // Route::get('/fayda_test_open_route/fayda/redirect', [InvoiceForOrganizationController::class, 'redirect']);
+    // Route::get('/fayda_test_open_route/fayda/redirect', [InvoiceForOrganizationController::class, 'redirect']); // for the OLD codes , NOT USED
     Route::get('/fayda_test_open_route/fayda/redirect', [InvoiceForOrganizationController::class, 'home']);
                 //
                 //
