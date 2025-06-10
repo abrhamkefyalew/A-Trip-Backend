@@ -140,6 +140,24 @@ class FaydaService
 
 
 
+    // Example usage:
+    public function publicKeyValue()
+    {
+        try {
+            $pemPublicKey = $this->getPublicKeyFromPrivateJwk($this->privateKeyJwkBase64);
+                
+            Log::info('PUBLIC KEY : - (Extracted PUBLIC KEY (PEM)  - from -  base64 JWK JSON string Private Key): ================== : =  ' . $pemPublicKey);
+
+            // Now you can use $pemPublicKey for verification or other purposes.
+        } catch (\Exception $e) {
+            Log::error('Error extracting public key: ' . $e->getMessage());
+            // Handle the exception appropriately.
+        }
+    }
+
+
+
+
 
     // private function generatePkce()
     // {
@@ -319,17 +337,59 @@ class FaydaService
 
             $userInfoJwt = $userinfoResponse->body();
 
+
+
             // Decode userinfo JWT without verifying signature (for demo)
-            // Decode userinfo JWT with proper signature verification
-            // $decodedUserInfo = JWT::decode($userInfoJwt, new Key('', $this->algorithm), [$this->algorithm]);
-            $decodedUserInfo = JWT::decode($userInfoJwt, new Key($pemPublicKey, $this->algorithm));
-            //
-            Log::info('Decoded Userinfo (User INFO) = ' . $decodedUserInfo);
+            // FOR DEBUGGING ONLY: Temporarily decode without signature verification
+            // NEVER USE THIS IN PRODUCTION!
+
+            // --- START DEBUGGING CODE (TEMPORARY & INSECURE) ---
+            $decodedUserInfo = null;
+            try {
+                // First, try the secure way with Fayda's public key (if available)
+                $decodedUserInfo = $this->decodeUserInfo($userInfoJwt);
+                Log::info('SECURELY Decoded Userinfo (User INFO) = ' . json_encode($decodedUserInfo));
+            } catch (\Exception $e) {
+                Log::warning('Failed secure decoding: ' . $e->getMessage() . '. Attempting insecure decode for debugging.');
+                // If secure decoding fails, proceed with insecure parsing for debugging
+                $parts = explode('.', $userInfoJwt);
+                if (count($parts) >= 2) {
+                    $encodedPayload = $parts[1];
+                    try {
+                        $jsonPayload = $this->base64urlDecode($encodedPayload);
+                        $decodedUserInfo = json_decode($jsonPayload);
+                        Log::info('INSECURELY Parsed Userinfo (User INFO) for debugging: ' . json_encode($decodedUserInfo));
+                        Log::warning('WARNING: This decoding was done INSECURELY for debugging. DO NOT USE IN PRODUCTION!');
+                    } catch (\Exception $decodeError) {
+                        Log::error('Failed to parse JWT payload for debugging: ' . $decodeError->getMessage());
+                        return response()->json(['error' => 'Failed to parse user info for debugging.'], 500);
+                    }
+                } else {
+                    Log::error('Invalid JWT format for debugging: ' . $userInfoJwt);
+                    return response()->json(['error' => 'Invalid user info JWT format.'], 500);
+                }
+            }
+            // --- END DEBUGGING CODE ---
+
+            if (!$decodedUserInfo) {
+                return response()->json(['error' => 'User info could not be decoded.'], 500);
+            }
+            
+
+
+
+            // // does NOT make sence, since to decode it i need fyada's public key, NOT this once
+            // //      BECAUSE they are sending the encrypted request back to me by encrypting th emessage by THEIR OWN PUBLIC KEY
+            // //
+            // // Decode userinfo JWT with proper signature verification
+            // $decodedUserInfo = JWT::decode($userInfoJwt, new Key($this->publicKey, $this->algorithm));
+            // //
+            // Log::info('Decoded Userinfo (User INFO) = ' . $decodedUserInfo);
 
 
             $userInfo = json_decode(json_encode($decodedUserInfo), true);
             //
-            Log::info('Userinfo (User INFO) = ' . $userInfo);
+            Log::info('Final Userinfo (User INFO) array = ' . json_encode($userInfo));
 
             
 
