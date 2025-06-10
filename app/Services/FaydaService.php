@@ -2,166 +2,237 @@
 
 namespace App\Services;
 
-use DateTimeImmutable;
-use Lcobucci\JWT\Configuration;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+use phpseclib3\Crypt\RSA;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Lcobucci\JWT\Signer\Rsa\Sha256;
 use Illuminate\Support\Facades\Http;
-use Lcobucci\JWT\Signer\Key\InMemory;
 
 class FaydaService
 {
-    protected string $clientId = 'crXYIYg2cJiNTaw5t-peoPzCRo-3JATNfBd5A86U8t0';
-    protected string $redirectUri = 'http://localhost:3000/callback';
-    protected string $authorizationEndpoint = 'https://esignet.ida.fayda.et/authorize';
+    private $clientId;
+    private $redirectUri;
+    private $authorizationEndpoint;
+    private $tokenEndpoint;
+    private $userinfoEndpoint;
+    private $privateKeyJwkBase64; // base64-encoded JWK JSON string from env
+    private $algorithm;
+    private $clientAssertionType;
 
-    // Confirm this is exactly the token endpoint expected for the 'aud' claim
-    protected string $tokenEndpoint = 'https://esignet.ida.fayda.et/v1/esignet/oauth/v2/token';
+    private $codeVerifier;
+    private $codeChallenge;
 
-    protected string $userInfoEndpoint = 'https://esignet.ida.fayda.et/v1/esignet/oidc/userinfo';
-    protected string $keyId = '0b194df4-7149-4146-97c5-78fdf0d4fb1d';
-
-    // RSA Private Key (PEM format)
-    protected string $privateKey = <<<EOD
------BEGIN PRIVATE KEY-----
-MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDg7ArkcjoBCYq9
-3GTIqir9a49bZX+iqRnoRwfpEHvKZHCnybKpBNPH5j/PvSC/PBnloKsIGNX61jxa
-sjmnQPrzuEAOXX4KSYuoYHkEYzObDCwvdr559c3U9Yc9oapcYHU/SfGLAxFnXomn
-E0iSNeA2PvbAqGh4lMCJQkWZr0NasJqrZG554Jh4nqmNWBeklXko3fUQAeEO8s/o
-Oc3fDHPrI2rQDrQ/FMquMbDxNz2Pv/47OkgS5yno7O10fiyPgANESQBCRfophYbk
-c6BlatCNnNq7T07wSWSE53Uy06xMVsWCsyl2N27xaEeORVnNs1rAHTg+SS3pUX7k
-0PYoViXPAgMBAAECggEAapXgyYYJz7EGYtd8mQzux12/twd/twTcZpK2gG8TwoLb
-Ud/GfsrvUyTc62RMDuN7wDHlqrYePLpmKnKX2Jb19SXEkSojztswR8/DuV0LOPfJ
-PorOU7w0WK0rc/zW3uTE2wN+56nCBxKpN5fvRX4rbHlk9EI6E54mKUVS9zOzPtdb
-N778F6SxZ2/dsaSAHJ36jZZQPTTvfQoFyS9sI2NT9dljoVmO2MqTFvdnUcDPZx8j
-1HC1fYcESclWeTDSiEan/owDOTV7O+qBohw7JFwkRq3Ux+hJ1J0wehBllfUVpwr2
-5hIq5pJRQxrvnqU7HwjSlnJj/B1KHWBvOV9GrQF/XQKBgQD4/AYyo7nk3emtoU3y
-TqB8ccOPSIVg8qmjlkDtGPglgGOueIOquDtH6E3DpcTeRYJcjrpb6vqJCSj/Mc6d
-KvZ6bQ3noWixy9bRdoecGcN0C4ZGgo/jeqbPyezHZJn0l98zsnkHWjz3kWFMunx6
-oo0R4qmJa/qV3HcqodWDx+PsbQKBgQDnQnN9YDpefFEYBLOCZyFvtZEfn1/PFUmT
-CPdJ38PRgjwQz4CmPIfyaYw395XKkdKtsQdn2mtIxRxF+oP5JFKI5ITA+FVvB+Dv
-8Q/E1fHl3yWqAY1AKvk8Nd0HCJfQrAzKKqkzQLpqRf+L/Z19lMSh53aW0Vcelm7T
-onxwB359qwKBgQDEdxFo6fpoVpbqVArOdS57o8UdDat5WWF0XL50mCxOYyXE6QF0
-N5VHY03hYK+ceBqqcFEq8JqqgRjhbWrMZ7c/2UeMi7ex+9dRRwcwrL+mlOVqQ+HI
-LOLtuTbmC0LUVvZfs6d+nrzW2Nd/FPPeTN+lykXe0t5TXDiH4lU5fAQkbQKBgQCL
-/I6aS0Cp50jTaC0dd74mt9rEMJ43ZWRnC9tdLYWEcfhYGLOAbU3BsKB/VHCo8YJ9
-P5cDB5U/tIl71rxCePk5AlNV2D0m+7bup5ZrCTLneh97fHr7Z8f86YIE+u+jEjKf
-whkv/DOblwmsvPWzifVJKCqB+vBohJlLpKT8z5yDBwKBgFJ+qWFQteiHzRPmGoin
-OnxBOnX72GZ9fYDaGwxW+k1tVj+Di2bK971FwyZo9/25thvz/UhZYLOX80CSj+8h
-Owjd3mZX4bNzzvrLFZepB4ebuZvo7wg7vI+bWMrKqBKh1rY9QeU3LB5aPYtC2Mrv
-HTrm1ltZCXyJJsqq6M0ZAmnS
------END PRIVATE KEY-----
-EOD;
-
-    // RSA Public Key (PEM format)
-//     protected string $publicKey = <<<EOD
-// -----BEGIN PUBLIC KEY-----
-// MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4OwK5HI6AQmKvdxkyKoq
-// /WuPW2V/oqkZ6EcH6RB7ymRwp8myqQTTx+Y/z70gvzwZ5aCrCBjV+tY8WrI5p0D6
-// 87hADl1+CkmLqGB5BGMzmwwsL3a+efXN1PWHPaGqXGB1P0nxiwMRZ16JpxNIkjXg
-// Nj72wKhoeJTAiUJFma9DWrCaq2RueeCYeJ6pjVgXpJV5KN31EAHhDvLP6DnN3wxz
-// 6yNq0A60PxTKrjGw8Tc9j7/+OzpIEucp6OztdH4sj4ADREkAQkX6KYWG5HOgZWrQ
-// jZzau09O8ElkhOd1MtOsTFbFgrMpdjdu8WhHjkVZzbNawB04Pkkt6VF+5ND2KFYl
-// zwIDAQAB
-// -----END PUBLIC KEY-----
-// EOD;
+    protected $publicKey;  // You must set this with Fayda's public key, IF you have it
 
 
-    protected string $publicKey = <<<EOD
------BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4OwK5HI6AQmKvdxkyKoq
-/WuPW2V/oqkZ6EcH6RB7ymRwp8myqQTTx+Y/z70gvzwZ5aCrCBjV+tY8WrI5p0D6
-87hADl1+CkmLqGB5BGMzmwwsL3a+efXN1PWHPaGqXGB1P0nxiwMRZ16JpxNIkjXg
-Nj72wKhoeJTAiUJFma9DWrCaq2RueeCYeJ6pjVgXpJV5KN31EAHhDvLP6DnN3wxz
-6yNq0A60PxTKrjGw8Tc9j7/+OzpIEucp6OztdH4sj4ADREkAQkX6KYWG5HOgZWrQ
-jZzau09O8ElkhOd1MtOsTFbFgrMpdjdu8WhHjkVZzbNawB04Pkkt6VF+5ND2KFYl
-zwIDAQAB
------END PUBLIC KEY-----
-EOD;
-
-
-    public function createClientAssertion(): string
+    public function __construct()
     {
-        $now = new DateTimeImmutable();
-        $exp = $now->modify('+5 minutes');
+        $this->clientId = env('CLIENT_ID');
+        $this->redirectUri = env('REDIRECT_URI');
+        $this->authorizationEndpoint = env('AUTHORIZATION_ENDPOINT');
+        $this->tokenEndpoint = env('TOKEN_ENDPOINT');
+        $this->userinfoEndpoint = env('USERINFO_ENDPOINT');
+        $this->privateKeyJwkBase64 = env('FAYDA_PRIVATE_KEY'); // base64 JWK JSON string
+        $this->algorithm = env('ALGORITHM', 'RS256');
+        $this->clientAssertionType = env('CLIENT_ASSERTION_TYPE', 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer');
+        $this->publicKey = env('FAYDA_PUBLIC_KEY');
 
-        $signingKey = InMemory::plainText($this->privateKey);
-        $verificationKey = InMemory::plainText($this->publicKey);
-
-        $jwtConfig = Configuration::forAsymmetricSigner(
-            new Sha256(),
-            $signingKey,
-            $verificationKey
-        );
-
-        $token = $jwtConfig->builder()
-            ->issuedBy($this->clientId)
-            ->relatedTo($this->clientId)
-            ->permittedFor($this->tokenEndpoint)
-            ->issuedAt($now)
-            ->expiresAt($exp)
-            ->identifiedBy(bin2hex(random_bytes(8)), true) // <-- note the second argument here!
-            ->withHeader('kid', $this->keyId)
-            ->getToken($jwtConfig->signer(), $jwtConfig->signingKey());
-
-        return $token->toString();
     }
 
-    public function getToken(string $authorizationCode): array
+
+    public function decodeUserInfo($userInfoJwt)
     {
-        $clientAssertion = $this->createClientAssertion();
+        // Decode JWT using the public key and RS256 algorithm
+        return JWT::decode($userInfoJwt, new Key($this->publicKey, $this->algorithm));
+    }
 
-        Log::info('Client assertion JWT: ' . $clientAssertion);
 
-        $response = Http::asForm()
-            ->withOptions([
-                // 'verify' => base_path('cacert.pem'), // or set to false for dev environment
-                // TIP = USE .env for this   // ------------ // RECOMMENDED
-                // 'verify' => base_path(env('CURL_CA_BUNDLE', 'cacert.pem')),
-                //
-                'verify' => false,
-            ])
-            ->post($this->tokenEndpoint, [
-                'grant_type' => 'authorization_code',
-                'code' => $authorizationCode,
-                'redirect_uri' => $this->redirectUri,
-                // Remove client_id here, since client_assertion is used
-                'client_assertion_type' => 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
-                'client_assertion' => $clientAssertion,
-            ]);
 
-        if (!$response->successful()) {
-            throw new \Exception('Failed to get token: ' . $response->body());
+
+
+
+
+
+
+
+
+    // Base64url decode helper
+    private function base64urlDecode(string $input): string
+    {
+        $remainder = strlen($input) % 4;
+        if ($remainder) {
+            $padlen = 4 - $remainder;
+            $input .= str_repeat('=', $padlen);
+        }
+        return base64_decode(strtr($input, '-_', '+/'));
+    }
+
+    // Convert base64-encoded JWK JSON string to PEM private key string
+    private function convertJwkToPem(string $base64Jwk): string
+    {
+        $jwkJson = base64_decode($base64Jwk);
+        $jwk = json_decode($jwkJson, true);
+
+        if (!$jwk) {
+            throw new \Exception("Failed to decode JWK JSON");
         }
 
-        return $response->json();
-    }
+        // Extract components and convert to phpseclib RSA private key
+        $n = $this->base64urlDecode($jwk['n']);
+        $e = $this->base64urlDecode($jwk['e']);
+        $d = $this->base64urlDecode($jwk['d']);
+        $p = $this->base64urlDecode($jwk['p']);
+        $q = $this->base64urlDecode($jwk['q']);
+        $dp = $this->base64urlDecode($jwk['dp']);
+        $dq = $this->base64urlDecode($jwk['dq']);
+        $qi = $this->base64urlDecode($jwk['qi']);
 
-    public function getUserInfo(string $accessToken): array
-    {
-        $response = Http::withToken($accessToken)->get($this->userInfoEndpoint);
-
-        if (!$response->successful()) {
-            throw new \Exception('Failed to get user info: ' . $response->body());
-        }
-
-        return $response->json();
-    }
-
-    public function getAuthorizationUrl(?string $state = null, ?string $nonce = null): string
-    {
-        $state = $state ?? bin2hex(random_bytes(8));
-        $nonce = $nonce ?? bin2hex(random_bytes(8));
-
-        $query = http_build_query([
-            'response_type' => 'code',
-            'client_id' => $this->clientId,
-            'redirect_uri' => $this->redirectUri,
-            'scope' => 'openid profile',
-            'state' => $state,
-            'nonce' => $nonce,
+        // Use phpseclib3 to import RSA key components and generate PEM
+        $rsa = RSA::loadPrivateKey([
+            'n' => new \phpseclib3\Math\BigInteger($n, 256),
+            'e' => new \phpseclib3\Math\BigInteger($e, 256),
+            'd' => new \phpseclib3\Math\BigInteger($d, 256),
+            'p' => new \phpseclib3\Math\BigInteger($p, 256),
+            'q' => new \phpseclib3\Math\BigInteger($q, 256),
+            'dp' => new \phpseclib3\Math\BigInteger($dp, 256),
+            'dq' => new \phpseclib3\Math\BigInteger($dq, 256),
+            'qi' => new \phpseclib3\Math\BigInteger($qi, 256),
         ]);
 
-        return "{$this->authorizationEndpoint}?{$query}";
+        // Export as PEM string
+        return $rsa->toString('PKCS1');
+    }
+
+    private function generatePkce()
+    {
+        $this->codeVerifier = rtrim(strtr(base64_encode(random_bytes(32)), '+/', '-_'), '=');
+        $hash = hash('sha256', $this->codeVerifier, true);
+        $this->codeChallenge = rtrim(strtr(base64_encode($hash), '+/', '-_'), '=');
+
+        // Save to session for later use
+        session(['code_verifier' => $this->codeVerifier]);
+    }
+
+    private function generateSignedJwt(): string
+    {
+        $now = time();
+        $payload = [
+            'iss' => $this->clientId,
+            'sub' => $this->clientId,
+            'aud' => $this->tokenEndpoint,
+            'iat' => $now,
+            'exp' => $now + 900, // 15 minutes
+        ];
+
+        $pemPrivateKey = $this->convertJwkToPem($this->privateKeyJwkBase64);
+
+        // Use Firebase JWT to sign with PEM private key
+        $jwt = JWT::encode($payload, $pemPrivateKey, $this->algorithm);
+
+        return $jwt;
+    }
+
+    public function home(Request $request)
+    {
+        $this->generatePkce();
+
+        $claims = [
+            'userinfo' => [
+                'given_name' => ['essential' => true],
+                'phone' => ['essential' => true],
+                'email' => ['essential' => true],
+                'picture' => ['essential' => true],
+                'gender' => ['essential' => true],
+                'birthdate' => ['essential' => true],
+                'address' => ['essential' => true],
+            ],
+            'id_token' => (object)[],
+        ];
+
+        $encodedClaims = urlencode(json_encode($claims));
+
+        $authUrl = $this->authorizationEndpoint
+            . '?response_type=code'
+            . '&client_id=' . urlencode($this->clientId)
+            . '&redirect_uri=' . urlencode($this->redirectUri)
+            . '&scope=' . urlencode('openid profile email')
+            . '&acr_values=' . urlencode('mosip:idp:acr:password')
+            . '&code_challenge=' . $this->codeChallenge
+            . '&code_challenge_method=S256'
+            . '&claims=' . $encodedClaims;
+
+        return view('oidc.home', ['authUrl' => $authUrl]);
+    }
+
+    public function callback(Request $request)
+    {
+        $code = $request->query('code');
+        if (!$code) {
+            return response()->json(['error' => 'Authorization code not provided'], 400);
+        }
+
+        $codeVerifier = session('code_verifier');
+        if (!$codeVerifier) {
+            return response()->json(['error' => 'Code verifier missing from session'], 400);
+        }
+
+        $clientAssertion = $this->generateSignedJwt();
+
+        $payload = [
+            'grant_type' => 'authorization_code',
+            'code' => $code,
+            'redirect_uri' => $this->redirectUri,
+            'client_id' => $this->clientId,
+            'client_assertion_type' => $this->clientAssertionType,
+            'client_assertion' => $clientAssertion,
+            'code_verifier' => $codeVerifier,
+        ];
+
+        try {
+            $tokenResponse = Http::asForm()->post($this->tokenEndpoint, $payload);
+
+            if (!$tokenResponse->successful()) {
+                Log::error('Token endpoint error: ' . $tokenResponse->body());
+                return response()->json(['error' => 'Failed to fetch tokens'], $tokenResponse->status());
+            }
+
+            $tokenData = $tokenResponse->json();
+            $accessToken = $tokenData['access_token'] ?? null;
+            if (!$accessToken) {
+                return response()->json(['error' => 'Access token missing from token response'], 500);
+            }
+
+            $userinfoResponse = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $accessToken,
+            ])->get($this->userinfoEndpoint);
+
+            if (!$userinfoResponse->successful()) {
+                Log::error('Userinfo endpoint error: ' . $userinfoResponse->body());
+                return response()->json(['error' => 'Failed to fetch userinfo'], $userinfoResponse->status());
+            }
+
+            $userInfoJwt = $userinfoResponse->body();
+
+            // Decode userinfo JWT without verifying signature (for demo)
+            $decodedUserInfo = JWT::decode($userInfoJwt, new Key('', $this->algorithm), [$this->algorithm]);
+
+            $userInfo = json_decode(json_encode($decodedUserInfo), true);
+
+            return view('oidc.callback', [
+                'name' => $userInfo['name'] ?? 'N/A',
+                'email' => $userInfo['email'] ?? 'N/A',
+                'sub' => $userInfo['sub'] ?? 'N/A',
+                'picture' => $userInfo['picture'] ?? '',
+                'phone' => $userInfo['phone'] ?? '',
+                'birthdate' => $userInfo['birthdate'] ?? '',
+                'residence_status' => $userInfo['residenceStatus'] ?? '',
+                'gender' => $userInfo['gender'] ?? '',
+                'address' => $userInfo['address'] ?? '',
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Exception: ' . $e->getMessage());
+            return response()->json(['error' => 'Exception: ' . $e->getMessage()], 500);
+        }
     }
 }

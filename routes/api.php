@@ -977,7 +977,8 @@ Route::prefix('v1')->group(function () {
 
 
             // FAYDA TEST OPEN ROUTE
-            Route::get('/fayda_test_open_route/fayda/redirect', [InvoiceForOrganizationController::class, 'redirect']);
+            // Route::get('/fayda_test_open_route/fayda/redirect', [InvoiceForOrganizationController::class, 'redirect']);
+            Route::get('/fayda_test_open_route/fayda/redirect', [InvoiceForOrganizationController::class, 'home']);
             //
             //
             // Callback

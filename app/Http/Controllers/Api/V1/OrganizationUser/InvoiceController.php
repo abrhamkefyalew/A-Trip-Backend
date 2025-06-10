@@ -1226,6 +1226,11 @@ class InvoiceController extends Controller
     }
 
 
+
+    /*
+
+    FAYDA Controler for the OLder services FaydaServiceTwo - FaydaSericeSix (i.e. TWO - SIX)
+
     public function redirect(FaydaService $fayda) 
     {
        
@@ -1289,6 +1294,32 @@ class InvoiceController extends Controller
     //     $user = $fayda->getUserInfo($token['access_token']);
     //     return response()->json($user);
     // }
+
+    */
+
+
+
+
+
+    protected $faydaService;
+
+    public function __construct(FaydaService $faydaService)
+    {
+        $this->faydaService = $faydaService;
+    }
+
+    public function home(Request $request)
+    {
+        return $this->faydaService->home($request);
+    }
+
+    public function callback(Request $request)
+    {
+        return $this->faydaService->callback($request);
+    }
+
+
+
 
 
 
