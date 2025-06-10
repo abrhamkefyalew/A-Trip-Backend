@@ -110,6 +110,37 @@ class FaydaService
         return $rsa->toString('PKCS1');
     }
 
+
+
+
+
+
+
+    // NEW: Method to extract public key from a private Base64 JWK string
+    private function getPublicKeyFromPrivateJwk(string $base64Jwk): string
+    {
+        $jwkJson = base64_decode($base64Jwk);
+        $jwk = json_decode($jwkJson, true);
+
+        if (!$jwk || !isset($jwk['n']) || !isset($jwk['e'])) {
+            throw new \Exception("Failed to decode JWK JSON or missing 'n' or 'e' for public key extraction.");
+        }
+
+        $n = $this->base64urlDecode($jwk['n']);
+        $e = $this->base64urlDecode($jwk['e']);
+
+        $rsa = RSA::loadPublicKey([
+            'n' => new \phpseclib3\Math\BigInteger($n, 256),
+            'e' => new \phpseclib3\Math\BigInteger($e, 256),
+        ]);
+
+        return $rsa->toString('PKCS1');
+    }
+
+
+
+
+
     // private function generatePkce()
     // {
     //     $this->codeVerifier = rtrim(strtr(base64_encode(random_bytes(32)), '+/', '-_'), '=');
@@ -158,6 +189,9 @@ class FaydaService
         ];
 
         $pemPrivateKey = $this->convertJwkToPem($this->privateKeyJwkBase64);
+
+
+        Log::info('PRIVATE KEY : - (Extracted PRIVATE KEY (PEM)  - from -  base64 JWK JSON string Private Key): ================== : =  ' . $pemPrivateKey);
 
         // Use Firebase JWT to sign with PEM private key
         $jwt = JWT::encode($payload, $pemPrivateKey, $this->algorithm);
@@ -269,13 +303,26 @@ class FaydaService
 
 
 
+            
+            try {
+                $pemPublicKey = $this->getPublicKeyFromPrivateJwk($this->privateKeyJwkBase64);
+                
+                Log::info('PUBLIC KEY : - (Extracted PUBLIC KEY (PEM)  - from -  base64 JWK JSON string Private Key): ================== : =  ' . $pemPublicKey);
+
+                // Now you can use $pemPublicKey for verification or other purposes.
+            } catch (\Exception $e) {
+                Log::error('Error extracting public key: ' . $e->getMessage());
+                // Handle the exception appropriately.
+            }
+
+
 
             $userInfoJwt = $userinfoResponse->body();
 
             // Decode userinfo JWT without verifying signature (for demo)
             // Decode userinfo JWT with proper signature verification
             // $decodedUserInfo = JWT::decode($userInfoJwt, new Key('', $this->algorithm), [$this->algorithm]);
-            $decodedUserInfo = JWT::decode($userInfoJwt, new Key($this->publicKey, $this->algorithm));
+            $decodedUserInfo = JWT::decode($userInfoJwt, new Key($pemPublicKey, $this->algorithm));
             //
             Log::info('Decoded Userinfo (User INFO) = ' . $decodedUserInfo);
 
