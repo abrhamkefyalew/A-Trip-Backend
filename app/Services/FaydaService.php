@@ -4,7 +4,8 @@ namespace App\Services;
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
-use phpseclib3\Crypt\RSA;
+// use phpseclib3\Crypt\RSA; // for phpseclib v3
+use phpseclib\Crypt\RSA; // for phpseclib v2 // it is used below, it shows not used because we are calling the whole class namespace below
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
@@ -63,7 +64,52 @@ class FaydaService
 
 
 
-    // Base64url decode helper
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /**
+     * THIS WORKS for ('phpseclib v2' - & - 'phpseclib v3')  BOTH
+     * 
+     * Base64url decode helper
+     * 
+     * This works
+     */
     private function base64urlDecode(string $input): string
     {
         $remainder = strlen($input) % 4;
@@ -73,73 +119,266 @@ class FaydaService
         }
         return base64_decode(strtr($input, '-_', '+/'));
     }
+    //
+    //
+    //  OR
+    //
+    //
+    /**
+     * THIS WORKS for ('phpseclib v2' - & - 'phpseclib v3')  BOTH
+     * 
+     * Base64url decode helper
+     * 
+     * This works Also
+     */
+    // private function base64urlDecode(string $data): string
+    // {
+    //     $padding = strlen($data) % 4;
+    //     if ($padding) {
+    //         $data .= str_repeat('=', 4 - $padding);
+    //     }
+    //     $data = strtr($data, '-_', '+/');
+    //     return base64_decode($data);
+    // }
 
-    // Convert base64-encoded JWK JSON string to PEM private key string
+
+
+
+
+
+
+
+
+
+
+
+
+    /**
+     * for phpseclib v3
+     * 
+     * Convert base64-encoded JWK JSON string to PEM private key string
+     */
+    // private function convertJwkToPem(string $base64Jwk): string
+    // {
+    //     $jwkJson = base64_decode($base64Jwk);
+    //     $jwk = json_decode($jwkJson, true);
+
+    //     if (!$jwk) {
+    //         throw new \Exception("Failed to decode JWK JSON");
+    //     }
+
+    //     // Extract components and convert to phpseclib RSA private key
+    //     $n = $this->base64urlDecode($jwk['n']);
+    //     $e = $this->base64urlDecode($jwk['e']);
+    //     $d = $this->base64urlDecode($jwk['d']);
+    //     $p = $this->base64urlDecode($jwk['p']);
+    //     $q = $this->base64urlDecode($jwk['q']);
+    //     $dp = $this->base64urlDecode($jwk['dp']);
+    //     $dq = $this->base64urlDecode($jwk['dq']);
+    //     $qi = $this->base64urlDecode($jwk['qi']);
+
+    //     // Use phpseclib3 to import RSA key components and generate PEM
+    //     $rsa = RSA::loadPrivateKey([
+    //         'n' => new \phpseclib3\Math\BigInteger($n, 256),
+    //         'e' => new \phpseclib3\Math\BigInteger($e, 256),
+    //         'd' => new \phpseclib3\Math\BigInteger($d, 256),
+    //         'p' => new \phpseclib3\Math\BigInteger($p, 256),
+    //         'q' => new \phpseclib3\Math\BigInteger($q, 256),
+    //         'dp' => new \phpseclib3\Math\BigInteger($dp, 256),
+    //         'dq' => new \phpseclib3\Math\BigInteger($dq, 256),
+    //         'qi' => new \phpseclib3\Math\BigInteger($qi, 256),
+    //     ]);
+
+    //     // Export as PEM string
+    //     return $rsa->toString('PKCS1');
+    // }
+    //
+    //
+    //
+    /**
+     * for phpseclib v2
+     * 
+     * Convert base64-encoded JWK JSON string to PEM private key string
+     */
     private function convertJwkToPem(string $base64Jwk): string
     {
-        $jwkJson = base64_decode($base64Jwk);
-        $jwk = json_decode($jwkJson, true);
+        try {
+            $jwkJson = base64_decode($base64Jwk);
+            $jwk = json_decode($jwkJson, true);
 
-        if (!$jwk) {
-            throw new \Exception("Failed to decode JWK JSON");
+            if (!$jwk) {
+                throw new \Exception("Invalid JWK JSON");
+            }
+
+            // Verify all required components
+            $required = ['n', 'e', 'd', 'p', 'q', 'dp', 'dq', 'qi'];
+            foreach ($required as $key) {
+                if (!isset($jwk[$key])) {
+                    throw new \Exception("Missing JWK component: $key");
+                }
+            }
+
+            // Decode all components to binary
+            $components = [
+                'n' => $this->base64urlDecode($jwk['n']),
+                'e' => $this->base64urlDecode($jwk['e']),
+                'd' => $this->base64urlDecode($jwk['d']),
+                'p' => $this->base64urlDecode($jwk['p']),
+                'q' => $this->base64urlDecode($jwk['q']),
+                'dmp1' => $this->base64urlDecode($jwk['dp']),
+                'dmq1' => $this->base64urlDecode($jwk['dq']),
+                'iqmp' => $this->base64urlDecode($jwk['qi'])
+            ];
+
+            // Create RSA object
+            $rsa = new \phpseclib\Crypt\RSA();
+            
+            // Manually construct the private key in PKCS1 format
+            $privateKey = $this->buildPkcs1PrivateKey(
+                $components['n'],
+                $components['e'],
+                $components['d'],
+                $components['p'],
+                $components['q'],
+                $components['dmp1'],
+                $components['dmq1'],
+                $components['iqmp']
+            );
+
+            // Validate the key
+            if (!$this->validatePrivateKey($privateKey)) {
+                throw new \Exception("Generated key failed validation");
+            }
+
+            return $privateKey;
+        } catch (\Exception $e) {
+            Log::error("JWK to PEM conversion failed: " . $e->getMessage());
+            throw new \Exception("Key conversion failed: " . $e->getMessage());
         }
-
-        // Extract components and convert to phpseclib RSA private key
-        $n = $this->base64urlDecode($jwk['n']);
-        $e = $this->base64urlDecode($jwk['e']);
-        $d = $this->base64urlDecode($jwk['d']);
-        $p = $this->base64urlDecode($jwk['p']);
-        $q = $this->base64urlDecode($jwk['q']);
-        $dp = $this->base64urlDecode($jwk['dp']);
-        $dq = $this->base64urlDecode($jwk['dq']);
-        $qi = $this->base64urlDecode($jwk['qi']);
-
-        // Use phpseclib3 to import RSA key components and generate PEM
-        $rsa = RSA::loadPrivateKey([
-            'n' => new \phpseclib3\Math\BigInteger($n, 256),
-            'e' => new \phpseclib3\Math\BigInteger($e, 256),
-            'd' => new \phpseclib3\Math\BigInteger($d, 256),
-            'p' => new \phpseclib3\Math\BigInteger($p, 256),
-            'q' => new \phpseclib3\Math\BigInteger($q, 256),
-            'dp' => new \phpseclib3\Math\BigInteger($dp, 256),
-            'dq' => new \phpseclib3\Math\BigInteger($dq, 256),
-            'qi' => new \phpseclib3\Math\BigInteger($qi, 256),
-        ]);
-
-        // Export as PEM string
-        return $rsa->toString('PKCS1');
     }
 
+    private function buildPkcs1PrivateKey(
+        string $n,
+        string $e,
+        string $d,
+        string $p,
+        string $q,
+        string $dmp1,
+        string $dmq1,
+        string $iqmp
+    ): string {
+        // Convert components to BigIntegers for length calculations
+        $nObj = new \phpseclib\Math\BigInteger($n, 256);
+        $eObj = new \phpseclib\Math\BigInteger($e, 256);
+        $dObj = new \phpseclib\Math\BigInteger($d, 256);
+        $pObj = new \phpseclib\Math\BigInteger($p, 256);
+        $qObj = new \phpseclib\Math\BigInteger($q, 256);
+        $dmp1Obj = new \phpseclib\Math\BigInteger($dmp1, 256);
+        $dmq1Obj = new \phpseclib\Math\BigInteger($dmq1, 256);
+        $iqmpObj = new \phpseclib\Math\BigInteger($iqmp, 256);
+
+        // Build the ASN.1 structure manually
+        $version = "\x02\x01\x00"; // INTEGER 0 (version)
+        $modulus = "\x02" . $this->encodeAsn1Length(strlen($n)) . $n;
+        $publicExponent = "\x02" . $this->encodeAsn1Length(strlen($e)) . $e;
+        $privateExponent = "\x02" . $this->encodeAsn1Length(strlen($d)) . $d;
+        $prime1 = "\x02" . $this->encodeAsn1Length(strlen($p)) . $p;
+        $prime2 = "\x02" . $this->encodeAsn1Length(strlen($q)) . $q;
+        $exponent1 = "\x02" . $this->encodeAsn1Length(strlen($dmp1)) . $dmp1;
+        $exponent2 = "\x02" . $this->encodeAsn1Length(strlen($dmq1)) . $dmq1;
+        $coefficient = "\x02" . $this->encodeAsn1Length(strlen($iqmp)) . $iqmp;
+
+        $sequence = $version . $modulus . $publicExponent . $privateExponent .
+                    $prime1 . $prime2 . $exponent1 . $exponent2 . $coefficient;
+        
+        $sequence = "\x30" . $this->encodeAsn1Length(strlen($sequence)) . $sequence;
+        
+        return "-----BEGIN RSA PRIVATE KEY-----\n" .
+            chunk_split(base64_encode($sequence), 64) .
+            "-----END RSA PRIVATE KEY-----";
+    }
+
+    private function encodeAsn1Length(int $length): string
+    {
+        if ($length < 128) {
+            return chr($length);
+        }
+        $bytes = [];
+        while ($length > 0) {
+            array_unshift($bytes, $length & 0xFF);
+            $length >>= 8;
+        }
+        return chr(0x80 | count($bytes)) . implode('', array_map('chr', $bytes));
+    }
+
+    private function validatePrivateKey(string $privateKey): bool
+    {
+        $rsa = new \phpseclib\Crypt\RSA();
+        return $rsa->loadKey($privateKey);
+    }
+
+    
 
 
 
 
 
+    /**
+     * for phpseclib v3
+     * 
+     * NEW: Method to extract public key from a private Base64 JWK string
+     */
+    // private function getPublicKeyFromPrivateJwk(string $base64Jwk): string
+    // {
+    //     $jwkJson = base64_decode($base64Jwk);
+    //     $jwk = json_decode($jwkJson, true);
 
-    // NEW: Method to extract public key from a private Base64 JWK string
+    //     if (!$jwk || !isset($jwk['n']) || !isset($jwk['e'])) {
+    //         throw new \Exception("Failed to decode JWK JSON or missing 'n' or 'e' for public key extraction.");
+    //     }
+
+    //     $n = $this->base64urlDecode($jwk['n']);
+    //     $e = $this->base64urlDecode($jwk['e']);
+
+    //     $rsa = RSA::loadPublicKey([
+    //         'n' => new \phpseclib3\Math\BigInteger($n, 256),
+    //         'e' => new \phpseclib3\Math\BigInteger($e, 256),
+    //     ]);
+
+    //     return $rsa->toString('PKCS1');
+    // }
+    //
+    //
+    //
+    /**
+     * for phpseclib v2
+     * 
+     * NEW: Method to extract public key from a private Base64 JWK string
+     */
     private function getPublicKeyFromPrivateJwk(string $base64Jwk): string
     {
         $jwkJson = base64_decode($base64Jwk);
         $jwk = json_decode($jwkJson, true);
 
         if (!$jwk || !isset($jwk['n']) || !isset($jwk['e'])) {
-            throw new \Exception("Failed to decode JWK JSON or missing 'n' or 'e' for public key extraction.");
+            throw new \Exception("Missing 'n' or 'e' for public key extraction.");
         }
 
         $n = $this->base64urlDecode($jwk['n']);
         $e = $this->base64urlDecode($jwk['e']);
 
-        $rsa = RSA::loadPublicKey([
-            'n' => new \phpseclib3\Math\BigInteger($n, 256),
-            'e' => new \phpseclib3\Math\BigInteger($e, 256),
+        $rsa = new \phpseclib\Crypt\RSA();
+        $rsa->loadKey([
+            'n' => new \phpseclib\Math\BigInteger($n, 256),
+            'e' => new \phpseclib\Math\BigInteger($e, 256),
         ]);
 
-        return $rsa->toString('PKCS1');
+        $rsa->setPublicKeyFormat(\phpseclib\Crypt\RSA::PUBLIC_FORMAT_PKCS1);
+
+        return $rsa->getPublicKey(); // PEM string
     }
-
-
-
-
+    //
+    //
     // Example usage:
     public function publicKeyValue()
     {
@@ -154,6 +393,27 @@ class FaydaService
             // Handle the exception appropriately.
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -188,6 +448,24 @@ class FaydaService
         Log::info('Storing Session ID: ' . session()->getId());
         Log::info('Storing code_verifier in session: ' . $this->codeVerifier . ', - - - - - ORIGINAL Session(code_verifier) = ' . session('code_verifier')); // both are similar
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

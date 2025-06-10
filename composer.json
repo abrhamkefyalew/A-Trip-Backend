@@ -14,7 +14,7 @@
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
         "lcobucci/jwt": "^5.5",
-        "phpseclib/phpseclib": "^3.0",
+        "phpseclib/phpseclib": "~2.0",
         "spatie/laravel-medialibrary": "^10.15",
         "staudenmeir/eloquent-has-many-deep": "^1.7",
         "web-token/jwt-framework": "^3.4",
