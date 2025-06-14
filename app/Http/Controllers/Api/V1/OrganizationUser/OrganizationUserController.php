@@ -23,9 +23,9 @@ class OrganizationUserController extends Controller
         $user = auth()->user();
         $organizationUser = OrganizationUser::find($user->id);
         
-        $organization = OrganizationUser::where('organization_id', $organizationUser->organization_id);
+        $organizationUsers = OrganizationUser::where('organization_id', $organizationUser?->organization_id);
         
-        $organizationData = $organization->with('vehicleName', 'vehicle', 'driver', 'contractDetail')->latest()->paginate(FilteringService::getPaginate($request));       // this get multiple orders of the organization
+        $organizationData = $organizationUsers->with('media', 'organization', 'address')->latest()->paginate(FilteringService::getPaginate($request));       // this get multiple organizationUser of the organization
 
         return OrganizationUserResource::collection($organizationData);
     }
