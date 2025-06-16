@@ -93,6 +93,13 @@ Route::get('/test-handler', function () {
 });
 
 
+Route::get('test-helper', function () {
+
+    $sluggedString = slugify_string("Café Déjà Vu! — Hello World 2025");
+
+    return $sluggedString;
+});
+
 
 
 //

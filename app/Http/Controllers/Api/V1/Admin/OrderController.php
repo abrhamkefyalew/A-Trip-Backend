@@ -200,13 +200,16 @@ class OrderController extends Controller
 
                 $organization = Organization::find($request['organization_id']);
 
-                if ($organization->is_approved !== 1) {
-                    return response()->json(['message' => 'this organization has been Unapproved, please approve the organization first to make an order'], 428); 
-                }
+                abort_if_inactive(Organization::find($request['organization_id']), 'Organization', $request['organization_id']);
+                abort_if_unapproved(Organization::find($request['organization_id']), 'Organization', $request['organization_id']);
 
-                if ($organization->is_active !== 1) {
-                    return response()->json(['message' => 'this organization is NOT Active, please activate the organization first to make an order.'], 428); 
-                }
+                // if ($organization->is_approved !== 1) {
+                //     return response()->json(['message' => 'this organization has been Unapproved, please approve the organization first to make an order'], 428); 
+                // }
+
+                // if ($organization->is_active !== 1) {
+                //     return response()->json(['message' => 'this organization is NOT Active, please activate the organization first to make an order.'], 428); 
+                // }
 
 
                 // Now do operations on each of the orders sent
