@@ -17,6 +17,9 @@ if (!function_exists('abort_if_inactive')) { // this if condition is to check = 
      */
     function abort_if_inactive(?Model $model, string $type, int|string $id): void
     {
+        // '! $model' = handles model deletion in during race condition in concurrency environment
+        //              i.e. if a model is deleted by another process after this execution is stated
+        //              // very low chance of happening
         if (! $model || $model?->is_active !== 1) {
             abort(422, "The {$type} with ID {$id} is NOT active.");
         }
@@ -38,6 +41,9 @@ if (!function_exists('abort_if_unapproved')) {
      */
     function abort_if_unapproved(?Model $model, string $type, int|string $id): void
     {
+        // '! $model' = handles model deletion in during race condition in concurrency environment
+        //              i.e. if a model is deleted by another process after this execution is stated
+        //              // very low chance of happening
         if (! $model || $model?->is_approved !== 1) {
             abort(422, "The {$type} with ID {$id} is NOT approved.");
         }
