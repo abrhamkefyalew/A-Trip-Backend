@@ -17,6 +17,8 @@ class DetectDevice
     public function handle(Request $request, Closure $next): Response
     {
 
+        // dd(auth()->user());
+
         $userAgent = $request->header('User-Agent');
         $deviceType = 'other'; // Default value
 

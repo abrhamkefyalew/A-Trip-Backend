@@ -73,7 +73,8 @@ use App\Http\Controllers\Api\V1\OrganizationUser\OrganizationUserController as O
 */
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+    return auth()->user();
+    // return $request->user();
 });
 
 
@@ -83,6 +84,9 @@ Route::get('check-ip', function () {
 
     \Illuminate\Support\Facades\Log::info($message);
 
+    
+    // return auth()?->guard()?->user();
+    // return auth()->user();
     return $message;
 });
 

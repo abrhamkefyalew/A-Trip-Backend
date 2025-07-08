@@ -2,6 +2,7 @@
 
 use App\Models\Invoice;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\V1\Admin\LogViewerLoginController;
 use App\Http\Controllers\Api\V1\OrganizationUser\InvoiceController as InvoiceForOrganizationController;
 
 /*
@@ -18,6 +19,10 @@ use App\Http\Controllers\Api\V1\OrganizationUser\InvoiceController as InvoiceFor
 Route::get('/', function () {
     return view('welcome');
 });
+
+
+
+
 
 
 
@@ -42,6 +47,37 @@ Route::get('web/v1/organization_user/invoices/pay_invoices/{invoice}', fn (Invoi
 
 
 Route::middleware('web')->group(function () {
+
+    // 1. Show the actual admin login form
+    // Show login form for Log Viewer
+    Route::get('/admin-login', [LogViewerLoginController::class, 'showLoginForm'])->name('admin.login');
+
+    // 2. Alias route 'login' that redirects to 'admin.login'
+    // Add alias so Laravel's auth redirect (e.g., route('login')) works properly
+    Route::get('/login', fn () => redirect()->route('admin.login'))->name('login');
+
+    // 3. Handle login form submission
+    // Process login form
+    Route::post('/admin-login', [LogViewerLoginController::class, 'login']);
+    
+
+    // Step 6: Add Logout Route (Optional)
+    // Add this in web.php if you want a logout button:
+    //
+    //      And update the blade to include a logout button if logged in.
+    //
+    //
+    // Route::post('/admin-logout', function (Request $request) {
+    //     Auth::guard('log_viewer_guard')->logout();
+    //     $request->session()->invalidate();
+    //     $request->session()->regenerateToken();
+    //     return redirect('/admin-login');
+    // })->name('admin.logout');
+
+
+
+    
+
     // FAYDA TEST ROUTE
     // Route::get('/fayda_test_open_route/fayda/redirect', [InvoiceForOrganizationController::class, 'redirect']); // for the OLD codes , NOT USED
     Route::get('/fayda_test_open_route/fayda/redirect', [InvoiceForOrganizationController::class, 'home']);

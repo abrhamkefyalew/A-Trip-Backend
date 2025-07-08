@@ -43,6 +43,8 @@ return [
         ],
 
 
+        /* // SHALL I ADD 'driver' => 'sanctum', for the following , PLEASE ABRHAM CHECK     */
+
         // I WILL DEFINE PROVIDERS BELOW FOR EACH GUARDS I DEFINE HERE
 
         // this is because i did not replace the laravel default User Model by my own Admin Model. i added my new Admin Model. 
@@ -67,6 +69,11 @@ return [
             'provider' => 'drivers',
         ],
 
+        // + New session guard for log viewer
+        'log_viewer_guard' => [
+            'driver' => 'session',
+            'provider' => 'admins',
+        ]
 
     ],
 
