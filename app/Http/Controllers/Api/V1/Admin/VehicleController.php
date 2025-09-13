@@ -366,6 +366,32 @@ class VehicleController extends Controller
                 ], Response::HTTP_CONFLICT);
             }
 
+            if (!is_null($vehicle->driver_id)) {
+                
+                // this works
+                // return response()->json([
+                //     'message' => 'Cannot delete the vehicle because it have a Driver associated with it.',
+                // ], 409);
+
+                // this also works
+                return response()->json([
+                    'message' => 'Cannot delete the vehicle because it have a Driver associated with it.'
+                ], Response::HTTP_CONFLICT);
+            }
+
+            if (!is_null($vehicle->supplier_id)) {
+                
+                // this works
+                // return response()->json([
+                //     'message' => 'Cannot delete the vehicle because it have a Supplier associated with it.',
+                // ], 409);
+
+                // this also works
+                return response()->json([
+                    'message' => 'Cannot delete the vehicle because it have a Supplier associated with it.'
+                ], Response::HTTP_CONFLICT);
+            }
+
             $vehicle->delete();
 
             return response()->json(true, 200);

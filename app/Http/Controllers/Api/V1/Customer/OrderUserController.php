@@ -3,11 +3,16 @@
 namespace App\Http\Controllers\Api\V1\Customer;
 
 use Carbon\Carbon;
+use App\Models\Driver;
+use App\Models\Vehicle;
+use App\Jobs\SendSmsJob;
 use App\Models\Customer;
+use App\Models\Supplier;
 use App\Models\OrderUser;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Services\Api\V1\FilteringService;
 use App\Http\Requests\Api\V1\CustomerRequests\StoreOrderUserRequest;
@@ -141,13 +146,74 @@ class OrderUserController extends Controller
                         'order_description' => $requestData['order_description'],
 
                         'with_driver' => (int) (isset($requestData['with_driver']) ? $requestData['with_driver'] : 0),
-                        'with_fuel' => (int) (isset($requestData['with_fuel']) ? $requestData['with_fuel'] : 0),
-                        'periodic' => (int) (isset($requestData['periodic']) ? $requestData['periodic'] : 0),
+                        'with_fuel' => 0,
+                        'periodic' => 0,
 
                     ]);
 
                     $orderIds[] = $orderUser->id;
 
+
+                    // send SMS to the vehicle owners that holds the specific_vehicle_name_id this order requires
+                    if ($requestData['with_driver'] == 0) {
+
+                        $supplierIds = Vehicle::where('vehicle_name_id', $requestData['vehicle_name_id'])
+                            ->whereNotNull('supplier_id') // Ensures NULLs are not included
+                            ->pluck('supplier_id')
+                            ->unique();
+
+                        $phoneNumbersOfSuppliers = Supplier::whereIn('id', $supplierIds)->pluck('phone_number');
+
+
+                        // the below code is the optimized version of the above
+                        // 
+                        // $phoneNumbersOfSuppliers = Supplier::whereHas('vehicles', function ($query) use ($requestData['vehicle_name_id']) {
+                        //     $query->where('vehicle_name_id', $requestData['vehicle_name_id']);
+                        // })->pluck('phone_number')->unique();
+                        
+
+                        try {
+                            foreach ($phoneNumbersOfSuppliers as $phoneNumber) {
+                                // Dispatch SMS job for each phone number
+                                SendSmsJob::dispatch($phoneNumber, 'Adiamat Vehicle Rental: there is an order with your vehicle. Needed Vehicle: ' . $requestData['vehicle_name_id'])
+                                    ->onQueue('sms');
+                            }
+                        } catch (\Throwable $e) {
+                            // Log the exception or handle it as needed
+                            Log::error("Failed to dispatch SMS job: " . $e->getMessage());
+                        }
+
+                        Log::info("SMS job dispatched successfully to: $phoneNumber for Vehicle: " . $requestData['vehicle_name_id']);
+                    }
+                    else if ($requestData['with_driver'] == 1) {
+
+                        $driverIds = Vehicle::where('vehicle_name_id', $requestData['vehicle_name_id'])
+                            ->whereNotNull('driver_id') // Ensures NULLs are not included
+                            ->pluck('driver_id');
+
+                        $phoneNumbersOfDrivers = Driver::whereIn('id', $driverIds)->pluck('phone_number');
+
+
+                        // the below code is the optimized version of the above
+                        // 
+                        // $phoneNumbersOfDrivers = Driver::whereHas('vehicles', function ($query) use ($requestData['vehicle_name_id']) {
+                        //     $query->where('vehicle_name_id', $requestData['vehicle_name_id']);
+                        // })->pluck('phone_number');
+                        
+
+                        try {
+                            foreach ($phoneNumbersOfDrivers as $phoneNumber) {
+                                // Dispatch SMS job for each phone number
+                                SendSmsJob::dispatch($phoneNumber, 'Adiamat Vehicle Rental: there is an order with your vehicle. Needed Vehicle: ' . $requestData['vehicle_name_id'])
+                                    ->onQueue('sms');
+                            }
+                        } catch (\Throwable $e) {
+                            // Log the exception or handle it as needed
+                            Log::error("Failed to dispatch SMS job: " . $e->getMessage());
+                        }
+
+                        Log::info("SMS job dispatched successfully to: $phoneNumber for Vehicle: " . $requestData['vehicle_name_id']);
+                    }
 
 
                 }

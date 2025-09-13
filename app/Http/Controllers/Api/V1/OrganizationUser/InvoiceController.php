@@ -7,6 +7,7 @@ use App\Models\Invoice;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Services\FaydaService;
 use Illuminate\Validation\Rule;
 use App\Models\OrganizationUser;
 use Illuminate\Support\Facades\DB;
@@ -1224,6 +1225,130 @@ class InvoiceController extends Controller
 
     }
 
+
+
+    /*
+
+    FAYDA Controler for the OLder services FaydaServiceTwo - FaydaSericeSix (i.e. TWO - SIX)
+
+    public function redirect(FaydaService $fayda) 
+    {
+       
+        return redirect()->away($fayda->getAuthorizationUrl());
+        
+
+    }
+
+
+    
+
+
+    public function callback(Request $request, FaydaService $fayda)
+    {
+        $code = $request->query('code');
+        $error = $request->query('error');
+
+        if ($error) {
+            return response()->json(['error' => $error, 'description' => $request->query('error_description')], 400);
+        }
+
+        if (!$code) {
+            return response()->json(['error' => 'Authorization code missing'], 400);
+        }
+
+        try {
+            $tokenResponse = $fayda->getToken($code);
+            $accessToken = $tokenResponse['access_token'] ?? null;
+
+            if (!$accessToken) {
+                return response()->json(['error' => 'No access token received'], 500);
+            }
+
+            $userInfo = $fayda->getUserInfo($accessToken);
+
+            // Save to session or DB as needed
+            // session(['fayda_user' => $userInfo]);
+
+            return response()->json([
+                'token' => $tokenResponse,
+                'user' => $userInfo,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Callback failed', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+
+    // public function callback(Request $request, FaydaService $fayda)
+    // {
+    //     $code = $request->query('code');
+    //     if (!$code) {
+    //         return response()->json(['error' => 'Missing authorization code'], 400);
+    //     }
+
+    //     $token = $fayda->getToken($code);
+    //     if (!isset($token['access_token'])) {
+    //         return response()->json(['error' => 'Failed to retrieve token', 'details' => $token], 400);
+    //     }
+
+    //     $user = $fayda->getUserInfo($token['access_token']);
+    //     return response()->json($user);
+    // }
+
+    */
+
+
+
+
+
+    protected $faydaService;
+
+    public function __construct(FaydaService $faydaService)
+    {
+        $this->faydaService = $faydaService;
+    }
+
+    public function home(Request $request)
+    {
+        return $this->faydaService->home($request);
+    }
+
+    public function callback(Request $request)
+    {
+        return $this->faydaService->callback($request);
+    }
+
+
+
+
+
+
+
+    public function testTelebirr_sign___for_seregela_____OpenAPI__applyH5Token() 
+    {
+        $teleBirrOrganizationPaymentService = new TeleBirrOrganizationPaymentService();
+        $valuePayment = $teleBirrOrganizationPaymentService->justForTest_toTestSign____TEST_For_seregela_____OpenAPI__applyH5Token(); // SampleTitle is the InvoiceCode
+
+        return $valuePayment; 
+
+    }
+
+    public function testTelebirr_sign___for_seregela_____OpenAPI__authToken()
+    {
+        $teleBirrOrganizationPaymentService = new TeleBirrOrganizationPaymentService();
+        $valuePayment = $teleBirrOrganizationPaymentService->justForTest_toTestSign____TEST_For_seregela_____OpenAPI__authToken(); // SampleTitle is the InvoiceCode
+
+        return $valuePayment; 
+    }
+
+    public function testTelebirr_sign___for_seregela_____OpenAPI__createOrder() 
+    {
+        $teleBirrOrganizationPaymentService = new TeleBirrOrganizationPaymentService();
+        $valuePayment = $teleBirrOrganizationPaymentService->justForTest_toTestSign____TEST_For_seregela_____OpenAPI__createOrder(); // SampleTitle is the InvoiceCode
+
+        return $valuePayment; 
+
+    }
 
     /**
      * Store a newly created resource in storage.

@@ -29,5 +29,8 @@ return [
     'privateKey' => env('TELEBIRR_SUPER_APP_PRIVATE_KEY'),
     'privateKey_testing' => env('TELEBIRR_SUPER_APP_PRIVATE_KEY_TESTING'),
 
+    'privateKey___test_for_seregela' => env('TELEBIRR_SUPER_APP_PRIVATE_KEY___TEST_FOR_SEREGELA'),
+    'privateKey___test_for_seregela_production' => env('TELEBIRR_SUPER_APP_PRIVATE_KEY___TEST_FOR_SEREGELA_PRODUCTION'),
+
 
 ];

@@ -186,7 +186,7 @@ class FilteringService
 
         // abrham check this code
         // if (!is_numeric($request->input('paginate'))) {
-        //     // the code here is to check if the paginate variable is not numeric , i.e if alphabet is sent like paginate = "oeir".    it should return an corrective ERROR // , 
+        //     // the code here is to check if the paginate variable is not numeric , i.e if alphabet is sent like paginate = "oeir".    it should return a corrective ERROR // , 
         //     return response()->json(['message' => 'The paginate variable should be an integer.'], 400);
         // }
 

@@ -73,9 +73,36 @@ use App\Http\Controllers\Api\V1\OrganizationUser\OrganizationUserController as O
 */
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+    return auth()->user();
+    // return $request->user();
 });
 
+
+
+Route::get('check-ip', function () {
+    $message = "Check IP: - request came from ip (IP from request): - \n - using DEFAULT IP CHECKER (From Laravel Helper function) = " . request()->ip() . " ,   \n - using CUSTOM IP CHECKER (From New function) = " . \App\Services\AppService::getIp();
+
+    \Illuminate\Support\Facades\Log::info($message);
+
+    
+    // return auth()?->guard()?->user();
+    // return auth()->user();
+    return $message;
+});
+
+
+
+Route::get('/test-handler', function () {
+    return get_class(app()->make(Illuminate\Contracts\Debug\ExceptionHandler::class));
+});
+
+
+Route::get('test-helper', function () {
+
+    $sluggedString = slugify_string("Café Déjà Vu! — Hello World 2025");
+
+    return $sluggedString;
+});
 
 
 
@@ -224,6 +251,7 @@ Route::prefix('v1')->group(function () {
                     Route::get('/', [VehicleController::class, 'show']);
                     Route::put('/', [VehicleController::class, 'update']);
                     Route::delete('/', [VehicleController::class, 'destroy']);
+                    Route::post('/restore', [VehicleController::class, 'restore']);
                 }); 
             });
 
@@ -955,6 +983,20 @@ Route::prefix('v1')->group(function () {
             Route::get('/pay_invoices_test_open_route_boa', [InvoiceForOrganizationController::class, 'testboa']);
             Route::get('/pay_invoices_test_open_route_telebirr_apply_fabric_token', [InvoiceForOrganizationController::class, 'testTelebirrApplyFabricToken']);
             Route::get('/pay_invoices_test_open_route_telebirr', [InvoiceForOrganizationController::class, 'testTelebirr']);
+
+
+
+
+
+
+            //
+            Route::get('/pay_invoices_test_open_route_telebirr-test-seregela-OpenAPI_____OpenAPI__applyH5Token', [InvoiceForOrganizationController::class, 'testTelebirr_sign___for_seregela_____OpenAPI__applyH5Token']);
+
+            Route::get('/pay_invoices_test_open_route_telebirr-test-seregela-OpenAPI_____OpenAPI__authToken', [InvoiceForOrganizationController::class, 'testTelebirr_sign___for_seregela_____OpenAPI__authToken']);
+
+            Route::get('/pay_invoices_test_open_route_telebirr-test-seregela-OpenAPI_____OpenAPI__createOrder', [InvoiceForOrganizationController::class, 'testTelebirr_sign___for_seregela_____OpenAPI__createOrder']);
+
+
 
         // initiate payment test B to C (B2C)
             Route::get('/pay_invoice_test_open_route_telebirr_b2c', [InvoiceVehicleController::class, 'testTelebirrB2C']);

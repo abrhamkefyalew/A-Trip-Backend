@@ -120,7 +120,7 @@ class BidController extends Controller
 
             // $orderUsers = OrderUser::where('vehicle_id', $bid->vehicle_id)->orWhere('status', OrderUser::ORDER_STATUS_SET)->orWhere('status', OrderUser::ORDER_STATUS_START)->get(); // this may NOT work
             $orderUsers = OrderUser::where('vehicle_id', $bid->vehicle_id)
-                ->whereIn('status', [OrderUser::ORDER_STATUS_SET, OrderUser::ORDER_STATUS_START])
+                ->whereIn('status', [OrderUser::ORDER_STATUS_START])
                 ->get();
 
             if (!$orderUsers->isEmpty()) {
@@ -201,9 +201,9 @@ class BidController extends Controller
 
 
             // calculate the price_vehicle_payment.
-            //      // calculate DAILY price of the bid for the orderUser. and then calculate the vehicle payment PERCENT of the the DAILY_price_vehicle_payment for the parent order of this accepted bid. because PR asking is done using daily price , we need to make it suitable
+            //      // calculate the vehicle payment PERCENT of the the DAILY_price_vehicle_payment portion for the parent order of this accepted bid. because PR asking is done using daily price , we need to make it suitable
             //
-            //      // since the $bid->price_total is entered as total price, we must calculate and get the 'price_vehicle_payment' to be PER DAY, // we do this because - to make 'price_vehicle_payment' suitable for PR asking (while supplier asks PR for his vehicle)
+            //      // since the $bid->price_total is entered as DAILY price, we must calculate and get the 'price_vehicle_payment' portion from that daily price (i.e. $bid->price_total)
             //
             // orderUser end_date // from the order_users table
             $orderUserEndDate = Carbon::parse($orderUser->end_date); // because we need this for calculation we removed the toDateString   
@@ -218,9 +218,9 @@ class BidController extends Controller
             $differenceInDaysPlusStartDate = $differenceInDays + 1;                
             //
             //
-            $priceTotalFromBid = (int) $bid->price_total;
+            $bid_DailyPrice_For_OrderUser = (int) $bid->price_total;     // this is daily price
 
-            $dailyPriceCalculatedFromBid = $priceTotalFromBid / $differenceInDaysPlusStartDate;
+            $bid_TotalPrice_For_OrderUser = $bid_DailyPrice_For_OrderUser * $differenceInDaysPlusStartDate;
 
             $constant = Constant::where('title', Constant::ORDER_USER_VEHICLE_PAYMENT_PERCENT)->first();
             //
@@ -242,7 +242,7 @@ class BidController extends Controller
             $orderUserVehiclePaymentPercentConstant = $constant->percent_value;
             $vehiclePaymentMultiplierConstant = ((int) $orderUserVehiclePaymentPercentConstant) / 100;
 
-            $dailyPortionOfVehiclePaymentPrice_CalculatedFromBid = $dailyPriceCalculatedFromBid * $vehiclePaymentMultiplierConstant;
+            $dailyPortionOfVehiclePaymentPrice_CalculatedFromBid = $bid_DailyPrice_For_OrderUser * $vehiclePaymentMultiplierConstant;
 
 
 
@@ -256,7 +256,7 @@ class BidController extends Controller
                 'vehicle_id' => $bid->vehicle_id,
                 'driver_id' => $driverId,
                 'supplier_id' => $bid->vehicle->supplier_id,
-                'price_total' => $bid->price_total, // this one is stored as PRICE TOTAL of all days of the order duration
+                'price_total' => $bid_TotalPrice_For_OrderUser, // this one is stored as PRICE TOTAL of all days of the order duration
                 'price_vehicle_payment' => $dailyPortionOfVehiclePaymentPrice_CalculatedFromBid, // this one is stored as daily price
             ]);
             //
@@ -416,7 +416,7 @@ class BidController extends Controller
 
             // $orderUsers = OrderUser::where('vehicle_id', $bid->vehicle_id)->orWhere('status', OrderUser::ORDER_STATUS_SET)->orWhere('status', OrderUser::ORDER_STATUS_START)->get(); // this may NOT work
             $orderUsers = OrderUser::where('vehicle_id', $bid->vehicle_id)
-                ->whereIn('status', [OrderUser::ORDER_STATUS_SET, OrderUser::ORDER_STATUS_START])
+                ->whereIn('status', [OrderUser::ORDER_STATUS_START])
                 ->get();
 
             if (!$orderUsers->isEmpty()) {
@@ -463,17 +463,18 @@ class BidController extends Controller
             }
 
 
-            if ($bid->vehicle->with_driver !== $bid->orderUser->with_driver) {
+            // if ($bid->vehicle->with_driver !== $bid->orderUser->with_driver) {
 
-                if (($bid->vehicle->with_driver === 1) && ($bid->orderUser->with_driver === 0)) {
-                    return response()->json(['message' => 'the bid can not be selected. Because the parent order does not need a driver and the vehicle in the bid sends the vehicle with driver'], 422);
-                } else if (($bid->vehicle->with_driver === 0) && ($bid->orderUser->with_driver === 1)) {
+            //     if (($bid->vehicle->with_driver === 1) && ($bid->orderUser->with_driver === 0)) {
+            //         return response()->json(['message' => 'the bid can not be selected. Because the parent order does not need a driver and the vehicle in the bid sends the vehicle with driver'], 422);
+            //     } 
+                /* else */ if (($bid->vehicle->with_driver === 0) && ($bid->orderUser->with_driver === 1)) {
                     return response()->json(['message' => 'the bid can not be selected. Because the order needs vehicle with a driver and the vehicle in the bid does not provide a driver'], 422);
                 }
 
 
-                return response()->json(['message' => 'the vehicle with_driver value is not equal with that of the order requirement.'], 422);
-            }
+            //     return response()->json(['message' => 'the vehicle with_driver value is not equal with that of the order requirement.'], 422);
+            // }
 
             // this if is important and should be right here 
             // this if should NOT be nested in any other if condition // this if should be independent and done just like this  // this if should be checked independently just like i did it right here
@@ -495,8 +496,27 @@ class BidController extends Controller
             }
 
 
-            // calculate the price_vehicle_payment percent for the parent order of this accepted bid
-            $priceTotalFromBid = (int) $bid->price_total;
+            // calculate the price_vehicle_payment.
+            //      // calculate the vehicle payment PERCENT of the the DAILY_price_vehicle_payment portion for the parent order of this accepted bid. because PR asking is done using daily price , we need to make it suitable
+            //
+            //      // since the $bid->price_total is entered as DAILY price, we must calculate and get the 'price_vehicle_payment' portion from that daily price (i.e. $bid->price_total)
+            //
+            // orderUser end_date // from the order_users table
+            $orderUserEndDate = Carbon::parse($orderUser->end_date); // because we need this for calculation we removed the toDateString   
+            // orderUser start_date // from the order_users table 
+            $orderUserStartDate = Carbon::parse($orderUser->start_date); // because we need this for calculation we removed the toDateString
+
+            // the diffInDays method in Carbon accurately calculates the difference in days between two dates, considering the specific dates provided, including the actual number of days in each month and leap years. 
+            // It does not assume all months have a fixed number of days like 30 days.
+            $differenceInDays = $orderUserEndDate->diffInDays($orderUserStartDate);
+
+            // this means = (DATE DIFFERENCE + 1) // because the order start_date is entitled for payment also
+            $differenceInDaysPlusStartDate = $differenceInDays + 1;                
+            //
+            //
+            $bid_DailyPrice_For_OrderUser = (int) $bid->price_total;     // this is daily price
+
+            $bid_TotalPrice_For_OrderUser = $bid_DailyPrice_For_OrderUser * $differenceInDaysPlusStartDate;
 
             $constant = Constant::where('title', Constant::ORDER_USER_VEHICLE_PAYMENT_PERCENT)->first();
             //
@@ -518,7 +538,7 @@ class BidController extends Controller
             $orderUserVehiclePaymentPercentConstant = $constant->percent_value;
             $vehiclePaymentMultiplierConstant = ((int) $orderUserVehiclePaymentPercentConstant) / 100;
 
-            $vehiclePaymentPrice = $priceTotalFromBid * $vehiclePaymentMultiplierConstant;
+            $dailyPortionOfVehiclePaymentPrice_CalculatedFromBid = $bid_DailyPrice_For_OrderUser * $vehiclePaymentMultiplierConstant;
 
 
 
@@ -532,8 +552,8 @@ class BidController extends Controller
                 'vehicle_id' => $bid->vehicle_id,
                 'driver_id' => $driverId,
                 'supplier_id' => $bid->vehicle->supplier_id,
-                'price_total' => $bid->price_total,
-                'price_vehicle_payment' => $vehiclePaymentPrice,
+                'price_total' => $bid_TotalPrice_For_OrderUser, // this one is stored as PRICE TOTAL of all days of the order duration
+                'price_vehicle_payment' => $dailyPortionOfVehiclePaymentPrice_CalculatedFromBid, // this one is stored as daily price
             ]);
             //
             if (!$success) {

@@ -234,9 +234,12 @@ class TeleBirrOrganizationPaymentService
         // dd($req);
         // dd(json_encode($req));
         return $req;
+
     }
 
 
+
+   
 
 
 
@@ -575,6 +578,247 @@ class TeleBirrOrganizationPaymentService
         return uniqid();
         // return "fcab0d2949e64a69a212aa83eab6ee1d";
     }
+
+
+
+
+     // this is NOT the part of telebirr, we added it to test
+     // THIS IS TO TEST SEREGELA Telebirr TEST (with TEST CREDENTIALs - - to TEST Seregela)
+     public function justForTest_toTestSign____TEST_For_seregela_____OpenAPI__applyH5Token()
+     {
+ 
+ 
+         // 1. OpenAPI=Postman Collection  = > sign the body of = = = = = applyH5Token
+         //
+         $data = [
+             "nonce_str" => "c257ce7147de4f9a813c95cb62b7a420",
+             "biz_content" => [
+                 "auth_identifier" => "251900003232",       // TEST            // Telebirr Test Phone (tele birr test phone from the super app) ----  original phone=251922092601  // i changed it because i get "consumer unregistered" - - - - USED FOR TEST of seregela
+                 // "auth_identifier" => "251912760322",    // PRODUCTION      // Telebirr John Phone                                           ----  original phone=251922092601  // i changed it because i get "consumer unregistered" - - - - USED FOR PRODUCTION of seregela
+                 "auth_type" => "1000",
+                 "appid" => "1386523295897607",          // TEST
+                 // "appid" => "974633775590701",              // PRODUCTION
+                 "resource_type" => "OpenId",
+                 "trade_type" => "InApp",
+                 "auth_merch_code" => "974056",          // TEST
+                 // "auth_merch_code" => "5065",               // PRODUCTION
+                 "auth_limit" => "5",
+                 "auth_identifier_type" => "01",
+                 "callback_info" => "123456",
+             ],
+             "method" => "payment.applyh5token",
+             "version" => "1.0",
+             "timestamp" => "1664529190758",
+             "app_code" => "974056",                   // TEST
+             // "app_code" => "5065",                        // PRODUCTION
+         ];
+
+
+        $data['sign'] = $this->sign___TEST($data, "SHA256WithRSA");
+        $data['sign_type'] = 'SHA256WithRSA';
+
+
+        return $data;
+
+
+        
+
+     }
+
+
+
+
+
+     
+     // this is NOT the part of telebirr, we added it to test
+     // THIS IS TO TEST SEREGELA Telebirr TEST (with TEST CREDENTIALs - - to TEST Seregela)
+     public function justForTest_toTestSign____TEST_For_seregela_____OpenAPI__authToken()
+     {
+ 
+ 
+         // 1. OpenAPI=Postman Collection  = > sign the body of = = = = = authToken 
+         //
+         $data = [
+            "nonce_str" => "5K8264ILTKCH16CQ2502SI8ZNMTM67VS",
+            "biz_content" => [
+                "access_token" => "InApp:a1289c3cdf452b9f02bfdf81d7e29d23731bc8fe308b28a2",
+                "appid" => "1386523295897607",       // TEST
+                // "appid" => "974633775590701",           // PRODUCTION
+                "resource_type" => "OpenId",
+                "trade_type" => "InApp",
+            ],
+            "method" => "payment.authtoken",
+            "version" => "1.0",
+            "app_code" => "974056",                     // TEST
+            // "app_code" => "5065",                       // PRODUCTION
+            "timestamp" => "1535166225",
+        ];
+        
+        
+
+        $data['sign'] = $this->sign___TEST($data, "SHA256WithRSA");
+        $data['sign_type'] = 'SHA256WithRSA';
+
+
+        return $data;
+
+
+        
+
+     }
+ 
+
+
+
+     // this is NOT the part of telebirr, we added it to test
+     // THIS IS TO TEST SEREGELA Telebirr TEST (with TEST CREDENTIALs - - to TEST Seregela)
+     public function justForTest_toTestSign____TEST_For_seregela_____OpenAPI__createOrder()
+     {
+ 
+ 
+         // 1. OpenAPI=Postman Collection  = > sign the body of = = = = = createOrder
+         //
+         $data = [
+            'nonce_str' => 'fcab0d2949e64a69a212aa83eab6ee1d',
+            'biz_content' => [
+                'trans_currency' => 'ETB',
+                'total_amount' => '1',
+                'merch_order_id' => '10001',
+                'appid' => '974633775590701',
+                'merch_code' => '5065',
+                'timeout_express' => '120m',
+                'trade_type' => 'InApp',
+                'notify_url' => 'https://www.baidu.com',
+                'title' => 'iphone1',
+                'business_type' => 'P2PTransfer',
+                'payee_identifier' => '',
+                'payee_identifier_type' => '01',
+                'payee_type' => '1000',
+            ],
+            'method' => 'payment.preorder',
+            'version' => '1.0',
+            'timestamp' => '1535166225',
+        ];
+        
+        
+
+        $data['sign'] = $this->sign___TEST($data, "SHA256WithRSA");
+        $data['sign_type'] = 'SHA256WithRSA';
+
+
+        return $data;
+
+
+        
+
+     }
+ 
+
+
+
+
+     private function sign___TEST($request, $signature_type)
+    {
+
+        $exclude_fields = array("sign", "sign_type", "header", "refund_info", "openType", "raw_request");
+        $data = $request;
+        ksort($data);
+        $stringApplet = '';
+        foreach ($data as $key => $values) {
+
+            if (in_array($key, $exclude_fields)) {
+                continue;
+            }
+
+            if ($key == "biz_content") {
+                foreach ($values as $value => $single_value) {
+                    if ($stringApplet == '') {
+                        $stringApplet = $value . '=' . $single_value;
+                    } else {
+                        $stringApplet = $stringApplet . '&' . $value . '=' . $single_value;
+                    }
+                }
+            } else {
+                if ($stringApplet == '') {
+                    $stringApplet = $key . '=' . $values;
+                } else {
+                    $stringApplet = $stringApplet . '&' . $key . '=' . $values;
+                }
+            }
+        }
+
+        $sortedString = $this->sortedString___TEST($stringApplet);
+
+        if ($signature_type === "SHA256WithRSA") {
+            return $this->SignWithRSA___TEST($sortedString);
+        }
+
+        if ($signature_type === "HmacSHA256") {
+            $sortedString = mb_convert_encoding($sortedString, 'UTF-8'); // optional but good practice
+            $sig = base64_encode(hash_hmac('sha256', $sortedString, config('telebirr-super-app.appSecret'), true));
+            return $sig;
+        }
+
+        
+    }
+
+    /**
+     * @Purpose: sorting string
+     *
+     * @Param: stringApplet|string
+     * @Return: 
+     */
+
+    private function sortedString___TEST($stringApplet)
+    {
+        $stringExplode = '';
+        $sortedArray = explode("&", $stringApplet);
+        sort($sortedArray);
+        foreach ($sortedArray as $x => $x_value) {
+            if ($stringExplode == '') {
+                $stringExplode = $x_value;
+            } else {
+                $stringExplode = $stringExplode . '&' . $x_value;
+            }
+        }
+
+        return $stringExplode;
+    }
+
+
+    public function SignWithRSA___TEST($data)
+    {
+        // requires package installation 
+        //          ~ v2.0   (import = use phpseclib3\Crypt\RSA)
+        //          // 
+        //          PUT this in COMPOSER    then do = composer update and composer install
+        //              phpseclib/phpseclib": "~2.0",
+        //
+        //
+        $rsa = new RSA();
+
+        $private_key_load = config('telebirr-super-app.privateKey___test_for_seregela');                     // TEST
+        // $private_key_load = config('telebirr-super-app.privateKey___test_for_seregela_production');             // PRODUCTION
+        
+        $private_key = $this->trimPrivateKey($private_key_load)[2];
+
+        if ($rsa->loadKey($private_key) != true) {
+            echo 'Error loading PrivateKey';
+
+            return;
+        }
+
+        $rsa->setHash('sha256');
+
+        $rsa->setMGFHash('sha256');
+
+        $signtureByte = $rsa->sign($data);
+
+        return base64_encode($signtureByte);
+    }
+     
+ 
+
 
 
 }

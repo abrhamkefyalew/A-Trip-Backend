@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\Order;
 use App\Models\Driver;
 use App\Models\Vehicle;
+use App\Jobs\SendSmsJob;
 use App\Models\Contract;
 use App\Models\Supplier;
 use Illuminate\Support\Str;
@@ -13,8 +14,10 @@ use App\Models\Organization;
 use Illuminate\Http\Request;
 use App\Models\ContractDetail;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Services\Api\V1\FilteringService;
+use App\Services\Api\V1\Filters\OrderFilterService;
 use App\Http\Resources\Api\V1\OrderResources\OrderResource;
 use App\Http\Requests\Api\V1\AdminRequests\StartOrderRequest;
 use App\Http\Requests\Api\V1\AdminRequests\StoreOrderRequest;
@@ -24,10 +27,35 @@ use App\Http\Requests\Api\V1\AdminRequests\CompleteOrderRequest;
 
 class OrderController extends Controller
 {
+
+
+    /**
+     * Display a listing of the resource.
+     * 
+     * USE THIS ONE 
+     * 
+     * // we are using Filtering service to do all filters
+     * 
+     */
+    public function index(Request $request)
+    {
+        $this->authorize('viewAny', Order::class);
+
+        $ordersBuilder = Order::query();
+        $ordersBuilder = OrderFilterService::applyOrderFilter($ordersBuilder, $request->all());
+
+        $orders = $ordersBuilder
+            ->with(['organization', 'vehicleName', 'vehicle', 'supplier', 'driver', 'contractDetail'])
+            ->latest()
+            ->paginate(FilteringService::getPaginate($request));
+
+        return OrderResource::collection($orders);
+    }
+
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function indexOld_Filter_Done_Here(Request $request)
     {
         $this->authorize('viewAny', Order::class);
 
@@ -172,13 +200,16 @@ class OrderController extends Controller
 
                 $organization = Organization::find($request['organization_id']);
 
-                if ($organization->is_approved !== 1) {
-                    return response()->json(['message' => 'this organization has been Unapproved, please approve the organization first to make an order'], 428); 
-                }
+                abort_if_inactive(Organization::find($request['organization_id']), 'Organization', $request['organization_id']);
+                abort_if_unapproved(Organization::find($request['organization_id']), 'Organization', $request['organization_id']);
 
-                if ($organization->is_active !== 1) {
-                    return response()->json(['message' => 'this organization is NOT Active, please activate the organization first to make an order.'], 428); 
-                }
+                // if ($organization->is_approved !== 1) {
+                //     return response()->json(['message' => 'this organization has been Unapproved, please approve the organization first to make an order'], 428); 
+                // }
+
+                // if ($organization->is_active !== 1) {
+                //     return response()->json(['message' => 'this organization is NOT Active, please activate the organization first to make an order.'], 428); 
+                // }
 
 
                 // Now do operations on each of the orders sent
@@ -316,6 +347,69 @@ class OrderController extends Controller
 
                     $orderIds[] = $order->id;
                     
+
+
+                    // send SMS to the vehicle owners that holds the specific_vehicle_name_id this order requires
+                    if ($contractDetail->with_driver == 0) {
+
+                        $supplierIds = Vehicle::where('vehicle_name_id', $contractDetail->vehicle_name_id)
+                            ->whereNotNull('supplier_id') // Ensures NULLs are not included
+                            ->pluck('supplier_id')
+                            ->unique();
+
+                        $phoneNumbersOfSuppliers = Supplier::whereIn('id', $supplierIds)->pluck('phone_number');
+
+
+                        // the below code is the optimized version of the above
+                        // 
+                        // $phoneNumbersOfSuppliers = Supplier::whereHas('vehicles', function ($query) use ($contractDetail) {
+                        //     $query->where('vehicle_name_id', $contractDetail->vehicle_name_id);
+                        // })->pluck('phone_number')->unique();
+                        
+
+                        try {
+                            foreach ($phoneNumbersOfSuppliers as $phoneNumber) {
+                                // Dispatch SMS job for each phone number
+                                SendSmsJob::dispatch($phoneNumber, 'Adiamat Vehicle Rental: there is an order with your vehicle. Needed Vehicle: ' . $contractDetail->vehicleName->vehicle_name)
+                                    ->onQueue('sms');
+                            }
+                        } catch (\Throwable $e) {
+                            // Log the exception or handle it as needed
+                            Log::error("Failed to dispatch SMS job: " . $e->getMessage());
+                        }
+
+                        Log::info("SMS job dispatched successfully to: $phoneNumber for Vehicle: " . $contractDetail->vehicleName->vehicle_name);
+                    }
+                    else if ($contractDetail->with_driver == 1) {
+
+                        $driverIds = Vehicle::where('vehicle_name_id', $contractDetail->vehicle_name_id)
+                            ->whereNotNull('driver_id') // Ensures NULLs are not included
+                            ->pluck('driver_id');
+
+                        $phoneNumbersOfDrivers = Driver::whereIn('id', $driverIds)->pluck('phone_number');
+
+
+                        // the below code is the optimized version of the above
+                        // 
+                        // $phoneNumbersOfDrivers = Driver::whereHas('vehicles', function ($query) use ($contractDetail) {
+                        //     $query->where('vehicle_name_id', $contractDetail->vehicle_name_id);
+                        // })->pluck('phone_number');
+                        
+
+                        try {
+                            foreach ($phoneNumbersOfDrivers as $phoneNumber) {
+                                // Dispatch SMS job for each phone number
+                                SendSmsJob::dispatch($phoneNumber, 'Adiamat Vehicle Rental: there is an order with your vehicle. Needed Vehicle: ' . $contractDetail->vehicleName->vehicle_name)
+                                    ->onQueue('sms');
+                            }
+                        } catch (\Throwable $e) {
+                            // Log the exception or handle it as needed
+                            Log::error("Failed to dispatch SMS job: " . $e->getMessage());
+                        }
+
+                        Log::info("SMS job dispatched successfully to: $phoneNumber for Vehicle: " . $contractDetail->vehicleName->vehicle_name);
+                    }
+
 
                     
                 }

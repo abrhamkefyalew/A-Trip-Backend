@@ -28,7 +28,7 @@ class DriverController extends Controller
             if (isset($request['phone_number_search'])) {
                 $phoneNumber = $request['phone_number_search'];
 
-                $drivers = $drivers->where('phone_number', $phoneNumber);
+                $drivers = $drivers->where('phone_number', 'like', '%'.$phoneNumber.'%');
             } 
             else {
                 return response()->json(['message' => 'Required parameter missing, Parameter missing or value not set.'], 400);
