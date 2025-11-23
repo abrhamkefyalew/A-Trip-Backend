@@ -60,6 +60,19 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_A9F8386F60E141FA910EEA2F896499AF }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_E3FC7B552C4C437B806DC915921927A9 }}
 
+
+      - name: Create Laravel storage directories
+        run: |
+          mkdir -p storage/app
+          mkdir -p storage/framework/cache
+          mkdir -p storage/framework/sessions
+          mkdir -p storage/framework/views
+          mkdir -p storage/logs
+          mkdir -p bootstrap/cache
+      
+      - name: Set permissions
+        run: chmod -R 775 storage bootstrap/cache
+
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
@@ -67,4 +80,5 @@ jobs:
           app-name: 'Trip'
           slot-name: 'Production'
           package: .
+
           
