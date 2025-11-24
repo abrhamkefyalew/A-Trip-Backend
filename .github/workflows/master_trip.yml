@@ -1,98 +1,76 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
-name: Deploy Laravel to Azure - Trip
+name: Build and Deploy Laravel to Azure
 
 on:
   push:
     branches:
       - master
-  workflow_dispatch:
+
+permissions:
+  id-token: write     # REQUIRED for Azure federated authentication
+  contents: read
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
+      # --------------------------
+      # PHP Setup & Composer Install
+      # --------------------------
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
+          extensions: mbstring, pdo, pdo_mysql, bcmath
 
       - name: Install Composer Dependencies
-        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+        run: |
+          composer install --no-dev --prefer-dist --optimize-autoloader
 
-      - name: Upload Artifact
+      # --------------------------
+      # Laravel folders
+      # --------------------------
+      - name: Create storage + bootstrap cache
+        run: |
+          mkdir -p storage/framework/{sessions,views,cache}
+          mkdir -p bootstrap/cache
+
+      # --------------------------
+      # Upload Artifact
+      # --------------------------
+      - name: Archive files
+        run: |
+          zip -r app.zip .
+
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: app
-          path: .
+          path: app.zip
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
+      # --------------------------
+      # Azure Login using Federated Credentials
+      # --------------------------
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-    steps:
-      - uses: actions/download-artifact@v4
+      # --------------------------
+      # Deploy to Azure Web App
+      # --------------------------
+      - name: Download artifact
+        uses: actions/download-artifact@v4
         with:
           name: app
 
-      - name: Login to Azure
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_D564056D927D452E843D2A7A0AE9488D }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_A9F8386F60E141FA910EEA2F896499AF }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_E3FC7B552C4C437B806DC915921927A9 }}
-
-      - name: Deploy to Azure Web App
+      - name: Deploy ZIP to Azure WebApp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: "Trip"
-          slot-name: "Production"
-          package: .
-
-      #########################################################
-      # AFTER DEPLOY — FIX LARAVEL IN AZURE APP SERVICE
-      #########################################################
-
-      - name: Fix Laravel App in Azure App Service
-        uses: azure/cli@v2
-        with:
-          inlineScript: |
-            echo "---- ENTERING CONTAINER ----"
-
-            az webapp ssh --name Trip --resource-group Trip --command "
-              echo '=== VERIFY PHP ==='
-              php -v
-
-              echo '=== VERIFY PHP-FPM ==='
-              ps aux | grep php-fpm
-
-              cd /home/site/wwwroot
-
-              echo '=== CREATE STORAGE STRUCTURE ==='
-              mkdir -p storage/{app,logs}
-              mkdir -p storage/framework/{cache,sessions,views}
-              mkdir -p bootstrap/cache
-
-              echo '=== FIX PERMISSIONS ==='
-              chmod -R 775 storage bootstrap/cache
-
-              echo '=== REINSTALL VENDOR INSIDE AZURE ==='
-              composer install --no-interaction --prefer-dist --optimize-autoloader
-
-              echo '=== CREATE STORAGE LINK ==='
-              php artisan storage:link || true
-
-              echo '=== OPTIMIZE LARAVEL ==='
-              php artisan config:clear || true
-              php artisan cache:clear || true
-              php artisan route:clear || true
-              php artisan view:clear || true
-
-              php artisan optimize || true
-
-              echo '=== FIX COMPLETED ==='
-            "
+          app-name: "YOUR_APP_SERVICE_NAME"
+          package: "app.zip"
