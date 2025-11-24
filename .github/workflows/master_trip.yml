@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy PHP app to Azure Web App - Trip
+name: Deploy Laravel to Azure - Trip
 
 on:
   push:
@@ -12,8 +12,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read #This is required for actions/checkout
 
     steps:
       - uses: actions/checkout@v4
@@ -23,36 +21,24 @@ jobs:
         with:
           php-version: '8.1'
 
-      - name: Check if composer.json exists
-        id: check_files
-        uses: andstor/file-existence-action@v1
-        with:
-          files: 'composer.json'
+      - name: Install Composer Dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
-      - name: Run composer install if composer.json exists
-        if: steps.check_files.outputs.files_exists == 'true'
-        run: composer validate --no-check-publish && composer install --prefer-dist --no-progress
-
-
-      - name: Upload artifact for deployment job
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: php-app
+          name: app
           path: .
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
-    permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
 
     steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
-          name: php-app
-      
+          name: app
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -60,25 +46,53 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_A9F8386F60E141FA910EEA2F896499AF }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_E3FC7B552C4C437B806DC915921927A9 }}
 
-
-      - name: Create Laravel storage directories
-        run: |
-          mkdir -p storage/app
-          mkdir -p storage/framework/cache
-          mkdir -p storage/framework/sessions
-          mkdir -p storage/framework/views
-          mkdir -p storage/logs
-          mkdir -p bootstrap/cache
-      
-      - name: Set permissions
-        run: chmod -R 775 storage bootstrap/cache
-
-      - name: 'Deploy to Azure Web App'
+      - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
-        id: deploy-to-webapp
         with:
-          app-name: 'Trip'
-          slot-name: 'Production'
+          app-name: "Trip"
+          slot-name: "Production"
           package: .
 
-          
+      #########################################################
+      # AFTER DEPLOY — FIX LARAVEL IN AZURE APP SERVICE
+      #########################################################
+
+      - name: Fix Laravel App in Azure App Service
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            echo "---- ENTERING CONTAINER ----"
+
+            az webapp ssh --name Trip --resource-group Trip --command "
+              echo '=== VERIFY PHP ==='
+              php -v
+
+              echo '=== VERIFY PHP-FPM ==='
+              ps aux | grep php-fpm
+
+              cd /home/site/wwwroot
+
+              echo '=== CREATE STORAGE STRUCTURE ==='
+              mkdir -p storage/{app,logs}
+              mkdir -p storage/framework/{cache,sessions,views}
+              mkdir -p bootstrap/cache
+
+              echo '=== FIX PERMISSIONS ==='
+              chmod -R 775 storage bootstrap/cache
+
+              echo '=== REINSTALL VENDOR INSIDE AZURE ==='
+              composer install --no-interaction --prefer-dist --optimize-autoloader
+
+              echo '=== CREATE STORAGE LINK ==='
+              php artisan storage:link || true
+
+              echo '=== OPTIMIZE LARAVEL ==='
+              php artisan config:clear || true
+              php artisan cache:clear || true
+              php artisan route:clear || true
+              php artisan view:clear || true
+
+              php artisan optimize || true
+
+              echo '=== FIX COMPLETED ==='
+            "
